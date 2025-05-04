@@ -275,19 +275,19 @@
         height: 70px;
         width: 100%;
         border-radius: 10px;
-        padding: 10px 5px !important;
-        padding-right: 10px !important;
+        padding: 10px 5px;
+        padding-right: 10px;
         background-color: rgba(250, 162, 0, 0.207);
         border: 1px solid gray;
 
         i {
             font-size: 25px;
-            min-width: 50px;
+            width: 50px;
             height: 50px;
             display: flex;
             justify-content: center;
             align-items: center;
-            color: rgb(210, 0, 0) !important;
+            color: rgb(101, 101, 101) !important;
             border: 1px solid gray;
         }
 
@@ -298,6 +298,7 @@
             position: relative;
             z-index: 2;
             font-size: var(--text-titulo);
+            border: 1px solid gray;
 
             .detalle {
                 color: var(--cero-color);
@@ -312,6 +313,7 @@
                 /* Cambiado a 1 para estar detrás del input */
                 pointer-events: none;
                 /* Deshabilita los eventos del mouse */
+                border: 1px solid gray;
             }
 
             input {
@@ -322,6 +324,7 @@
                 background-color: transparent;
                 z-index: 2;
                 font-size: var(--text-titulo);
+                border: 1px solid gray;
             }
 
             input:focus {
