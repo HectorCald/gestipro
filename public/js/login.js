@@ -263,7 +263,7 @@ function crearFormularioRegistro() {
                 <i class='bx bx-building'></i>
                 <div class="input">
                     <p class="detalle">ID de la Empresa</p>
-                    <input class="empresa" type="text" placeholder=" " required>
+                    <input class="empresa" type="number" inputmode="numeric" pattern="[0-9]*" placeholder=" " required>
                 </div>
             </div>
             <div class="entrada">
