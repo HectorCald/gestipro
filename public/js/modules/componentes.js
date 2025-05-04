@@ -1,6 +1,6 @@
 export async function mostrarAnuncio() {
     const anuncio = document.querySelector('.anuncio');
-    anuncio.style.transform = 'translateY(100%)';
+    anuncio.style.transform = 'translateX(100%)';
     anuncio.style.display = 'flex';
     // Force reflow
     anuncio.offsetHeight;

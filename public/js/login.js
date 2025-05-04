@@ -1,7 +1,7 @@
 /* ==================== COMPONENTES ==================== */
-import {crearNotificacion, mostrarNotificacion} from './modules/componentes.js'
-import {mostrarAnuncio, ocultarAnuncio} from './modules/componentes.js'
-import {mostrarCarga, ocultarCarga} from './modules/componentes.js'
+import { crearNotificacion, mostrarNotificacion } from './modules/componentes.js'
+import { mostrarAnuncio, ocultarAnuncio } from './modules/componentes.js'
+import { mostrarCarga, ocultarCarga } from './modules/componentes.js'
 
 window.crearNotificacion = crearNotificacion
 window.mostrarNotificacion = mostrarNotificacion
@@ -139,13 +139,13 @@ function iniciarSesion() {
                 }
 
                 const data = await response.json();
-            
+
                 if (data.success) {
                     // Save credentials if remember me is checked
                     if (rememberMe) {
-                        localStorage.setItem('credentials', JSON.stringify({ 
-                            email: cleanEmail, 
-                            password 
+                        localStorage.setItem('credentials', JSON.stringify({
+                            email: cleanEmail,
+                            password
                         }));
                     } else {
                         localStorage.removeItem('credentials');
@@ -218,7 +218,7 @@ function inicializarApp() {
             crearFormularioRegistro();
         });
     }
-    
+
     if (moreInfoLink) {
         moreInfoLink.addEventListener('click', (e) => {
             e.preventDefault();
@@ -236,12 +236,19 @@ function crearFormularioRegistro() {
     const anuncio = document.querySelector('.anuncio');
     const registrationHTML = `
         <div class="contenido">
-            <h3>Registro</h3>
-            <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-times"></i></button>
+            <h1 class="bienvenida">Registrate en Gestipro</h1>
+            <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
             <div class="entrada">
                 <i class='bx bx-user'></i>
                 <div class="input">
-                    <p class="detalle">Nombre Completo</p>
+                    <p class="detalle">Nombre</p>
+                    <input class="nombre" type="text" placeholder=" " required>
+                </div>
+            </div>
+            <div class="entrada">
+                <i class='bx bx-user'></i>
+                <div class="input">
+                    <p class="detalle">Apellido</p>
                     <input class="nombre" type="text" placeholder=" " required>
                 </div>
             </div>
@@ -284,6 +291,7 @@ function crearFormularioRegistro() {
             </div>
             <button id="register-button" class="btn orange">Solicitar unirme</button>
         </div>
+        
     `;
 
     anuncio.innerHTML = registrationHTML;
@@ -297,18 +305,21 @@ function eventosFormularioRegistro() {
     const registerButton = document.getElementById('register-button');
     const inputs = document.querySelectorAll('.entrada .input input');
     const togglePasswordButtons = document.querySelectorAll('.toggle-password');
-    const nombreInput = document.querySelector('.nombre');
+    const nombreInput = document.querySelector('.entrada:nth-child(3) .input .nombre');
+    const apellidoInput = document.querySelector('.entrada:nth-child(4) .input .nombre');
     const emailInput = document.querySelector('.email-registro');
     const passwordInput = document.querySelector('.password-registro');
     const empresaInput = document.querySelector('.empresa');
 
 
-    nombreInput.addEventListener('input', (e) => {
-        const words = e.target.value.split(' ');
-        const capitalizedWords = words.map(word =>
-            word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-        );
-        e.target.value = capitalizedWords.join(' ');
+    [nombreInput, apellidoInput].forEach(input => {
+        input.addEventListener('input', (e) => {
+            const words = e.target.value.split(' ');
+            const capitalizedWords = words.map(word =>
+                word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+            );
+            e.target.value = capitalizedWords.join(' ');
+        });
     });
 
     const emailContainer = emailInput.parentElement;
@@ -410,112 +421,104 @@ function eventosFormularioRegistro() {
         requirementElements[2].querySelector('i').className = `fas ${requirements.numbers ? 'fa-check' : 'fa-times'}`;
     });
     registerButton.addEventListener('click', async () => {
-        
-    const nombre = nombreInput.value;
-    const email = emailInput.value;
-    const password = passwordInput.value;
-    const empresa = empresaInput.value; // New input for company name
+        const nombre = nombreInput.value.trim();
+        const apellido = apellidoInput.value.trim();
+        const nombreCompleto = `${nombre} ${apellido}`.trim();
+        const email = emailInput.value;
+        const password = passwordInput.value;
+        const empresa = empresaInput.value;
 
 
 
-    // Validate that all fields are complete
-    if (!nombre || !email || !password || !empresa) {
-        mostrarNotificacion({
-            message: 'Por favor, complete todos los campos',
-            type: 'warning',
-            duration: 3500
-        });
-        return;
-    }
-
-    // Validate email format
-    if (email.includes(' ')) {
-        mostrarNotificacion({
-            message: 'El usuario/email no debe contener espacios',
-            type: 'warning',
-            duration: 3500
-        });
-        return;
-    }
-
-    // Validate name (at least two words)
-    if (nombre.trim().split(' ').filter(word => word.length > 0).length < 2) {
-        mostrarNotificacion({
-            message: 'Por favor, ingrese nombre y apellido',
-            type: 'warning',
-            duration: 3500
-        });
-        return;
-    }
-
-    // Validate password requirements
-    const passwordRequirements = {
-        length: password.length >= 8,
-        letters: /[a-zA-Z]/.test(password),
-        numbers: /[0-9]/.test(password)
-    };
-
-    if (!Object.values(passwordRequirements).every(Boolean)) {
-        mostrarNotificacion({
-            message: 'La contraseña debe cumplir con todos los requisitos',
-            type: 'warning',
-            duration: 4000
-        });
-        return;
-    }
-
-    // Validate that the email does not exist
-    const validationIcon = emailInput.parentElement.querySelector('.validation-icon');
-    if (validationIcon && validationIcon.classList.contains('error')) {
-        mostrarNotificacion({
-            message: 'El email o usuario ya está registrado',
-            type: 'warning',
-            duration: 3500
-        });
-        return;
-    }
-
-    try {
-        mostrarCarga();
-        const response = await fetch('/register', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                nombre,
-                email,
-                password,
-                empresa // Include company name in the request
-            })
-        });
-
-        const data = await response.json();
-        if (data.success) {
+        // Validate that all fields are complete
+        if (!nombre || !apellido || !email || !password || !empresa) {
             mostrarNotificacion({
-                message: data.message || '¡Registro exitoso!',
-                type: 'success',
+                message: 'Por favor, complete todos los campos',
+                type: 'warning',
+                duration: 3500
+            });
+            return;
+        }
+
+        // Validate email format
+        if (email.includes(' ')) {
+            mostrarNotificacion({
+                message: 'El usuario/email no debe contener espacios',
+                type: 'warning',
+                duration: 3500
+            });
+            return;
+        }
+
+
+        // Validate password requirements
+        const passwordRequirements = {
+            length: password.length >= 8,
+            letters: /[a-zA-Z]/.test(password),
+            numbers: /[0-9]/.test(password)
+        };
+
+        if (!Object.values(passwordRequirements).every(Boolean)) {
+            mostrarNotificacion({
+                message: 'La contraseña debe cumplir con todos los requisitos',
+                type: 'warning',
                 duration: 4000
             });
-            ocultarAnuncio();
-        } else {
+            return;
+        }
+
+        // Validate that the email does not exist
+        const validationIcon = emailInput.parentElement.querySelector('.validation-icon');
+        if (validationIcon && validationIcon.classList.contains('error')) {
             mostrarNotificacion({
-                message: data.error || 'Error en el registro',
+                message: 'El email o usuario ya está registrado',
+                type: 'warning',
+                duration: 3500
+            });
+            return;
+        }
+
+        try {
+            mostrarCarga();
+            const response = await fetch('/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    nombre: nombreCompleto, // Enviamos el nombre completo
+                    email,
+                    password,
+                    empresa
+                })
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                mostrarNotificacion({
+                    message: data.message || '¡Registro exitoso!',
+                    type: 'success',
+                    duration: 4000
+                });
+                ocultarAnuncio();
+            } else {
+                mostrarNotificacion({
+                    message: data.error || 'Error en el registro',
+                    type: 'error',
+                    duration: 4000
+                });
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            mostrarNotificacion({
+                message: 'Error de conexión',
                 type: 'error',
                 duration: 4000
             });
+        } finally {
+            ocultarCarga();
         }
-    } catch (error) {
-        console.error('Error:', error);
-        mostrarNotificacion({
-            message: 'Error de conexión',
-            type: 'error',
-            duration: 4000
-        });
-    } finally {
-        ocultarCarga();
-    }
-});
+    });
     inputs.forEach(input => {
         input.addEventListener('focus', () => {
             const label = input.previousElementSibling;
@@ -546,8 +549,8 @@ function crearFormularioContraseña() {
     const anuncio = document.querySelector('.anuncio');
     const forgotPasswordHTML = `
         <div class="contenido">
-            <h3>Recuperar Contraseña</h3>
-            <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-times"></i></button>
+            <h1 class="bienvenida">Olvidaste tu contraseña?</h1>
+            <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
             <p class="subtitulo">Ingresa tu correo electrónico para recibir un código de verificación</p>
             <div class="entrada">
                 <i class='bx bx-envelope'></i>
@@ -725,8 +728,8 @@ function crearFormularioInfo() {
     const anuncio = document.querySelector('.anuncio');
     const companyInfoHTML = `
         <div class="contenido">
-            <h3>Información</h3>
-            <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-times"></i></button>
+            <h1 class="bienvenida">Información</h1>
+            <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
             <p>Desarrollamos sistemas a medida para optimizar tus procesos.</p>
             <p>Quieres agregar tu empresa a la comunidad de Gestipro?</p>
             <p>Contactanos.</p>
