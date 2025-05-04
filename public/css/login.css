@@ -94,11 +94,8 @@
                 transform: translateY(-50%);
                 transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
                 pointer-events: none;
-                will-change: transform, top, font-size, color, font-weight;
-                backface-visibility: hidden;
-                -webkit-backface-visibility: hidden;
-                -webkit-font-smoothing: antialiased;
-                -moz-osx-font-smoothing: grayscale;
+                transform-origin: left top;
+                will-change: transform, font-size;
             }
 
             input {
@@ -117,11 +114,10 @@
             }
 
             .input input:not(:placeholder-shown)~.detalle {
+                transform: translateY(0) scale(0.75);
                 top: 0;
-                font-size: 12px;
                 color: var(--tercer-color);
                 font-weight: 600;
-                transform: translateY(0);
             }
 
             button {
@@ -319,11 +315,8 @@
                 transform: translateY(-50%);
                 transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
                 pointer-events: none;
-                will-change: transform, top, font-size, color, font-weight;
-                backface-visibility: hidden;
-                -webkit-backface-visibility: hidden;
-                -webkit-font-smoothing: antialiased;
-                -moz-osx-font-smoothing: grayscale;
+                transform-origin: left top;
+                will-change: transform, font-size;
             }
 
             input {
@@ -342,11 +335,10 @@
             }
 
             .input input:not(:placeholder-shown)~.detalle {
+                transform: translateY(0) scale(0.75);
                 top: 0;
-                font-size: 12px;
                 color: var(--tercer-color);
                 font-weight: 600;
-                transform: translateY(0);
             }
 
             button {
