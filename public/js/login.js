@@ -141,7 +141,6 @@ function iniciarSesion() {
                 const data = await response.json();
 
                 if (data.success) {
-                    // Save credentials if remember me is checked
                     if (rememberMe) {
                         localStorage.setItem('credentials', JSON.stringify({
                             email: cleanEmail,
@@ -150,7 +149,7 @@ function iniciarSesion() {
                     } else {
                         localStorage.removeItem('credentials');
                     }
-
+                    
                     mostrarNotificacion({
                         message: '¡Inicio de sesión exitoso!',
                         type: 'success',
@@ -169,6 +168,7 @@ function iniciarSesion() {
                             duration: 5000  // Aumentamos la duración para este tipo de mensaje
                         });
                     } else {
+                        
                         mostrarNotificacion({
                             message: data.error || 'Credenciales incorrectas',
                             type: 'error',

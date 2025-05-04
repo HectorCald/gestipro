@@ -1,0 +1,19 @@
+@import'styles/estilos-base.css';
+@import'styles/componentes.css';
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+@import 'styles/nav.css';
+@import 'styles/home.css';
+
+.view{
+    display: flex;
+    height: calc(100vh - 60px);
+    margin-top: 60px;
+    width: 100vw;
+    background-color: var(--fondo);
+    justify-content: flex-start;
+    align-items: center;
+    flex-direction: column;
+    padding: 15px;
+    overflow-y: auto !important;
+}
+

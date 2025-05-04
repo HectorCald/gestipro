@@ -1,0 +1,137 @@
+.home-view{
+
+    .seccion1{
+        display: flex;
+        width: 100%;
+        min-height: fit-content;
+        background:none;
+        flex-direction: column;
+        overflow: hidden;
+
+        .subtitulo{
+            margin-bottom: 10px;
+        }
+
+        .funciones-rol{
+            display: flex;
+            height: 150px;
+            width: 100%;
+            gap: 10px;
+            overflow-x: auto;
+
+            .funcion{
+                background-color: white;
+                border-radius: 10px;
+                min-width: 130px;
+                max-width: 130px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                padding: 10px;
+                gap: 5px;
+
+                i{
+                    width: 50px;
+                    height: 50px;
+                    background-color: var(--fondo2);
+                    font-size: var(--text-2xl);
+                    color: var(--tercer-color);
+                    border-radius: 50%;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                }
+                .nombre{
+                    font-size: var(--text-subtitulo);
+                    font-weight: 500;
+                }
+                .detalle{
+                    font-size: var(--text-detalle);
+                    color: gray;
+                    text-align: center;
+                }
+            }
+        }
+    }
+    .seccion2{
+        display: flex;
+        width: 100%;
+        min-height: fit-content;
+        background:none;
+        flex-direction: column;
+        overflow: hidden;
+        gap: 10px;
+
+        .filtros-opciones{
+            display: flex;
+            width: 100%;
+            min-height: fit-content;
+            gap: 10px;
+            overflow-x: auto;
+
+            .btn-filtro{
+                width: fit-content;
+                height: fit-content;
+                padding: 10px 15px;
+                border: none;
+                border-radius: 10px;
+                font-size: var(--text-subtitulo);
+                background-color: white;
+                text-wrap: nowrap;
+            }
+            .btn-filtro.activado{
+                background: var(--cuarto-color);
+                color: white;
+            }
+        }
+        .aviso{
+            font-size: var(--text-subtitulo);
+            margin-left: 10px;
+        }
+        .registros{
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            min-height: 410px !important;
+            max-height: 410px !important;
+            gap: 10px;
+            overflow-y: auto !important;
+
+            .registro{
+                display: flex;
+                width: 100% !important;
+                height: 100px;
+                background-color: white;
+                border-radius: 10px;
+                padding: 10px 20px;
+                gap: 10px;
+                justify-content:space-between;
+                align-items: center;
+
+                .info{
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    gap: 5px;;
+                    font-size: var(--text-detalle);
+                }
+                .detalles{
+                    display: flex;
+                    flex-direction: column;
+                    font-size: var(--text-detalle);
+                }
+            }
+        }
+    }
+    .seccion3{
+        display: flex;
+        width: 100%;
+        min-height: fit-content;
+        background:none;
+        flex-direction: column;
+        overflow: hidden;
+
+        
+    }
+}
