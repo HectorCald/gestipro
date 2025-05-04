@@ -5,21 +5,40 @@ export async function mostrarAnuncio() {
     anuncio.offsetHeight;
     anuncio.classList.add('slide-in');
 
-    // Agregar estado al historial antes de mostrar el anuncio
+    let startX = 0;
+    let currentX = 0;
+
+    const handleTouchStart = (e) => {
+        startX = e.touches[0].clientX;
+    };
+
+    const handleTouchMove = (e) => {
+        currentX = e.touches[0].clientX;
+        if (startX - currentX > 100) {  // Si el deslizamiento es significativo
+            anuncio.removeEventListener('touchstart', handleTouchStart);
+            anuncio.removeEventListener('touchmove', handleTouchMove);
+            ocultarAnuncio();
+            history.back();
+        }
+    };
+
+    anuncio.addEventListener('touchstart', handleTouchStart);
+    anuncio.addEventListener('touchmove', handleTouchMove);
+
+    // Agregar estado al historial
     const currentState = history.state || {};
     window.history.pushState({ ...currentState, anuncioAbierto: true }, '');
 
     // Manejar el botón atrás
     const handlePopState = async () => {
-        if (history.state?.anuncioAbierto === undefined) {
-            const anuncioVisible = document.querySelector('.anuncio')?.style.display === 'flex';
-            if (anuncioVisible) {
-                await ocultarAnuncio();
-            }
+        const anuncioVisible = document.querySelector('.anuncio')?.style.display === 'flex';
+        if (anuncioVisible) {
+            await ocultarAnuncio();
+            anuncio.removeEventListener('touchstart', handleTouchStart);
+            anuncio.removeEventListener('touchmove', handleTouchMove);
         }
     };
 
-    // Remover listener anterior si existe y agregar el nuevo
     window.removeEventListener('popstate', handlePopState);
     window.addEventListener('popstate', handlePopState, { once: true });
 
@@ -30,6 +49,8 @@ export async function mostrarAnuncio() {
             if (e.target === anuncio) {
                 e.preventDefault();
                 await ocultarAnuncio();
+                anuncio.removeEventListener('touchstart', handleTouchStart);
+                anuncio.removeEventListener('touchmove', handleTouchMove);
                 history.back();
             }
         });
@@ -52,7 +73,6 @@ export async function ocultarAnuncio() {
     anuncio.style.display = 'none';
     anuncio.classList.remove('slide-out', 'slide-in');
 }
-
 
 export function mostrarCarga() {
     const cargaDiv = document.querySelector('.carga');
