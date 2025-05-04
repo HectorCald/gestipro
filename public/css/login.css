@@ -107,6 +107,7 @@
                 background-color: transparent;
                 z-index: 2;
                 font-size: var(--text-titulo);
+                width: 100%;
             }
 
             input:focus {
@@ -278,7 +279,6 @@
         padding: 10px 5px !important;
         padding-right: 10px !important;
         background-color: rgba(250, 162, 0, 0.207);
-        border: 1px solid gray;
 
         i {
             font-size: 25px;
@@ -288,7 +288,6 @@
             justify-content: center;
             align-items: center;
             color: rgb(101, 101, 101) !important;
-            border: 1px solid gray;
         }
 
         .input {
@@ -298,7 +297,6 @@
             position: relative;
             z-index: 2;
             font-size: var(--text-titulo);
-            border: 1px solid gray;
 
             .detalle {
                 color: var(--cero-color);
@@ -313,7 +311,6 @@
                 /* Cambiado a 1 para estar detrás del input */
                 pointer-events: none;
                 /* Deshabilita los eventos del mouse */
-                border: 1px solid gray;
             }
 
             input {
@@ -324,7 +321,6 @@
                 background-color: transparent;
                 z-index: 2;
                 font-size: var(--text-titulo);
-                border: 1px solid gray;
                 width: 100%;
             }
 
