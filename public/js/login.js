@@ -295,7 +295,6 @@ function crearFormularioRegistro() {
 function eventosFormularioRegistro() {
     crearNotificacion();
     const registerButton = document.getElementById('register-button');
-    const inputs = document.querySelectorAll('.entrada .input input');
     const togglePasswordButtons = document.querySelectorAll('.toggle-password');
     const nombreInput = document.querySelector('.nombre');
     const emailInput = document.querySelector('.email-registro');
