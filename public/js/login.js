@@ -522,23 +522,19 @@ function eventosFormularioRegistro() {
     inputs.forEach(input => {
         input.addEventListener('focus', () => {
             const label = input.previousElementSibling;
-            const icon = document.querySelector('.entrada i');
             label.style.top = '0';
             label.style.fontSize = '12px';
             label.style.color = 'var(--tercer-color)';
             label.style.fontWeight = '600';
-            icon.style.color = 'var(--tercer-color)';
         });
 
         input.addEventListener('blur', () => {
             const label = input.previousElementSibling;
-            const icon = document.querySelector('.entrada i');
             if (!input.value) {
                 label.style.top = '50%';
                 label.style.fontSize = 'var(--text-subtitulo)';
                 label.style.color = 'var(--cero-color)';
                 label.style.fontWeight = '400';
-                icon.style.color = 'var(--cero-color)';
             }
         });
     });

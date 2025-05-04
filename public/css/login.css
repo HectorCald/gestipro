@@ -94,6 +94,11 @@
                 transform: translateY(-50%);
                 transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
                 pointer-events: none;
+                will-change: transform, top, font-size, color, font-weight;
+                backface-visibility: hidden;
+                -webkit-backface-visibility: hidden;
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
             }
 
             input {
@@ -314,6 +319,11 @@
                 transform: translateY(-50%);
                 transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
                 pointer-events: none;
+                will-change: transform, top, font-size, color, font-weight;
+                backface-visibility: hidden;
+                -webkit-backface-visibility: hidden;
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
             }
 
             input {
