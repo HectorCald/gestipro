@@ -11,15 +11,17 @@ export async function mostrarAnuncio() {
 
     // Manejar el botón atrás
     const handlePopState = async () => {
-        const anuncioVisible = document.querySelector('.anuncio')?.style.display === 'flex';
-        if (anuncioVisible) {
-            await ocultarAnuncio();
+        if (history.state?.anuncioAbierto === undefined) {
+            const anuncioVisible = document.querySelector('.anuncio')?.style.display === 'flex';
+            if (anuncioVisible) {
+                await ocultarAnuncio();
+            }
         }
     };
 
     // Remover listener anterior si existe y agregar el nuevo
     window.removeEventListener('popstate', handlePopState);
-    window.addEventListener('popstate', handlePopState);
+    window.addEventListener('popstate', handlePopState, { once: true });
 
     // Solo agregamos el evento de clic si no es la selección inicial de empresa
     const isSpreadsheetSelection = anuncio.querySelector('#spreadsheet-select');
@@ -28,9 +30,7 @@ export async function mostrarAnuncio() {
             if (e.target === anuncio) {
                 e.preventDefault();
                 await ocultarAnuncio();
-                if (history.state?.anuncioAbierto) {
-                    history.back();
-                }
+                history.back();
             }
         });
 
