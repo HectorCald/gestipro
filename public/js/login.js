@@ -515,7 +515,7 @@ function eventosFormularioRegistro() {
         ocultarCarga();
     }
 });
-configuracionesEntrada();
+
 
 }
 
