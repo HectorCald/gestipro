@@ -84,7 +84,6 @@ function configuracionesEntrada() {
             label.style.fontSize = '12px';
             label.style.color = 'var(--tercer-color)';
             label.style.fontWeight = '600';
-            document.querySelector('.entrada i').style.color = 'var(--tercer-color)';
         });
 
         input.addEventListener('blur', () => {
