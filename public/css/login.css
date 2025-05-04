@@ -310,13 +310,16 @@
                 font-size: var(--text-subtitulo);
                 padding-block: 5px;
                 position: absolute;
-                top: 50%;
                 left: 0;
-                transform: translateY(-50%);
-                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                transform-origin: 0 0;
+                transform: translateY(20px);
+                /* Posición inicial */
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                    color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                    font-size 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                    font-weight 0.3s cubic-bezier(0.4, 0, 0.2, 1);
                 pointer-events: none;
-                transform-origin: left top;
-                will-change: transform, font-size;
+                will-change: transform;
             }
 
             input {
@@ -336,9 +339,9 @@
 
             .input input:not(:placeholder-shown)~.detalle {
                 transform: translateY(0) scale(0.75);
-                top: 0;
                 color: var(--tercer-color);
                 font-weight: 600;
+                font-size: 12px;
             }
 
             button {
