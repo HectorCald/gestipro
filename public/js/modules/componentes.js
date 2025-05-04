@@ -2,17 +2,35 @@ export async function mostrarAnuncio() {
     const anuncio = document.querySelector('.anuncio');
     anuncio.style.transform = 'translateX(100%)';
     anuncio.style.display = 'flex';
-    // Force reflow
     anuncio.offsetHeight;
     anuncio.classList.add('slide-in');
+
+    // Agregar estado al historial antes de mostrar el anuncio
+    const currentState = history.state || {};
+    window.history.pushState({ ...currentState, anuncioAbierto: true }, '');
+
+    // Manejar el botón atrás
+    const handlePopState = async () => {
+        const anuncioVisible = document.querySelector('.anuncio')?.style.display === 'flex';
+        if (anuncioVisible) {
+            await ocultarAnuncio();
+        }
+    };
+
+    // Remover listener anterior si existe y agregar el nuevo
+    window.removeEventListener('popstate', handlePopState);
+    window.addEventListener('popstate', handlePopState);
 
     // Solo agregamos el evento de clic si no es la selección inicial de empresa
     const isSpreadsheetSelection = anuncio.querySelector('#spreadsheet-select');
     if (!isSpreadsheetSelection) {
-        anuncio.addEventListener('click', (e) => {
+        anuncio.addEventListener('click', async (e) => {
             if (e.target === anuncio) {
                 e.preventDefault();
-                ocultarAnuncio();
+                await ocultarAnuncio();
+                if (history.state?.anuncioAbierto) {
+                    history.back();
+                }
             }
         });
 
@@ -24,15 +42,16 @@ export async function mostrarAnuncio() {
         }
     }
 }
+
 export async function ocultarAnuncio() {
     const anuncio = document.querySelector('.anuncio');
+    if (!anuncio || anuncio.style.display === 'none') return;
+    
     anuncio.classList.add('slide-out');
-    // Wait for animation to complete
     await new Promise(resolve => setTimeout(resolve, 300));
     anuncio.style.display = 'none';
     anuncio.classList.remove('slide-out', 'slide-in');
 }
-
 
 
 export function mostrarCarga() {
