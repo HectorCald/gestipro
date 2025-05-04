@@ -1,0 +1,354 @@
+@import'styles/estilos-base.css';
+@import'styles/componentes.css';
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+
+.container-login {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    height: 100vh;
+    width: 100%;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-radius: 10px;
+    font-family: 'Poppins', sans-serif;
+    padding: 20px;
+    gap: 10px;
+    overflow-y: auto;
+
+
+    .logo {
+        width: 150px;
+        height: 150px;
+        min-height: 150px;
+        border-radius: 50%;
+        background: linear-gradient(45deg, var(--tercer-color), var(--second-color));
+        padding: 15px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .logo img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        filter: brightness(0) invert(1);
+        /* Makes the SVG white */
+    }
+
+    .bienvenida {
+        font-size: var(--text-2xl);
+        background: linear-gradient(45deg, var(--tercer-color), var(--second-color));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        font-weight: 600;
+        margin-top: 10px;
+        margin: 0;
+    }
+
+    .titulo {
+        font-size: var(--text-titulo);
+        color: var(--cero-color);
+        font-weight: 400;
+        margin-bottom: 10px;
+    }
+
+    .entrada {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 70px;
+        width: 100%;
+        border-radius: 10px;
+        padding: 10px 5px;
+        padding-right: 10px;
+        background-color: rgba(250, 162, 0, 0.207);
+
+        i {
+            font-size: 25px;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: rgb(101, 101, 101) !important;
+        }
+
+        .input {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            position: relative;
+            z-index: 2;
+            font-size: var(--text-titulo);
+
+            .detalle {
+                color: var(--cero-color);
+                font-size: var(--text-subtitulo);
+                padding-block: 5px;
+                position: absolute;
+                top: 50%;
+                left: 0;
+                transform: translate(0, -50%);
+                transition: all 0.3s ease;
+                z-index: 1;
+                /* Cambiado a 1 para estar detrás del input */
+                pointer-events: none;
+                /* Deshabilita los eventos del mouse */
+            }
+
+            input {
+                border-radius: 5px;
+                min-height: 40px;
+                max-height: 40px;
+                border: none;
+                background-color: transparent;
+                z-index: 2;
+                font-size: var(--text-titulo);
+            }
+
+            input:focus {
+                padding: 5px;
+            }
+
+            .input input:not(:placeholder-shown)~.detalle {
+                top: 0;
+                font-size: 12px;
+                color: var(--tercer-color);
+                transform: translate(0, 0);
+            }
+
+            button {
+                border: none;
+                background: none;
+                position: absolute;
+                right: 0;
+                top: 50%;
+                transform: translate(0, -50%);
+                z-index: 3;
+
+                i {
+                    color: var(--tercer-color) !important;
+                    font-size: var(--text-superior);
+                }
+            }
+
+        }
+    }
+
+    .error {
+        color: var(--error);
+        font-size: var(--text-detalle);
+        display: none;
+        width: 100%;
+        text-align: left;
+    }
+
+    .check {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: var(--text-detalle);
+        width: 100%;
+        margin-bottom: 20px;
+
+        .checkbox {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+
+            input {
+                width: 15px;
+                height: 15px;
+            }
+
+            p {
+                color: var(--cero-color);
+            }
+        }
+
+        .olvido {
+            color: var(--tercer-color);
+            cursor: pointer;
+        }
+    }
+
+    .sin-cuenta {
+        font-size: var(--text-detalle);
+        color: var(--cero-color);
+
+        span {
+            color: var(--tercer-color);
+            cursor: pointer;
+        }
+    }
+
+    .carga {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.352);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        z-index: 10;
+        display: none;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: var(--tercer-color);
+        animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+}
+
+@media screen and (min-width: 768px) {
+    .container-login {
+        max-height: 650px;
+        max-width: 450px;
+    }
+
+}
+
+.anuncio {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.352);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 3;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    will-change: transform, opacity;
+
+    .contenido {
+        background-color: white;
+        border-radius: 10px;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        width: 92%;
+        max-width: 450px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        position: relative;
+        z-index: 1;
+
+        select {
+            border: none;
+            border-radius: 5px;
+            padding: 10px;
+            background-color: rgba(255, 195, 84, 0.29);
+
+            option {
+                background-color: white;
+            }
+        }
+    }
+    p{
+        font-size: var(--text-subtitulo);
+    }
+
+}
+
+.anuncio.slide-in {
+    transform: translateY(0) !important;
+    opacity: 1 !important;
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+}
+
+.anuncio.slide-out {
+    transform: translateY(100%) !important;
+    opacity: 0 !important;
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+}
+
+.anuncio .contenido {
+    transform: translateY(20px);
+    opacity: 1;
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+}
+
+.anuncio.slide-in .contenido {
+    transform: translateY(0);
+    opacity: 1;
+    transition-delay: 0.1s;
+}
+
+.campo-vertical {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    font-size: var(--text-detalle);
+    margin: 0;
+
+    .item {
+        margin: 2px 0;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+}
+
+.requirement.valid {
+    color: var(--success);
+}
+
+.requirement.invalid {
+    color: var(--error);
+}
+
+.requirement i {
+    width: 14px;
+}
+
+.entrada .input {
+    position: relative;
+}
+
+
+
+.entrada .input .validation-icon {
+    position: absolute !important;
+    right: 5px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    font-size: var(--text-subtitulo);
+    z-index: 3;
+}
+
+.entrada .input .validation-icon.success {
+    color: #4CAF50 !important;
+}
+
+.entrada .input .validation-icon.error {
+    color: #f44336 !important;
+}
+
+.entrada .input .validation-icon.warning {
+    color: #ff9800 !important;
+}
+
+.entrada .input .validation-icon.fa-spinner {
+    color: #FFC354 !important;
+}

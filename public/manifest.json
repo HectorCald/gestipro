@@ -1,0 +1,100 @@
+{
+  "name": "InnoPro",
+  "short_name": "InnoPro",
+  "description": "Sistema de gestión Damabrava",
+  "start_url": "/",
+  "display": "fullscreen",
+  "background_color": "#1a1a1a",
+  "theme_color": "#1a1a1a",
+  "form_factor": "wide",
+  "id": "InnoPro",
+  "orientation": "any",
+  "display_override": ["fullscreen", "standalone"],
+  "categories": ["productivity", "business"],
+  "prefer_related_applications": true,
+  
+  "storage": {
+    "clearOnUninstall": true,
+    "preferences": "clear",
+    "cache": "clear"
+  },
+  
+  "permissions": [
+    "storage",
+    "unlimitedStorage",
+    "clearSiteData",
+    "geolocation",
+    "webauthn" 
+  ],
+
+  "related_applications": [
+    {
+      "platform": "play",
+      "id": "app.vercel.app_produccion_db.twa",
+      "url": "https://play.google.com/store/apps/details?id=app.vercel.app_produccion_db.twa",
+      "uninstall_action": {
+        "clear_data": true,
+        "clear_cache": true,
+        "remove_shortcuts": true
+      }
+    }
+  ],
+
+  "android_package": "app.vercel.app_produccion_db.twa",
+  "play_store_data": {
+    "uninstall_behavior": {
+      "clear_app_data": true,
+      "clear_cache": true,
+      "remove_tasks": true
+    }
+  },
+
+  "screenshots": [
+    {
+      "src": "/screenshots/screenshot1.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Pantalla principal de InnoPro"
+    }
+  ],
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [],
+  "dir": "ltr",
+  "iarc_rating_id": "",
+  "scope": "/",
+  "protocol_handlers": [
+    {
+      "protocol": "web+innopro",
+      "url": "/%s"
+    }
+  ],
+  "edge_side_panel": {
+    "preferred_width": 400
+  }
+}

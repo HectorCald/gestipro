@@ -1,0 +1,109 @@
+@import'styles/estilos-base.css';
+.btn{
+    width: 100%;
+    height: 40px;
+    padding: 25px 0px;
+    font-size: var(--text-subtitulo);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-weight: 500;
+}
+.btn.orange{
+    background: linear-gradient(45deg, var(--tercer-color), var(--second-color));
+}
+.btn.gray{
+    background-color: var(--cero-color);
+}
+.btn.green{
+    background: linear-gradient(45deg, var(--success), var(--second-color));
+}
+.btn.close{
+    background: none;
+    color: var(--tercer-color);
+    position: absolute;
+    right: 20px;
+    top: -10px;
+    width: auto;
+    height: auto;
+    font-size: var(--text-superior);
+}
+
+
+
+
+.notification-container {
+    position: fixed;
+    top: 0; /* Cambiado de -100px a 0 */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 5;
+    width: 100%;
+    padding: 0 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.notification {
+    background-color: white;
+    border-radius: 8px;
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transform: translateY(-100%);
+    transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    cursor: grab;
+    position: relative; /* Añadido */
+    border-left: none;
+    font-size: var(--text-detalle);
+    width: 100%;
+    max-width: 450px;
+}
+
+.notification.dragging {
+    cursor: grabbing;
+    transition: none;
+}
+
+.notification.show {
+    transform: translateY(10px); /* Cambiado de 120px a 20px */
+}
+
+.notification.slide-right {
+    transform: translateX(400px);
+    opacity: 0;
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+}
+
+.notification.hide {
+    transform: translateY(-100%);
+    opacity: 0;
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+}
+
+.notification i {
+    font-size: var(--text-titulo);
+}
+
+.notification.success i {
+    color: #4CAF50;
+}
+
+.notification.error i {
+    color: #f44336;
+}
+
+.notification.warning i {
+    color: #ff9800;
+}
+
+.notification.info i {
+    color: #2196F3;
+}
