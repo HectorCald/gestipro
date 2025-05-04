@@ -268,6 +268,88 @@
     p{
         font-size: var(--text-subtitulo);
     }
+    .entrada {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 70px;
+        width: 100%;
+        border-radius: 10px;
+        padding: 10px 5px;
+        padding-right: 10px;
+        background-color: rgba(250, 162, 0, 0.207);
+
+        i {
+            font-size: 25px;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: rgb(101, 101, 101) !important;
+        }
+
+        .input {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            position: relative;
+            z-index: 2;
+            font-size: var(--text-titulo);
+
+            .detalle {
+                color: var(--cero-color);
+                font-size: var(--text-subtitulo);
+                padding-block: 5px;
+                position: absolute;
+                top: 50%;
+                left: 0;
+                transform: translate(0, -50%);
+                transition: all 0.3s ease;
+                z-index: 1;
+                /* Cambiado a 1 para estar detrás del input */
+                pointer-events: none;
+                /* Deshabilita los eventos del mouse */
+            }
+
+            input {
+                border-radius: 5px;
+                min-height: 40px;
+                max-height: 40px;
+                border: none;
+                background-color: transparent;
+                z-index: 2;
+                font-size: var(--text-titulo);
+            }
+
+            input:focus {
+                padding: 5px;
+            }
+
+            .input input:not(:placeholder-shown)~.detalle {
+                top: 0;
+                font-size: 12px;
+                color: var(--tercer-color);
+                transform: translate(0, 0);
+            }
+
+            button {
+                border: none;
+                background: none;
+                position: absolute;
+                right: 0;
+                top: 50%;
+                transform: translate(0, -50%);
+                z-index: 3;
+
+                i {
+                    color: var(--tercer-color) !important;
+                    font-size: var(--text-superior);
+                }
+            }
+
+        }
+    }
 
 }
 
