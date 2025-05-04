@@ -278,6 +278,7 @@
         padding: 10px 5px !important;
         padding-right: 10px !important;
         background-color: rgba(250, 162, 0, 0.207);
+        border: 1px solid gray;
 
         i {
             font-size: 25px;
@@ -287,6 +288,7 @@
             justify-content: center;
             align-items: center;
             color: rgb(210, 0, 0) !important;
+            border: 1px solid gray;
         }
 
         .input {
