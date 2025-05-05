@@ -471,7 +471,7 @@
             left: 0;
             right: 0;
             height: 40%;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.249);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -484,9 +484,12 @@
             }
         }
 
+        
+    }
+    @media screen and (min-width: 768px){
         &:hover .upload-overlay {
             height: 100%;
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(0, 0, 0, 0.26);
         }
     }
 }
