@@ -9,6 +9,7 @@ let usuarioInfo = {
 };
 async function obtenerUsuario() {
     try {
+        mostrarCarga();
         const response = await fetch('/obtener-usuario-actual');
         const data = await response.json();
         
