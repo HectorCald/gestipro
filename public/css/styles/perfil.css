@@ -12,13 +12,13 @@
         .detalles {
             .nombre {
                 font-size: var(--text-2xl);
-                line-height: 1;
+
             }
 
             .correo-usuario {
                 font-size: var(--text-subtitulo);
                 color: rgb(50, 50, 50);
-                line-height: 1;
+
             }
         }
 

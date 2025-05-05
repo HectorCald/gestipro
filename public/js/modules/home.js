@@ -196,7 +196,6 @@ function obtenerFunciones() {
 }
 
 
-
 export function crearHome() {
     const view = document.querySelector('.home-view');
     Promise.all([
@@ -220,12 +219,15 @@ function mostrarHome(view) {
     // Filtrar registros por el nombre del usuario actual en la columna J
     const registrosFiltrados = registrosProduccion.filter(registro => registro.user === usuarioInfo.email);
 
+    // Mostrar solo los últimos 10 registros
+    const registrosParaMostrar = registrosFiltrados.slice(-10);
+
     // Calcular los destacados
     const totalRegistros = registrosFiltrados.length;
     const verificados = registrosFiltrados.filter(registro => registro.fecha_verificacion).length;
     const noVerificados = totalRegistros - verificados;
 
-    const registrosHTML = registrosFiltrados.map(registro => {
+    const registrosHTML = registrosParaMostrar.map(registro => {
         const estado = registro.fecha_verificacion ? 'Verificado' : 'Pendiente';
         return `
             <div class="registro" data-id="${registro.id}">
@@ -290,24 +292,40 @@ function mostrarHome(view) {
             <div class="registros">
                 ${registrosHTML}
             </div>
+            ${totalRegistros > 10 ? '<button class="btn-cargar-mas">Cargar más</button>' : ''}
         </div>
     `;
 
     view.innerHTML = home;
     eventosHome();
-}
 
+    // Add event listener for "Load More" button
+    const loadMoreButton = document.querySelector('.btn-cargar-mas');
+    if (loadMoreButton) {
+        loadMoreButton.addEventListener('click', () => {
+            cargarMasRegistros(registrosFiltrados);
+        });
+    }
+}
 function eventosHome() {
     const estadoButtons = document.querySelectorAll('.filtros-opciones.estado .btn-filtro');
     const tiempoButtons = document.querySelectorAll('.filtros-opciones.tiempo .btn-filtro');
+    const homeView = document.querySelector('.home-view');
+    const tusRegistrosSubtitle = document.querySelector('.seccion2 .subtitulo');
 
     estadoButtons.forEach(button => {
         button.addEventListener('click', () => {
             estadoButtons.forEach(btn => btn.classList.remove('activado'));
             button.classList.add('activado');
 
+            // Scroll the button into view
+            button.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+
             const estadoSeleccionado = button.textContent.trim();
-            filtrarRegistros(estadoSeleccionado, obtenerFiltroTiempo());
+            filtrarRegistros(estadoSeleccionado, obtenerFiltroTiempo()).then(() => {
+                // After filtering, scroll the "Tus registros" subtitle to the top of the home-view container
+                tusRegistrosSubtitle.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
         });
     });
 
@@ -316,8 +334,14 @@ function eventosHome() {
             tiempoButtons.forEach(btn => btn.classList.remove('activado'));
             button.classList.add('activado');
 
+            // Scroll the button into view
+            button.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+
             const tiempoSeleccionado = button.textContent.trim();
-            filtrarRegistros(obtenerFiltroEstado(), tiempoSeleccionado);
+            filtrarRegistros(obtenerFiltroEstado(), tiempoSeleccionado).then(() => {
+                // After filtering, scroll the "Tus registros" subtitle to the top of the home-view container
+                tusRegistrosSubtitle.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
         });
     });
 
@@ -332,47 +356,112 @@ function eventosHome() {
     }
 
     function filtrarRegistros(estado, tiempo) {
-        const registrosFiltrados = registrosProduccion.filter(registro => {
-            const userMatch = registro.user === usuarioInfo.email;
-            const estadoMatch = estado === 'Todos' || (estado === 'Verificados' && registro.fecha_verificacion) || (estado === 'No verificados' && !registro.fecha_verificacion);
+        return new Promise((resolve) => {
+            const registrosFiltrados = registrosProduccion.filter(registro => {
+                const userMatch = registro.user === usuarioInfo.email;
+                const estadoMatch = estado === 'Todos' || (estado === 'Verificados' && registro.fecha_verificacion) || (estado === 'No verificados' && !registro.fecha_verificacion);
 
-            const [day, month, year] = registro.fecha.split('/').map(Number);
-            const registroDate = new Date(year + 2000, month - 1, day);
+                const [day, month, year] = registro.fecha.split('/').map(Number);
+                const registroDate = new Date(year + 2000, month - 1, day);
 
-            const currentDate = new Date();
-            let startDate;
-            if (tiempo === 'Todos') {
-                startDate = new Date(0);
-            } else {
-                switch (tiempo) {
-                    case '7 dias':
-                        startDate = new Date(currentDate.setDate(currentDate.getDate() - 7));
-                        break;
-                    case '15 dias':
-                        startDate = new Date(currentDate.setDate(currentDate.getDate() - 15));
-                        break;
-                    case '1 mes':
-                        startDate = new Date(currentDate.setMonth(currentDate.getMonth() - 1));
-                        break;
-                    case '3 meses':
-                        startDate = new Date(currentDate.setMonth(currentDate.getMonth() - 3));
-                        break;
-                    case '6 meses':
-                        startDate = new Date(currentDate.setMonth(currentDate.getMonth() - 6));
-                        break;
-                    case '1 año':
-                        startDate = new Date(currentDate.setFullYear(currentDate.getFullYear() - 1));
-                        break;
-                    default:
-                        startDate = new Date(currentDate.setDate(currentDate.getDate() - 7));
+                const currentDate = new Date();
+                let startDate;
+                if (tiempo === 'Todos') {
+                    startDate = new Date(0);
+                } else {
+                    switch (tiempo) {
+                        case '7 dias':
+                            startDate = new Date(currentDate.setDate(currentDate.getDate() - 7));
+                            break;
+                        case '15 dias':
+                            startDate = new Date(currentDate.setDate(currentDate.getDate() - 15));
+                            break;
+                        case '1 mes':
+                            startDate = new Date(currentDate.setMonth(currentDate.getMonth() - 1));
+                            break;
+                        case '3 meses':
+                            startDate = new Date(currentDate.setMonth(currentDate.getMonth() - 3));
+                            break;
+                        case '6 meses':
+                            startDate = new Date(currentDate.setMonth(currentDate.getMonth() - 6));
+                            break;
+                        case '1 año':
+                            startDate = new Date(currentDate.setFullYear(currentDate.getFullYear() - 1));
+                            break;
+                        default:
+                            startDate = new Date(currentDate.setDate(currentDate.getDate() - 7));
+                    }
                 }
+
+                const tiempoMatch = registroDate >= startDate;
+                return userMatch && estadoMatch && tiempoMatch;
+            });
+
+            // Sort and slice to get the last 10 records
+            const registrosParaMostrar = registrosFiltrados.slice(-10);
+
+            const registrosHTML = registrosParaMostrar.map(registro => {
+                const estado = registro.fecha_verificacion ? 'Verificado' : 'Pendiente';
+                return `
+            <div class="registro" data-id="${registro.id}">
+                <div class="info">
+                    <p class="fecha">${registro.fecha}</p>
+                    <p class="producto">${registro.producto}</p>
+                </div>
+                <div class="detalles">
+                    <p class="cantidad">Envasados: <strong>${registro.envases_terminados} Und.</strong></p>
+                    <p class="lote">Lote: <strong>${registro.lote}</strong></p>
+                    <p class="estado ${estado.toLowerCase()}">Estado: <strong>${estado}</strong></p>
+                </div>
+            </div>
+        `;
+            }).join('');
+
+            const registrosContainer = document.querySelector('.registros');
+            registrosContainer.innerHTML = registrosHTML;
+
+            // Remove existing "Load More" button
+            const existingLoadMoreButton = document.querySelector('.btn-cargar-mas');
+            if (existingLoadMoreButton) {
+                existingLoadMoreButton.remove();
             }
 
-            const tiempoMatch = registroDate >= startDate;
-            return userMatch && estadoMatch && tiempoMatch;
-        });
+            // Add "Load More" button if there are more than 10 records
+            if (registrosFiltrados.length > 10) {
+                const loadMoreButton = document.createElement('button');
+                loadMoreButton.textContent = 'Cargar más';
+                loadMoreButton.classList.add('btn-cargar-mas');
+                loadMoreButton.addEventListener('click', () => {
+                    cargarMasRegistros(registrosFiltrados);
+                });
+                registrosContainer.appendChild(loadMoreButton);
+            }
 
-        const registrosHTML = registrosFiltrados.map(registro => {
+            // Add event listeners to registros
+            document.querySelectorAll('.registro').forEach(registroElement => {
+                registroElement.addEventListener('click', () => {
+                    const registroId = registroElement.getAttribute('data-id');
+                    const registro = registrosProduccion.find(r => r.id === registroId);
+                    mostrarDetalleRegistro(registro);
+                });
+            });
+
+            const avisoElement = document.querySelector('.aviso');
+            if (registrosFiltrados.length > 0) {
+                avisoElement.textContent = `Registros ${estado.toLowerCase()} de ${tiempo}`;
+            } else {
+                avisoElement.textContent = 'No hay registros';
+            }
+
+            resolve(); // Resolve the promise after filtering is done
+        });
+    }
+
+    function cargarMasRegistros(registrosFiltrados) {
+        const currentCount = document.querySelectorAll('.registro').length;
+        const registrosParaMostrar = registrosFiltrados.slice(currentCount, currentCount + 10);
+    
+        const registrosHTML = registrosParaMostrar.map(registro => {
             const estado = registro.fecha_verificacion ? 'Verificado' : 'Pendiente';
             return `
                 <div class="registro" data-id="${registro.id}">
@@ -388,27 +477,15 @@ function eventosHome() {
                 </div>
             `;
         }).join('');
-
-        document.querySelector('.registros').innerHTML = registrosHTML;
-
-        // Add event listeners to registros
-        document.querySelectorAll('.registro').forEach(registroElement => {
-            registroElement.addEventListener('click', () => {
-                const registroId = registroElement.getAttribute('data-id');
-                const registro = registrosProduccion.find(r => r.id === registroId);
-                mostrarDetalleRegistro(registro);
-            });
-        });
-
-
-        const avisoElement = document.querySelector('.aviso');
-        if (registrosFiltrados.length > 0) {
-            avisoElement.textContent = `Registros ${estado.toLowerCase()} de ${tiempo}`;
-        } else {
-            avisoElement.textContent = 'No hay registros';
+    
+        document.querySelector('.registros').insertAdjacentHTML('beforeend', registrosHTML);
+    
+        // Remove "Load More" button if all records are shown
+        if (currentCount + 10 >= registrosFiltrados.length) {
+            document.querySelector('.btn-cargar-mas').remove();
         }
     }
-
+    window.cargarMasRegistros = cargarMasRegistros;
 
     document.querySelectorAll('.registro').forEach(registroElement => {
         registroElement.addEventListener('click', () => {
@@ -454,9 +531,9 @@ function eventosHome() {
             <p class="subtitulo"> Detalles de la verificación</p>
             <div class="campo-vertical">
                 <p class="item"><i class='bx bx-check-circle'></i> <strong>Fecha de Verificación:</strong> ${registro.fecha_verificacion ? registro.fecha_verificacion : 'No verificado'}</p>
-                <p class="item"><i class='bx bx-calculator'></i> <strong>Cantidad Real:</strong> ${registro.c_real? registro.fecha_verificacion : 'No verificado'}</p>
-                <p class="item"><i class='bx bx-comment'></i> <strong>Observaciones:</strong> ${registro.observaciones? registro.fecha_verificacion : 'No verificado'}</p>
-                <p class="item"><i class='bx bx-dollar'></i> <strong>Pagado:</strong> ${registro.pagado? registro.fecha_verificacion : 'No verificado'}</p>
+                <p class="item"><i class='bx bx-calculator'></i> <strong>Cantidad Real:</strong> ${registro.c_real ? registro.fecha_verificacion : 'No verificado'}</p>
+                <p class="item"><i class='bx bx-comment'></i> <strong>Observaciones:</strong> ${registro.observaciones ? registro.fecha_verificacion : 'No verificado'}</p>
+                <p class="item"><i class='bx bx-dollar'></i> <strong>Pagado:</strong> ${registro.pagado ? registro.fecha_verificacion : 'No verificado'}</p>
             </div>
         </div>
     `;

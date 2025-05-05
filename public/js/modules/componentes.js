@@ -184,7 +184,7 @@ export function mostrarNotificacion({ message, type = 'info', duration = 3000 })
 
 
 export function configuracionesEntrada() {
-    const inputs = document.querySelectorAll('.entrada .input input');
+    const inputs = document.querySelectorAll('.entrada .input input, .entrada .input select');
 
     inputs.forEach(input => {
         const label = input.previousElementSibling;
@@ -211,6 +211,22 @@ export function configuracionesEntrada() {
                 label.style.fontWeight = '400';
             }
         });
+
+        // Para los select, también manejar el evento de cambio
+        if (input.tagName.toLowerCase() === 'select') {
+            input.addEventListener('change', () => {
+                if (input.value.trim()) {
+                    label.style.transform = 'translateY(-100%) scale(0.85)';
+                    label.style.color = 'var(--cuarto-color)';
+                    label.style.fontWeight = '600';
+                    label.style.zIndex = '5';
+                } else {
+                    label.style.transform = 'translateY(-50%)';
+                    label.style.color = 'var(--cero-color)';
+                    label.style.fontWeight = '400';
+                }
+            });
+        }
     });
 
     // Limpiar input de email

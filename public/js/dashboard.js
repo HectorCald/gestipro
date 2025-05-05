@@ -3,6 +3,7 @@ import { crearHome } from './modules/home.js';
 import { crearNav } from './modules/nav.js'
 import { crearPerfil } from './modules/perfil.js';
 import { flotante } from './modules/flotante.js';
+import { mostrarFormularioProduccion } from './modules/formulario-produccion.js'
 
 window.crearNotificacion = crearNotificacion
 window.mostrarNotificacion = mostrarNotificacion
@@ -15,6 +16,7 @@ window.mostrarCarga = mostrarCarga
 window.ocultarCarga = ocultarCarga
 window.configuracionesEntrada = configuracionesEntrada
 
+window.mostrarFormularioProduccion = mostrarFormularioProduccion
 
 document.addEventListener('DOMContentLoaded',async () => {
     await flotante();
