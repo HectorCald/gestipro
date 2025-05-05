@@ -253,6 +253,10 @@ app.post('/register', async (req, res) => {
         return res.status(500).json({ error: 'Error al registrar el usuario' });
     }
 });
+app.post('/cerrar-sesion', (req, res) => {
+    res.clearCookie('token');
+    res.json({ mensaje: 'Sesión cerrada correctamente' });
+});
 
 
 

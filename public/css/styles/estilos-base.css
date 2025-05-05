@@ -21,7 +21,7 @@ a {
 html,
 body {
     overflow: hidden;
-    background-color: var(--background) !important;
+    background-color: var(--fondo) !important;
     font-family: 'Poppins', sans-serif;
     display: flex;
     justify-content: center;
