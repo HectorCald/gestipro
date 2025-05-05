@@ -184,7 +184,7 @@ function iniciarSesion() {
                     duration: 4000
                 });
             } finally {
-                ocultarCarga();
+
             }
         });
 
