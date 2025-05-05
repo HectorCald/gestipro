@@ -92,15 +92,17 @@
                 background-color: white;
                 text-wrap: nowrap;
                 color: black;
-                transition: background-color 0.2s ease-in-out;
-                transition: color 0.2s ease-in-out;
-                transition: font-weight 0.2s ease-in-out;
+                transition: background-color 0.5s ease-in-out;
+                transition: color 0.5s ease-in-out;
+                transition: font-weight 0.5s ease-in-out;
+                transition: border 0.5s ease-in-out;
             }
 
             .btn-filtro.activado {
                 background-color: var(--fondo2);
                 color: var(--tercer-color);
                 font-weight: 500;
+                border: 1px solid var(--tercer-color);
             }
         }
 
