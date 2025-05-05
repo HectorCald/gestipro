@@ -63,7 +63,6 @@ export async function mostrarAnuncio() {
         }
     }
 }
-
 export async function ocultarAnuncio() {
     const anuncio = document.querySelector('.anuncio');
     if (!anuncio || anuncio.style.display === 'none') return;
@@ -182,4 +181,84 @@ export function mostrarNotificacion({ message, type = 'info', duration = 3000 })
     });
 
     timeoutId = setTimeout(closeNotification, duration);
+}
+
+
+export function configuracionesEntrada() {
+    const inputs = document.querySelectorAll('.entrada .input input');
+
+    inputs.forEach(input => {
+        const label = input.previousElementSibling;
+        
+        // Verificar el estado inicial
+        if (input.value.trim() !== '') {
+            label.style.transform = 'translateY(-100%) scale(0.85)';
+            label.style.color = 'var(--tercer-color)';
+            label.style.fontWeight = '600';
+        }
+
+        input.addEventListener('focus', () => {
+            label.style.transform = 'translateY(-100%) scale(0.85)';
+            label.style.color = 'var(--tercer-color)';
+            label.style.fontWeight = '600';
+        });
+
+        input.addEventListener('blur', () => {
+            if (!input.value.trim()) {
+                label.style.transform = 'translateY(-50%)';
+                label.style.color = 'var(--cero-color)';
+                label.style.fontWeight = '400';
+            }
+        });
+    });
+
+    // Limpiar input de email
+    const clearInputButton = document.querySelector('.clear-input');
+    if (clearInputButton) {
+        clearInputButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            const emailInput = document.querySelector('.email');
+            const label = emailInput.previousElementSibling;
+            emailInput.value = '';
+
+            // Forzar la actualización del label
+            label.style.top = '50%';
+            label.style.fontSize = 'var(--text-subtitulo)';
+            label.style.color = 'var(--cero-color)';
+            label.style.fontWeight = '400';
+
+            // Disparar evento blur manualmente
+            const blurEvent = new Event('blur');
+            emailInput.dispatchEvent(blurEvent);
+
+            // Disparar evento focus manualmente
+            emailInput.focus();
+            const focusEvent = new Event('focus');
+            emailInput.dispatchEvent(focusEvent);
+        });
+    }
+
+    // Mostrar/ocultar contraseña para el formulario de inicio de sesión
+    document.querySelectorAll('.toggle-password').forEach(toggleButton => {
+        toggleButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            const passwordInput = toggleButton.parentElement.querySelector('input[type="password"], input[type="text"]');
+            const icon = toggleButton.querySelector('i');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+    });
+
+    const savedCredentials = JSON.parse(localStorage.getItem('credentials'));
+    if (savedCredentials) {
+        document.querySelector('.email').value = savedCredentials.email;
+        document.querySelector('.password').value = savedCredentials.password;
+    }
 }
