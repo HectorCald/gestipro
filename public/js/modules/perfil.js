@@ -10,12 +10,12 @@ async function obtenerYMostrarUsuario(view) {
         mostrarCarga();
         const response = await fetch('/obtener-usuario-actual');
         const data = await response.json();
-        
+
         if (data.success) {
             const nombreCompleto = data.usuario.nombre.split(' ');
             const nombre = nombreCompleto[0] || '';
             const apellido = nombreCompleto[1] || '';
-            
+
             let fotoSrc;
             if (!data.usuario.foto || data.usuario.foto === './icons/icon.png') {
                 fotoSrc = './icons/icon.png';
@@ -32,7 +32,7 @@ async function obtenerYMostrarUsuario(view) {
                     fotoSrc = './icons/icon.png';
                 }
             }
-            
+
             const perfil = `
                 <h1 class="titulo"><i class='bx bx-user'></i> Perfil</h1>
                 <div class="info">
@@ -93,13 +93,13 @@ async function obtenerYMostrarUsuario(view) {
             type: 'error',
             duration: 3500
         });
-    }finally{
+    } finally {
         ocultarCarga();
     }
 }
 
 
-function mostrarCuenta(nombre, apellido, email, foto){
+function mostrarCuenta(nombre, apellido, email, foto) {
     const anuncio = document.querySelector('.anuncio');
     const registrationHTML = `
         <div class="contenido">
@@ -143,7 +143,7 @@ function mostrarCuenta(nombre, apellido, email, foto){
     mostrarAnuncio();
     evetosCuenta();
 }
-function evetosCuenta(){
+function evetosCuenta() {
     const inputFoto = document.querySelector('#input-foto');
     const previewFoto = document.querySelector('#preview-foto');
     const btnGuardar = document.querySelector('#btn-guardar');
@@ -173,7 +173,6 @@ function evetosCuenta(){
     inputFoto.addEventListener('change', async (e) => {
         const file = e.target.files[0];
         if (file) {
-            // Verificar el tipo de archivo
             if (!file.type.startsWith('image/')) {
                 mostrarNotificacion({
                     message: 'Solo se permiten archivos de imagen',
@@ -184,22 +183,20 @@ function evetosCuenta(){
             }
 
             try {
-                // Crear un elemento de imagen para redimensionar
                 const img = new Image();
                 const reader = new FileReader();
 
-                reader.onload = function(e) {
+                reader.onload = function (e) {
                     img.src = e.target.result;
                 };
 
-                img.onload = function() {
-                    // Crear un canvas para redimensionar
+                img.onload = function () {
                     const canvas = document.createElement('canvas');
                     let width = img.width;
                     let height = img.height;
 
-                    // Redimensionar si es muy grande
-                    const MAX_SIZE = 800;
+                    // Reducir más el tamaño máximo para móviles
+                    const MAX_SIZE = 500; // Reducido de 800 a 500
                     if (width > height && width > MAX_SIZE) {
                         height *= MAX_SIZE / width;
                         width = MAX_SIZE;
@@ -210,20 +207,30 @@ function evetosCuenta(){
 
                     canvas.width = width;
                     canvas.height = height;
-
-                    // Dibujar y comprimir
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
 
-                    // Convertir a base64 con calidad reducida
-                    fotoBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                    // Aumentar la compresión para móviles
+                    const calidad = /Mobile|Android|iPhone/i.test(navigator.userAgent) ? 0.5 : 0.7;
+                    fotoBase64 = canvas.toDataURL('image/jpeg', calidad);
+
+                    // Verificar el tamaño de la cadena base64
+                    if (fotoBase64.length > 2000000) { // Si es mayor a 2MB
+                        mostrarNotificacion({
+                            message: 'La imagen es demasiado grande, intenta con una más pequeña',
+                            type: 'error',
+                            duration: 3500
+                        });
+                        return;
+                    }
+
                     previewFoto.src = fotoBase64;
                     fotoModificada = true;
                 };
 
                 reader.readAsDataURL(file);
             } catch (error) {
-                console.error('Error processing image:', error);
+                console.error('Error al procesar la imagen:', error);
                 mostrarNotificacion({
                     message: 'Error al procesar la imagen',
                     type: 'error',

@@ -355,14 +355,14 @@ app.post('/actualizar-usuario', requireAuth, async (req, res) => {
             const currentRow = rows[rowIndex];
             let fotoToSave = currentRow[6] || './icons/icon.png';
 
-            // Procesar la foto si se proporciona una nueva
             if (foto) {
-                // Verificar si es una URL o base64
-                if (foto.startsWith('data:image')) {
-                    fotoToSave = foto;
-                } else {
-                    fotoToSave = foto;
+                if (foto.length > 2000000) { // Si es mayor a 2MB
+                    return res.status(400).json({
+                        success: false,
+                        error: 'La imagen es demasiado grande'
+                    });
                 }
+                fotoToSave = foto;
             }
 
             const updateValues = [
@@ -376,31 +376,38 @@ app.post('/actualizar-usuario', requireAuth, async (req, res) => {
                 ]
             ];
 
-            const updateRange = `Usuarios!B${rowIndex + 2}:G${rowIndex + 2}`;
-            await sheets.spreadsheets.values.update({
-                spreadsheetId: spreadsheetId,
-                range: updateRange,
-                valueInputOption: 'RAW',  // Cambiado a RAW para mejor manejo de strings largos
-                resource: {
-                    values: updateValues
-                }
-            });
+            try {
+                await sheets.spreadsheets.values.update({
+                    spreadsheetId: spreadsheetId,
+                    range: `Usuarios!B${rowIndex + 2}:G${rowIndex + 2}`,
+                    valueInputOption: 'RAW',
+                    resource: {
+                        values: updateValues
+                    }
+                });
 
-            res.json({ 
-                success: true, 
-                message: 'Usuario actualizado correctamente' 
-            });
+                res.json({
+                    success: true,
+                    message: 'Usuario actualizado correctamente'
+                });
+            } catch (updateError) {
+                console.error('Error específico de actualización:', updateError);
+                res.status(400).json({
+                    success: false,
+                    error: 'Error al actualizar la imagen. Intenta con una imagen más pequeña'
+                });
+            }
         } else {
-            res.status(404).json({ 
-                success: false, 
-                error: 'Usuario no encontrado' 
+            res.status(404).json({
+                success: false,
+                error: 'Usuario no encontrado'
             });
         }
     } catch (error) {
         console.error('Error al actualizar usuario:', error);
-        res.status(500).json({ 
-            success: false, 
-            error: 'Error al actualizar el usuario' 
+        res.status(500).json({
+            success: false,
+            error: 'Error al actualizar el usuario'
         });
     }
 });
