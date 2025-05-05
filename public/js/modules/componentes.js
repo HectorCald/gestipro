@@ -62,6 +62,7 @@ export async function mostrarAnuncio() {
             });
         }
     }
+    configuracionesEntrada();
 }
 export async function ocultarAnuncio() {
     const anuncio = document.querySelector('.anuncio');

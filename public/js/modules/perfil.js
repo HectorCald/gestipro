@@ -35,7 +35,15 @@ function mostrarCuenta(){
         <div class="contenido">
             <h1 class="bienvenida titulo">Tu cuenta</h1>
             <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
-
+            <div class="foto-perfil">
+                <div class="preview-container">
+                    <img src="./icons/icon.png" alt="Vista previa" id="preview-foto">
+                    <label for="input-foto" class="upload-overlay">
+                        <i class='bx bx-upload'></i>
+                    </label>
+                </div>
+                <input type="file" id="input-foto" accept="image/*" style="display: none;">
+            </div>
             <div class="entrada">
                 <i class='bx bx-user'></i>
                 <div class="input">
@@ -71,6 +79,22 @@ function mostrarCuenta(){
 
     anuncio.innerHTML = registrationHTML;
     mostrarAnuncio();
-    configuracionesEntrada();
+    evetosCuenta();
 }
+function evetosCuenta(){
+    const inputFoto = document.querySelector('#input-foto');
+    const previewFoto = document.querySelector('#preview-foto');
+
+    inputFoto.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                previewFoto.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+}
+
 
