@@ -11,7 +11,7 @@
     height: calc(100vh - 60px);
     margin-top: 60px;
     width: 100vw;
-    background-color: var(--fondo);
+    background:none;
     justify-content: flex-start;
     align-items: center;
     flex-direction: column;
