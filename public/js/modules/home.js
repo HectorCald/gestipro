@@ -1,7 +1,7 @@
 export function crearHome() {
     const view = document.querySelector('.home-view');
     const home = `
-        <h1 class="titulo">Home</h1>
+        <h1 class="titulo"><i class='bx bx-home'></i> Inicio</h1>
         <div class="seccion1">
             <h2 class="subtitulo">Tus funciones</h2>
             <div class="funciones-rol">

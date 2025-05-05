@@ -1,5 +1,12 @@
 .home-view{
-
+    .titulo{
+        width: auto;
+        text-align: left;
+    }
+    .subtitulo{
+        margin-bottom: 10px;
+        width: fit-content;
+    }
     .seccion1{
         display: flex;
         width: 100%;
@@ -8,9 +15,7 @@
         flex-direction: column;
         overflow: hidden;
 
-        .subtitulo{
-            margin-bottom: 10px;
-        }
+        
 
         .funciones-rol{
             display: flex;
