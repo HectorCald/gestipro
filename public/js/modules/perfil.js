@@ -150,7 +150,7 @@ function mostrarCuenta(nombre, apellido, email, foto) {
                 <i class='bx bx-lock-alt'></i>
                 <div class="input">
                     <p class="detalle">Contraseña Actual</p>
-                    <input class="password-actual" type="password" placeholder=" " required>
+                    <input class="password-actual" type="password" placeholder=" "autocomplete="new-password" required>
                     <button class="toggle-password"><i class="fas fa-eye"></i></button>
                 </div>
             </div>
@@ -158,7 +158,7 @@ function mostrarCuenta(nombre, apellido, email, foto) {
                 <i class='bx bx-lock-alt'></i>
                 <div class="input">
                     <p class="detalle">Nueva Contraseña</p>
-                    <input class="password-nueva" type="password" placeholder=" " required>
+                    <input class="password-nueva" type="password" placeholder=" " autocomplete="new-password" required>
                     <button class="toggle-password"><i class="fas fa-eye"></i></button>
                 </div>
             </div>

@@ -266,7 +266,7 @@ function crearFormularioRegistro() {
                 <i class='bx bx-lock'></i>
                 <div class="input">
                     <p class="detalle">Contraseña</p>
-                    <input class="password-registro" type="password" placeholder=" " required>
+                    <input class="password-registro" type="password" placeholder=" " autocomplete="new-password" required>
                     <button class="toggle-password"><i class="fas fa-eye"></i></button>
                 </div>
             </div>
