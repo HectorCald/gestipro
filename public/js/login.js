@@ -377,27 +377,6 @@ function eventosFormularioRegistro() {
         validateEmail(e.target.value);
     });
 
-
-    togglePasswordButtons.forEach(button => {
-        button.addEventListener('click', (e) => {
-            e.preventDefault();
-            const passwordInput = e.currentTarget.parentElement.querySelector('input[type="password"], input[type="text"]');
-            const icon = e.currentTarget.querySelector('i');
-
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-            } else {
-                passwordInput.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-            }
-        });
-    });
-
-
-
     passwordInput.addEventListener('input', () => {
         const password = passwordInput.value;
         const requirements = {
@@ -515,30 +494,7 @@ function eventosFormularioRegistro() {
             ocultarCarga();
         }
     });
-    inputs.forEach(input => {
-        const label = input.previousElementSibling;
-        
-        // Verificar el estado inicial
-        if (input.value.trim() !== '') {
-            label.style.transform = 'translateY(-100%) scale(0.85)';
-            label.style.color = 'var(--cuarto-color)';
-            label.style.fontWeight = '600';
-        }
 
-        input.addEventListener('focus', () => {
-            label.style.transform = 'translateY(-100%) scale(0.85)';
-            label.style.color = 'var(--cuarto-color)';
-            label.style.fontWeight = '600';
-        });
-
-        input.addEventListener('blur', () => {
-            if (!input.value.trim()) {
-                label.style.transform = 'translateY(-50%)';
-                label.style.color = 'var(--cero-color)';
-                label.style.fontWeight = '400';
-            }
-        });
-    });
 }
 
 /* ==================== FORMULARIO DE OLVIDO DE CONTRASEÑA ==================== */

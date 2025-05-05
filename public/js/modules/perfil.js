@@ -165,23 +165,7 @@ function mostrarCuenta(nombre, apellido, email, foto) {
             <button id="btn-guardar" class="btn green">Guardar cambios</button>
         </div>
     `;
-    document.querySelectorAll('.toggle-password').forEach(button => {
-        button.addEventListener('click', (e) => {
-            e.preventDefault();
-            const passwordInput = e.currentTarget.parentElement.querySelector('input[type="password"], input[type="text"]');
-            const icon = e.currentTarget.querySelector('i');
-
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-            } else {
-                passwordInput.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-            }
-        });
-    });
+    
     anuncio.innerHTML = registrationHTML;
     mostrarAnuncio();
     evetosCuenta();
