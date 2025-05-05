@@ -64,45 +64,6 @@ function mostrarCuenta(){
                     <input class="empresa" type="number" inputmode="numeric" pattern="[0-9]*" placeholder=" " required>
                 </div>
             </div>
-            <div class="entrada">
-                <i class='bx bx-lock'></i>
-                <div class="input">
-                    <p class="detalle">Contraseña</p>
-                    <input class="password-registro" type="password" placeholder=" " required>
-                    <button class="toggle-password"><i class="fas fa-eye"></i></button>
-                </div>
-            </div>
-            <div class="entrada">
-                <i class='bx bx-lock'></i>
-                <div class="input">
-                    <p class="detalle">Contraseña</p>
-                    <input class="password-registro" type="password" placeholder=" " required>
-                    <button class="toggle-password"><i class="fas fa-eye"></i></button>
-                </div>
-            </div>
-            <div class="entrada">
-                <i class='bx bx-lock'></i>
-                <div class="input">
-                    <p class="detalle">Contraseña</p>
-                    <input class="password-registro" type="password" placeholder=" " required>
-                    <button class="toggle-password"><i class="fas fa-eye"></i></button>
-                </div>
-            </div>
-            <div class="password-requirements campo-vertical">
-                <p>Requisitos de contraseña: </p>
-                <p class="requirement invalid item">
-                    <i class="fas fa-times"></i>
-                    Mínimo 8 caracteres
-                </p>
-                <p class="requirement invalid item">
-                    <i class="fas fa-times"></i>
-                    Debe contener letras
-                </p>
-                <p class="requirement invalid item">
-                    <i class="fas fa-times"></i>
-                    Debe contener números
-                </p>
-            </div>
             <button id="btn-guardar" class="btn green">Guardar cambios</button>
         </div>
         
