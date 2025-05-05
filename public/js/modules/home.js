@@ -112,12 +112,6 @@ export function crearHome() {
                 </div>
             </div>
         </div>
-        <div class="seccion3">
-            <h2 class="subtitulo">Tus estadisticas</h2>
-            <div class="balance">
-            
-            </div>
-        </div>
         
     `;
 
