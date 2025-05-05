@@ -210,7 +210,7 @@ app.post('/register', async (req, res) => {
 
     // Predefined list of companies and their spreadsheet IDs
     const companies = {
-        'damabrava': process.env.SPREADSHEET_ID_1,
+        '12345': process.env.SPREADSHEET_ID_1,
         'cocacola': process.env.SPREADSHEET_ID_2
     };
 
