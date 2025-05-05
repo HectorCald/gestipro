@@ -211,7 +211,7 @@ app.post('/register', async (req, res) => {
     // Predefined list of companies and their spreadsheet IDs
     const companies = {
         '12345': process.env.SPREADSHEET_ID_1,
-        'cocacola': process.env.SPREADSHEET_ID_2
+        '6789': process.env.SPREADSHEET_ID_2
     };
 
     // Validate if the company exists
