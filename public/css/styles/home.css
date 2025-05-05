@@ -24,6 +24,7 @@
                 border-radius: 10px;
                 min-width: 130px;
                 max-width: 130px;
+                min-height: fit-content;
                 display: flex;
                 flex-direction: column;
                 justify-content: center;
@@ -69,6 +70,7 @@
             min-height: fit-content;
             gap: 10px;
             overflow-x: auto;
+            border: 1px solid red;
 
             .btn-filtro{
                 width: fit-content;
