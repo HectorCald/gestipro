@@ -1,171 +1,25 @@
-let usuarioInfo = {
-    nombre: '',
-    apellido: '',
-    email: '',
-    foto: '',
-    rol: '',
-    estado: '',
-    plugins: ''
-};
-
-export function crearPerfil() {
-    const view = document.querySelector('.perfil-view');
-    obtenerUsuario().then(() => mostrarPerfil(view));
-}
-async function obtenerUsuario() {
-    try {
-        const response = await fetch('/obtener-usuario-actual');
-        const data = await response.json();
-        
-        if (data.success) {
-            const nombreCompleto = data.usuario.nombre.split(' ');
-            usuarioInfo = {
-                nombre: nombreCompleto[0] || '',
-                apellido: nombreCompleto[1] || '',
-                email: data.usuario.email,
-                rol: data.usuario.rol,
-                estado: data.usuario.estado,
-                plugins: data.usuario.plugins
-            };
-
-            // Procesar la foto
-            if (!data.usuario.foto || data.usuario.foto === './icons/icon.png') {
-                usuarioInfo.foto = './icons/icon.png';
-            } else if (data.usuario.foto.startsWith('data:image')) {
-                usuarioInfo.foto = data.usuario.foto;
-            } else {
-                try {
-                    const imgResponse = await fetch(data.usuario.foto);
-                    if (!imgResponse.ok) throw new Error('Error al cargar la imagen');
-                    const blob = await imgResponse.blob();
-                    usuarioInfo.foto = URL.createObjectURL(blob);
-                } catch (error) {
-                    console.error('Error loading image:', error);
-                    usuarioInfo.foto = './icons/icon.png';
-                }
-            }
-            return true;
-        } else {
-            mostrarNotificacion({
-                message: 'Error al obtener datos del usuario',
-                type: 'error',
-                duration: 3500
-            });
-            return false;
-        }
-    } catch (error) {
-        console.error('Error al obtener datos del usuario:', error);
-        mostrarNotificacion({
-            message: 'Error al obtener datos del usuario',
-            type: 'error',
-            duration: 3500
-        });
-        return false;
-    } finally {
-        ocultarCarga();
-    }
-}
-function mostrarPerfil(view) {
-    const perfil = `
-        <h1 class="titulo"><i class='bx bx-user'></i> Perfil</h1>
-        <div class="info">
-            <div class="detalles">
-                <p class="titulo">Hola!</p>
-                <p class="titulo nombre">${usuarioInfo.nombre} ${usuarioInfo.apellido}</p>
-                <p class="correo-usuario">${usuarioInfo.email}</p>
-            </div>
-            <div class="foto">
-                <img src="${usuarioInfo.foto}" alt="Foto de perfil" class="foto-perfil-img" onerror="this.src='./icons/icon.png'">
-            </div>
-        </div>
-        <button class="apartado cuenta"><i class='bx bx-user'></i> Cuenta</button>
-        <button class="apartado configuraciones"><i class='bx bx-cog'></i> Configuraciones</button>
-        <button class="cerrar-sesion"><i class='bx bx-log-out'></i> Cerrar Sesión</button>
-        <p class="version">Version 1.0.0</p>
-    `;
-    view.innerHTML = perfil;
-
-    // Configurar event listeners
-    const btnCuenta = document.querySelector('.apartado.cuenta');
-    const btnConfiguraciones = document.querySelector('.apartado.configuraciones');
-    const btnCerrarSesion = document.querySelector('.cerrar-sesion');
-
-    btnCuenta.addEventListener('click', () => {
-        mostrarCuenta(usuarioInfo.nombre, usuarioInfo.apellido, usuarioInfo.email, usuarioInfo.foto);
-    });
-
-    btnConfiguraciones.addEventListener('click', () => {
-        mostrarConfiguraciones();
-    });
-
-    btnCerrarSesion.addEventListener('click', async () => {
-        try {
-            mostrarCarga();
-            const response = await fetch('/cerrar-sesion', { method: 'POST' });
-            if (response.ok) {
-                window.location.href = '/';
-            }
-        } catch (error) {
-            console.error('Error al cerrar sesión:', error);
-            mostrarNotificacion({
-                message: 'Error al cerrar sesión',
-                type: 'error',
-                duration: 3500
-            });
-        }
-    });
-}
-function mostrarCuenta(nombre, apellido, email, foto) {
+export function mostrarFormularioProduccion() {
     const anuncio = document.querySelector('.anuncio');
     const registrationHTML = `
         <div class="contenido">
-            <h1 class="bienvenida titulo">Tu cuenta</h1>
+            <h1 class="bienvenida titulo">Nueva Producción</h1>
             <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
-            <div class="foto-perfil">
-                <div class="preview-container">
-                    <img src="${foto}" alt="Vista previa" id="preview-foto">
-                    <label for="input-foto" class="upload-overlay">
-                        <i class='bx bx-upload'></i>
-                    </label>
-                </div>
-                <input type="file" id="input-foto" accept="image/*" style="display: none;">
-            </div>
-            <div class="entrada">
-                <i class='bx bx-user'></i>
-                <div class="input">
-                    <p class="detalle">Nombre</p>
-                    <input class="nombre" type="text" value="${nombre}" placeholder=" " required>
-                </div>
-            </div>
-            <div class="entrada">
-                <i class='bx bx-user'></i>
-                <div class="input">
-                    <p class="detalle">Apellido</p>
-                    <input class="nombre" type="text" value="${apellido}" placeholder=" " required>
-                </div>
-            </div>
-            <div class="entrada">
-                <i class='bx bx-envelope'></i>
-                <div class="input">
-                    <p class="detalle">Email/Usuario</p>
-                    <input class="email-registro" type="email" value="${email}" placeholder=" " required>
-                </div>
-            </div>
-            <button id="btn-guardar" class="btn green">Guardar cambios</button>
-        </div>
-    `;
 
-    anuncio.innerHTML = registrationHTML;
-    mostrarAnuncio();
-    evetosCuenta();
-}
-function mostrarConfiguraciones() {
-    const anuncio = document.querySelector('.anuncio');
-    const registrationHTML = `
-        <div class="contenido">
-            <h1 class="bienvenida titulo">Tu configuraciones</h1>
-            <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
-            <p>No existen configuraciónes aun.</p>
+            <div class="entrada">
+                <i class='bx bx-user'></i>
+                <div class="input">
+                    <p class="detalle">Producto</p>
+                    <input class="nombre" type="text" placeholder=" " required>
+                </div>
+            </div>
+            <div class="entrada">
+                <i class='bx bx-building'></i>
+                <div class="input">
+                    <p class="detalle">Gramaje</p>
+                    <input class="empresa" type="number" inputmode="numeric" pattern="[0-9]*" placeholder=" " required>
+                </div>
+            </div>
+            
             <button id="btn-guardar" class="btn green">Guardar cambios</button>
         </div>
     `;
@@ -341,4 +195,3 @@ function evetosCuenta() {
     });
 
 }
-

@@ -1,4 +1,7 @@
+
+
 export function flotante() {
+    mostrarCarga();
     const btnHome = document.querySelector('.flotante .home');
     const btnPefil = document.querySelector('.flotante .perfil');
 

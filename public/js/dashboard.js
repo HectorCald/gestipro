@@ -16,11 +16,11 @@ window.ocultarCarga = ocultarCarga
 window.configuracionesEntrada = configuracionesEntrada
 
 
-document.addEventListener('DOMContentLoaded', () => {
-    flotante();
-    crearNav();
-    crearHome();
-    crearPerfil();
+document.addEventListener('DOMContentLoaded',async () => {
+    await flotante();
+    await crearNav();
+    await crearHome();
+    await crearPerfil();
 });
 
 
