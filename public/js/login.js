@@ -570,19 +570,24 @@ function eventosFormularioContraseña() {
     const inputs = document.querySelectorAll('.entrada .input input');
 
     inputs.forEach(input => {
+        const label = input.previousElementSibling;
+        
+        // Verificar el estado inicial
+        if (input.value.trim() !== '') {
+            label.style.transform = 'translateY(-100%) scale(0.85)';
+            label.style.color = 'var(--tercer-color)';
+            label.style.fontWeight = '600';
+        }
+
         input.addEventListener('focus', () => {
-            const label = input.previousElementSibling;
-            label.style.top = '0';
-            label.style.fontSize = '12px';
+            label.style.transform = 'translateY(-100%) scale(0.85)';
             label.style.color = 'var(--tercer-color)';
             label.style.fontWeight = '600';
         });
 
         input.addEventListener('blur', () => {
-            const label = input.previousElementSibling;
-            if (!input.value) {
-                label.style.top = '50%';
-                label.style.fontSize = 'var(--text-subtitulo)';
+            if (!input.value.trim()) {
+                label.style.transform = 'translateY(-50%)';
                 label.style.color = 'var(--cero-color)';
                 label.style.fontWeight = '400';
             }
