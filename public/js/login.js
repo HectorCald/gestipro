@@ -170,6 +170,7 @@ function iniciarSesion() {
                             type: 'error',
                             duration: 4000
                         });
+                        ocultarCarga();
                     }
                 }
             } catch (error) {
@@ -179,8 +180,7 @@ function iniciarSesion() {
                     type: 'error',
                     duration: 4000
                 });
-            } finally {
-
+                ocultarCarga();
             }
         });
 

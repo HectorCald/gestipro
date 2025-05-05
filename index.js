@@ -342,7 +342,7 @@ app.get('/obtener-usuario-actual', requireAuth, async (req, res) => {
 });
 app.post('/actualizar-usuario', requireAuth, async (req, res) => {
     const { email, spreadsheetId } = req.user;
-    const { nombre, apellido, nuevoEmail, foto } = req.body;
+    const { nombre, apellido, foto, passwordActual, passwordNueva } = req.body;
 
     try {
         const sheets = google.sheets({ version: 'v4', auth });
@@ -358,9 +358,22 @@ app.post('/actualizar-usuario', requireAuth, async (req, res) => {
         if (rowIndex !== -1) {
             const currentRow = rows[rowIndex];
             let fotoToSave = currentRow[6] || './icons/icon.png';
+            let passwordToSave = currentRow[0]; // Mantener contraseña actual por defecto
 
+            // Verificar y actualizar contraseña si se proporciona
+            if (passwordActual && passwordNueva) {
+                if (passwordActual !== currentRow[0]) {
+                    return res.status(400).json({
+                        success: false,
+                        error: 'La contraseña actual es incorrecta'
+                    });
+                }
+                passwordToSave = passwordNueva;
+            }
+
+            // Procesar foto si se proporciona
             if (foto) {
-                if (foto.length > 2000000) { // Si es mayor a 2MB
+                if (foto.length > 2000000) {
                     return res.status(400).json({
                         success: false,
                         error: 'La imagen es demasiado grande'
@@ -371,36 +384,29 @@ app.post('/actualizar-usuario', requireAuth, async (req, res) => {
 
             const updateValues = [
                 [
-                    `${nombre || currentRow[1].split(' ')[0]} ${apellido || currentRow[1].split(' ')[1] || ''}`,
-                    currentRow[2],
-                    currentRow[3],
-                    currentRow[4],
-                    nuevoEmail || currentRow[5],
-                    fotoToSave
+                    passwordToSave,    // Contraseña (A)
+                    `${nombre} ${apellido}`, // Nombre completo (B)
+                    currentRow[2],     // Rol (C)
+                    currentRow[3],     // Estado (D)
+                    currentRow[4],     // Plugins (E)
+                    email,             // Email (F)
+                    fotoToSave         // Foto (G)
                 ]
             ];
 
-            try {
-                await sheets.spreadsheets.values.update({
-                    spreadsheetId: spreadsheetId,
-                    range: `Usuarios!B${rowIndex + 2}:G${rowIndex + 2}`,
-                    valueInputOption: 'RAW',
-                    resource: {
-                        values: updateValues
-                    }
-                });
+            await sheets.spreadsheets.values.update({
+                spreadsheetId: spreadsheetId,
+                range: `Usuarios!A${rowIndex + 2}:G${rowIndex + 2}`,
+                valueInputOption: 'RAW',
+                resource: {
+                    values: updateValues
+                }
+            });
 
-                res.json({
-                    success: true,
-                    message: 'Usuario actualizado correctamente'
-                });
-            } catch (updateError) {
-                console.error('Error específico de actualización:', updateError);
-                res.status(400).json({
-                    success: false,
-                    error: 'Error al actualizar la imagen. Intenta con una imagen más pequeña'
-                });
-            }
+            res.json({
+                success: true,
+                message: 'Usuario actualizado correctamente'
+            });
         } else {
             res.status(404).json({
                 success: false,

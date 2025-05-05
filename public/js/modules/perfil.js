@@ -115,6 +115,8 @@ function mostrarPerfil(view) {
         }
     });
 }
+
+
 function mostrarCuenta(nombre, apellido, email, foto) {
     const anuncio = document.querySelector('.anuncio');
     const registrationHTML = `
@@ -145,31 +147,41 @@ function mostrarCuenta(nombre, apellido, email, foto) {
                 </div>
             </div>
             <div class="entrada">
-                <i class='bx bx-envelope'></i>
+                <i class='bx bx-lock-alt'></i>
                 <div class="input">
-                    <p class="detalle">Email/Usuario</p>
-                    <input class="email-registro" type="email" value="${email}" placeholder=" " required>
+                    <p class="detalle">Contraseña Actual</p>
+                    <input class="password-actual" type="password" placeholder=" " required>
+                    <button class="toggle-password"><i class="fas fa-eye"></i></button>
+                </div>
+            </div>
+            <div class="entrada">
+                <i class='bx bx-lock-alt'></i>
+                <div class="input">
+                    <p class="detalle">Nueva Contraseña</p>
+                    <input class="password-nueva" type="password" placeholder=" " required>
+                    <button class="toggle-password"><i class="fas fa-eye"></i></button>
                 </div>
             </div>
             <button id="btn-guardar" class="btn green">Guardar cambios</button>
         </div>
     `;
+    document.querySelectorAll('.toggle-password').forEach(button => {
+        button.addEventListener('click', (e) => {
+            e.preventDefault();
+            const passwordInput = e.currentTarget.parentElement.querySelector('input[type="password"], input[type="text"]');
+            const icon = e.currentTarget.querySelector('i');
 
-    anuncio.innerHTML = registrationHTML;
-    mostrarAnuncio();
-    evetosCuenta();
-}
-function mostrarConfiguraciones() {
-    const anuncio = document.querySelector('.anuncio');
-    const registrationHTML = `
-        <div class="contenido">
-            <h1 class="bienvenida titulo">Tu configuraciones</h1>
-            <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
-            <p>No existen configuraciónes aun.</p>
-            <button id="btn-guardar" class="btn green">Guardar cambios</button>
-        </div>
-    `;
-
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+    });
     anuncio.innerHTML = registrationHTML;
     mostrarAnuncio();
     evetosCuenta();
@@ -180,6 +192,8 @@ function evetosCuenta() {
     const btnGuardar = document.querySelector('#btn-guardar');
     let fotoBase64 = null;
     let fotoModificada = false;
+
+    
 
     // Initialize current photo
     const currentPhoto = previewFoto.src;
@@ -200,6 +214,8 @@ function evetosCuenta() {
                 fotoBase64 = null;
             });
     }
+
+    
 
     inputFoto.addEventListener('change', async (e) => {
         const file = e.target.files[0];
@@ -277,23 +293,22 @@ function evetosCuenta() {
     btnGuardar.addEventListener('click', async () => {
         const nombre = document.querySelector('input.nombre').value.trim();
         const apellido = document.querySelectorAll('input.nombre')[1].value.trim();
-        const email = document.querySelector('input.email-registro').value.trim();
+        const passwordActual = document.querySelector('input.password-actual')?.value;
+        const passwordNueva = document.querySelector('input.password-nueva')?.value;
 
-        // Validate fields
-        if (!nombre || !apellido || !email) {
+        if (!nombre || !apellido) {
             mostrarNotificacion({
-                message: 'Todos los campos son requeridos',
+                message: 'Nombre y apellido son requeridos',
                 type: 'error',
                 duration: 3500
             });
             return;
         }
 
-        // Validate email format
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
+        // Validar contraseñas si se están cambiando
+        if ((passwordActual && !passwordNueva) || (!passwordActual && passwordNueva)) {
             mostrarNotificacion({
-                message: 'Formato de email inválido',
+                message: 'Debe ingresar ambas contraseñas para cambiarla',
                 type: 'error',
                 duration: 3500
             });
@@ -310,17 +325,17 @@ function evetosCuenta() {
                 body: JSON.stringify({
                     nombre,
                     apellido,
-                    nuevoEmail: email,
-                    foto: fotoModificada ? fotoBase64 : undefined
+                    foto: fotoModificada ? fotoBase64 : undefined,
+                    passwordActual,
+                    passwordNueva
                 })
             });
 
             const data = await response.json();
 
             if (data.success) {
-                const view = document.querySelector('.perfil-view');
-                await crearPerfil();
-                ocultarCarga();
+                await obtenerUsuario();
+                mostrarPerfil(document.querySelector('.perfil-view'));
                 ocultarAnuncio();
                 mostrarNotificacion({
                     message: 'Perfil actualizado con éxito',
@@ -337,8 +352,27 @@ function evetosCuenta() {
                 type: 'error',
                 duration: 3500
             });
+        } finally {
+            ocultarCarga();
         }
     });
 
 }
+
+function mostrarConfiguraciones() {
+    const anuncio = document.querySelector('.anuncio');
+    const registrationHTML = `
+        <div class="contenido">
+            <h1 class="bienvenida titulo">Tu configuraciones</h1>
+            <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
+            <p>No existen configuraciónes aun.</p>
+            <button id="btn-guardar" class="btn green">Guardar cambios</button>
+        </div>
+    `;
+
+    anuncio.innerHTML = registrationHTML;
+    mostrarAnuncio();
+    evetosCuenta();
+}
+
 
