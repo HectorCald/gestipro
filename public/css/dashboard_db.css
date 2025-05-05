@@ -11,7 +11,7 @@
     width: 100vw;
     background-color: var(--fondo);
     justify-content: flex-start;
-    align-items: flex-start;
+    align-items: center;
     flex-direction: column;
     padding: 15px;
     overflow-y: auto !important;
