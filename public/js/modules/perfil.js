@@ -1,6 +1,3 @@
-
-
-// Variable global para almacenar la información del usuario
 let usuarioInfo = {
     nombre: '',
     apellido: '',
