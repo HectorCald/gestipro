@@ -102,6 +102,7 @@ function mostrarPerfil(view) {
 
     btnCerrarSesion.addEventListener('click', async () => {
         try {
+            mostrarCarga();
             const response = await fetch('/cerrar-sesion', { method: 'POST' });
             if (response.ok) {
                 window.location.href = '/';
