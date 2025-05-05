@@ -170,32 +170,66 @@ function evetosCuenta(){
             });
     }
 
-    inputFoto.addEventListener('change', (e) => {
+    inputFoto.addEventListener('change', async (e) => {
         const file = e.target.files[0];
         if (file) {
-            if (file.size > 5242880) { // 5MB limit
+            // Verificar el tipo de archivo
+            if (!file.type.startsWith('image/')) {
                 mostrarNotificacion({
-                    message: 'La imagen debe ser menor a 5MB',
+                    message: 'Solo se permiten archivos de imagen',
                     type: 'error',
                     duration: 3500
                 });
                 return;
             }
 
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                fotoBase64 = e.target.result;
-                previewFoto.src = fotoBase64;
-                fotoModificada = true;
-            };
-            reader.onerror = () => {
+            try {
+                // Crear un elemento de imagen para redimensionar
+                const img = new Image();
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    img.src = e.target.result;
+                };
+
+                img.onload = function() {
+                    // Crear un canvas para redimensionar
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+
+                    // Redimensionar si es muy grande
+                    const MAX_SIZE = 800;
+                    if (width > height && width > MAX_SIZE) {
+                        height *= MAX_SIZE / width;
+                        width = MAX_SIZE;
+                    } else if (height > MAX_SIZE) {
+                        width *= MAX_SIZE / height;
+                        height = MAX_SIZE;
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+
+                    // Dibujar y comprimir
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // Convertir a base64 con calidad reducida
+                    fotoBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                    previewFoto.src = fotoBase64;
+                    fotoModificada = true;
+                };
+
+                reader.readAsDataURL(file);
+            } catch (error) {
+                console.error('Error processing image:', error);
                 mostrarNotificacion({
-                    message: 'Error al cargar la imagen',
+                    message: 'Error al procesar la imagen',
                     type: 'error',
                     duration: 3500
                 });
-            };
-            reader.readAsDataURL(file);
+            }
         }
     });
 

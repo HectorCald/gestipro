@@ -353,22 +353,36 @@ app.post('/actualizar-usuario', requireAuth, async (req, res) => {
 
         if (rowIndex !== -1) {
             const currentRow = rows[rowIndex];
+            let fotoToSave = currentRow[6] || './icons/icon.png';
+
+            // Procesar la foto si se proporciona una nueva
+            if (foto) {
+                // Verificar si es una URL o base64
+                if (foto.startsWith('data:image')) {
+                    fotoToSave = foto;
+                } else {
+                    fotoToSave = foto;
+                }
+            }
+
             const updateValues = [
-                `${nombre || currentRow[1].split(' ')[0]} ${apellido || currentRow[1].split(' ')[1] || ''}`, // nombre completo
-                currentRow[2],       // mantener rol actual
-                currentRow[3],       // mantener estado actual
-                currentRow[4],       // mantener plugins actuales
-                nuevoEmail || currentRow[5],  // email
-                foto || currentRow[6] || './icons/icon.png'  // foto
+                [
+                    `${nombre || currentRow[1].split(' ')[0]} ${apellido || currentRow[1].split(' ')[1] || ''}`,
+                    currentRow[2],
+                    currentRow[3],
+                    currentRow[4],
+                    nuevoEmail || currentRow[5],
+                    fotoToSave
+                ]
             ];
 
             const updateRange = `Usuarios!B${rowIndex + 2}:G${rowIndex + 2}`;
             await sheets.spreadsheets.values.update({
                 spreadsheetId: spreadsheetId,
                 range: updateRange,
-                valueInputOption: 'USER_ENTERED',
+                valueInputOption: 'RAW',  // Cambiado a RAW para mejor manejo de strings largos
                 resource: {
-                    values: [updateValues]
+                    values: updateValues
                 }
             });
 
@@ -382,7 +396,6 @@ app.post('/actualizar-usuario', requireAuth, async (req, res) => {
                 error: 'Usuario no encontrado' 
             });
         }
-
     } catch (error) {
         console.error('Error al actualizar usuario:', error);
         res.status(500).json({ 
