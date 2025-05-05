@@ -82,6 +82,7 @@
                 font-size: var(--text-subtitulo);
                 background-color: white;
                 text-wrap: nowrap;
+                color: black;
             }
             .btn-filtro.activado{
                 background: var(--cuarto-color);
