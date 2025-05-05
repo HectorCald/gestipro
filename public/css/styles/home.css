@@ -14,7 +14,7 @@
 
         .funciones-rol{
             display: flex;
-            height: fit-content;
+            height: 180px;
             width: 100%;
             gap: 10px;
             overflow-x: auto;
@@ -24,8 +24,8 @@
                 background-color: white;
                 border-radius: 10px;
                 min-width: 130px;
-                max-width: 130px;
-                min-height: 150px;
+                width: 130px;
+                height: 100%;
                 display: flex;
                 flex-direction: column;
                 justify-content: center;
