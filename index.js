@@ -255,6 +255,142 @@ app.post('/register', async (req, res) => {
 });
 
 
+
+
+
+app.get('/obtner-usuarios', requireAuth, async (req, res) => {
+    const { email, spreadsheetId } = req.user;
+
+    try {
+        const sheets = google.sheets({ version: 'v4', auth });
+        
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId: spreadsheetId,
+            range: 'Usuarios!A2:G'  // Extended range to include potential photo column
+        });
+
+        const rows = response.data.values || [];
+        const usuario = rows.find(row => row[5] === email);  // Match by email
+
+        if (usuario) {
+            const userInfo = {
+                password: usuario[0],
+                nombre: usuario[1],
+                rol: usuario[2],
+                estado: usuario[3],
+                plugins: usuario[4],
+                email: usuario[5],
+                foto: usuario[6] || './icons/icon.png'  // Default photo if none exists
+            };
+            
+            res.json({ success: true, data: userInfo });
+        } else {
+            res.status(404).json({ success: false, error: 'Usuario no encontrado' });
+        }
+
+    } catch (error) {
+        console.error('Error al obtener información del usuario:', error);
+        res.status(500).json({ success: false, error: 'Error al obtener datos del usuario' });
+    }
+});
+app.get('/obtener-usuario-actual', requireAuth, async (req, res) => {
+    const { email, spreadsheetId } = req.user;
+
+    try {
+        const sheets = google.sheets({ version: 'v4', auth });
+        
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId: spreadsheetId,
+            range: 'Usuarios!A2:G'
+        });
+
+        const rows = response.data.values || [];
+        const usuario = rows.find(row => row[5] === email);
+
+        if (usuario) {
+            const userInfo = {
+                nombre: usuario[1],
+                rol: usuario[2],
+                estado: usuario[3],
+                plugins: usuario[4],
+                email: usuario[5],
+                foto: usuario[6] || './icons/icon.png'
+            };
+            
+            res.json({ 
+                success: true, 
+                usuario: userInfo 
+            });
+        } else {
+            res.status(404).json({ 
+                success: false, 
+                error: 'Usuario no encontrado' 
+            });
+        }
+
+    } catch (error) {
+        console.error('Error al obtener información del usuario:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: 'Error al obtener datos del usuario' 
+        });
+    }
+});
+app.post('/actualizar-usuario', requireAuth, async (req, res) => {
+    const { email, spreadsheetId } = req.user;
+    const { nombre, apellido, nuevoEmail, foto } = req.body;
+
+    try {
+        const sheets = google.sheets({ version: 'v4', auth });
+        
+        // First, find the user's row
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId: spreadsheetId,
+            range: 'Usuarios!A2:G'
+        });
+
+        const rows = response.data.values || [];
+        const rowIndex = rows.findIndex(row => row[5] === email);
+
+        if (rowIndex !== -1) {
+            // Update the user's information
+            const updateRange = `Usuarios!B${rowIndex + 2}:G${rowIndex + 2}`;
+            await sheets.spreadsheets.values.update({
+                spreadsheetId: spreadsheetId,
+                range: updateRange,
+                valueInputOption: 'USER_ENTERED',
+                resource: {
+                    values: [[
+                        `${nombre} ${apellido}`, // nombre completo
+                        rows[rowIndex][2],       // mantener rol actual
+                        rows[rowIndex][3],       // mantener estado actual
+                        rows[rowIndex][4],       // mantener plugins actuales
+                        nuevoEmail,              // nuevo email
+                        foto                     // nueva foto
+                    ]]
+                }
+            });
+
+            res.json({ 
+                success: true, 
+                message: 'Usuario actualizado correctamente' 
+            });
+        } else {
+            res.status(404).json({ 
+                success: false, 
+                error: 'Usuario no encontrado' 
+            });
+        }
+
+    } catch (error) {
+        console.error('Error al actualizar usuario:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: 'Error al actualizar el usuario' 
+        });
+    }
+});
+
 /* ==================== INICIALIZACIÓN DEL SERVIDOR ==================== */
 if (process.env.NODE_ENV !== 'production') {
   app.listen(port, () => {
