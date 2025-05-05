@@ -250,7 +250,9 @@
         }
 
     }
-
+    h1{
+        width: fit-content;
+    }
     p {
         font-size: var(--text-subtitulo);
     }

@@ -232,7 +232,7 @@ function crearFormularioRegistro() {
     const anuncio = document.querySelector('.anuncio');
     const registrationHTML = `
         <div class="contenido">
-            <h1 class="bienvenida">Registrate en Gestipro</h1>
+            <h1 class="titulo">Registrate en Gestipro</h1>
             <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
             <div class="entrada">
                 <i class='bx bx-user'></i>
@@ -546,7 +546,7 @@ function crearFormularioContraseña() {
     const anuncio = document.querySelector('.anuncio');
     const forgotPasswordHTML = `
         <div class="contenido">
-            <h1 class="bienvenida">Olvidaste tu contraseña?</h1>
+            <h1 class="titulo">Olvidaste tu contraseña?</h1>
             <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
             <p class="subtitulo">Ingresa tu correo electrónico para recibir un código de verificación</p>
             <div class="entrada">

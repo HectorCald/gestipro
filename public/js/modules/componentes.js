@@ -78,8 +78,6 @@ export function mostrarCarga() {
     const cargaDiv = document.querySelector('.carga');
     cargaDiv.style.display = 'flex';
 }
-
-
 export function ocultarCarga() {
     const cargaDiv = document.querySelector('.carga');
     cargaDiv.style.display = 'none';
