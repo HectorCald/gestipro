@@ -151,14 +151,14 @@
                     .estado.pendiente {
                         background-color: rgba(128, 128, 128, 0.203);
                         color: rgb(67, 67, 67);
-                        border-radius: 10px;
+                        border-radius: 5px;
                         padding: 2px 5px;
                     }
 
                     .estado.verificado {
                         background-color: rgba(102, 196, 102, 0.104);
                         color: var(--success);
-                        border-radius: 2px;
+                        border-radius: 5px;
                         padding: 2px 5px;
                     }
                 }
