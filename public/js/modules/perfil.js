@@ -70,7 +70,7 @@ function mostrarPerfil(view) {
         <h1 class="titulo"><i class='bx bx-user'></i> Perfil</h1>
         <div class="info">
             <div class="detalles">
-                <p class="titulo">Hola!</p>
+                <p class="subtitulo">Hola!</p>
                 <p class="titulo nombre">${usuarioInfo.nombre} ${usuarioInfo.apellido}</p>
                 <p class="correo-usuario">${usuarioInfo.email}</p>
             </div>
