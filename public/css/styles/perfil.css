@@ -51,6 +51,7 @@
         justify-content: flex-start;
         align-items: center;
         gap: 10px;
+        color: black;
     }
     .cerrar-sesion{
         font-size: var(--text-titulo);
