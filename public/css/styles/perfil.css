@@ -1,0 +1,69 @@
+.perfil-view {
+    gap: 10px;
+    .info {
+        display: flex;
+        width: 100%;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+
+
+        .detalles{
+            .nombre{
+                font-size: var(--text-2xl);
+                line-height: 1;
+            }
+            .correo-usuario{
+                font-size: var(--text-subtitulo);
+                color: rgb(50, 50, 50);
+                line-height: 1;
+            }
+        }
+
+        .foto {
+            width: 80px;
+            height: 80px;
+            min-height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, var(--tercer-color), var(--second-color));
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0.5;
+
+            img {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+                filter: brightness(0) invert(1);
+            }
+        }
+    }
+    .apartado{
+        width: 100%;
+        background-color: white;
+        border-radius: 10px;
+        border: none;
+        padding: 15px 20px;
+        font-size: var(--text-titulo);
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 10px;
+    }
+    .cerrar-sesion{
+        font-size: var(--text-titulo);
+        background: linear-gradient(45deg, var(--error), var(--second-color));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        font-weight: 600;
+        margin-top: 50px;
+        border: none;
+    }
+    .version{
+        color: gray;
+        font-size: var(--text-subtitulo);
+    }
+}

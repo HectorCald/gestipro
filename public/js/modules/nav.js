@@ -1,6 +1,6 @@
 export function crearNav() {
     const view = document.querySelector('.nav');
-    const home = `
+    const nav = `
             <div class="nav-container">
                 <button><i class='bx bx-menu'></i></button>
                 <div class="info">
@@ -8,8 +8,6 @@ export function crearNav() {
                     <p class="rol">@rol</p>
                 </div>
             </div>
-        
     `;
-
-    view.innerHTML = home;
+    view.innerHTML = nav;
 }

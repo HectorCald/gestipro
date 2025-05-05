@@ -2,6 +2,8 @@
 @import'styles/componentes.css';
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
 @import 'styles/nav.css';
+@import 'styles/flotante.css';
+@import 'styles/perfil.css';
 @import 'styles/home.css';
 
 .view{
@@ -15,5 +17,6 @@
     flex-direction: column;
     padding: 15px;
     overflow-y: auto !important;
+    padding-bottom: 80px;
 }
 
