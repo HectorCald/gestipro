@@ -118,11 +118,13 @@ function mostrarPerfil(view) {
 
 
 function mostrarCuenta(nombre, apellido, email, foto) {
-    const anuncio = document.querySelector('.anuncio');
+    const contenido = document.querySelector('.anuncio .contenido');
     const registrationHTML = `
-        <div class="contenido">
-            <h1 class="bienvenida titulo">Tu cuenta</h1>
+        <div class="encabezado">
+            <h1 class="titulo">Tu cuenta</h1>
             <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
+        </div>
+        <div class="relleno">
             <div class="foto-perfil">
                 <div class="preview-container">
                     <img src="${foto}" alt="Vista previa" id="preview-foto">
@@ -166,7 +168,7 @@ function mostrarCuenta(nombre, apellido, email, foto) {
         </div>
     `;
     
-    anuncio.innerHTML = registrationHTML;
+    contenido.innerHTML = registrationHTML;
     mostrarAnuncio();
     evetosCuenta();
 }
@@ -344,17 +346,19 @@ function evetosCuenta() {
 }
 
 function mostrarConfiguraciones() {
-    const anuncio = document.querySelector('.anuncio');
+    const contenido = document.querySelector('.anuncio .contenido');
     const registrationHTML = `
-        <div class="contenido">
-            <h1 class="bienvenida titulo">Tu configuraciones</h1>
+        <div class="encabezado">
+            <h1 class="titulo">Tus configuraciones</h1>
             <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
+        </div>
+        <div class="relleno">
             <p>No existen configuraciónes aun.</p>
             <button id="btn-guardar" class="btn green">Guardar cambios</button>
         </div>
     `;
 
-    anuncio.innerHTML = registrationHTML;
+    contenido.innerHTML = registrationHTML;
     mostrarAnuncio();
     evetosCuenta();
 }

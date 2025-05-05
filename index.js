@@ -74,6 +74,14 @@ function requireAuth(req, res, next) {
 app.get('/', (req, res) => {
     res.render('login')
 });
+app.get('/dashboard', requireAuth, (req, res) => {
+    res.render('dashboard')
+});
+app.get('/dashboard_otro', requireAuth, (req, res) => {
+    res.render('dashboard_otro')
+});
+
+/* ==================== RUTAS DE AUTENTICACION ==================== */
 app.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
@@ -199,12 +207,7 @@ app.post('/check-email', async (req, res) => {
         });
     }
 });
-app.get('/dashboard', requireAuth, (req, res) => {
-    res.render('dashboard')
-});
-app.get('/dashboard_otro', requireAuth, (req, res) => {
-    res.render('dashboard_otro')
-});
+
 app.post('/register', async (req, res) => {
     const { nombre, email, password, empresa } = req.body;
 
@@ -258,45 +261,7 @@ app.post('/cerrar-sesion', (req, res) => {
     res.json({ mensaje: 'Sesión cerrada correctamente' });
 });
 
-
-
-
-
-app.get('/obtner-usuarios', requireAuth, async (req, res) => {
-    const { email, spreadsheetId } = req.user;
-
-    try {
-        const sheets = google.sheets({ version: 'v4', auth });
-        
-        const response = await sheets.spreadsheets.values.get({
-            spreadsheetId: spreadsheetId,
-            range: 'Usuarios!A2:G'  // Extended range to include potential photo column
-        });
-
-        const rows = response.data.values || [];
-        const usuario = rows.find(row => row[5] === email);  // Match by email
-
-        if (usuario) {
-            const userInfo = {
-                password: usuario[0],
-                nombre: usuario[1],
-                rol: usuario[2],
-                estado: usuario[3],
-                plugins: usuario[4],
-                email: usuario[5],
-                foto: usuario[6] || './icons/icon.png'  // Default photo if none exists
-            };
-            
-            res.json({ success: true, data: userInfo });
-        } else {
-            res.status(404).json({ success: false, error: 'Usuario no encontrado' });
-        }
-
-    } catch (error) {
-        console.error('Error al obtener información del usuario:', error);
-        res.status(500).json({ success: false, error: 'Error al obtener datos del usuario' });
-    }
-});
+/* ==================== OBTENER USARIO ACTUAL Y ACTULIZAR USARIO ACTUAL ==================== */
 app.get('/obtener-usuario-actual', requireAuth, async (req, res) => {
     const { email, spreadsheetId } = req.user;
 
@@ -342,7 +307,7 @@ app.get('/obtener-usuario-actual', requireAuth, async (req, res) => {
 });
 app.post('/actualizar-usuario', requireAuth, async (req, res) => {
     const { email, spreadsheetId } = req.user;
-    const { nombre, apellido, foto, passwordActual, passwordNueva } = req.body;
+    const { nombre, apellido, nuevoEmail, foto } = req.body;
 
     try {
         const sheets = google.sheets({ version: 'v4', auth });
@@ -358,22 +323,9 @@ app.post('/actualizar-usuario', requireAuth, async (req, res) => {
         if (rowIndex !== -1) {
             const currentRow = rows[rowIndex];
             let fotoToSave = currentRow[6] || './icons/icon.png';
-            let passwordToSave = currentRow[0]; // Mantener contraseña actual por defecto
 
-            // Verificar y actualizar contraseña si se proporciona
-            if (passwordActual && passwordNueva) {
-                if (passwordActual !== currentRow[0]) {
-                    return res.status(400).json({
-                        success: false,
-                        error: 'La contraseña actual es incorrecta'
-                    });
-                }
-                passwordToSave = passwordNueva;
-            }
-
-            // Procesar foto si se proporciona
             if (foto) {
-                if (foto.length > 2000000) {
+                if (foto.length > 2000000) { // Si es mayor a 2MB
                     return res.status(400).json({
                         success: false,
                         error: 'La imagen es demasiado grande'
@@ -384,29 +336,36 @@ app.post('/actualizar-usuario', requireAuth, async (req, res) => {
 
             const updateValues = [
                 [
-                    passwordToSave,    // Contraseña (A)
-                    `${nombre} ${apellido}`, // Nombre completo (B)
-                    currentRow[2],     // Rol (C)
-                    currentRow[3],     // Estado (D)
-                    currentRow[4],     // Plugins (E)
-                    email,             // Email (F)
-                    fotoToSave         // Foto (G)
+                    `${nombre || currentRow[1].split(' ')[0]} ${apellido || currentRow[1].split(' ')[1] || ''}`,
+                    currentRow[2],
+                    currentRow[3],
+                    currentRow[4],
+                    nuevoEmail || currentRow[5],
+                    fotoToSave
                 ]
             ];
 
-            await sheets.spreadsheets.values.update({
-                spreadsheetId: spreadsheetId,
-                range: `Usuarios!A${rowIndex + 2}:G${rowIndex + 2}`,
-                valueInputOption: 'RAW',
-                resource: {
-                    values: updateValues
-                }
-            });
+            try {
+                await sheets.spreadsheets.values.update({
+                    spreadsheetId: spreadsheetId,
+                    range: `Usuarios!B${rowIndex + 2}:G${rowIndex + 2}`,
+                    valueInputOption: 'RAW',
+                    resource: {
+                        values: updateValues
+                    }
+                });
 
-            res.json({
-                success: true,
-                message: 'Usuario actualizado correctamente'
-            });
+                res.json({
+                    success: true,
+                    message: 'Usuario actualizado correctamente'
+                });
+            } catch (updateError) {
+                console.error('Error específico de actualización:', updateError);
+                res.status(400).json({
+                    success: false,
+                    error: 'Error al actualizar la imagen. Intenta con una imagen más pequeña'
+                });
+            }
         } else {
             res.status(404).json({
                 success: false,
@@ -421,6 +380,61 @@ app.post('/actualizar-usuario', requireAuth, async (req, res) => {
         });
     }
 });
+
+
+/* ==================== RUTAS DE PRODUCCIÓN ==================== */
+app.get('/obtener-registros-produccion', requireAuth, async (req, res) => {
+    const { spreadsheetId } = req.user;
+
+    try {
+        const sheets = google.sheets({ version: 'v4', auth });
+        
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId: spreadsheetId,
+            range: 'Produccion!A2:O' // Columnas desde A hasta N (14 columnas)
+        });
+
+        const rows = response.data.values || [];
+        
+        // Mapear los datos a un formato más legible
+        const registros = rows.map(row => ({
+            id: row[0] || '',
+            fecha: row[1] || '',
+            producto: row[2] || '',
+            lote: row[3] || '',
+            gramos: row[4] || '',
+            proceso: row[5] || '',
+            microondas: row[6] || '',
+            envases_terminados: row[7] || '',
+            fecha_vencimiento: row[8] || '',
+            nombre: row[9] || '',
+            c_real: row[10] || '',
+            fecha_verificacion: row[11] || '',
+            observaciones: row[12] || '',
+            pagado: row[13] || '',
+            user: row[14] || ''
+        }));
+
+        res.json({
+            success: true,
+            registros
+        });
+
+    } catch (error) {
+        console.error('Error al obtener registros de producción:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error al obtener los registros de producción'
+        });
+    }
+});
+
+
+
+
+
+
+
 
 /* ==================== INICIALIZACIÓN DEL SERVIDOR ==================== */
 if (process.env.NODE_ENV !== 'production') {

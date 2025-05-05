@@ -4,7 +4,6 @@ export function mostrarFormularioProduccion() {
         <div class="contenido">
             <h1 class="bienvenida titulo">Nueva Producción</h1>
             <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
-
             <div class="entrada">
                 <i class='bx bx-user'></i>
                 <div class="input">

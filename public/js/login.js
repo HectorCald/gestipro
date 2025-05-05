@@ -229,11 +229,13 @@ function inicializarApp() {
 
 /* ==================== FORMULARIO DE REGISTRO ==================== */
 function crearFormularioRegistro() {
-    const anuncio = document.querySelector('.anuncio');
+    const contenido = document.querySelector('.anuncio .contenido');
     const registrationHTML = `
-        <div class="contenido">
-            <h1 class="titulo">Registrate en Gestipro</h1>
+        <div class="encabezado">
+            <h1 class="titulo">Registro</h1>
             <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
+        </div>
+        <div class="relleno">
             <div class="entrada">
                 <i class='bx bx-user'></i>
                 <div class="input">
@@ -290,7 +292,7 @@ function crearFormularioRegistro() {
         
     `;
 
-    anuncio.innerHTML = registrationHTML;
+    contenido.innerHTML = registrationHTML;
     mostrarAnuncio();
 
     eventosFormularioRegistro();
@@ -499,12 +501,14 @@ function eventosFormularioRegistro() {
 
 /* ==================== FORMULARIO DE OLVIDO DE CONTRASEÑA ==================== */
 function crearFormularioContraseña() {
-    const anuncio = document.querySelector('.anuncio');
+    const anuncio = document.querySelector('.anuncio .contenido');
     const forgotPasswordHTML = `
-        <div class="contenido">
-            <h1 class="titulo">Olvidaste tu contraseña?</h1>
+        <div class="encabezado">
+            <h1 class="titulo">Recuperación de contraseña</h1>
             <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
-            <p class="subtitulo">Ingresa tu correo electrónico para recibir un código de verificación</p>
+        </div>
+        <div class="relleno">
+            <p>Ingresa tu correo electrónico para recibir un código de verificación</p>
             <div class="entrada">
                 <i class='bx bx-envelope'></i>
                 <div class="input">
