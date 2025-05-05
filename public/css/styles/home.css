@@ -98,7 +98,7 @@
             }
 
             .btn-filtro.activado {
-                background-color: rgba(255, 166, 0, 0.289);
+                background-color: var(--fondo2);
                 color: var(--tercer-color);
                 font-weight: 500;
             }
@@ -185,8 +185,7 @@
             .destacado {
                 background-color: white;
                 border-radius: 10px;
-                min-width: 130px;
-                width: 130px;
+                width: 100%;
                 height: 100%;
                 display: flex;
                 flex-direction: column;
@@ -196,38 +195,29 @@
                 gap: 5px;
 
                 .cantidad{
-                    font-size: 40px;
+                    font-size: 30px;
                     font-weight: 800;
-                    -webkit-background-clip: text;
-                    background-clip: text;
-                    color: transparent;
+                    width: 100%;
+                    height: 60px;
+                    border-radius: 10px;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
                 }
 
                 .cantidad.green {
-                    font-size: 40px;
-                    font-weight: 800;
-                    background: linear-gradient(45deg, var(--success), rgb(0, 108, 0));
-                    -webkit-background-clip: text;
-                    background-clip: text;
-                    color: transparent;
+                    background-color: rgba(0, 246, 0, 0.104);
+                    color: rgb(0, 155, 0);
                 }
 
                 .cantidad.blue {
-                    font-size: 40px;
-                    background: linear-gradient(45deg, var(--cuarto-color), rgb(0, 0, 187));
-                    -webkit-background-clip: text;
-                    background-clip: text;
-                    color: transparent;
-                    font-weight: 800;
+                    background-color: rgba(0, 53, 246, 0.104);
+                    color: blue;
                 }
 
                 .cantidad.yellow {
-                    font-size: 40px;
-                    background: linear-gradient(45deg, yellow, var(--tercer-color));
-                    -webkit-background-clip: text;
-                    background-clip: text;
-                    color: transparent;
-                    font-weight: 800;
+                    background-color: rgba(234, 246, 0, 0.195);
+                    color: yellow;
                 }
 
                 .tipo {
