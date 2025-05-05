@@ -301,20 +301,21 @@ app.get('/obtener-usuario-actual', requireAuth, async (req, res) => {
         
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId: spreadsheetId,
-            range: 'Usuarios!A2:G'
+            range: 'Usuarios!A2:G'  // Make sure we're getting all columns including the photo
         });
 
         const rows = response.data.values || [];
         const usuario = rows.find(row => row[5] === email);
 
         if (usuario) {
+            // Ensure all fields are properly handled
             const userInfo = {
-                nombre: usuario[1],
-                rol: usuario[2],
-                estado: usuario[3],
-                plugins: usuario[4],
-                email: usuario[5],
-                foto: usuario[6] || './icons/icon.png'
+                nombre: usuario[1] || '',
+                rol: usuario[2] || '',
+                estado: usuario[3] || '',
+                plugins: usuario[4] || '',
+                email: usuario[5] || '',
+                foto: usuario[6] || './icons/icon.png'  // Default photo if none exists
             };
             
             res.json({ 
@@ -327,7 +328,6 @@ app.get('/obtener-usuario-actual', requireAuth, async (req, res) => {
                 error: 'Usuario no encontrado' 
             });
         }
-
     } catch (error) {
         console.error('Error al obtener información del usuario:', error);
         res.status(500).json({ 
@@ -343,7 +343,6 @@ app.post('/actualizar-usuario', requireAuth, async (req, res) => {
     try {
         const sheets = google.sheets({ version: 'v4', auth });
         
-        // First, find the user's row
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId: spreadsheetId,
             range: 'Usuarios!A2:G'
@@ -353,21 +352,23 @@ app.post('/actualizar-usuario', requireAuth, async (req, res) => {
         const rowIndex = rows.findIndex(row => row[5] === email);
 
         if (rowIndex !== -1) {
-            // Update the user's information
+            const currentRow = rows[rowIndex];
+            const updateValues = [
+                `${nombre || currentRow[1].split(' ')[0]} ${apellido || currentRow[1].split(' ')[1] || ''}`, // nombre completo
+                currentRow[2],       // mantener rol actual
+                currentRow[3],       // mantener estado actual
+                currentRow[4],       // mantener plugins actuales
+                nuevoEmail || currentRow[5],  // email
+                foto || currentRow[6] || './icons/icon.png'  // foto
+            ];
+
             const updateRange = `Usuarios!B${rowIndex + 2}:G${rowIndex + 2}`;
             await sheets.spreadsheets.values.update({
                 spreadsheetId: spreadsheetId,
                 range: updateRange,
                 valueInputOption: 'USER_ENTERED',
                 resource: {
-                    values: [[
-                        `${nombre} ${apellido}`, // nombre completo
-                        rows[rowIndex][2],       // mantener rol actual
-                        rows[rowIndex][3],       // mantener estado actual
-                        rows[rowIndex][4],       // mantener plugins actuales
-                        nuevoEmail,              // nuevo email
-                        foto                     // nueva foto
-                    ]]
+                    values: [updateValues]
                 }
             });
 
