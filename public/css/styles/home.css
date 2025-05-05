@@ -30,8 +30,8 @@
             .funcion {
                 background-color: white;
                 border-radius: 10px;
-                min-width: 130px;
-                width: 130px;
+                min-width: 125px;
+                width: 125px;
                 height: 100%;
                 display: flex;
                 flex-direction: column;
