@@ -27,6 +27,25 @@ export function crearHome() {
                 </div>
             </div>
         </div>
+        <div class="seccion3">
+            <h2 class="subtitulo">Tus destacados</h2>
+            <div class="destacados">
+                <div class="destacado">
+                    <p class="cantidad  green">10</p>
+                    <p class="tipo">Verificados</p>
+                </div>
+
+                <div class="destacado">
+                    <p class="cantidad  blue">44</p>
+                    <p class="tipo">Total registros</p>
+                </div>
+
+                <div class="destacado">
+                    <p class="cantidad yellow">34</p>
+                    <p class="tipo">No verificados</p>
+                </div>
+            </div>
+        </div>
         <div class="seccion2">
             <h2 class="subtitulo">Tus registros</h2>
             <div class="filtros-opciones estado">
@@ -52,7 +71,7 @@ export function crearHome() {
                     <div class="detalles">
                         <p class="cantidad">Envasados: <strong>1000 Und.</strong></p>
                         <p class="lote">Lote: <strong>00565</strong></p>
-                        <p class="estado">Estado: <strong>Pendiente</strong></p>
+                        <p class="estado verificado">Estado: <strong>Verificado</strong></p>
                     </div>
                 </div>
                 <div class="registro">
@@ -63,7 +82,7 @@ export function crearHome() {
                     <div class="detalles">
                         <p class="cantidad">Envasados: <strong>1000 Und.</strong></p>
                         <p class="lote">Lote: <strong>00565</strong></p>
-                        <p class="estado">Estado: <strong>Pendiente</strong></p>
+                        <p class="estado pendiente">Estado: <strong>Pendiente</strong></p>
                     </div>
                 </div>
                 <div class="registro">
@@ -74,7 +93,7 @@ export function crearHome() {
                     <div class="detalles">
                         <p class="cantidad">Envasados: <strong>1000 Und.</strong></p>
                         <p class="lote">Lote: <strong>00565</strong></p>
-                        <p class="estado">Estado: <strong>Pendiente</strong></p>
+                        <p class="estado verificado">Estado: <strong>Verificado</strong></p>
                     </div>
                 </div>
                 <div class="registro">
@@ -85,7 +104,7 @@ export function crearHome() {
                     <div class="detalles">
                         <p class="cantidad">Envasados: <strong>1000 Und.</strong></p>
                         <p class="lote">Lote: <strong>00565</strong></p>
-                        <p class="estado">Estado: <strong>Pendiente</strong></p>
+                        <p class="estado verificado">Estado: <strong>Verificado</strong></p>
                     </div>
                 </div>
                 <div class="registro">
@@ -96,7 +115,7 @@ export function crearHome() {
                     <div class="detalles">
                         <p class="cantidad">Envasados: <strong>1000 Und.</strong></p>
                         <p class="lote">Lote: <strong>00565</strong></p>
-                        <p class="estado">Estado: <strong>Pendiente</strong></p>
+                        <p class="estado verificado">Estado: <strong>Verificado</strong></p>
                     </div>
                 </div>
                 <div class="registro">
@@ -107,7 +126,7 @@ export function crearHome() {
                     <div class="detalles">
                         <p class="cantidad">Envasados: <strong>1000 Und.</strong></p>
                         <p class="lote">Lote: <strong>00565</strong></p>
-                        <p class="estado">Estado: <strong>Pendiente</strong></p>
+                        <p class="estado pendiente">Estado: <strong>Pendiente</strong></p>
                     </div>
                 </div>
             </div>
