@@ -167,7 +167,7 @@ function mostrarConfiguraciones() {
         <div class="contenido">
             <h1 class="bienvenida titulo">Tu configuraciones</h1>
             <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
-            <p>No existen todavia ninguna configuración</p>
+            <p>No existen configuraciónes aun.</p>
             <button id="btn-guardar" class="btn green">Guardar cambios</button>
         </div>
     `;
