@@ -15,6 +15,7 @@
     padding: 20px;
     gap: 10px;
     overflow-y: auto;
+    background: none;
 
 
     .logo {
