@@ -46,7 +46,7 @@
 }
 
 .btn.close {
-    background-color: #ff990044;
+    background-color: var(--fondo2);
     color: var(--tercer-color);
     position: absolute;
     right: 15px;
@@ -266,7 +266,7 @@
         border-radius: 10px;
         padding: 10px 5px !important;
         padding-right: 10px !important;
-        background-color: rgba(250, 162, 0, 0.105);
+        background-color: var(--fondo2);
 
         i {
             font-size: 25px;
@@ -275,7 +275,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            color: var(--tercer-color);
+            color: var(--cuarto-color) !important;
         }
 
         .input {

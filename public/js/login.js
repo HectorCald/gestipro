@@ -74,13 +74,13 @@ function configuracionesEntrada() {
         // Verificar el estado inicial
         if (input.value.trim() !== '') {
             label.style.transform = 'translateY(-100%) scale(0.85)';
-            label.style.color = 'var(--tercer-color)';
+            label.style.color = 'var(--cuarto-color)';
             label.style.fontWeight = '600';
         }
 
         input.addEventListener('focus', () => {
             label.style.transform = 'translateY(-100%) scale(0.85)';
-            label.style.color = 'var(--tercer-color)';
+            label.style.color = 'var(--cuarto-color)';
             label.style.fontWeight = '600';
         });
 
@@ -521,13 +521,13 @@ function eventosFormularioRegistro() {
         // Verificar el estado inicial
         if (input.value.trim() !== '') {
             label.style.transform = 'translateY(-100%) scale(0.85)';
-            label.style.color = 'var(--tercer-color)';
+            label.style.color = 'var(--cuarto-color)';
             label.style.fontWeight = '600';
         }
 
         input.addEventListener('focus', () => {
             label.style.transform = 'translateY(-100%) scale(0.85)';
-            label.style.color = 'var(--tercer-color)';
+            label.style.color = 'var(--cuarto-color)';
             label.style.fontWeight = '600';
         });
 
