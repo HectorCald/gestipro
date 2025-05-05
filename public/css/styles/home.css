@@ -194,7 +194,7 @@
                 padding: 15px 10px !important;
                 gap: 5px;
 
-                .cantidad{
+                .cantidad {
                     font-size: 25px;
                     font-weight: 800;
                     width: 100%;
@@ -206,18 +206,24 @@
                 }
 
                 .cantidad.green {
-                    background-color: rgba(0, 246, 0, 0.104);
-                    color: rgb(0, 155, 0);
+                    background: linear-gradient(45deg, rgb(0, 255, 0), rgb(0, 86, 0));
+                    -webkit-background-clip: text;
+                    background-clip: text;
+                    color: transparent;
                 }
 
                 .cantidad.blue {
-                    background-color: rgba(0, 53, 246, 0.104);
-                    color: blue;
+                    background: linear-gradient(45deg, rgb(0, 94, 255), rgb(0, 0, 121));
+                    -webkit-background-clip: text;
+                    background-clip: text;
+                    color: transparent;
                 }
 
                 .cantidad.yellow {
-                    background-color: rgba(234, 246, 0, 0.195);
-                    color: yellow;
+                    background: linear-gradient(45deg, yellow, rgb(194, 126, 0));
+                    -webkit-background-clip: text;
+                    background-clip: text;
+                    color: transparent;
                 }
 
                 .tipo {
