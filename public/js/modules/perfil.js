@@ -426,15 +426,14 @@ async function mostrarExportar() {
                         <input class="fecha-hasta" type="date" placeholder=" " required>
                     </div>
                 </div>
-                <p class="subtitulo">Tienes ${registrosProduccion.length} registros</p>
+
                 <div class="registros-lista">
+                    <p class="subtitulo">Tienes ${registrosProduccion.length} registros</p>
                     ${registrosProduccion.map(registro => `
                         <div class="registro-item">
                             <div class="info-registro">
-                                <p class="fecha"><strong>Fecha:</strong> ${registro.fecha}</p>
-                                <p class="fecha"><strong>${registro.producto} ${registro.gramos}gr. </strong>  (${registro.fecha})</p>
-                                <p class="detalle"><strong>Cantidad: </strong>${registro.envases_terminados} Und. <strong>Verificado: </strong>${registro.c_real} Und.</p>
-                                <p class="detalle"><strong>Lote:</strong> ${registro.lote}  <strong>Proceso:</strong>${registro.proceso} <strong>Obs:</strong>${registro.observaciones} Und.</p>
+                                <p class="fecha">${registro.fecha}</p>
+                                <p class="detalle">${registro.producto} ${registro.gramos} - ${registro.c_real ? registro.c_real : registro.envases_terminados} Und.</p>
                             </div>
                         </div>
                     `).join('')}
@@ -459,9 +458,16 @@ function eventosExportar() {
     function parseFecha(fechaStr) {
         if (!fechaStr) return null;
 
-        // Convertir fechas (dd/mm/yyyy) a formato comparable (yyyy-mm-dd)
-        const [day, month, year] = fechaStr.split('/');
-        return new Date(`${year}-${month}-${day}`);
+        // Manejar tanto "YYYY-MM-DD" (del input) como "DD/MM/YYYY" (de los registros)
+        if (fechaStr.includes('-')) {
+            // Analizar directamente el formato ISO (YYYY-MM-DD)
+            return new Date(fechaStr);
+        } else if (fechaStr.includes('/')) {
+            // Analizar el formato "DD/MM/YYYY"
+            const [day, month, year] = fechaStr.split('/');
+            return new Date(`${year}-${month}-${day}`);
+        }
+        return null;
     }
 
     function actualizarLista() {
@@ -470,14 +476,19 @@ function eventosExportar() {
 
         registrosFiltrados = registrosProduccion.filter(registro => {
             const fechaRegistro = parseFecha(registro.fecha);
-
+        
             // Mostrar solo los registros que están dentro del rango de fechas
             if (desde && hasta) {
-                return fechaRegistro >= desde && fechaRegistro <= hasta;
+                // Sumar un día a la fecha "hasta" para incluir todo el día
+                const hastaEndOfDay = new Date(hasta);
+                hastaEndOfDay.setDate(hastaEndOfDay.getDate() + 1);
+                return fechaRegistro >= desde && fechaRegistro < hastaEndOfDay;
             } else if (desde) {
                 return fechaRegistro >= desde;
             } else if (hasta) {
-                return fechaRegistro <= hasta;
+                const hastaEndOfDay = new Date(hasta);
+                hastaEndOfDay.setDate(hastaEndOfDay.getDate() + 1);
+                return fechaRegistro < hastaEndOfDay;
             }
             return true;
         });
