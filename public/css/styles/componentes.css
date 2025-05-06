@@ -275,11 +275,12 @@
     background-color: white;
     border-radius: 0;
     width: 100%;
-    height: 100%;
+    height: 100vh;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     z-index: 1;
     padding-top: 60px;
+    padding-bottom: 75px;
 }
 
 .contenido h1 {
@@ -584,6 +585,12 @@
             color: var(--cuarto-color);
         }
     }
+}
+.anuncio-botones{
+    width: 100%;
+    height: auto;
+    padding: 10px 20px;
+    padding-bottom: 15px;
 }
 
 

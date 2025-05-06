@@ -199,6 +199,9 @@ function mostrarCuenta(nombre, apellido, email, foto) {
                     <button class="toggle-password"><i class="fas fa-eye"></i></button>
                 </div>
             </div>
+            
+        </div>
+        <div class="anuncio-botones">
             <button id="btn-guardar" class="btn green">Guardar cambios</button>
         </div>
     `;
@@ -436,6 +439,8 @@ async function mostrarExportar() {
                         </div>
                     `).join('')}
                 </div>
+            </div>
+            <div class="anuncio-botones">
                 <button id="exportar-excel" class="btn green" style="margin-bottom:10px"><i class='bx bxs-file-export'></i> Exportar a Excel</button>
             </div>
         `;
