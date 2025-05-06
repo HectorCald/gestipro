@@ -28,15 +28,15 @@
 }
 
 /* Animation classes */
-.slide-in {
-    animation: slideIn 0.3s ease-out forwards;
+.slide-in-flotante {
+    animation: slideInf 0.3s ease-out forwards;
 }
 
-.slide-out {
-    animation: slideOut 0.3s ease-out forwards;
+.slide-out-flotante {
+    animation: slideOutf 0.3s ease-out forwards;
 }
 
-@keyframes slideIn {
+@keyframes slideInf {
     from {
         opacity: 0;
         transform: scale(0.95);
@@ -47,7 +47,7 @@
     }
 }
 
-@keyframes slideOut {
+@keyframes slideOutf {
     from {
         opacity: 1;
         transform: scale(1);

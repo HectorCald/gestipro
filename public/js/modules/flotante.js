@@ -6,15 +6,15 @@ export function flotante() {
 
     btnHome.addEventListener('click', () => {
         // Limpiar clases anteriores
-        home.classList.remove('slide-out');
-        perfil.classList.remove('slide-in');
+        home.classList.remove('slide-out-flotante');
+        perfil.classList.remove('slide-in-flotante');
         
-        perfil.classList.add('slide-out');
+        perfil.classList.add('slide-out-flotante');
         setTimeout(() => {
             perfil.style.display = 'none';
             home.style.display = 'flex';
-            home.classList.remove('slide-out');
-            home.classList.add('slide-in');
+            home.classList.remove('slide-out-flotante');
+            home.classList.add('slide-in-flotante');
         }, 300);
         btnPefil.style.color = 'black';
         btnHome.style.color = 'var(--tercer-color)';
@@ -22,15 +22,15 @@ export function flotante() {
 
     btnPefil.addEventListener('click', () => {
         // Limpiar clases anteriores
-        perfil.classList.remove('slide-out');
-        home.classList.remove('slide-in');
+        perfil.classList.remove('slide-out-flotante');
+        home.classList.remove('slide-in-flotante');
         
-        home.classList.add('slide-out');
+        home.classList.add('slide-out-flotante');
         setTimeout(() => {
             home.style.display = 'none';
             perfil.style.display = 'flex';
-            perfil.classList.remove('slide-out');
-            perfil.classList.add('slide-in');
+            perfil.classList.remove('slide-out-flotante');
+            perfil.classList.add('slide-in-flotante');
         }, 300);
         btnHome.style.color = 'black';
         btnPefil.style.color = 'var(--tercer-color)';

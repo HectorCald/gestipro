@@ -1,4 +1,3 @@
-
 let usuarioInfo = {
     nombre: '',
     apellido: '',
@@ -58,6 +57,8 @@ async function obtenerUsuario() {
             duration: 3500
         });
         return false;
+    }finally{
+        ocultarCarga();
     }
 }
 export async function crearNav() {
