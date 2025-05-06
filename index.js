@@ -307,76 +307,68 @@ app.get('/obtener-usuario-actual', requireAuth, async (req, res) => {
 });
 app.post('/actualizar-usuario', requireAuth, async (req, res) => {
     const { email, spreadsheetId } = req.user;
-    const { nombre, apellido, nuevoEmail, foto } = req.body;
+    const { nombre, apellido, passwordActual, passwordNueva, foto } = req.body;
 
     try {
         const sheets = google.sheets({ version: 'v4', auth });
         
+        // Obtener fila actual
         const response = await sheets.spreadsheets.values.get({
-            spreadsheetId: spreadsheetId,
-            range: 'Usuarios!A2:G'
+            spreadsheetId,
+            range: 'Usuarios!A2:G',
         });
 
         const rows = response.data.values || [];
-        const rowIndex = rows.findIndex(row => row[5] === email);
-
-        if (rowIndex !== -1) {
-            const currentRow = rows[rowIndex];
-            let fotoToSave = currentRow[6] || './icons/icon.png';
-
-            if (foto) {
-                if (foto.length > 2000000) { // Si es mayor a 2MB
-                    return res.status(400).json({
-                        success: false,
-                        error: 'La imagen es demasiado grande'
-                    });
-                }
-                fotoToSave = foto;
-            }
-
-            const updateValues = [
-                [
-                    `${nombre || currentRow[1].split(' ')[0]} ${apellido || currentRow[1].split(' ')[1] || ''}`,
-                    currentRow[2],
-                    currentRow[3],
-                    currentRow[4],
-                    nuevoEmail || currentRow[5],
-                    fotoToSave
-                ]
-            ];
-
-            try {
-                await sheets.spreadsheets.values.update({
-                    spreadsheetId: spreadsheetId,
-                    range: `Usuarios!B${rowIndex + 2}:G${rowIndex + 2}`,
-                    valueInputOption: 'RAW',
-                    resource: {
-                        values: updateValues
-                    }
-                });
-
-                res.json({
-                    success: true,
-                    message: 'Usuario actualizado correctamente'
-                });
-            } catch (updateError) {
-                console.error('Error específico de actualización:', updateError);
-                res.status(400).json({
-                    success: false,
-                    error: 'Error al actualizar la imagen. Intenta con una imagen más pequeña'
-                });
-            }
-        } else {
-            res.status(404).json({
-                success: false,
-                error: 'Usuario no encontrado'
-            });
+        const userRow = rows.find(row => row[5] === email); // Email está en columna F (índice 5)
+        
+        if (!userRow) {
+            return res.status(404).json({ success: false, error: 'Usuario no encontrado' });
         }
+
+        // Validar contraseña actual si se está cambiando
+        if (passwordNueva) {
+            if (passwordActual !== userRow[0]) {
+                return res.status(400).json({ 
+                    success: false, 
+                    error: 'Contraseña actual incorrecta' 
+                });
+            }
+            
+            if (passwordNueva.length < 8) {
+                return res.status(400).json({
+                    success: false,
+                    error: 'La nueva contraseña debe tener al menos 8 caracteres'
+                });
+            }
+        }
+
+        // Actualizar datos
+        const updateData = [
+            passwordNueva || userRow[0], // Columna A: Contraseña
+            `${nombre} ${apellido}`.trim(), // Columna B: Nombre completo
+            userRow[2], // Columna C: Mantener rol
+            userRow[3], // Columna D: Mantener estado
+            userRow[4], // Columna E: Mantener plugins
+            email, // Columna F: Email
+            foto || userRow[6] // Columna G: Foto
+        ];
+
+        const rowIndex = rows.findIndex(row => row[5] === email) + 2; // +2 porque la hoja empieza en fila 2
+
+        await sheets.spreadsheets.values.update({
+            spreadsheetId,
+            range: `Usuarios!A${rowIndex}:G${rowIndex}`,
+            valueInputOption: 'USER_ENTERED',
+            resource: { values: [updateData] }
+        });
+
+        res.json({ success: true });
+
     } catch (error) {
         console.error('Error al actualizar usuario:', error);
-        res.status(500).json({
-            success: false,
-            error: 'Error al actualizar el usuario'
+        res.status(500).json({ 
+            success: false, 
+            error: 'Error interno del servidor' 
         });
     }
 });

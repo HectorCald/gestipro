@@ -59,6 +59,7 @@ async function obtenerUsuario() {
         return false;
     }
 }
+
 async function obtenerMisRegistros() {
     try {
         const response = await fetch('/obtener-registros-produccion');
@@ -323,71 +324,83 @@ function evetosCuenta() {
     });
 
     btnGuardar.addEventListener('click', async () => {
-        const nombre = document.querySelector('input.nombre').value.trim();
-        const apellido = document.querySelectorAll('input.nombre')[1].value.trim();
-        const passwordActual = document.querySelector('input.password-actual')?.value;
-        const passwordNueva = document.querySelector('input.password-nueva')?.value;
+    const nombre = document.querySelector('input.nombre').value.trim();
+    const apellido = document.querySelectorAll('input.nombre')[1].value.trim();
+    const passwordActual = document.querySelector('input.password-actual')?.value;
+    const passwordNueva = document.querySelector('input.password-nueva')?.value;
 
-        if (!nombre || !apellido) {
-            mostrarNotificacion({
-                message: 'Nombre y apellido son requeridos',
-                type: 'error',
-                duration: 3500
-            });
-            return;
+    // Validaciones básicas
+    if (!nombre || !apellido) {
+        mostrarNotificacion({
+            message: 'Nombre y apellido son requeridos',
+            type: 'error',
+            duration: 3500
+        });
+        return;
+    }
+
+    // Validación de contraseña nueva
+    if (passwordNueva && passwordNueva.length < 8) {
+        mostrarNotificacion({
+            message: 'La nueva contraseña debe tener al menos 8 caracteres',
+            type: 'error',
+            duration: 3500
+        });
+        return;
+    }
+
+    // Validar que ambas contraseñas estén presentes si se está cambiando
+    if ((passwordActual && !passwordNueva) || (!passwordActual && passwordNueva)) {
+        mostrarNotificacion({
+            message: 'Debe ingresar ambas contraseñas para cambiarla',
+            type: 'error',
+            duration: 3500
+        });
+        return;
+    }
+
+    try {
+        mostrarCarga();
+        const response = await fetch('/actualizar-usuario', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                nombre,
+                apellido,
+                foto: fotoModificada ? fotoBase64 : undefined,
+                passwordActual: passwordActual || undefined,
+                passwordNueva: passwordNueva || undefined
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || 'Error al actualizar el perfil');
         }
 
-        // Validar contraseñas si se están cambiando
-        if ((passwordActual && !passwordNueva) || (!passwordActual && passwordNueva)) {
-            mostrarNotificacion({
-                message: 'Debe ingresar ambas contraseñas para cambiarla',
-                type: 'error',
-                duration: 3500
-            });
-            return;
-        }
+        await obtenerUsuario();
+        mostrarPerfil(document.querySelector('.perfil-view'));
+        ocultarAnuncio();
+        mostrarNotificacion({
+            message: 'Perfil actualizado con éxito',
+            type: 'success',
+            duration: 3500
+        });
 
-        try {
-            mostrarCarga();
-            const response = await fetch('/actualizar-usuario', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    nombre,
-                    apellido,
-                    foto: fotoModificada ? fotoBase64 : undefined,
-                    passwordActual,
-                    passwordNueva
-                })
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                await obtenerUsuario();
-                mostrarPerfil(document.querySelector('.perfil-view'));
-                ocultarAnuncio();
-                mostrarNotificacion({
-                    message: 'Perfil actualizado con éxito',
-                    type: 'success',
-                    duration: 3500
-                });
-            } else {
-                throw new Error(data.error || 'Error al actualizar el perfil');
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            mostrarNotificacion({
-                message: error.message || 'Error al actualizar el perfil',
-                type: 'error',
-                duration: 3500
-            });
-        } finally {
-            ocultarCarga();
-        }
-    });
+    } catch (error) {
+        console.error('Error:', error);
+        mostrarNotificacion({
+            message: error.message || 'Error al actualizar el perfil',
+            type: 'error',
+            duration: 3500
+        });
+    } finally {
+        ocultarCarga();
+    }
+});
 
 }
 
