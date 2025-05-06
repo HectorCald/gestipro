@@ -490,6 +490,7 @@ app.post('/registrar-produccion', requireAuth, async (req, res) => {
     }
 });
 
+
 /* ==================== RUTAS DE PRODUCTOS ==================== */
 app.get('/obtener-productos', requireAuth, async (req, res) => {
     const { spreadsheetId } = req.user;

@@ -61,9 +61,14 @@ async function obtenerUsuario() {
     }
 }
 export async function crearNav() {
-    const view = document.querySelector('.nav');
-    obtenerUsuario().then(() => mostrarNav(view));
+    // Solo ejecutar si estamos en el dashboard
+    if (window.location.pathname === '/dashboard') {
+        const view = document.querySelector('.nav');
+        mostrarCarga(); // Ahora solo se mostrará en el dashboard
+        obtenerUsuario().then(() => mostrarNav(view));
+    }
 }
+
 function mostrarNav() {
     const view = document.querySelector('.nav');
     const nav = `
