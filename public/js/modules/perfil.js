@@ -509,4 +509,19 @@ function eventosExportar() {
     btnExcel.addEventListener('click', () => {
         exportarAExcel(registrosFiltrados);
     });
+
+    function exportarAExcel(registros) {
+    const fechaDesde = document.querySelector('.fecha-desde').value;
+    const fechaHasta = document.querySelector('.fecha-hasta').value;
+
+    // Determine the filename based on the date range
+    const nombreArchivo = (fechaDesde || fechaHasta) 
+        ? `Registros ${fechaDesde} - ${fechaHasta}.xlsx`
+        : `Todos los registros.xlsx`;
+
+    const worksheet = XLSX.utils.json_to_sheet(registros);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Registros');
+    XLSX.writeFile(workbook, nombreArchivo);
+}
 }
