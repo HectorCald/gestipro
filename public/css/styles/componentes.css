@@ -529,3 +529,31 @@
         border-radius: 10px;
     }
 }
+.anuncio .contenido .opcion {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    cursor: pointer;
+    border-radius: 0.5rem;
+    transition: background 0.3s ease;
+    background-color: var(--fondo2);
+
+    i {
+        font-size: 1.5rem;
+        color: var(--tercer-color);
+    }
+    .info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        
+        .texto {
+            font-weight: 600;
+        }
+        .detalle {
+            font-size: 0.875rem;
+            color: var(--cero-color);
+        }
+    }
+}

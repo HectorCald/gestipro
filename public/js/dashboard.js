@@ -8,6 +8,7 @@ import { mostrarFormularioProduccion } from './modules/formulario-produccion.js'
 window.crearHome = crearHome
 window.mostrarHome = mostrarHome
 
+
 window.crearNotificacion = crearNotificacion
 window.mostrarNotificacion = mostrarNotificacion
 

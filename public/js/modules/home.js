@@ -86,8 +86,6 @@ async function obtenerMisRegistros() {
             duration: 3500
         });
         return false;
-    }finally {
-        ocultarCarga();
     }
 }
 function obtenerFunciones() {

@@ -28,6 +28,7 @@ async function obtenerProductos() {
 }
 
 
+
 export async function mostrarFormularioProduccion() {
     const contenido = document.querySelector('.anuncio .contenido');
     const registrationHTML = `
