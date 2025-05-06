@@ -443,6 +443,18 @@ async function mostrarExportar() {
                 <button id="exportar-excel" class="btn green" style="margin-bottom:10px"><i class='bx bxs-file-export'></i> Exportar a Excel</button>
             </div>
         `;
+        flatpickr('.fecha-desde', {
+            dateFormat: 'd/m/Y', // Formato DD/MM/YYYY
+            locale: 'es',        // Español
+            allowInput: true      // Permite edición manual
+        });
+    
+        flatpickr('.fecha-hasta', {
+            dateFormat: 'd/m/Y', // Formato DD/MM/YYYY
+            locale: 'es',        // Español
+            allowInput: true      // Permite edición manual
+        });
+
 
     contenido.innerHTML = exportHTML;
     mostrarAnuncio();
