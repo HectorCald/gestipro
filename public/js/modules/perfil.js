@@ -456,40 +456,30 @@ function eventosExportar() {
     const registrosLista = document.querySelector('.registros-lista');
     let registrosFiltrados = [...registrosProduccion];
 
-    function parseFecha(fechaStr) {
-        if (!fechaStr) return null;
-    
-        // Convertir el formato YYYY-MM-DD (del input) a DD/MM/YYYY
-        if (fechaStr.includes('-')) {
-            const [year, month, day] = fechaStr.split('-');
-            return new Date(`${year}-${month}-${day}`);
-        } else if (fechaStr.includes('/')) {
-            // Mantener el formato DD/MM/YYYY de los registros
-            const [day, month, year] = fechaStr.split('/');
-            return new Date(`${year}-${month}-${day}`);
-        }
-        return null;
-    }
-
     function actualizarLista() {
-        const desde = parseFecha(fechaDesde.value);
-        const hasta = parseFecha(fechaHasta.value);
+        const desde = fechaDesde.value;
+        const hasta = fechaHasta.value;
 
         registrosFiltrados = registrosProduccion.filter(registro => {
-            const fechaRegistro = parseFecha(registro.fecha);
-        
-            if (desde && hasta) {
-                const hastaEndOfDay = new Date(hasta);
-                hastaEndOfDay.setDate(hastaEndOfDay.getDate() + 1);
-                return fechaRegistro >= desde && fechaRegistro < hastaEndOfDay;
-            } else if (desde) {
-                return fechaRegistro >= desde;
-            } else if (hasta) {
-                const hastaEndOfDay = new Date(hasta);
-                hastaEndOfDay.setDate(hastaEndOfDay.getDate() + 1);
-                return fechaRegistro < hastaEndOfDay;
+            let mostrar = true;
+
+            // Filtro por fechas
+            if (desde || hasta) {
+                const fechaTexto = registro.fecha;
+                const [dia, mes] = fechaTexto.split('/');
+                const año = new Date().getFullYear();
+                const fechaRegistro = `${año}-${mes.padStart(2, '0')}-${dia.padStart(2, '0')}`;
+
+                if (desde) {
+                    mostrar = fechaRegistro >= desde;
+                }
+
+                if (mostrar && hasta) {
+                    mostrar = fechaRegistro <= hasta;
+                }
             }
-            return true;
+
+            return mostrar;
         });
 
         registrosLista.innerHTML = `
