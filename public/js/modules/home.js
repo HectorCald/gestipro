@@ -210,7 +210,6 @@ export function crearHome() {
         obtenerMisRegistros(),
     ]).then(() => {
         mostrarHome(view);
-        // Trigger fade in animation after content is loaded
         requestAnimationFrame(() => {
             view.style.opacity = '1';
         });

@@ -46,6 +46,10 @@
 .btn.green {
     background: linear-gradient(45deg, var(--success), var(--second-color));
 }
+.btn.red {
+    background: linear-gradient(45deg, var(--error), var(--second-color));
+}
+
 
 .btn.close {
     background-color: var(--fondo2);
@@ -302,7 +306,7 @@
 .relleno {
     background-color: white;
     border-radius: 0;
-    padding: 10px 20px;
+    padding: 0px 20px;
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -557,3 +561,27 @@
         }
     }
 }
+.relleno{
+
+    .registro-item {
+        padding: 10px;
+        border-bottom: 1px solid var(--border-color);
+        background-color: var(--fondo2);
+        border-radius: 10px;
+    }
+    
+    .info-registro {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        font-size: var(--text-detalle) !important;
+
+        strong{
+            color: var(--cuarto-color);
+        }
+    }
+}
+
+
+
+

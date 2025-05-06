@@ -7,16 +7,12 @@ let usuarioInfo = {
     estado: '',
     plugins: ''
 };
-
-export function crearPerfil() {
-    const view = document.querySelector('.perfil-view');
-    obtenerUsuario().then(() => mostrarPerfil(view));
-}
+let registrosProduccion = [];
 async function obtenerUsuario() {
     try {
         const response = await fetch('/obtener-usuario-actual');
         const data = await response.json();
-        
+
         if (data.success) {
             const nombreCompleto = data.usuario.nombre.split(' ');
             usuarioInfo = {
@@ -63,6 +59,41 @@ async function obtenerUsuario() {
         return false;
     }
 }
+async function obtenerMisRegistros() {
+    try {
+        const response = await fetch('/obtener-registros-produccion');
+        const data = await response.json();
+
+        if (data.success) {
+            // Filtrar registros por el email del usuario actual
+            registrosProduccion = data.registros.filter(registro => registro.user === usuarioInfo.email);
+            return true;
+        } else {
+            mostrarNotificacion({
+                message: 'Error al obtener registros de producción',
+                type: 'error',
+                duration: 3500
+            });
+            return false;
+        }
+    } catch (error) {
+        console.error('Error al obtener registros:', error);
+        mostrarNotificacion({
+            message: 'Error al obtener registros de producción',
+            type: 'error',
+            duration: 3500
+        });
+        return false;
+    }
+}
+
+
+export async function crearPerfil() {
+    const view = document.querySelector('.perfil-view');
+    mostrarPerfil(view);
+    await obtenerUsuario();
+    await obtenerMisRegistros();
+}
 function mostrarPerfil(view) {
     const perfil = `
         <h1 class="titulo"><i class='bx bx-user'></i> Perfil</h1>
@@ -78,6 +109,7 @@ function mostrarPerfil(view) {
         </div>
         <button class="apartado cuenta"><i class='bx bx-user'></i> Cuenta</button>
         <button class="apartado configuraciones"><i class='bx bx-cog'></i> Configuraciones</button>
+        <button class="apartado exportar"><i class='bx bx-export'></i> Exportar</button>
         <button class="cerrar-sesion"><i class='bx bx-log-out'></i> Cerrar Sesión</button>
         <p class="version">Version 1.0.0</p>
     `;
@@ -86,6 +118,7 @@ function mostrarPerfil(view) {
     // Configurar event listeners
     const btnCuenta = document.querySelector('.apartado.cuenta');
     const btnConfiguraciones = document.querySelector('.apartado.configuraciones');
+    const btnExportar = document.querySelector('.apartado.exportar');
     const btnCerrarSesion = document.querySelector('.cerrar-sesion');
 
     btnCuenta.addEventListener('click', () => {
@@ -94,6 +127,10 @@ function mostrarPerfil(view) {
 
     btnConfiguraciones.addEventListener('click', () => {
         mostrarConfiguraciones();
+    });
+
+    btnExportar.addEventListener('click', () => {
+        mostrarExportar();
     });
 
     btnCerrarSesion.addEventListener('click', async () => {
@@ -113,6 +150,8 @@ function mostrarPerfil(view) {
         }
     });
 }
+
+
 function mostrarCuenta(nombre, apellido, email, foto) {
     const contenido = document.querySelector('.anuncio .contenido');
     const registrationHTML = `
@@ -163,7 +202,7 @@ function mostrarCuenta(nombre, apellido, email, foto) {
             <button id="btn-guardar" class="btn green">Guardar cambios</button>
         </div>
     `;
-    
+
     contenido.innerHTML = registrationHTML;
     mostrarAnuncio();
     evetosCuenta();
@@ -175,7 +214,7 @@ function evetosCuenta() {
     let fotoBase64 = null;
     let fotoModificada = false;
 
-    
+
 
     // Initialize current photo
     const currentPhoto = previewFoto.src;
@@ -197,7 +236,7 @@ function evetosCuenta() {
             });
     }
 
-    
+
 
     inputFoto.addEventListener('change', async (e) => {
         const file = e.target.files[0];
@@ -266,7 +305,7 @@ function evetosCuenta() {
                     type: 'error',
                     duration: 3500
                 });
-            }finally{
+            } finally {
                 ocultarCarga();
             }
         }
@@ -341,6 +380,7 @@ function evetosCuenta() {
 
 }
 
+
 function mostrarConfiguraciones() {
     const contenido = document.querySelector('.anuncio .contenido');
     const registrationHTML = `
@@ -360,3 +400,112 @@ function mostrarConfiguraciones() {
 }
 
 
+async function mostrarExportar() {
+    const contenido = document.querySelector('.anuncio .contenido');
+    const exportHTML = `
+            <div class="encabezado">
+                <h1 class="titulo">Exportar mis registros</h1>
+                <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
+            </div>
+            <div class="relleno">
+                <p class="subtitulo">Filtros de fecha:</p>
+                <div class="entrada">
+                    <i class='bx bx-calendar'></i>
+                    <div class="input">
+                        <p class="detalle">Desde</p>
+                        <input class="fecha-desde" type="date" placeholder=" " required>
+                    </div>
+                </div>
+                <div class="entrada">
+                    <i class='bx bx-calendar'></i>
+                    <div class="input">
+                        <p class="detalle">Hasta</p>
+                        <input class="fecha-hasta" type="date" placeholder=" " required>
+                    </div>
+                </div>
+                <p class="subtitulo">Tienes ${registrosProduccion.length} registros</p>
+                    ${registrosProduccion.map(registro => `
+                        <div class="registro-item">
+                            <div class="info-registro">
+                                <p class="fecha"><strong>Fecha:</strong> ${registro.fecha}</p>
+                                <p class="fecha"><strong>${registro.producto} ${registro.gramos}gr. </strong>  (${registro.fecha})</p>
+                                <p class="detalle"><strong>Cantidad: </strong>${registro.envases_terminados} Und. <strong>Verificado: </strong>${registro.c_real} Und.</p>
+                                <p class="detalle"><strong>Lote:</strong> ${registro.lote}  <strong>Proceso:</strong>${registro.proceso} <strong>Obs:</strong>${registro.observaciones} Und.</p>
+                            </div>
+                        </div>
+                    `).join('')}
+                <button id="exportar-excel" class="btn green" style="margin-bottom:10px"><i class='bx bxs-file-export'></i> Exportar a Excel</button>
+            </div>
+        `;
+
+    contenido.innerHTML = exportHTML;
+    mostrarAnuncio();
+    eventosExportar();
+}
+function eventosExportar() {
+    const btnExcel = document.getElementById('exportar-excel');
+    const fechaDesde = document.querySelector('.fecha-desde');
+    const fechaHasta = document.querySelector('.fecha-hasta');
+    const registrosLista = document.querySelector('.registros-lista');
+    let registrosFiltrados = [...registrosProduccion];
+
+    function parseFecha(fechaStr) {
+        if (!fechaStr) return null;
+
+        // Convertir fechas (dd/mm/yyyy) a formato comparable (yyyy-mm-dd)
+        const [day, month, year] = fechaStr.split('/');
+        return new Date(`${year}-${month}-${day}`);
+    }
+
+    function actualizarLista() {
+        const desde = parseFecha(fechaDesde.value);
+        const hasta = parseFecha(fechaHasta.value);
+
+        registrosFiltrados = registrosProduccion.filter(registro => {
+            const fechaRegistro = parseFecha(registro.fecha);
+
+            // Mostrar solo los registros que están dentro del rango de fechas
+            if (desde && hasta) {
+                return fechaRegistro >= desde && fechaRegistro <= hasta;
+            } else if (desde) {
+                return fechaRegistro >= desde;
+            } else if (hasta) {
+                return fechaRegistro <= hasta;
+            }
+            return true;
+        });
+
+        registrosLista.innerHTML = `
+            <p class="subtitulo">Tienes ${registrosFiltrados.length} registros</p>
+            ${registrosFiltrados.map(registro => `
+                <div class="registro-item">
+                    <div class="info-registro">
+                        <p class="fecha">${registro.fecha}</p>
+                        <p class="detalle">${registro.producto} ${registro.gramos} - ${registro.envases_terminados} Und.</p>
+                    </div>
+                </div>
+            `).join('')}
+        `;
+    }
+
+    fechaDesde.addEventListener('change', actualizarLista);
+    fechaHasta.addEventListener('change', actualizarLista);
+
+    btnExcel.addEventListener('click', () => {
+        exportarAExcel(registrosFiltrados);
+    });
+    function exportarAExcel(registros) {
+        const fechaDesde = document.querySelector('.fecha-desde').value;
+        const fechaHasta = document.querySelector('.fecha-hasta').value;
+
+        // Determine the filename based on the date range
+        const nombreArchivo = (fechaDesde || fechaHasta)
+            ? `Registros ${fechaDesde} - ${fechaHasta}.xlsx`
+            : `Todos los registros.xlsx`;
+
+        const worksheet = XLSX.utils.json_to_sheet(registros);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Registros');
+        XLSX.writeFile(workbook, nombreArchivo);
+    }
+}
