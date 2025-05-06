@@ -561,7 +561,11 @@
         }
     }
 }
-.relleno{
+.registros-lista{
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
 
     .registro-item {
         padding: 10px;

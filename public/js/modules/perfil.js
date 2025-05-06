@@ -424,6 +424,7 @@ async function mostrarExportar() {
                     </div>
                 </div>
                 <p class="subtitulo">Tienes ${registrosProduccion.length} registros</p>
+                <div class="registros-lista">
                     ${registrosProduccion.map(registro => `
                         <div class="registro-item">
                             <div class="info-registro">
@@ -434,6 +435,7 @@ async function mostrarExportar() {
                             </div>
                         </div>
                     `).join('')}
+                </div>
                 <button id="exportar-excel" class="btn green" style="margin-bottom:10px"><i class='bx bxs-file-export'></i> Exportar a Excel</button>
             </div>
         `;
