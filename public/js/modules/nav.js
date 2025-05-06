@@ -90,6 +90,7 @@ function eventosNav() {
     const refreshButton = document.querySelector('.nav-container .refresh');
     
     refreshButton.addEventListener('click', () => {
+        mostrarCarga();
         location.reload();
     });
 }
