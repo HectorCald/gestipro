@@ -8,6 +8,8 @@ let usuarioInfo = {
     plugins: ''
 };
 let registrosProduccion = [];
+
+
 async function obtenerUsuario() {
     try {
         const response = await fetch('/obtener-usuario-actual');
@@ -65,7 +67,7 @@ async function obtenerMisRegistros() {
         const data = await response.json();
 
         if (data.success) {
-            console.log('Datos obtenidos:', data.registros); // Log para verificar los datos obtenidos
+
             registrosProduccion = data.registros;
             return true;
         } else {
@@ -196,14 +198,16 @@ function obtenerFunciones() {
 }
 
 
+
+
 export function crearHome() {
     const view = document.querySelector('.home-view');
     Promise.all([
         obtenerUsuario(),
-        obtenerMisRegistros()
+        obtenerMisRegistros(),
     ]).then(() => mostrarHome(view));
 }
-function mostrarHome(view) {
+export function mostrarHome(view) {
     // Obtener las funciones del usuario según su rol
     const funcionesUsuario = obtenerFunciones();
 
@@ -460,27 +464,39 @@ function eventosHome() {
     function cargarMasRegistros(registrosFiltrados) {
         const currentCount = document.querySelectorAll('.registro').length;
         const registrosParaMostrar = registrosFiltrados.slice(currentCount, currentCount + 10);
-    
+
         const registrosHTML = registrosParaMostrar.map(registro => {
             const estado = registro.fecha_verificacion ? 'Verificado' : 'Pendiente';
             return `
-                <div class="registro" data-id="${registro.id}">
-                    <div class="info">
-                        <p class="fecha">${registro.fecha}</p>
-                        <p class="producto">${registro.producto}</p>
-                    </div>
-                    <div class="detalles">
-                        <p class="cantidad">Envasados: <strong>${registro.envases_terminados} Und.</strong></p>
-                        <p class="lote">Lote: <strong>${registro.lote}</strong></p>
-                        <p class="estado ${estado.toLowerCase()}">Estado: <strong>${estado}</strong></p>
-                    </div>
+            <div class="registro" data-id="${registro.id}">
+                <div class="info">
+                    <p class="fecha">${registro.fecha}</p>
+                    <p class="producto">${registro.producto}</p>
                 </div>
-            `;
+                <div class="detalles">
+                    <p class="cantidad">Envasados: <strong>${registro.envases_terminados} Und.</strong></p>
+                    <p class="lote">Lote: <strong>${registro.lote}</strong></p>
+                    <p class="estado ${estado.toLowerCase()}">Estado: <strong>${estado}</strong></p>
+                </div>
+            </div>
+        `;
         }).join('');
-    
+
         document.querySelector('.registros').insertAdjacentHTML('beforeend', registrosHTML);
-    
-        // Remove "Load More" button if all records are shown
+
+        // Agregar event listeners a los nuevos registros
+        const nuevosRegistros = document.querySelectorAll('.registro');
+        nuevosRegistros.forEach((registroElement, index) => {
+            if (index >= currentCount) { // Solo agregar listeners a los nuevos
+                registroElement.addEventListener('click', () => {
+                    const registroId = registroElement.getAttribute('data-id');
+                    const registro = registrosProduccion.find(r => r.id === registroId);
+                    mostrarDetalleRegistro(registro);
+                });
+            }
+        });
+
+        // Remover botón si ya no hay más registros para cargar
         if (currentCount + 10 >= registrosFiltrados.length) {
             document.querySelector('.btn-cargar-mas').remove();
         }

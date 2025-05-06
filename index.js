@@ -428,9 +428,110 @@ app.get('/obtener-registros-produccion', requireAuth, async (req, res) => {
         });
     }
 });
+app.post('/registrar-produccion', requireAuth, async (req, res) => {
+    const { spreadsheetId, email, nombre } = req.user;  // Add nombre from token
+    const { producto, lote, gramos, proceso, microondas, tiempo, envasados, vencimiento } = req.body;
 
+    try {
+        const sheets = google.sheets({ version: 'v4', auth });
+        
+        // Get last ID to generate new one
+        const lastIdResponse = await sheets.spreadsheets.values.get({
+            spreadsheetId: spreadsheetId,
+            range: 'Produccion!A2:A'
+        });
 
+        const lastId = lastIdResponse.data.values ? 
+            Math.max(...lastIdResponse.data.values.map(row => parseInt(row[0].split('-')[1]) || 0)) : 0;
+        const newId = `RP-${(lastId + 1).toString().padStart(3, '0')}`;
+        
+        const currentDate = new Date().toLocaleDateString('es-ES');
+        const microondasValue = microondas === 'Si' ? tiempo : 'No';
 
+        const newRow = [
+            newId,              // ID
+            currentDate,        // FECHA
+            producto,           // PRODUCTO
+            lote,              // LOTE
+            gramos,            // GR.
+            proceso,           // PROCESO
+            microondasValue,   // MICR.
+            envasados,         // ENVS. TERM.
+            vencimiento,       // FECHA VENC.
+            nombre,            // NOMBRE (using nombre from token)
+            '',                // C. REAL
+            '',                // FECHA VER.
+            '',                // OBSERVACIONES
+            'Pendiente',       // PAGADO
+            email              // USER
+        ];
+
+        await sheets.spreadsheets.values.append({
+            spreadsheetId: spreadsheetId,
+            range: 'Produccion!A:O',
+            valueInputOption: 'USER_ENTERED',
+            insertDataOption: 'INSERT_ROWS',
+            resource: {
+                values: [newRow]
+            }
+        });
+
+        res.json({
+            success: true,
+            message: 'Producción registrada correctamente'
+        });
+
+    } catch (error) {
+        console.error('Error al registrar producción:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error al registrar la producción'
+        });
+    }
+});
+
+/* ==================== RUTAS DE PRODUCTOS ==================== */
+app.get('/obtener-productos', requireAuth, async (req, res) => {
+    const { spreadsheetId } = req.user;
+
+    try {
+        const sheets = google.sheets({ version: 'v4', auth });
+        
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId: spreadsheetId,
+            range: 'Almacen general!A2:K' // Asegúrate de que el rango cubra todas las columnas necesarias
+        });
+
+        const rows = response.data.values || [];
+        
+        // Mapear los datos a un formato más legible
+        const productos = rows.map(row => ({
+            id: row[0] || '',
+            producto: row[1] || '',
+            gramos: row[2] || '',
+            stock: row[3] || '',
+            grupo: row[4] || '',
+            lista: row[5] || '',
+            codigo_barras: row[6] || '',
+            precios: row[7] || '',
+            etiquetas: row[8] || '',
+            acopio_id: row[9] || '',
+            alm_acopio_nombre: row[10] || ''
+        }));
+
+        res.json({
+            success: true,
+            productos
+        });
+
+    } catch (error) {
+        console.error('Error al obtener productos:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error al obtener los productos'
+        });
+    }
+});
 
 
 

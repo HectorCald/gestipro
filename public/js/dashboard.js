@@ -1,9 +1,12 @@
 import { crearNotificacion, mostrarNotificacion, mostrarAnuncio, ocultarAnuncio, mostrarCarga, ocultarCarga, configuracionesEntrada } from './modules/componentes.js'
-import { crearHome } from './modules/home.js';
+import { crearHome, mostrarHome } from './modules/home.js';
 import { crearNav } from './modules/nav.js'
 import { crearPerfil } from './modules/perfil.js';
 import { flotante } from './modules/flotante.js';
 import { mostrarFormularioProduccion } from './modules/formulario-produccion.js'
+
+window.crearHome = crearHome
+window.mostrarHome = mostrarHome
 
 window.crearNotificacion = crearNotificacion
 window.mostrarNotificacion = mostrarNotificacion

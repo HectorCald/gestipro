@@ -71,11 +71,12 @@
     transform: translateX(-50%);
     z-index: 5;
     width: 100%;
-    padding: 0 15px;
+    padding: 0;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    background: none;
 
     .notification {
         background-color: white;
@@ -459,6 +460,7 @@
             z-index: 2;
             font-size: var(--text-titulo);
             width: 100%;
+            color:black;
         }
 
         select {
@@ -470,6 +472,7 @@
             z-index: 2;
             font-size: var(--text-titulo);
             width: 100%;
+            color:black;
         }
 
         .entrada .input select:not(:placeholder-shown)~.detalle,
@@ -505,6 +508,22 @@
                 font-size: var(--text-superior);
             }
         }
+        
 
+    }
+}
+
+
+.sugerencias{
+    width: 100%;
+    height: auto;
+    display: none;
+    flex-direction: column;
+    padding: 5px 10px;
+    gap: 5px;
+
+    .item{
+        background-color: var(--fondo2);
+        padding: 10px 20px;
     }
 }
