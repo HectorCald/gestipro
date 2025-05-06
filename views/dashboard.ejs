@@ -1,16 +1,25 @@
 <!-- ==================== HEADER Y NAVEGACIÓN ==================== -->
 <%- include('partials/header') %>
-<link rel="stylesheet" href="./css/dashboard_db.css">
-    
-<div class="container-damabrava container">
-    <div class="nav"></div>
-    <div class="home-view view"></div>
-    <div class="perfil-view view" style="display: none;"></div>
+    <link rel="stylesheet" href="./css/dashboard_db.css">
 
-    <div class="flotante">
-        <button class="home active"><i class='bx bx-home'></i></button>
-        <button class="perfil"><i class='bx bx-user'></i></button>
+    <div class="container-damabrava container">
+        <div class="nav">
+            <div class="nav-container">
+                <button class="refresh"><i class='bx bx-refresh'></i></button>
+                <button class="menu"><i class='bx bx-menu'></i></button>
+                <div class="info">
+                    <h1 class="titulo">Damabrava</h1>
+                    <p class="rol">@rol</p>
+                </div>
+            </div>
+        </div>
+        <div class="home-view view"></div>
+        <div class="perfil-view view" style="display: none;"></div>
+
+        <div class="flotante">
+            <button class="home active"><i class='bx bx-home'></i></button>
+            <button class="perfil"><i class='bx bx-user'></i></button>
+        </div>
     </div>
-</div>
-<%- include('./componentes') %>
-<%- include('partials/footer') %>
+    <%- include('./componentes') %>
+        <%- include('partials/footer') %>

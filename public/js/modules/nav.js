@@ -1,3 +1,4 @@
+
 let usuarioInfo = {
     nombre: '',
     apellido: '',
@@ -67,7 +68,8 @@ function mostrarNav() {
     const view = document.querySelector('.nav');
     const nav = `
             <div class="nav-container">
-                <button><i class='bx bx-menu'></i></button>
+                <button class="refresh"><i class='bx bx-refresh'></i></button>
+                <button class="menu"><i class='bx bx-menu'></i></button>
                 <div class="info">
                     <h1 class="titulo">Damabrava</h1>
                     <p class="rol">@${usuarioInfo.rol}</p>
@@ -79,36 +81,9 @@ function mostrarNav() {
 }
 
 function eventosNav() {
-    const homeButton = document.querySelector('.flotante .home');
-    let pressTimer;
-
-    homeButton.addEventListener('mousedown', () => {
-        pressTimer = setTimeout(() => {
-            location.reload();
-        }, 800); // 800ms hold time to trigger reload
-    });
-
-    homeButton.addEventListener('mouseup', () => {
-        clearTimeout(pressTimer);
-    });
-
-    homeButton.addEventListener('mouseleave', () => {
-        clearTimeout(pressTimer);
-    });
-
-    // Support for touch devices
-    homeButton.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        pressTimer = setTimeout(() => {
-            location.reload();
-        }, 800);
-    });
-
-    homeButton.addEventListener('touchend', () => {
-        clearTimeout(pressTimer);
-    });
-
-    homeButton.addEventListener('touchcancel', () => {
-        clearTimeout(pressTimer);
+    const refreshButton = document.querySelector('.nav-container .refresh');
+    
+    refreshButton.addEventListener('click', () => {
+        location.reload();
     });
 }

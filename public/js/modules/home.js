@@ -204,10 +204,17 @@ function obtenerFunciones() {
 
 export function crearHome() {
     const view = document.querySelector('.home-view');
+    view.style.opacity = '0';  // Start with opacity 0
     Promise.all([
         obtenerUsuario(),
         obtenerMisRegistros(),
-    ]).then(() => mostrarHome(view));
+    ]).then(() => {
+        mostrarHome(view);
+        // Trigger fade in animation after content is loaded
+        requestAnimationFrame(() => {
+            view.style.opacity = '1';
+        });
+    });
 }
 export function mostrarHome(view) {
     // Obtener las funciones del usuario según su rol

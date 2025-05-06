@@ -61,7 +61,7 @@ async function obtenerUsuario() {
             duration: 3500
         });
         return false;
-    } finally {
+    }finally{
         ocultarCarga();
     }
 }
@@ -115,8 +115,6 @@ function mostrarPerfil(view) {
         }
     });
 }
-
-
 function mostrarCuenta(nombre, apellido, email, foto) {
     const contenido = document.querySelector('.anuncio .contenido');
     const registrationHTML = `

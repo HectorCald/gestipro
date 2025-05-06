@@ -22,8 +22,8 @@ window.configuracionesEntrada = configuracionesEntrada
 window.mostrarFormularioProduccion = mostrarFormularioProduccion
 
 document.addEventListener('DOMContentLoaded', async () => {
-    await flotante();
-    crearNav();
+    await crearNav();
+    flotante();
     crearHome();
     crearPerfil();
 });
