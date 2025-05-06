@@ -457,13 +457,13 @@ function eventosExportar() {
 
     function parseFecha(fechaStr) {
         if (!fechaStr) return null;
-
-        // Manejar tanto "YYYY-MM-DD" (del input) como "DD/MM/YYYY" (de los registros)
+    
+        // Convertir el formato YYYY-MM-DD (del input) a DD/MM/YYYY
         if (fechaStr.includes('-')) {
-            // Analizar directamente el formato ISO (YYYY-MM-DD)
-            return new Date(fechaStr);
+            const [year, month, day] = fechaStr.split('-');
+            return new Date(`${year}-${month}-${day}`);
         } else if (fechaStr.includes('/')) {
-            // Analizar el formato "DD/MM/YYYY"
+            // Mantener el formato DD/MM/YYYY de los registros
             const [day, month, year] = fechaStr.split('/');
             return new Date(`${year}-${month}-${day}`);
         }
