@@ -90,9 +90,10 @@ async function obtenerMisRegistros() {
 
 export async function crearPerfil() {
     const view = document.querySelector('.perfil-view');
-    mostrarPerfil(view);
     await obtenerUsuario();
     await obtenerMisRegistros();
+    mostrarPerfil(view);
+    
 }
 function mostrarPerfil(view) {
     const perfil = `
