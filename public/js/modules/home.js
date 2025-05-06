@@ -67,8 +67,14 @@ async function obtenerMisRegistros() {
         const data = await response.json();
 
         if (data.success) {
-
-            registrosProduccion = data.registros;
+            // Ordenar registros de más reciente a más antiguo
+            registrosProduccion = data.registros.sort((a, b) => {
+                const [dayA, monthA, yearA] = a.fecha.split('/').map(Number);
+                const [dayB, monthB, yearB] = b.fecha.split('/').map(Number);
+                const dateA = new Date(yearA + 2000, monthA - 1, dayA);
+                const dateB = new Date(yearB + 2000, monthB - 1, dayB);
+                return dateA - dateB; // Orden descendente (más reciente primero)
+            });
             return true;
         } else {
             mostrarNotificacion({
