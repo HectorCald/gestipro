@@ -21,11 +21,11 @@ window.configuracionesEntrada = configuracionesEntrada
 
 window.mostrarFormularioProduccion = mostrarFormularioProduccion
 
-document.addEventListener('DOMContentLoaded',async () => {
+document.addEventListener('DOMContentLoaded', async () => {
     await flotante();
-    await crearNav();
-    await crearHome();
-    await crearPerfil();
+    crearNav();
+    crearHome();
+    crearPerfil();
 });
 
 

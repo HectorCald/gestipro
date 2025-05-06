@@ -104,14 +104,16 @@ function obtenerFunciones() {
                 vista: 'cuentasProduccion-view',
                 icono: 'fa-history',
                 texto: 'Registros',
-                detalle: 'Ver mis registros de producción'
+                detalle: 'Ver mis registros de producción',
+                onclick: 'onclick="document.querySelector(\'.seccion2 .subtitulo\').scrollIntoView({behavior: \'smooth\', block: \'start\'})"'
             },
             {
                 clase: 'opcion-btn',
                 vista: 'gestionPro-view',
                 icono: 'fa-chart-line',
                 texto: 'Estadisticas',
-                detalle: 'Ver mis estadisticas.'
+                detalle: 'Ver mis estadisticas.',
+                onclick: 'onclick="document.querySelector(\'.seccion3 .subtitulo\').scrollIntoView({behavior: \'smooth\', block: \'start\'})"'
             }
         ],
         'Acopio': [

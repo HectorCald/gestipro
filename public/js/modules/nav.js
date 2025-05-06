@@ -75,4 +75,40 @@ function mostrarNav() {
             </div>
     `;
     view.innerHTML = nav;
+    eventosNav();
+}
+
+function eventosNav() {
+    const homeButton = document.querySelector('.flotante .home');
+    let pressTimer;
+
+    homeButton.addEventListener('mousedown', () => {
+        pressTimer = setTimeout(() => {
+            location.reload();
+        }, 800); // 800ms hold time to trigger reload
+    });
+
+    homeButton.addEventListener('mouseup', () => {
+        clearTimeout(pressTimer);
+    });
+
+    homeButton.addEventListener('mouseleave', () => {
+        clearTimeout(pressTimer);
+    });
+
+    // Support for touch devices
+    homeButton.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        pressTimer = setTimeout(() => {
+            location.reload();
+        }, 800);
+    });
+
+    homeButton.addEventListener('touchend', () => {
+        clearTimeout(pressTimer);
+    });
+
+    homeButton.addEventListener('touchcancel', () => {
+        clearTimeout(pressTimer);
+    });
 }

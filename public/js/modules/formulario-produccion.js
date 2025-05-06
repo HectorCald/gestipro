@@ -82,7 +82,7 @@ export async function mostrarFormularioProduccion() {
                     </select>
                 </div>
             </div>
-            <div class="entrada">
+            <div class="entrada" style="display:none">
                 <i class='bx bx-time'></i>
                 <div class="input">
                     <p class="detalle">Tiempo</p>

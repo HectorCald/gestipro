@@ -71,7 +71,7 @@
     transform: translateX(-50%);
     z-index: 5;
     width: 100%;
-    padding: 0;
+    padding: 0 15px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -435,6 +435,7 @@
         position: relative;
         z-index: 2;
         font-size: var(--text-titulo);
+        text-align: left !important;
 
         .detalle {
             color: var(--cero-color);
