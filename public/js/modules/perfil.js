@@ -93,7 +93,6 @@ export async function crearPerfil() {
     await obtenerUsuario();
     await obtenerMisRegistros();
     mostrarPerfil(view);
-    
 }
 function mostrarPerfil(view) {
     const perfil = `
