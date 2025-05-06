@@ -443,18 +443,7 @@ async function mostrarExportar() {
                 <button id="exportar-excel" class="btn green" style="margin-bottom:10px"><i class='bx bxs-file-export'></i> Exportar a Excel</button>
             </div>
         `;
-        flatpickr('.fecha-desde', {
-            dateFormat: 'd/m/Y', // Formato DD/MM/YYYY
-            locale: 'es',        // Español
-            allowInput: true      // Permite edición manual
-        });
-    
-        flatpickr('.fecha-hasta', {
-            dateFormat: 'd/m/Y', // Formato DD/MM/YYYY
-            locale: 'es',        // Español
-            allowInput: true      // Permite edición manual
-        });
-
+        
 
     contenido.innerHTML = exportHTML;
     mostrarAnuncio();
@@ -489,9 +478,7 @@ function eventosExportar() {
         registrosFiltrados = registrosProduccion.filter(registro => {
             const fechaRegistro = parseFecha(registro.fecha);
         
-            // Mostrar solo los registros que están dentro del rango de fechas
             if (desde && hasta) {
-                // Sumar un día a la fecha "hasta" para incluir todo el día
                 const hastaEndOfDay = new Date(hasta);
                 hastaEndOfDay.setDate(hastaEndOfDay.getDate() + 1);
                 return fechaRegistro >= desde && fechaRegistro < hastaEndOfDay;
@@ -524,18 +511,4 @@ function eventosExportar() {
     btnExcel.addEventListener('click', () => {
         exportarAExcel(registrosFiltrados);
     });
-    function exportarAExcel(registros) {
-        const fechaDesde = document.querySelector('.fecha-desde').value;
-        const fechaHasta = document.querySelector('.fecha-hasta').value;
-
-        // Determine the filename based on the date range
-        const nombreArchivo = (fechaDesde || fechaHasta)
-            ? `Registros ${fechaDesde} - ${fechaHasta}.xlsx`
-            : `Todos los registros.xlsx`;
-
-        const worksheet = XLSX.utils.json_to_sheet(registros);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, 'Registros');
-        XLSX.writeFile(workbook, nombreArchivo);
-    }
 }

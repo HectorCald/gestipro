@@ -456,6 +456,7 @@
             transform-origin: left top;
             will-change: transform, font-size;
             transition: top 0.3s ease-out, transform 0.3s ease-out, font-size 0.3s ease-out;
+            pointer-events: none;
         }
 
         input {
@@ -517,6 +518,21 @@
         }
         
 
+    }
+    .input.fecha{
+        display: flex !important;
+        flex-direction: row;
+        justify-content: center !important;
+        align-items: center !important;
+        gap: 1px;
+        background-color: black;
+
+
+        select{
+            width: 30% !important;
+            background-color: var(--tercer-color) !important;
+            z-index: 6 !important;
+        }
     }
 }
 
