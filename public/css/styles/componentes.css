@@ -181,7 +181,7 @@
 
         p {
             font-size: var(--text-subtitulo);
-            background: linear-gradient(45deg, var(--tercer-color), var(--second-color));
+            background: var(--cuarto-color);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
@@ -390,7 +390,7 @@
         height: 120px;
         border-radius: 50%;
         overflow: hidden;
-        background: linear-gradient(45deg, var(--tercer-color), var(--second-color));
+        background: linear-gradient(45deg, var(--tercer-color), #1a1a1a);
 
         img {
             width: 100%;
