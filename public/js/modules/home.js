@@ -8,7 +8,7 @@ let usuarioInfo = {
     plugins: ''
 };
 let registrosProduccion = [];
-
+let registrosMovimientos = [];
 
 async function obtenerUsuario() {
     try {
@@ -67,15 +67,16 @@ async function obtenerMisRegistros() {
         const data = await response.json();
 
         if (data.success) {
-            // Ordenar registros de más reciente a más antiguo
-            registrosProduccion = data.registros.sort((a, b) => {
-                const [dayA, monthA, yearA] = a.fecha.split('/').map(Number);
-                const [dayB, monthB, yearB] = b.fecha.split('/').map(Number);
-                const dateA = new Date(yearA + 2000, monthA - 1, dayA);
-                const dateB = new Date(yearB + 2000, monthB - 1, dayB);
-                return dateB - dateA; // Orden descendente (más reciente primero)
-            });
+            // Filtrar registros por el email del usuario actual y ordenar de más reciente a más antiguo
+            registrosProduccion = data.registros
+                .filter(registro => registro.user === usuarioInfo.email)
+                .sort((a, b) => {
+                    const idA = parseInt(a.id.split('-')[1]);
+                    const idB = parseInt(b.id.split('-')[1]);
+                    return idB - idA; // Orden descendente por número de ID
+                });
             return true;
+
         } else {
             mostrarNotificacion({
                 message: 'Error al obtener registros de producción',
@@ -145,24 +146,24 @@ function obtenerFunciones() {
                 clase: 'opcion-btn',
                 vista: 'verificarRegistros-view',
                 icono: 'fa-check-double',
-                texto: 'Verificar Registros',
-                detalle: 'Aqui puedes verificar la cantidad real de los registros de producción.',
+                texto: 'Verificar',
+                detalle: 'Verifica registros.',
                 onclick: 'onclick="cargarRegistros()"'
             },
             {
                 clase: 'opcion-btn',
                 vista: 'almacen-view',
-                icono: 'fa-dolly',
-                texto: 'Gestionar Almacen',
-                detalle: 'Aqui puedes gestionar el almacen de la empresa: (stock, Productos, ingresos, salidas).',
+                icono: 'fa-arrow-down',
+                texto: 'Ingresos',
+                detalle: 'Ingresos de tu almacen.',
                 onclick: 'onclick="inicializarAlmacenGral()"'
             },
             {
                 clase: 'opcion-btn',
                 vista: 'regAlmacen-view',
-                icono: 'fa-history',
-                texto: 'Registros Almacen',
-                detalle: 'Aqui puedes ver todos los registros de almacen que hiciste tanto ingreso como salidas.',
+                icono: 'fa-arrow-up',
+                texto: 'Salidas',
+                detalle: 'Salidas de tu almacen.',
                 onclick: 'onclick="cargarRegistrosAlmacenGral()"'
             }
         ],
@@ -204,28 +205,61 @@ function obtenerFunciones() {
     }
     return atajosUsuario.slice(0, 3);
 }
+async function obtenerMovimientosAlmacen() {
+    try {
+        const response = await fetch('/obtener-movimientos-almacen');
+        const data = await response.json();
 
-
+        if (data.success) {
+            // Store movements in global variable and sort by date (most recent first)
+            registrosMovimientos = data.movimientos.sort((a, b) => {
+                const idA = parseInt(a.id.split('-')[1]);
+                const idB = parseInt(b.id.split('-')[1]);
+                return idB - idA; // Orden descendente por número de ID
+            });
+            return true;
+        } else {
+            mostrarNotificacion({
+                message: 'Error al obtener movimientos de almacén',
+                type: 'error',
+                duration: 3500
+            });
+            return false;
+        }
+    } catch (error) {
+        console.error('Error al obtener movimientos:', error);
+        mostrarNotificacion({
+            message: 'Error al obtener movimientos de almacén',
+            type: 'error',
+            duration: 3500
+        });
+        return false;
+    }
+}
 
 
 export function crearHome() {
     const view = document.querySelector('.home-view');
     view.style.opacity = '0';  // Start with opacity 0
-    Promise.all([
-        obtenerUsuario(),
-        obtenerMisRegistros(),
-    ]).then(() => {
-        mostrarHome(view);
-        requestAnimationFrame(() => {
-            view.style.opacity = '1';
+
+    // Primero obtenemos el usuario
+    obtenerUsuario().then(() => {
+        // Después, según el rol, obtenemos los registros correspondientes
+        const promesas = [
+            usuarioInfo.rol === 'Producción' ? obtenerMisRegistros() : null,
+            usuarioInfo.rol === 'Almacen' ? obtenerMovimientosAlmacen() : null
+        ].filter(Boolean); // Filtramos los null
+
+        Promise.all(promesas).then(() => {
+            mostrarHome(view);
+            requestAnimationFrame(() => {
+                view.style.opacity = '1';
+            });
         });
     });
 }
 export function mostrarHome(view) {
-    // Obtener las funciones del usuario según su rol
     const funcionesUsuario = obtenerFunciones();
-
-    // Generar el HTML de las funciones
     const funcionesHTML = funcionesUsuario.map(funcion => `
         <div class="funcion" ${funcion.onclick}>
             <i class='fas ${funcion.icono}'></i>
@@ -234,38 +268,81 @@ export function mostrarHome(view) {
         </div>
     `).join('');
 
-    // Filtrar registros por el nombre del usuario actual en la columna J
-    const registrosFiltrados = registrosProduccion.filter(registro => registro.user === usuarioInfo.email);
+    // Determinar qué registros mostrar según el rol
+    let registrosFiltrados = [];
+    let tipoRegistro = '';
 
-    // Mostrar solo los últimos 10 registros
-    const registrosParaMostrar = registrosFiltrados.slice(-10);
+    switch (usuarioInfo.rol) {
+        case 'Producción':
+            registrosFiltrados = registrosProduccion
+            tipoRegistro = 'producción';
+            break;
+        case 'Almacen':
+            registrosFiltrados = registrosMovimientos
+            tipoRegistro = 'almacén';
+            break;
+    }
 
-    // Calcular los destacados
-    const totalRegistros = registrosFiltrados.length;
-    const verificados = registrosFiltrados.filter(registro => registro.fecha_verificacion).length;
-    const noVerificados = totalRegistros - verificados;
+    const registrosParaMostrar = registrosFiltrados.slice(0, 10);
 
+    // Adaptar el HTML según el tipo de registro
     const registrosHTML = registrosParaMostrar.map(registro => {
-        const estado = registro.fecha_verificacion ? 'Verificado' : 'Pendiente';
+        if (usuarioInfo.rol === 'Producción') {
+            const estado = registro.fecha_verificacion ? 'Verificado' : 'Pendiente';
+            return `
+                <div class="registro" data-id="${registro.id}">
+                    <div class="info">
+                        <p class="fecha">${registro.fecha}</p>
+                        <p class="producto">${registro.producto} ${registro.gramos}gr.</p>
+                    </div>
+                    <div class="detalles">
+                        <p class="cantidad">Envasados: <strong>${registro.envases_terminados} Und.</strong></p>
+                        <p class="lote">Lote: <strong>${registro.lote}</strong></p>
+                        <p class="estado ${estado.toLowerCase()}">Estado: <strong>${estado}</strong></p>
+                    </div>
+                </div>
+            `;
+        } else if (usuarioInfo.rol === 'Almacen') {
+        const tipo = registro.tipo === 'Ingreso' ? 'Ingreso' : 'Salida';
         return `
             <div class="registro" data-id="${registro.id}">
                 <div class="info">
-                    <p class="fecha">${registro.fecha}</p>
-                    <p class="producto">${registro.producto} ${registro.gramos}gr.</p>
+                    <p class="fecha">${registro.fecha_hora}</p>
+                    <p class="producto">${registro.producto}</p>
                 </div>
                 <div class="detalles">
-                    <p class="cantidad">Envasados: <strong>${registro.envases_terminados} Und.</strong></p>
-                    <p class="lote">Lote: <strong>${registro.lote}</strong></p>
-                    <p class="estado ${estado.toLowerCase()}">Estado: <strong>${estado}</strong></p>
+                    <p class="cantidad">Cantidad: <strong>${registro.cantidad}</strong></p>
+                    <p class="tipo-movimiento ${tipo.toLowerCase()}">Tipo: <strong>${registro.tipo}</strong></p>
                 </div>
             </div>
         `;
+    }
     }).join('');
+
+    // Calcular los destacados según el rol
+    let destacados = {};
+    if (usuarioInfo.rol === 'Producción') {
+        const totalRegistros = registrosFiltrados.length;
+        const verificados = registrosFiltrados.filter(registro => registro.fecha_verificacion).length;
+        destacados = {
+            total: totalRegistros,
+            verificados: verificados,
+            noVerificados: totalRegistros - verificados
+        };
+    } else if (usuarioInfo.rol === 'Almacen') {
+        const entradas = registrosFiltrados.filter(registro => registro.tipo === 'Ingreso').length;
+        const salidas = registrosFiltrados.filter(registro => registro.tipo === 'Salida').length;
+        destacados = {
+            total: registrosFiltrados.length,
+            entradas: entradas,
+            salidas: salidas
+        };
+    }
 
     const home = `
         <h1 class="titulo"><i class='bx bx-home'></i> Inicio</h1>
         <div class="seccion1">
-            <h2 class="normal"><i class='bx bx-chevron-right'></i> Tus funciones</h2>
+            <h2 class="normal"><i class='bx bx-chevron-right'></i> Tus atajos</h2>
             <div class="funciones-rol">
                 ${funcionesHTML}
             </div>
@@ -273,29 +350,46 @@ export function mostrarHome(view) {
         <div class="seccion3">
             <h2 class="normal"><i class='bx bx-chevron-right'></i> Tus destacados</h2>
             <div class="destacados">
-
-                <div class="destacado">
-                    <p class="cantidad blue">${totalRegistros}</p>
-                    <p class="tipo">Total registros</p>
-                </div>
-
-                <div class="destacado">
-                    <p class="cantidad green">${verificados}</p>
-                    <p class="tipo">Verificados</p>
-                </div>
-
-                <div class="destacado">
-                    <p class="cantidad yellow">${noVerificados}</p>
-                    <p class="tipo">No verificados</p>
-                </div>
+                ${usuarioInfo.rol === 'Producción' ? `
+                    <div class="destacado">
+                        <p class="cantidad blue">${destacados.total}</p>
+                        <p class="tipo">Total registros</p>
+                    </div>
+                    <div class="destacado">
+                        <p class="cantidad green">${destacados.verificados}</p>
+                        <p class="tipo">Verificados</p>
+                    </div>
+                    <div class="destacado">
+                        <p class="cantidad yellow">${destacados.noVerificados}</p>
+                        <p class="tipo">No verificados</p>
+                    </div>
+                ` : `
+                    <div class="destacado">
+                        <p class="cantidad blue">${destacados.total}</p>
+                        <p class="tipo">Total</p>
+                    </div>
+                    <div class="destacado">
+                        <p class="cantidad green">${destacados.entradas}</p>
+                        <p class="tipo">Ingresos</p>
+                    </div>
+                    <div class="destacado">
+                        <p class="cantidad yellow">${destacados.salidas}</p>
+                        <p class="tipo">Salidas</p>
+                    </div>
+                `}
             </div>
         </div>
         <div class="seccion2">
-            <h2 class="normal"><i class='bx bx-chevron-right'></i> Tus registros</h2>
+            <h2 class="normal"><i class='bx bx-chevron-right'></i> Tus registros de ${tipoRegistro}</h2>
             <div class="filtros-opciones estado">
                 <button class="btn-filtro activado">Todos</button>
-                <button class="btn-filtro">No verificados</button>
-                <button class="btn-filtro">Verificados</button>
+                ${usuarioInfo.rol === 'Producción' ? `
+                    <button class="btn-filtro">No verificados</button>
+                    <button class="btn-filtro">Verificados</button>
+                ` : `
+                    <button class="btn-filtro">Ingresos</button>
+                    <button class="btn-filtro">Salidas</button>
+                `}
             </div>
             <div class="filtros-opciones tiempo">
                 <button class="btn-filtro activado">Todos</button>
@@ -306,18 +400,17 @@ export function mostrarHome(view) {
                 <button class="btn-filtro">6 meses</button>
                 <button class="btn-filtro">1 año</button>
             </div>
-            <p class="aviso">Registros de <span>7 dias</span></p>
+            <p class="aviso">Todos los registros(Segun tus filtros).</p>
             <div class="registros">
                 ${registrosHTML}
             </div>
-            ${totalRegistros > 10 ? '<button class="btn-cargar-mas">Cargar más</button>' : ''}
+            ${registrosFiltrados.length > 10 ? '<button class="btn-cargar-mas">Cargar más</button>' : ''}
         </div>
     `;
 
     view.innerHTML = home;
     eventosHome();
 
-    // Add event listener for "Load More" button
     const loadMoreButton = document.querySelector('.btn-cargar-mas');
     if (loadMoreButton) {
         loadMoreButton.addEventListener('click', () => {
@@ -328,191 +421,253 @@ export function mostrarHome(view) {
 function eventosHome() {
     const estadoButtons = document.querySelectorAll('.filtros-opciones.estado .btn-filtro');
     const tiempoButtons = document.querySelectorAll('.filtros-opciones.tiempo .btn-filtro');
-    const homeView = document.querySelector('.home-view');
-    const tusRegistrosSubtitle = document.querySelector('.seccion2 .normal');
+    const registrosContainer = document.querySelector('.registros');
+
+
+    registrosContainer.addEventListener('click', (e) => {
+        const registroElement = e.target.closest('.registro');
+        if (registroElement) {
+            const registroId = registroElement.getAttribute('data-id');
+            if (usuarioInfo.rol === 'Producción') {
+                const registro = registrosProduccion.find(r => r.id === registroId);
+                mostrarDetalleRegistro(registro);
+            } else if (usuarioInfo.rol === 'Almacen') {
+                const registro = registrosMovimientos.find(r => r.id === registroId);
+                mostrarDetalleRegistroAlmacen(registro);
+            }
+        }
+    });
 
     estadoButtons.forEach(button => {
-        button.addEventListener('click', () => {
+        button.addEventListener('click', async () => {
             estadoButtons.forEach(btn => btn.classList.remove('activado'));
             button.classList.add('activado');
 
-            // Scroll the button into view
-            button.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
-
             const estadoSeleccionado = button.textContent.trim();
-            filtrarRegistros(estadoSeleccionado, obtenerFiltroTiempo()).then(() => {
-                // After filtering, scroll the "Tus registros" subtitle to the top of the home-view container
-                tusRegistrosSubtitle.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            });
+
+            scrollToRegistros();
+            await filtrarRegistros(estadoSeleccionado, obtenerFiltroTiempo());
         });
     });
 
     tiempoButtons.forEach(button => {
-        button.addEventListener('click', () => {
+        button.addEventListener('click', async () => {
             tiempoButtons.forEach(btn => btn.classList.remove('activado'));
             button.classList.add('activado');
 
-            // Scroll the button into view
-            button.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
-
             const tiempoSeleccionado = button.textContent.trim();
-            filtrarRegistros(obtenerFiltroEstado(), tiempoSeleccionado).then(() => {
-                // After filtering, scroll the "Tus registros" subtitle to the top of the home-view container
-                tusRegistrosSubtitle.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            });
+
+            scrollToRegistros();
+            await filtrarRegistros(obtenerFiltroEstado(), tiempoSeleccionado);
         });
     });
+
+    // Función auxiliar para hacer scroll
+    function scrollToRegistros() {
+        requestAnimationFrame(() => {
+            const tusRegistrosSubtitle = document.querySelector('.seccion2 h2.normal');
+            if (tusRegistrosSubtitle) {
+                tusRegistrosSubtitle.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    }
+
+
 
     function obtenerFiltroEstado() {
         const estadoButton = document.querySelector('.filtros-opciones.estado .btn-filtro.activado');
         return estadoButton ? estadoButton.textContent.trim() : 'Todos';
     }
-
     function obtenerFiltroTiempo() {
         const tiempoButton = document.querySelector('.filtros-opciones.tiempo .btn-filtro.activado');
         return tiempoButton ? tiempoButton.textContent.trim() : '7 dias';
     }
 
+
     function filtrarRegistros(estado, tiempo) {
         return new Promise((resolve) => {
-            const registrosFiltrados = registrosProduccion.filter(registro => {
-                const userMatch = registro.user === usuarioInfo.email;
-                const estadoMatch = estado === 'Todos' || (estado === 'Verificados' && registro.fecha_verificacion) || (estado === 'No verificados' && !registro.fecha_verificacion);
+            let registrosFiltrados = [];
 
-                const [day, month, year] = registro.fecha.split('/').map(Number);
-                const registroDate = new Date(year + 2000, month - 1, day);
+            if (usuarioInfo.rol === 'Producción') {
+                registrosFiltrados = registrosProduccion.filter(registro => {
+                    const estadoMatch = estado === 'Todos' ||
+                        (estado === 'Verificados' && registro.fecha_verificacion) ||
+                        (estado === 'No verificados' && !registro.fecha_verificacion);
 
-                const currentDate = new Date();
-                let startDate;
-                if (tiempo === 'Todos') {
-                    startDate = new Date(0);
-                } else {
-                    switch (tiempo) {
-                        case '7 dias':
-                            startDate = new Date(currentDate.setDate(currentDate.getDate() - 7));
-                            break;
-                        case '15 dias':
-                            startDate = new Date(currentDate.setDate(currentDate.getDate() - 15));
-                            break;
-                        case '1 mes':
-                            startDate = new Date(currentDate.setMonth(currentDate.getMonth() - 1));
-                            break;
-                        case '3 meses':
-                            startDate = new Date(currentDate.setMonth(currentDate.getMonth() - 3));
-                            break;
-                        case '6 meses':
-                            startDate = new Date(currentDate.setMonth(currentDate.getMonth() - 6));
-                            break;
-                        case '1 año':
-                            startDate = new Date(currentDate.setFullYear(currentDate.getFullYear() - 1));
-                            break;
-                        default:
-                            startDate = new Date(currentDate.setDate(currentDate.getDate() - 7));
-                    }
-                }
+                    const [day, month, year] = registro.fecha.split('/').map(Number);
+                    const registroDate = new Date(year + 2000, month - 1, day);
+                    return estadoMatch && filtrarPorTiempo(registroDate, tiempo);
+                });
+            } else if (usuarioInfo.rol === 'Almacen') {
+                registrosFiltrados = registrosMovimientos.filter(registro => {
+                    const estadoMatch = estado === 'Todos' ||
+                        (estado === 'Ingresos' && registro.tipo === 'Ingreso') ||
+                        (estado === 'Salidas' && registro.tipo === 'Salida');
 
-                const tiempoMatch = registroDate >= startDate;
-                return userMatch && estadoMatch && tiempoMatch;
-            });
+                    // Separar fecha y hora
+                    const [fecha, hora] = registro.fecha_hora.split(', ');
+                    const [day, month, year] = fecha.split('/').map(Number);
+                    const registroDate = new Date(year, month - 1, day);
 
-            // Sort and slice to get the last 10 records
+                    return estadoMatch && filtrarPorTiempo(registroDate, tiempo);
+                });
+            }
+
             const registrosParaMostrar = registrosFiltrados.slice(-10);
+            actualizarRegistrosHTML(registrosParaMostrar, registrosFiltrados, tiempo); // Pass tiempo parameter
 
-            const registrosHTML = registrosParaMostrar.map(registro => {
-                const estado = registro.fecha_verificacion ? 'Verificado' : 'Pendiente';
-                return `
-            <div class="registro" data-id="${registro.id}">
-                <div class="info">
-                    <p class="fecha">${registro.fecha}</p>
-                    <p class="producto">${registro.producto}</p>
-                </div>
-                <div class="detalles">
-                    <p class="cantidad">Envasados: <strong>${registro.envases_terminados} Und.</strong></p>
-                    <p class="lote">Lote: <strong>${registro.lote}</strong></p>
-                    <p class="estado ${estado.toLowerCase()}">Estado: <strong>${estado}</strong></p>
-                </div>
-            </div>
-        `;
-            }).join('');
-
-            const registrosContainer = document.querySelector('.registros');
-            registrosContainer.innerHTML = registrosHTML;
-
-            // Remove existing "Load More" button
-            const existingLoadMoreButton = document.querySelector('.btn-cargar-mas');
-            if (existingLoadMoreButton) {
-                existingLoadMoreButton.remove();
-            }
-
-            // Add "Load More" button if there are more than 10 records
-            if (registrosFiltrados.length > 10) {
-                const loadMoreButton = document.createElement('button');
-                loadMoreButton.textContent = 'Cargar más';
-                loadMoreButton.classList.add('btn-cargar-mas');
-                loadMoreButton.addEventListener('click', () => {
-                    cargarMasRegistros(registrosFiltrados);
-                });
-                registrosContainer.appendChild(loadMoreButton);
-            }
-
-            // Add event listeners to registros
-            document.querySelectorAll('.registro').forEach(registroElement => {
-                registroElement.addEventListener('click', () => {
-                    const registroId = registroElement.getAttribute('data-id');
-                    const registro = registrosProduccion.find(r => r.id === registroId);
-                    mostrarDetalleRegistro(registro);
-                });
-            });
-
-            const avisoElement = document.querySelector('.aviso');
-            if (registrosFiltrados.length > 0) {
-                avisoElement.textContent = `Registros ${estado.toLowerCase()} de ${tiempo}`;
-            } else {
-                avisoElement.textContent = 'No hay registros';
-            }
-
-            resolve(); // Resolve the promise after filtering is done
+            setTimeout(resolve, 50);
         });
     }
+    function filtrarPorTiempo(registroDate, tiempo) {
+        const currentDate = new Date();
+        let startDate = new Date();
 
-    function cargarMasRegistros(registrosFiltrados) {
-        const currentCount = document.querySelectorAll('.registro').length;
-        const registrosParaMostrar = registrosFiltrados.slice(currentCount, currentCount + 10);
+        if (tiempo === 'Todos') return true;
 
+        switch (tiempo) {
+            case '7 dias':
+                startDate.setDate(currentDate.getDate() - 7);
+                break;
+            case '15 dias':
+                startDate.setDate(currentDate.getDate() - 15);
+                break;
+            case '1 mes':
+                startDate.setMonth(currentDate.getMonth() - 1);
+                break;
+            case '3 meses':
+                startDate.setMonth(currentDate.getMonth() - 3);
+                break;
+            case '6 meses':
+                startDate.setMonth(currentDate.getMonth() - 6);
+                break;
+            case '1 año':
+                startDate.setFullYear(currentDate.getFullYear() - 1);
+                break;
+            default:
+                startDate.setDate(currentDate.getDate() - 7);
+        }
+
+        return registroDate >= startDate;
+    }
+    function actualizarRegistrosHTML(registrosParaMostrar, registrosFiltrados) {
         const registrosHTML = registrosParaMostrar.map(registro => {
-            const estado = registro.fecha_verificacion ? 'Verificado' : 'Pendiente';
-            return `
-            <div class="registro" data-id="${registro.id}">
-                <div class="info">
-                    <p class="fecha">${registro.fecha}</p>
-                    <p class="producto">${registro.producto}</p>
-                </div>
-                <div class="detalles">
-                    <p class="cantidad">Envasados: <strong>${registro.envases_terminados} Und.</strong></p>
-                    <p class="lote">Lote: <strong>${registro.lote}</strong></p>
-                    <p class="estado ${estado.toLowerCase()}">Estado: <strong>${estado}</strong></p>
-                </div>
-            </div>
-        `;
+            if (usuarioInfo.rol === 'Producción') {
+                const estado = registro.fecha_verificacion ? 'Verificado' : 'Pendiente';
+                return `
+                    <div class="registro" data-id="${registro.id}">
+                        <div class="info">
+                            <p class="fecha">${registro.fecha}</p>
+                            <p class="producto">${registro.producto} ${registro.gramos}gr.</p>
+                        </div>
+                        <div class="detalles">
+                            <p class="cantidad">Envasados: <strong>${registro.envases_terminados} Und.</strong></p>
+                            <p class="lote">Lote: <strong>${registro.lote}</strong></p>
+                            <p class="estado ${estado.toLowerCase()}">Estado: <strong>${estado}</strong></p>
+                        </div>
+                    </div>
+                `;
+            } else if (usuarioInfo.rol === 'Almacen') {
+                const tipo = registro.tipo === 'Ingreso' ? 'Ingreso' : 'Salida';
+                return `
+                    <div class="registro" data-id="${registro.id}">
+                        <div class="info">
+                            <p class="fecha">${registro.fecha_hora}</p>
+                            <p class="producto">${registro.producto}</p>
+                        </div>
+                        <div class="detalles">
+                            <p class="cantidad">Cantidad: <strong>${registro.cantidad}</strong></p>
+                            <p class="tipo-movimiento ${tipo.toLowerCase()}">Tipo: <strong>${registro.tipo}</strong></p>
+                        </div>
+                    </div>
+                `;
+            }
         }).join('');
 
-        document.querySelector('.registros').insertAdjacentHTML('beforeend', registrosHTML);
+        const registrosContainer = document.querySelector('.registros');
+        registrosContainer.innerHTML = registrosHTML;
 
-        // Agregar event listeners a los nuevos registros
-        const nuevosRegistros = document.querySelectorAll('.registro');
-        nuevosRegistros.forEach((registroElement, index) => {
-            if (index >= currentCount) { // Solo agregar listeners a los nuevos
-                registroElement.addEventListener('click', () => {
-                    const registroId = registroElement.getAttribute('data-id');
-                    const registro = registrosProduccion.find(r => r.id === registroId);
-                    mostrarDetalleRegistro(registro);
-                });
+        // Actualizar botón "Cargar más"
+        const existingLoadMoreButton = document.querySelector('.btn-cargar-mas');
+        if (existingLoadMoreButton) {
+            existingLoadMoreButton.remove();
+        }
+
+        if (registrosFiltrados.length > 10) {
+            const loadMoreButton = document.createElement('button');
+            loadMoreButton.textContent = 'Cargar más';
+            loadMoreButton.classList.add('btn-cargar-mas');
+            loadMoreButton.addEventListener('click', () => {
+                cargarMasRegistros(registrosFiltrados);
+            });
+            registrosContainer.appendChild(loadMoreButton);
+        }
+
+        // Actualizar aviso
+        const avisoElement = document.querySelector('.aviso');
+        const estadoActual = document.querySelector('.filtros-opciones.estado .btn-filtro.activado').textContent.trim();
+        avisoElement.textContent = `Registros ${estadoActual.toLowerCase()} de ${tiempo}`;
+    }
+
+    
+    function cargarMasRegistros(registrosFiltrados) {
+        const registrosContainer = document.querySelector('.registros');
+        const registrosActuales = document.querySelectorAll('.registro');
+        const currentCount = registrosActuales.length;
+
+        // Obtener los nuevos registros
+        const nuevosRegistros = registrosFiltrados.slice(currentCount, currentCount + 10);
+
+        // Generar HTML para los nuevos registros
+        const nuevosRegistrosHTML = nuevosRegistros.map(registro => {
+            if (usuarioInfo.rol === 'Producción') {
+                const estado = registro.fecha_verificacion ? 'Verificado' : 'Pendiente';
+                return `
+                <div class="registro" data-id="${registro.id}">
+                    <div class="info">
+                        <p class="fecha">${registro.fecha}</p>
+                        <p class="producto">${registro.producto} ${registro.gramos}gr.</p>
+                    </div>
+                    <div class="detalles">
+                        <p class="cantidad">Envasados: <strong>${registro.envases_terminados} Und.</strong></p>
+                        <p class="lote">Lote: <strong>${registro.lote}</strong></p>
+                        <p class="estado ${estado.toLowerCase()}">Estado: <strong>${estado}</strong></p>
+                    </div>
+                </div>
+            `;
+            } else if (usuarioInfo.rol === 'Almacen') {
+                const tipo = registro.tipo === 'Ingreso' ? 'Ingreso' : 'Salida';
+                return `
+                <div class="registro" data-id="${registro.id}">
+                    <div class="info">
+                        <p class="fecha">${registro.fecha_hora}</p>
+                        <p class="producto">${registro.producto}</p>
+                    </div>
+                    <div class="detalles">
+                        <p class="cantidad">Cantidad: <strong>${registro.cantidad}</strong></p>
+                        <p class="tipo-movimiento ${tipo.toLowerCase()}">Tipo: <strong>${registro.tipo}</strong></p>
+                    </div>
+                </div>
+            `;
             }
-        });
+        }).join('');
 
-        // Remover botón si ya no hay más registros para cargar
-        if (currentCount + 10 >= registrosFiltrados.length) {
-            document.querySelector('.btn-cargar-mas').remove();
+        // Agregar los nuevos registros al contenedor
+        registrosContainer.insertAdjacentHTML('beforeend', nuevosRegistrosHTML);
+
+        // Actualizar el botón "Cargar más"
+        const loadMoreButton = document.querySelector('.btn-cargar-mas');
+        if (loadMoreButton) {
+            loadMoreButton.remove();
+        }
+
+        // Agregar el botón "Cargar más" si hay más registros
+        if (currentCount + 10 < registrosFiltrados.length) {
+            const newLoadMoreButton = document.createElement('button');
+            newLoadMoreButton.textContent = 'Cargar más';
+            newLoadMoreButton.classList.add('btn-cargar-mas');
+            newLoadMoreButton.addEventListener('click', () => cargarMasRegistros(registrosFiltrados));
+            registrosContainer.appendChild(newLoadMoreButton);
         }
     }
     window.cargarMasRegistros = cargarMasRegistros;
@@ -520,53 +675,95 @@ function eventosHome() {
     document.querySelectorAll('.registro').forEach(registroElement => {
         registroElement.addEventListener('click', () => {
             const registroId = registroElement.getAttribute('data-id');
-            const registro = registrosProduccion.find(r => r.id === registroId);
-            mostrarDetalleRegistro(registro);
+            if (usuarioInfo.rol === 'Producción') {
+                const registro = registrosProduccion.find(r => r.id === registroId);
+                mostrarDetalleRegistro(registro);
+            } else if (usuarioInfo.rol === 'Almacen') {
+                const registro = registrosMovimientos.find(r => r.id === registroId);
+                mostrarDetalleRegistroAlmacen(registro);
+            }
         });
     });
 
     function mostrarDetalleRegistro(registro) {
-        const contenido = document.querySelector('.anuncio .contenido')
+        const contenido = document.querySelector('.anuncio .contenido');
         const detalleHTML = `
-        <div class="encabezado">
-            <h1 class="titulo">Detalles del Registro</h1>
-            <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
-        </div>
-        <div class="relleno">
-            <p class="normal"><i class='bx bx-chevron-right'></i> Información basica</p>
-            <div class="campo-vertical">
-                <p class="item"><i class='bx bx-calendar'></i> <strong>Fecha:</strong> ${registro.fecha}</p>
-                <p class="item"><i class='bx bx-id-card'></i> <strong>ID:</strong> ${registro.id}</p>
+            <div class="encabezado">
+                <h1 class="titulo">Detalles del Registro</h1>
+                <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
             </div>
-            
+            <div class="relleno">
+                <p class="normal"><i class='bx bx-chevron-right'></i> Información básica</p>
+                <div class="campo-vertical">
+                    <p class="item"><i class='bx bx-calendar'></i> <strong>Fecha:</strong> ${registro.fecha}</p>
+                    <p class="item"><i class='bx bx-id-card'></i> <strong>ID:</strong> ${registro.id}</p>
+                </div>
 
-            <p class="normal"><i class='bx bx-chevron-right'></i> Información del producto</p>
-            <div class="campo-vertical">
-                <p class="item"><i class='bx bx-package'></i> <strong>Producto:</strong>${registro.producto} ${registro.gramos}gr.</p>
-                <p class="item"><i class='bx bx-barcode'></i> <strong>Lote:</strong> ${registro.lote}</p>
-            </div>
-            
-            <p class="normal"><i class='bx bx-chevron-right'></i> Procesos</p>
-            <div class="campo-vertical">
-                <p class="item"><i class='bx bx-cog'></i><strong>Seleccion/Cernido:</strong> ${registro.proceso}</p>
-                <p class="item"><i class='bx bx-microchip'></i><strong>Microondas:</strong> ${registro.microondas} Segundos</p>
-            </div>
+                <p class="normal"><i class='bx bx-chevron-right'></i> Información del producto</p>
+                <div class="campo-vertical">
+                    <p class="item"><i class='bx bx-package'></i> <strong>Producto:</strong> ${registro.producto}</p>
+                    <p class="item"><i class='bx bx-cube'></i> <strong>Gramos:</strong> ${registro.gramos}gr.</p>
+                    <p class="item"><i class='bx bx-box'></i> <strong>Lote:</strong> ${registro.lote}</p>
+                </div>
 
-            <p class="normal"><i class='bx bx-chevron-right'></i> Detalles de finalización</p>
-            <div class="campo-vertical">
-                <p class="item"><i class='bx bx-box'></i> <strong>Envasados Terminados:</strong> ${registro.envases_terminados} Unidades</p>
-                <p class="item"><i class='bx bx-calendar-check'></i> <strong>Fecha de Vencimiento:</strong> ${registro.fecha_vencimiento}</p>
-            </div>
+                <p class="normal"><i class='bx bx-chevron-right'></i> Detalles de producción</p>
+                <div class="campo-vertical">
+                    <p class="item"><i class='bx bx-package'></i> <strong>Seleccionado/cernido:</strong> ${registro.proceso}</p>
+                    <p class="item"><i class='bx bx-microchip'></i> <strong>Microondas:</strong> ${registro.microondas}</p>
+                    <p class="item"><i class='bx bx-package'></i> <strong>Envases terminados:</strong> ${registro.envases_terminados} Und.</p>
+                    <p class="item"><i class='bx bx-calendar'></i> <strong>Fecha de vencimiento:</strong> ${registro.fecha_vencimiento}</p>
+                    <p class="item"><i class='bx bx-transfer'></i> <strong>Verificado:</strong> ${registro.fecha_verificacion ? 'Verificado' : 'Pendiente'}</p>
+                    ${registro.fecha_verificacion ? `<p class="item"><i class='bx bx-calendar-check'></i> <strong>Fecha verificación:</strong> ${registro.fecha_verificacion}</p>` : ''}
+                </div>
 
-            <p class="normal"><i class='bx bx-chevron-right'></i> Detalles de la verificación</p>
-            <div class="campo-vertical">
-                <p class="item"><i class='bx bx-check-circle'></i> <strong>Fecha de Verificación:</strong> ${registro.fecha_verificacion ? registro.fecha_verificacion : 'No verificado'}</p>
-                <p class="item"><i class='bx bx-calculator'></i> <strong>Cantidad Real:</strong> ${registro.c_real ? registro.fecha_verificacion : 'No verificado'}</p>
-                <p class="item"><i class='bx bx-comment'></i> <strong>Observaciones:</strong> ${registro.observaciones ? registro.fecha_verificacion : 'No verificado'}</p>
-                <p class="item"><i class='bx bx-dollar'></i> <strong>Pagado:</strong> ${registro.pagado ? registro.fecha_verificacion : 'No verificado'}</p>
+                ${registro.observaciones ? `
+                    <p class="normal"><i class='bx bx-chevron-right'></i> Observaciones</p>
+                    <div class="campo-vertical">
+                        <p class="item"><i class='bx bx-comment-detail'></i> ${registro.observaciones}</p>
+                    </div>
+                ` : ''}
             </div>
-        </div>
-    `;
+        `;
+        contenido.style.paddingBottom = '0';
+        contenido.innerHTML = detalleHTML;
+        mostrarAnuncio();
+    }
+    function mostrarDetalleRegistroAlmacen(registro) {
+        const contenido = document.querySelector('.anuncio .contenido');
+        const detalleHTML = `
+            <div class="encabezado">
+                <h1 class="titulo">Detalles del Movimiento</h1>
+                <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
+            </div>
+            <div class="relleno">
+                <p class="normal"><i class='bx bx-chevron-right'></i> Información básica</p>
+                <div class="campo-vertical">
+                    <p class="item"><i class='bx bx-calendar'></i> <strong>Fecha y Hora:</strong> ${registro.fecha_hora}</p>
+                    <p class="item"><i class='bx bx-id-card'></i> <strong>ID:</strong> ${registro.id}</p>
+                </div>
+
+                <p class="normal"><i class='bx bx-chevron-right'></i> Información del producto</p>
+                <div class="campo-vertical">
+                    <p class="item"><i class='bx bx-package'></i> <strong>Producto:</strong> ${registro.producto}</p>
+                    <p class="item"><i class='bx bx-cube'></i> <strong>Cantidad:</strong> ${registro.cantidad}Unidades</p>
+                </div>
+
+                <p class="normal"><i class='bx bx-chevron-right'></i> Detalles del movimiento</p>
+                <div class="campo-vertical">
+                    <p class="item"><i class='bx bx-transfer'></i> <strong>Tipo:</strong> ${registro.tipo === 'entrada' ? 'Ingreso' : 'Salida'}</p>
+                    ${registro.destino ? `<p class="item"><i class='bx bx-map'></i> <strong>Destino:</strong> ${registro.destino}</p>` : ''}
+                    ${registro.origen ? `<p class="item"><i class='bx bx-map-pin'></i> <strong>Origen:</strong> ${registro.origen}</p>` : ''}
+                    ${registro.motivo ? `<p class="item"><i class='bx bx-message-square-detail'></i> <strong>Motivo:</strong> ${registro.motivo}</p>` : ''}
+                </div>
+
+                ${registro.observaciones ? `
+                    <p class="normal"><i class='bx bx-chevron-right'></i> Observaciones</p>
+                    <div class="campo-vertical">
+                        <p class="item"><i class='bx bx-comment-detail'></i> ${registro.observaciones}</p>
+                    </div>
+                ` : ''}
+            </div>
+        `;
         contenido.style.paddingBottom = '0';
         contenido.innerHTML = detalleHTML;
         mostrarAnuncio();

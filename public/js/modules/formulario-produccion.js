@@ -48,7 +48,6 @@ export async function mostrarFormularioProduccion() {
             <div class="sugerencias" id="productos-list"></div>
             <div class="entrada">
                 <i class="ri-scales-line"></i>
-
                 <div class="input">
                     <p class="detalle">Gramaje</p>
                     <input class="gramaje" type="number" inputmode="numeric" pattern="[0-9]*" placeholder=" " required>

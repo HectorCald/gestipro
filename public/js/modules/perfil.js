@@ -8,6 +8,7 @@ let usuarioInfo = {
     plugins: ''
 };
 let registrosProduccion = [];
+let registrosMovimientos = [];
 async function obtenerUsuario() {
     try {
         const response = await fetch('/obtener-usuario-actual');
@@ -94,6 +95,37 @@ async function obtenerMisRegistros() {
         return false;
     }
 }
+async function obtenerMovimientosAlmacen() {
+    try {
+        const response = await fetch('/obtener-movimientos-almacen');
+        const data = await response.json();
+
+        if (data.success) {
+            // Store movements in global variable and sort by date (most recent first)
+            registrosMovimientos = data.movimientos.sort((a, b) => {
+                const idA = parseInt(a.id.split('-')[1]);
+                const idB = parseInt(b.id.split('-')[1]);
+                return idB - idA; // Orden descendente por número de ID
+            });
+            return true;
+        } else {
+            mostrarNotificacion({
+                message: 'Error al obtener movimientos de almacén',
+                type: 'error',
+                duration: 3500
+            });
+            return false;
+        }
+    } catch (error) {
+        console.error('Error al obtener movimientos:', error);
+        mostrarNotificacion({
+            message: 'Error al obtener movimientos de almacén',
+            type: 'error',
+            duration: 3500
+        });
+        return false;
+    }
+}
 
 
 export async function crearPerfil() {
@@ -101,6 +133,7 @@ export async function crearPerfil() {
     const view = document.querySelector('.perfil-view');
     await obtenerUsuario();
     await obtenerMisRegistros();
+    await obtenerMovimientosAlmacen();
     mostrarPerfil(view);
 }
 function mostrarPerfil(view) {
@@ -500,6 +533,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function mostrarExportar() {
     const contenido = document.querySelector('.anuncio .contenido');
+    const registrosAExportar = usuarioInfo.rol === 'Almacen' ? registrosMovimientos : registrosProduccion;
+    
     const exportHTML = `
             <div class="encabezado">
                 <h1 class="titulo">Exportar mis registros</h1>
@@ -523,15 +558,28 @@ async function mostrarExportar() {
                 </div>
 
                 <div class="registros-lista">
-                    <p class="normal"><i class='bx bx-chevron-right'></i> Tienes ${registrosProduccion.length} registros</p>
-                    ${registrosProduccion.map(registro => `
-                        <div class="registro-item">
-                            <div class="info-registro">
-                                <p class="fecha"><strong>${registro.fecha}</strong></p>
-                                <p class="detalle">${registro.producto} ${registro.gramos} - ${registro.c_real ? registro.c_real : registro.envases_terminados} Und.</p>
-                            </div>
-                        </div>
-                    `).join('')}
+                    <p class="normal"><i class='bx bx-chevron-right'></i> Tienes ${registrosAExportar.length} registros</p>
+                    ${registrosAExportar.map(registro => {
+                        if (usuarioInfo.rol === 'Almacen') {
+                            return `
+                                <div class="registro-item">
+                                    <div class="info-registro">
+                                        <p class="fecha"><strong>${registro.fecha_hora}</strong></p>
+                                        <p class="detalle">${registro.producto} - ${registro.cantidad} Und. (${registro.tipo})</p>
+                                    </div>
+                                </div>
+                            `;
+                        } else {
+                            return `
+                                <div class="registro-item">
+                                    <div class="info-registro">
+                                        <p class="fecha"><strong>${registro.fecha}</strong></p>
+                                        <p class="detalle">${registro.producto} ${registro.gramos} - ${registro.envases_terminados} Und.</p>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    }).join('')}
                 </div>
             </div>
             <div class="anuncio-botones">
@@ -539,28 +587,29 @@ async function mostrarExportar() {
             </div>
         `;
 
-
     contenido.innerHTML = exportHTML;
     mostrarAnuncio();
     eventosExportar();
 }
+
 function eventosExportar() {
     const btnExcel = document.getElementById('exportar-excel');
     const fechaDesde = document.querySelector('.fecha-desde');
     const fechaHasta = document.querySelector('.fecha-hasta');
     const registrosLista = document.querySelector('.registros-lista');
-    let registrosFiltrados = [...registrosProduccion];
+    const registrosAExportar = usuarioInfo.rol === 'Almacen' ? registrosMovimientos : registrosProduccion;
+    let registrosFiltrados = [...registrosAExportar];
 
     function actualizarLista() {
         const desde = fechaDesde.value;
         const hasta = fechaHasta.value;
 
-        registrosFiltrados = registrosProduccion.filter(registro => {
+        registrosFiltrados = registrosAExportar.filter(registro => {
             let mostrar = true;
 
             // Filtro por fechas
             if (desde || hasta) {
-                const fechaTexto = registro.fecha;
+                const fechaTexto = usuarioInfo.rol === 'Almacen' ? registro.fecha_hora : registro.fecha;
                 const [dia, mes] = fechaTexto.split('/');
                 const año = new Date().getFullYear();
                 const fechaRegistro = `${año}-${mes.padStart(2, '0')}-${dia.padStart(2, '0')}`;
@@ -579,14 +628,27 @@ function eventosExportar() {
 
         registrosLista.innerHTML = `
             <p class="subtitulo">Tienes ${registrosFiltrados.length} registros</p>
-            ${registrosFiltrados.map(registro => `
-                <div class="registro-item">
-                    <div class="info-registro">
-                        <p class="fecha">${registro.fecha}</p>
-                        <p class="detalle">${registro.producto} ${registro.gramos} - ${registro.envases_terminados} Und.</p>
-                    </div>
-                </div>
-            `).join('')}
+            ${registrosFiltrados.map(registro => {
+                if (usuarioInfo.rol === 'Almacen') {
+                    return `
+                        <div class="registro-item">
+                            <div class="info-registro">
+                                <p class="fecha">${registro.fecha_hora}</p>
+                                <p class="detalle">${registro.producto} - ${registro.cantidad} Und. (${registro.tipo})</p>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    return `
+                        <div class="registro-item">
+                            <div class="info-registro">
+                                <p class="fecha">${registro.fecha}</p>
+                                <p class="detalle">${registro.producto} ${registro.gramos} - ${registro.envases_terminados} Und.</p>
+                            </div>
+                        </div>
+                    `;
+                }
+            }).join('')}
         `;
     }
 
@@ -596,16 +658,15 @@ function eventosExportar() {
     btnExcel.addEventListener('click', () => {
         exportarAExcel(registrosFiltrados);
     });
-
     function exportarAExcel(registros) {
         const fechaDesde = document.querySelector('.fecha-desde').value;
         const fechaHasta = document.querySelector('.fecha-hasta').value;
-
+    
         // Determine the filename based on the date range
         const nombreArchivo = (fechaDesde || fechaHasta)
             ? `Registros ${fechaDesde} - ${fechaHasta}.xlsx`
             : `Todos los registros.xlsx`;
-
+    
         const worksheet = XLSX.utils.json_to_sheet(registros);
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, 'Registros');

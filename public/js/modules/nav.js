@@ -113,25 +113,25 @@ function obtenerOpcionesMenu() {
                 vista: 'verificarRegistros-view',
                 icono: 'fa-check-double',
                 texto: 'Verificar Registros',
-                detalle: 'Aqui puedes verificar la cantidad real de los registros de producción.',
+                detalle: 'Verificar registros de producción.',
                 onclick: 'onclick="cargarRegistros()"'
-            },
-            {
-                clase: 'opcion-btn',
-                vista: 'almacen-view',
-                icono: 'fa-dolly',
-                texto: 'Gestionar Almacen',
-                detalle: 'Aqui puedes gestionar el almacen de la empresa: (stock, Productos, ingresos, salidas).',
-                onclick: 'onclick="inicializarAlmacenGral()"'
             },
             {
                 clase: 'opcion-btn',
                 vista: 'regAlmacen-view',
                 icono: 'fa-history',
                 texto: 'Registros Almacen',
-                detalle: 'Aqui puedes ver todos los registros de almacen que hiciste tanto ingreso como salidas.',
-                onclick: 'onclick="cargarRegistrosAlmacenGral()"'
-            }
+                detalle: 'Registros de almacen ingresos/salidas.',
+                onclick: 'onclick="document.querySelector(\'.seccion2 .normal\').scrollIntoView({behavior: \'smooth\', block: \'start\'});ocultarAnuncio()""'
+            },
+            {
+                clase: 'opcion-btn',
+                vista: 'almacen-view',
+                icono: 'fa-dolly',
+                texto: 'Gestionar Almacen',
+                detalle: 'Gestionar tu alamcen general',
+                onclick: 'onclick="inicializarAlmacenGral()"'
+            },
         ],
         'Administración': [
             {

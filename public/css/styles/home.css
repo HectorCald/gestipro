@@ -171,6 +171,20 @@
                         padding: 2px 5px;
                         color: var(--success);
                     }
+                    .ingreso{
+                        background-color: rgba(102, 196, 102, 0.104);
+                        color: var(--success);
+                        border-radius: 5px;
+                        padding: 2px 5px;
+                        color: var(--success);
+                    }
+                    .salida{
+                        background-color: rgba(196, 102, 102, 0.104);
+                        color: var(--success);
+                        border-radius: 5px;
+                        padding: 2px 5px;
+                        color: var(--error);
+                    }
                 }
             }
         }

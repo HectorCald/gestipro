@@ -483,7 +483,7 @@ app.post('/registrar-produccion', requireAuth, async (req, res) => {
 });
 
 
-/* ==================== RUTAS DE PRODUCTOS ==================== */
+/* ==================== RUTAS DE AlMACEN ==================== */
 app.get('/obtener-productos', requireAuth, async (req, res) => {
     const { spreadsheetId } = req.user;
 
@@ -525,7 +525,44 @@ app.get('/obtener-productos', requireAuth, async (req, res) => {
         });
     }
 });
+app.get('/obtener-movimientos-almacen', requireAuth, async (req, res) => {
+    const { spreadsheetId } = req.user;
 
+    try {
+        const sheets = google.sheets({ version: 'v4', auth });
+        
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId: spreadsheetId,
+            range: 'Movimientos alm-gral!A2:H' // Columns A through H
+        });
+
+        const rows = response.data.values || [];
+        
+        // Map the data to a more readable format
+        const movimientos = rows.map(row => ({
+            id: row[0] || '',
+            fecha_hora: row[1] || '',
+            tipo: row[2] || '',
+            producto: row[3] || '',
+            cantidad: row[4] || '',
+            operario: row[5] || '',
+            almacen: row[6] || '',
+            detalle: row[7] || ''
+        }));
+
+        res.json({
+            success: true,
+            movimientos
+        });
+
+    } catch (error) {
+        console.error('Error al obtener movimientos de almacén:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error al obtener los movimientos de almacén'
+        });
+    }
+});
 
 
 

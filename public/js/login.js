@@ -232,7 +232,7 @@ function crearFormularioRegistro() {
     const contenido = document.querySelector('.anuncio .contenido');
     const registrationHTML = `
         <div class="encabezado">
-            <h1 class="titulo">Registro</h1>
+            <h1 class="titulo">Crear cuenta</h1>
             <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno">
@@ -291,7 +291,7 @@ function crearFormularioRegistro() {
             
         </div>
         <div class="anuncio-botones">
-            <button id="register-button" class="btn orange"><i class="bx bx-user-plus"></i> Solicitar unirme</button>
+            <button id="register-button" class="btn orange"><i class="bx bx-user-plus"></i> Registrarme</button>
         </div>
         
     `;
