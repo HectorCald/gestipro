@@ -461,12 +461,6 @@ function eventosConfiguraciones() {
             // Update active state
             document.querySelectorAll('.btn-tema').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            
-            mostrarNotificacion({
-                message: 'Tema actualizado',
-                type: 'success',
-                duration: 2000
-            });
         });
     });
 }
