@@ -513,7 +513,7 @@ function eventosHome() {
                 });
             }
 
-            const registrosParaMostrar = registrosFiltrados.slice(-10);
+            const registrosParaMostrar = registrosFiltrados.slice(0, 10);
             actualizarRegistrosHTML(registrosParaMostrar, registrosFiltrados, tiempo); // Pass tiempo parameter
 
             setTimeout(resolve, 50);
