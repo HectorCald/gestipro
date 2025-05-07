@@ -19,7 +19,6 @@
         background: none;
         flex-direction: column;
         overflow: hidden;
-        border-bottom: 1px solid var(--cero-color);
         padding-bottom: 10px;
 
 
@@ -78,7 +77,6 @@
         background: none;
         flex-direction: column;
         gap: 10px;
-        border-bottom: 1px solid var(--cero-color);
         padding-bottom: 10px;
 
         .filtros-opciones {
@@ -193,7 +191,6 @@
         background: none;
         flex-direction: column;
         gap: 10px;
-        border-bottom: 1px solid var(--cero-color);
         padding-bottom: 10px;
 
         .destacados {
