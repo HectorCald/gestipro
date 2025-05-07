@@ -23,7 +23,7 @@
         height: 150px;
         min-height: 150px;
         border-radius: 50%;
-        background: linear-gradient(45deg, var(--tercer-color), var(--second-color));
+        background: linear-gradient(45deg, var(--tercer-color), #1a1a1a);
         padding: 15px;
         display: flex;
         justify-content: center;
@@ -35,7 +35,7 @@
         height: 100%;
         object-fit: contain;
         filter: brightness(0) invert(1);
-        /* Makes the SVG white */
+        color: var(--text) !important;
     }
 
     .bienvenida {

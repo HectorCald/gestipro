@@ -32,11 +32,11 @@
     border: none;
     border-radius: 10px;
     color: white;
-    font-weight: 500;
+    font-weight: 800;
 }
 
 .btn.orange {
-    background: linear-gradient(45deg, var(--tercer-color), var(--second-color));
+    background: linear-gradient(45deg, var(--tercer-color), #1a1a1a);
 }
 
 .btn.gray {
