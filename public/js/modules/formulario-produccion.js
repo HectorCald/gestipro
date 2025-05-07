@@ -108,7 +108,7 @@ export async function mostrarFormularioProduccion() {
             
         </div>
         <div class="anuncio-botones">
-            <button id="btn-registrar" class="btn orange">Registrar</button>
+            <button id="btn-registrar" class="btn orange"><i class="bx bx-notepad"></i> Registrar</button>
         </div>
     `;
 

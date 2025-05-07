@@ -111,7 +111,7 @@ function obtenerFunciones() {
                 icono: 'fa-history',
                 texto: 'Registros',
                 detalle: 'Ver mis registros.',
-                onclick: 'onclick="document.querySelector(\'.seccion2 .subtitulo\').scrollIntoView({behavior: \'smooth\', block: \'start\'})"'
+                onclick: 'onclick="document.querySelector(\'.seccion2 .normal\').scrollIntoView({behavior: \'smooth\', block: \'start\'})"'
             },
             {
                 clase: 'opcion-btn',
@@ -119,7 +119,7 @@ function obtenerFunciones() {
                 icono: 'fa-chart-line',
                 texto: 'Estadisticas',
                 detalle: 'Ver mis estadisticas.',
-                onclick: 'onclick="document.querySelector(\'.seccion3 .subtitulo\').scrollIntoView({behavior: \'smooth\', block: \'start\'})"'
+                onclick: 'onclick="document.querySelector(\'.seccion3 .normal\').scrollIntoView({behavior: \'smooth\', block: \'start\'})"'
             }
         ],
         'Acopio': [

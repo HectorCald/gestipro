@@ -211,7 +211,7 @@ function mostrarCuenta(nombre, apellido, email, foto) {
             
         </div>
         <div class="anuncio-botones">
-            <button id="btn-guardar" class="btn orange">Guardar cambios</button>
+            <button id="btn-guardar" class="btn orange"><i class="bx bx-save"></i> Guardar cambios</button>
         </div>
     `;
 

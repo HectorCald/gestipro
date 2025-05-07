@@ -236,6 +236,7 @@ function crearFormularioRegistro() {
             <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno">
+        <p class="normal"><i class='bx bx-chevron-right'></i> Ingresa la información</p>
             <div class="entrada">
                 <i class='bx bx-user'></i>
                 <div class="input">
@@ -287,7 +288,10 @@ function crearFormularioRegistro() {
                     Debe contener números
                 </p>
             </div>
-            <button id="register-button" class="btn orange">Solicitar unirme</button>
+            
+        </div>
+        <div class="anuncio-botones">
+            <button id="register-button" class="btn orange"><i class="bx bx-user-plus"></i> Solicitar unirme</button>
         </div>
         
     `;
@@ -508,7 +512,7 @@ function crearFormularioContraseña() {
             <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno">
-            <p>Ingresa tu correo electrónico para recibir un código de verificación</p>
+            <p class="normal"><i class='bx bx-chevron-right'></i> Ingresa tu correo electrónico para recibir un código de verificación</p>
             <div class="entrada">
                 <i class='bx bx-envelope'></i>
                 <div class="input">
@@ -516,7 +520,9 @@ function crearFormularioContraseña() {
                     <input class="email-recuperacion" type="email" placeholder=" " required>
                 </div>
             </div>
-            <button id="send-code-button" class="btn orange">Enviar Código</button>
+        </div>
+        <div class="anuncio-botones">
+            <button id="send-code-button" class="btn orange"><i class="bx bx-envelope"></i> Enviar Código</button>
         </div>
     `;
 
