@@ -214,6 +214,7 @@ function mostrarMenu() {
             <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno">
+            <p class="normal"><i class='bx bx-chevron-right'></i> Tus funciones basicas</p>
             ${opcionesHTML}
         </div>
     `;

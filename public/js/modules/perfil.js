@@ -177,6 +177,7 @@ function mostrarCuenta(nombre, apellido, email, foto) {
                 </div>
                 <input type="file" id="input-foto" accept="image/*" style="display: none;">
             </div>
+            <p class="normal"><i class='bx bx-chevron-right'></i> Información general</p>
             <div class="entrada">
                 <i class='bx bx-user'></i>
                 <div class="input">
@@ -414,7 +415,7 @@ function mostrarConfiguraciones() {
             <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno">
-        <p class="normal">Tema</p>
+        <p class="normal"><i class='bx bx-chevron-right'></i> Tema</p>
             <div class="tema-selector">
                 <button class="btn-tema ${currentTheme === 'light' ? 'active' : ''} dia" data-theme="light">
                     <i class='bx bx-sun'></i> Claro
@@ -500,7 +501,7 @@ async function mostrarExportar() {
                 <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
             </div>
             <div class="relleno">
-                <p class="subtitulo">Filtros de fecha:</p>
+                <p class="normal"><i class='bx bx-chevron-right'></i> Filtros de fecha:</p>
                 <div class="entrada">
                     <i class='bx bx-calendar'></i>
                     <div class="input">
@@ -517,7 +518,7 @@ async function mostrarExportar() {
                 </div>
 
                 <div class="registros-lista">
-                    <p class="subtitulo">Tienes ${registrosProduccion.length} registros</p>
+                    <p class="normal"><i class='bx bx-chevron-right'></i> Tienes ${registrosProduccion.length} registros</p>
                     ${registrosProduccion.map(registro => `
                         <div class="registro-item">
                             <div class="info-registro">

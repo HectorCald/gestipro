@@ -265,13 +265,13 @@ export function mostrarHome(view) {
     const home = `
         <h1 class="titulo"><i class='bx bx-home'></i> Inicio</h1>
         <div class="seccion1">
-            <h2 class="subtitulo">Tus funciones</h2>
+            <h2 class="normal"><i class='bx bx-chevron-right'></i> Tus funciones</h2>
             <div class="funciones-rol">
                 ${funcionesHTML}
             </div>
         </div>
         <div class="seccion3">
-            <h2 class="subtitulo">Tus destacados</h2>
+            <h2 class="normal"><i class='bx bx-chevron-right'></i> Tus destacados</h2>
             <div class="destacados">
 
                 <div class="destacado">
@@ -291,7 +291,7 @@ export function mostrarHome(view) {
             </div>
         </div>
         <div class="seccion2">
-            <h2 class="subtitulo">Tus registros</h2>
+            <h2 class="normal"><i class='bx bx-chevron-right'></i> Tus registros</h2>
             <div class="filtros-opciones estado">
                 <button class="btn-filtro activado">Todos</button>
                 <button class="btn-filtro">No verificados</button>
@@ -533,32 +533,32 @@ function eventosHome() {
             <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno">
-            <p class="subtitulo"> Información basica</p>
+            <p class="normal"><i class='bx bx-chevron-right'></i> Información basica</p>
             <div class="campo-vertical">
                 <p class="item"><i class='bx bx-calendar'></i> <strong>Fecha:</strong> ${registro.fecha}</p>
                 <p class="item"><i class='bx bx-id-card'></i> <strong>ID:</strong> ${registro.id}</p>
             </div>
             
 
-            <p class="subtitulo"> Información del producto</p>
+            <p class="normal"><i class='bx bx-chevron-right'></i> Información del producto</p>
             <div class="campo-vertical">
                 <p class="item"><i class='bx bx-package'></i> <strong>Producto:</strong>${registro.producto} ${registro.gramos}gr.</p>
                 <p class="item"><i class='bx bx-barcode'></i> <strong>Lote:</strong> ${registro.lote}</p>
             </div>
             
-            <p class="subtitulo"> Procesos</p>
+            <p class="normal"><i class='bx bx-chevron-right'></i> Procesos</p>
             <div class="campo-vertical">
                 <p class="item"><i class='bx bx-cog'></i><strong>Seleccion/Cernido:</strong> ${registro.proceso}</p>
                 <p class="item"><i class='bx bx-microchip'></i><strong>Microondas:</strong> ${registro.microondas} Segundos</p>
             </div>
 
-            <p class="subtitulo"> Detalles de finalización</p>
+            <p class="normal"><i class='bx bx-chevron-right'></i> Detalles de finalización</p>
             <div class="campo-vertical">
                 <p class="item"><i class='bx bx-box'></i> <strong>Envasados Terminados:</strong> ${registro.envases_terminados} Unidades</p>
                 <p class="item"><i class='bx bx-calendar-check'></i> <strong>Fecha de Vencimiento:</strong> ${registro.fecha_vencimiento}</p>
             </div>
 
-            <p class="subtitulo"> Detalles de la verificación</p>
+            <p class="normal"><i class='bx bx-chevron-right'></i> Detalles de la verificación</p>
             <div class="campo-vertical">
                 <p class="item"><i class='bx bx-check-circle'></i> <strong>Fecha de Verificación:</strong> ${registro.fecha_verificacion ? registro.fecha_verificacion : 'No verificado'}</p>
                 <p class="item"><i class='bx bx-calculator'></i> <strong>Cantidad Real:</strong> ${registro.c_real ? registro.fecha_verificacion : 'No verificado'}</p>
@@ -567,6 +567,7 @@ function eventosHome() {
             </div>
         </div>
     `;
+        contenido.style.paddingBottom = '0';
         contenido.innerHTML = detalleHTML;
         mostrarAnuncio();
     }

@@ -115,7 +115,7 @@
         .aviso {
             font-size: var(--text-subtitulo);
             margin-left: 10px;
-            color: var(--text);
+            color: var(--cero-color);
         }
 
         .registros {
