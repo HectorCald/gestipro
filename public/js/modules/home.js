@@ -110,7 +110,7 @@ function obtenerFunciones() {
                 vista: 'cuentasProduccion-view',
                 icono: 'fa-history',
                 texto: 'Registros',
-                detalle: 'Ver mis registros de producción',
+                detalle: 'Ver mis registros.',
                 onclick: 'onclick="document.querySelector(\'.seccion2 .subtitulo\').scrollIntoView({behavior: \'smooth\', block: \'start\'})"'
             },
             {

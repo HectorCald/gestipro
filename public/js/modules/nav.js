@@ -69,7 +69,7 @@ function obtenerOpcionesMenu() {
                 vista: 'formProduccion-view',
                 icono: 'fa-clipboard-list',
                 texto: 'Formulario',
-                detalle: 'Nueva producción.',
+                detalle: 'Registra una nueva producción',
                 onclick: 'onclick="mostrarFormularioProduccion()"'
             },
             {
@@ -85,7 +85,7 @@ function obtenerOpcionesMenu() {
                 vista: 'gestionPro-view',
                 icono: 'fa-chart-line',
                 texto: 'Estadisticas',
-                detalle: 'Ver mis estadisticas.',
+                detalle: 'Ver mis estadisticas de registros.',
                 onclick: 'onclick="document.querySelector(\'.seccion3 .subtitulo\').scrollIntoView({behavior: \'smooth\', block: \'start\'});ocultarAnuncio()""'
             }
         ],

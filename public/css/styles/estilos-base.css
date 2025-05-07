@@ -30,25 +30,35 @@ body {
     height: 100vh;
 }
 :root {
+    --text: black;
     --fondo: rgba(149, 149, 149, 0.04);
-    --fondo2:#4fd0b617;
+    --fondo2: #4fd0b617;
     --primary-color: #ffffff;
     --second-color: #1a1a1a;
     --cero-color: rgb(141, 141, 141);
 
+    /* Colores de acento que se mantienen en ambos temas */
     --cuarto-color: #3ea38f;
     --tercer-color: #48c9b0;
-
     --error: #fc3737;
     --success: #4CAF50;
 
-    /* Variables para tamaños de texto */
-    --text-detalle: 12px;    /* 12px */
-    --text-subtitulo: 15px;   /* 14px */
-    --text-titulo: 17px;     /* 16px */
-    --text-superior: 18px;   /* 18px */
-    --text-xl: 20px;    /* 20px */
-    --text-2xl: 24px;    /* 24px */
-    --text-3xl: 1.875rem;  /* 30px */
-    --text-4xl: 2.25rem;   /* 36px */
+    /* Variables para tamaños de texto se mantienen igual */
+    --text-detalle: 12px;
+    --text-subtitulo: 15px;
+    --text-titulo: 17px;
+    --text-superior: 18px;
+    --text-xl: 20px;
+    --text-2xl: 24px;
+    --text-3xl: 1.875rem;
+    --text-4xl: 2.25rem;
+}
+
+[data-theme="dark"] {
+    --text: #ffffff;
+    --fondo: #1a1a1a;
+    --fondo2: #2d2d2d;
+    --primary-color: #2a2a2a;
+    --second-color: #ffffff;
+    --cero-color: #808080;
 }

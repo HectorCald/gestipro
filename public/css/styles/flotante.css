@@ -16,7 +16,7 @@
         border: none;
         padding: 15px 20px;
         width: 100%;
-        color: black;
+        color: var(--text);
 
         i{
             font-size: 25px;

@@ -59,7 +59,6 @@ async function obtenerUsuario() {
         return false;
     }
 }
-
 async function obtenerMisRegistros() {
     try {
         const response = await fetch('/obtener-registros-produccion');
@@ -211,7 +210,7 @@ function mostrarCuenta(nombre, apellido, email, foto) {
             
         </div>
         <div class="anuncio-botones">
-            <button id="btn-guardar" class="btn green">Guardar cambios</button>
+            <button id="btn-guardar" class="btn orange">Guardar cambios</button>
         </div>
     `;
 
@@ -324,104 +323,148 @@ function evetosCuenta() {
     });
 
     btnGuardar.addEventListener('click', async () => {
-    const nombre = document.querySelector('input.nombre').value.trim();
-    const apellido = document.querySelectorAll('input.nombre')[1].value.trim();
-    const passwordActual = document.querySelector('input.password-actual')?.value;
-    const passwordNueva = document.querySelector('input.password-nueva')?.value;
+        const nombre = document.querySelector('input.nombre').value.trim();
+        const apellido = document.querySelectorAll('input.nombre')[1].value.trim();
+        const passwordActual = document.querySelector('input.password-actual')?.value;
+        const passwordNueva = document.querySelector('input.password-nueva')?.value;
 
-    // Validaciones básicas
-    if (!nombre || !apellido) {
-        mostrarNotificacion({
-            message: 'Nombre y apellido son requeridos',
-            type: 'error',
-            duration: 3500
-        });
-        return;
-    }
-
-    // Validación de contraseña nueva
-    if (passwordNueva && passwordNueva.length < 8) {
-        mostrarNotificacion({
-            message: 'La nueva contraseña debe tener al menos 8 caracteres',
-            type: 'error',
-            duration: 3500
-        });
-        return;
-    }
-
-    // Validar que ambas contraseñas estén presentes si se está cambiando
-    if ((passwordActual && !passwordNueva) || (!passwordActual && passwordNueva)) {
-        mostrarNotificacion({
-            message: 'Debe ingresar ambas contraseñas para cambiarla',
-            type: 'error',
-            duration: 3500
-        });
-        return;
-    }
-
-    try {
-        mostrarCarga();
-        const response = await fetch('/actualizar-usuario', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                nombre,
-                apellido,
-                foto: fotoModificada ? fotoBase64 : undefined,
-                passwordActual: passwordActual || undefined,
-                passwordNueva: passwordNueva || undefined
-            })
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            throw new Error(data.error || 'Error al actualizar el perfil');
+        // Validaciones básicas
+        if (!nombre || !apellido) {
+            mostrarNotificacion({
+                message: 'Nombre y apellido son requeridos',
+                type: 'error',
+                duration: 3500
+            });
+            return;
         }
 
-        await obtenerUsuario();
-        mostrarPerfil(document.querySelector('.perfil-view'));
-        ocultarAnuncio();
-        mostrarNotificacion({
-            message: 'Perfil actualizado con éxito',
-            type: 'success',
-            duration: 3500
-        });
+        // Validación de contraseña nueva
+        if (passwordNueva && passwordNueva.length < 8) {
+            mostrarNotificacion({
+                message: 'La nueva contraseña debe tener al menos 8 caracteres',
+                type: 'error',
+                duration: 3500
+            });
+            return;
+        }
 
-    } catch (error) {
-        console.error('Error:', error);
-        mostrarNotificacion({
-            message: error.message || 'Error al actualizar el perfil',
-            type: 'error',
-            duration: 3500
-        });
-    } finally {
-        ocultarCarga();
-    }
-});
+        // Validar que ambas contraseñas estén presentes si se está cambiando
+        if ((passwordActual && !passwordNueva) || (!passwordActual && passwordNueva)) {
+            mostrarNotificacion({
+                message: 'Debe ingresar ambas contraseñas para cambiarla',
+                type: 'error',
+                duration: 3500
+            });
+            return;
+        }
+
+        try {
+            mostrarCarga();
+            const response = await fetch('/actualizar-usuario', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    nombre,
+                    apellido,
+                    foto: fotoModificada ? fotoBase64 : undefined,
+                    passwordActual: passwordActual || undefined,
+                    passwordNueva: passwordNueva || undefined
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Error al actualizar el perfil');
+            }
+
+            await obtenerUsuario();
+            mostrarPerfil(document.querySelector('.perfil-view'));
+            ocultarAnuncio();
+            mostrarNotificacion({
+                message: 'Perfil actualizado con éxito',
+                type: 'success',
+                duration: 3500
+            });
+
+        } catch (error) {
+            console.error('Error:', error);
+            mostrarNotificacion({
+                message: error.message || 'Error al actualizar el perfil',
+                type: 'error',
+                duration: 3500
+            });
+        } finally {
+            ocultarCarga();
+        }
+    });
 
 }
 
 
 function mostrarConfiguraciones() {
     const contenido = document.querySelector('.anuncio .contenido');
+    const currentTheme = localStorage.getItem('theme') || 'light';
+    
     const registrationHTML = `
         <div class="encabezado">
             <h1 class="titulo">Tus configuraciones</h1>
             <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno">
-            <p>No existen configuraciónes aun.</p>
-            <button id="btn-guardar" class="btn green">Guardar cambios</button>
+            <p class="subtitulo">Tema</p>
+            <div class="tema-selector">
+                <button class="btn-tema ${currentTheme === 'light' ? 'active' : ''}" data-theme="light">
+                    <i class='bx bx-sun'></i> Claro
+                </button>
+                <button class="btn-tema ${currentTheme === 'dark' ? 'active' : ''}" data-theme="dark">
+                    <i class='bx bx-moon'></i> Oscuro
+                </button>
+            </div>
         </div>
     `;
 
     contenido.innerHTML = registrationHTML;
     mostrarAnuncio();
-    evetosCuenta();
+    eventosConfiguraciones();
 }
+
+function eventosConfiguraciones() {
+    const btnsTheme = document.querySelectorAll('.btn-tema');
+    
+    btnsTheme.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const theme = btn.dataset.theme;
+            setTheme(theme);
+            
+            // Update active state
+            document.querySelectorAll('.btn-tema').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            mostrarNotificacion({
+                message: 'Tema actualizado',
+                type: 'success',
+                duration: 2000
+            });
+        });
+    });
+}
+
+function setTheme(theme) {
+    const root = document.documentElement;
+    localStorage.setItem('theme', theme);
+    
+    // Aplicar el tema usando el atributo data-theme
+    root.setAttribute('data-theme', theme);
+}
+
+// Add this to initialize theme on page load
+document.addEventListener('DOMContentLoaded', () => {
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    setTheme(savedTheme);
+});
 
 
 async function mostrarExportar() {
@@ -453,7 +496,7 @@ async function mostrarExportar() {
                     ${registrosProduccion.map(registro => `
                         <div class="registro-item">
                             <div class="info-registro">
-                                <p class="fecha">${registro.fecha}</p>
+                                <p class="fecha"><strong>${registro.fecha}</strong></p>
                                 <p class="detalle">${registro.producto} ${registro.gramos} - ${registro.c_real ? registro.c_real : registro.envases_terminados} Und.</p>
                             </div>
                         </div>
@@ -461,10 +504,10 @@ async function mostrarExportar() {
                 </div>
             </div>
             <div class="anuncio-botones">
-                <button id="exportar-excel" class="btn green" style="margin-bottom:10px"><i class='bx bxs-file-export'></i> Exportar a Excel</button>
+                <button id="exportar-excel" class="btn orange" style="margin-bottom:10px"><i class='bx bxs-file-export'></i> Exportar a Excel</button>
             </div>
         `;
-        
+
 
     contenido.innerHTML = exportHTML;
     mostrarAnuncio();
@@ -524,17 +567,17 @@ function eventosExportar() {
     });
 
     function exportarAExcel(registros) {
-    const fechaDesde = document.querySelector('.fecha-desde').value;
-    const fechaHasta = document.querySelector('.fecha-hasta').value;
+        const fechaDesde = document.querySelector('.fecha-desde').value;
+        const fechaHasta = document.querySelector('.fecha-hasta').value;
 
-    // Determine the filename based on the date range
-    const nombreArchivo = (fechaDesde || fechaHasta) 
-        ? `Registros ${fechaDesde} - ${fechaHasta}.xlsx`
-        : `Todos los registros.xlsx`;
+        // Determine the filename based on the date range
+        const nombreArchivo = (fechaDesde || fechaHasta)
+            ? `Registros ${fechaDesde} - ${fechaHasta}.xlsx`
+            : `Todos los registros.xlsx`;
 
-    const worksheet = XLSX.utils.json_to_sheet(registros);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Registros');
-    XLSX.writeFile(workbook, nombreArchivo);
-}
+        const worksheet = XLSX.utils.json_to_sheet(registros);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Registros');
+        XLSX.writeFile(workbook, nombreArchivo);
+    }
 }

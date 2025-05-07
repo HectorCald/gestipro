@@ -16,7 +16,7 @@ export function flotante() {
             home.classList.remove('slide-out-flotante');
             home.classList.add('slide-in-flotante');
         }, 300);
-        btnPefil.style.color = 'black';
+        btnPefil.style.color = 'var(--text)';
         btnHome.style.color = 'var(--tercer-color)';
     });
 
@@ -32,7 +32,7 @@ export function flotante() {
             perfil.classList.remove('slide-out-flotante');
             perfil.classList.add('slide-in-flotante');
         }, 300);
-        btnHome.style.color = 'black';
+        btnHome.style.color = 'var(--text)';
         btnPefil.style.color = 'var(--tercer-color)';
     });
 }
