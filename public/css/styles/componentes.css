@@ -658,4 +658,8 @@
     background: var(--tercer-color);
     color: white;
     border-color: var(--tercer-color);
+
+    i{
+        color: white!important;
+    }
 }

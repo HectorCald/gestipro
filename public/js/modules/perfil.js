@@ -476,12 +476,19 @@ function setTheme(theme) {
         root.setAttribute('data-theme', theme);
     }
 }
+function verificarTemaInicial() {
+    const savedTheme = localStorage.getItem('theme');
+    if (!savedTheme) {
+        localStorage.setItem('theme', 'system');
+    }
+    setTheme(savedTheme || 'system');
+}
 
 
 document.addEventListener('DOMContentLoaded', () => {
-    const savedTheme = localStorage.getItem('theme') || 'system';
-    setTheme(savedTheme);
+    verificarTemaInicial();
 });
+verificarTemaInicial();
 
 
 
