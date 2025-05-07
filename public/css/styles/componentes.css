@@ -21,12 +21,12 @@
     margin-top: 5px;
 }
 .normal{
-    font-size: var(--text-titulo) !important;
+    font-size: var(--text-subtitulo) !important;
     background: var(--text);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
-    font-weight: 600;
+    font-weight: 500;
     margin-top: 5px;
 }
 .btn {
