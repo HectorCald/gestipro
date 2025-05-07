@@ -73,7 +73,7 @@ async function obtenerMisRegistros() {
                 const [dayB, monthB, yearB] = b.fecha.split('/').map(Number);
                 const dateA = new Date(yearA + 2000, monthA - 1, dayA);
                 const dateB = new Date(yearB + 2000, monthB - 1, dayB);
-                return dateA - dateB; // Orden descendente (más reciente primero)
+                return dateB - dateA; // Orden descendente (más reciente primero)
             });
             return true;
         } else {
