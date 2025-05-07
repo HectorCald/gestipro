@@ -11,8 +11,9 @@
 
         .detalles {
             .nombre {
-                font-size: var(--text-2xl);
-
+                font-size: var(--text-xl) !important;
+                font-weight: 500;
+                color: var(--text);
             }
 
             .correo-usuario {

@@ -483,6 +483,12 @@
             font-size: var(--text-titulo);
             width: 100%;
             color:var(--text);
+            
+            option{
+                background-color: var(--primary-color);
+                color: var(--text);
+                font-size: var(--text-subtitulo) !important;
+            }
         }
 
         .entrada .input select:not(:placeholder-shown)~.detalle,
