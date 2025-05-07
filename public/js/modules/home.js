@@ -329,7 +329,7 @@ function eventosHome() {
     const estadoButtons = document.querySelectorAll('.filtros-opciones.estado .btn-filtro');
     const tiempoButtons = document.querySelectorAll('.filtros-opciones.tiempo .btn-filtro');
     const homeView = document.querySelector('.home-view');
-    const tusRegistrosSubtitle = document.querySelector('.seccion2 .subtitulo');
+    const tusRegistrosSubtitle = document.querySelector('.seccion2 .normal');
 
     estadoButtons.forEach(button => {
         button.addEventListener('click', () => {
