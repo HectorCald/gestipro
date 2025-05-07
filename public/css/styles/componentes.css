@@ -2,7 +2,7 @@
 
 .titulo {
     font-size: var(--text-superior) !important;
-    background: linear-gradient(5deg, var(--tercer-color), #1a1a1a);
+    background: var(--cuarto-color);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -13,7 +13,7 @@
 
 .subtitulo {
     font-size: var(--text-titulo) !important;
-    background: linear-gradient(5deg, var(--tercer-color), #1a1a1a);
+    background: var(--cuarto-color);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
