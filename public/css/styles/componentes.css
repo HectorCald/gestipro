@@ -2,7 +2,7 @@
 
 .titulo {
     font-size: var(--text-superior) !important;
-    background: linear-gradient(45deg, var(--tercer-color), var(--second-color));
+    background: linear-gradient(5deg, var(--tercer-color), #1a1a1a);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -13,7 +13,7 @@
 
 .subtitulo {
     font-size: var(--text-titulo) !important;
-    background: linear-gradient(45deg, var(--tercer-color), var(--second-color));
+    background: linear-gradient(5deg, var(--tercer-color), #1a1a1a);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -36,7 +36,7 @@
 }
 
 .btn.orange {
-    background: linear-gradient(45deg, var(--tercer-color), #1a1a1a);
+    background-color:var(--cuarto-color);
 }
 
 .btn.gray {
