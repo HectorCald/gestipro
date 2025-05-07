@@ -466,7 +466,8 @@ function eventosHome() {
 
         if (esProductoFecha) {
             const [productoTermino, fechaTermino] = termino.split(',');
-            return productoNormalizado.includes(productoTermino) && registroFechaNormalizada === fechaTermino;
+            const producto=normalizarTexto(productoTermino);
+            return productoNormalizado.includes(producto) && registroFechaNormalizada === fechaTermino;
         } else if (esFecha) {
             return registroFechaNormalizada === termino;
         } else {
