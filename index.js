@@ -533,7 +533,7 @@ app.get('/obtener-movimientos-almacen', requireAuth, async (req, res) => {
         
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId: spreadsheetId,
-            range: 'Movimientos alm-gral!A2:H' // Columns A through H
+            range: 'Movimientos alm-gral!A2:K' // Columns A through H
         });
 
         const rows = response.data.values || [];
@@ -547,7 +547,10 @@ app.get('/obtener-movimientos-almacen', requireAuth, async (req, res) => {
             cantidad: row[4] || '',
             operario: row[5] || '',
             almacen: row[6] || '',
-            detalle: row[7] || ''
+            motivo: row[7] || '',
+            origen: row[8] || '',
+            destino: row[9] || '',
+            observaciones: row[10] || ''
         }));
 
         res.json({
