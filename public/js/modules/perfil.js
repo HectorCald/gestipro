@@ -177,7 +177,7 @@ function mostrarCuenta(nombre, apellido, email, foto) {
                 </div>
                 <input type="file" id="input-foto" accept="image/*" style="display: none;">
             </div>
-            <p class="normal"><i class='bx bx-chevron-right'></i> Información general</p>
+            <p class="normal"><i class='bx bx-chevron-right'></i> Información</p>
             <div class="entrada">
                 <i class='bx bx-user'></i>
                 <div class="input">
