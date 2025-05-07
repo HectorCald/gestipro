@@ -97,6 +97,7 @@ async function obtenerMisRegistros() {
 
 
 export async function crearPerfil() {
+    await verificarTemaInicial();
     const view = document.querySelector('.perfil-view');
     await obtenerUsuario();
     await obtenerMisRegistros();
@@ -465,6 +466,7 @@ function eventosConfiguraciones() {
     });
 }
 
+
 function setTheme(theme) {
     const root = document.documentElement;
     localStorage.setItem('theme', theme);
@@ -476,6 +478,7 @@ function setTheme(theme) {
         root.setAttribute('data-theme', theme);
     }
 }
+
 function verificarTemaInicial() {
     const savedTheme = localStorage.getItem('theme');
     if (!savedTheme) {
@@ -484,11 +487,12 @@ function verificarTemaInicial() {
     setTheme(savedTheme || 'system');
 }
 
+verificarTemaInicial();
 
 document.addEventListener('DOMContentLoaded', () => {
     verificarTemaInicial();
 });
-verificarTemaInicial();
+
 
 
 
