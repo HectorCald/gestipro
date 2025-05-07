@@ -406,7 +406,7 @@ function evetosCuenta() {
 
 function mostrarConfiguraciones() {
     const contenido = document.querySelector('.anuncio .contenido');
-    const currentTheme = localStorage.getItem('theme') || 'light';
+    const currentTheme = localStorage.getItem('theme') || 'system';
     
     const registrationHTML = `
         <div class="encabezado">
@@ -414,13 +414,16 @@ function mostrarConfiguraciones() {
             <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno">
-            <p class="subtitulo">Tema</p>
+        <p class="normal">Tema</p>
             <div class="tema-selector">
-                <button class="btn-tema ${currentTheme === 'light' ? 'active' : ''}" data-theme="light">
+                <button class="btn-tema ${currentTheme === 'light' ? 'active' : ''} dia" data-theme="light">
                     <i class='bx bx-sun'></i> Claro
                 </button>
-                <button class="btn-tema ${currentTheme === 'dark' ? 'active' : ''}" data-theme="dark">
+                <button class="btn-tema ${currentTheme === 'dark' ? 'active' : ''} noche" data-theme="dark">
                     <i class='bx bx-moon'></i> Oscuro
+                </button>
+                <button class="btn-tema ${currentTheme === 'system' ? 'active' : ''} sistema" data-theme="system">
+                    <i class='bx bx-desktop'></i> Sistema
                 </button>
             </div>
         </div>
@@ -430,9 +433,24 @@ function mostrarConfiguraciones() {
     mostrarAnuncio();
     eventosConfiguraciones();
 }
-
 function eventosConfiguraciones() {
     const btnsTheme = document.querySelectorAll('.btn-tema');
+    
+    // Detector de cambios en el tema del sistema
+    const systemThemeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    
+    // Función para manejar cambios en el tema del sistema
+    const handleSystemThemeChange = (e) => {
+        const currentTheme = localStorage.getItem('theme');
+        if (currentTheme === 'system') {
+            setTheme('system');
+        }
+    };
+
+    // Remover listener anterior si existe
+    systemThemeQuery.removeEventListener('change', handleSystemThemeChange);
+    // Agregar nuevo listener
+    systemThemeQuery.addEventListener('change', handleSystemThemeChange);
     
     btnsTheme.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -456,15 +474,22 @@ function setTheme(theme) {
     const root = document.documentElement;
     localStorage.setItem('theme', theme);
     
-    // Aplicar el tema usando el atributo data-theme
-    root.setAttribute('data-theme', theme);
+    if (theme === 'system') {
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        root.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+    } else {
+        root.setAttribute('data-theme', theme);
+    }
 }
 
-// Add this to initialize theme on page load
+
 document.addEventListener('DOMContentLoaded', () => {
-    const savedTheme = localStorage.getItem('theme') || 'light';
+    const savedTheme = localStorage.getItem('theme') || 'system';
     setTheme(savedTheme);
 });
+
+
+
 
 
 async function mostrarExportar() {

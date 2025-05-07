@@ -70,7 +70,7 @@ function configuracionesEntrada() {
 
     inputs.forEach(input => {
         const label = input.previousElementSibling;
-        
+
         // Verificar el estado inicial
         if (input.value.trim() !== '') {
             label.style.transform = 'translateY(-100%) scale(0.85)';
@@ -145,7 +145,7 @@ function iniciarSesion() {
                     } else {
                         localStorage.removeItem('credentials');
                     }
-                    
+
                     mostrarNotificacion({
                         message: '¡Inicio de sesión exitoso!',
                         type: 'success',
@@ -164,7 +164,7 @@ function iniciarSesion() {
                             duration: 5000  // Aumentamos la duración para este tipo de mensaje
                         });
                     } else {
-                        
+
                         mostrarNotificacion({
                             message: data.error || 'Credenciales incorrectas',
                             type: 'error',
@@ -531,7 +531,7 @@ function eventosFormularioContraseña() {
 
     inputs.forEach(input => {
         const label = input.previousElementSibling;
-        
+
         // Verificar el estado inicial
         if (input.value.trim() !== '') {
             label.style.transform = 'translateY(-100%) scale(0.85)';
@@ -706,5 +706,19 @@ function crearFormularioInfo() {
 
 
 document.addEventListener('DOMContentLoaded', () => {
+    function setTheme(theme) {
+        const root = document.documentElement;
+        localStorage.setItem('theme', theme);
+
+        if (theme === 'system') {
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            root.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+        } else {
+            root.setAttribute('data-theme', theme);
+        }
+    }
+    const savedTheme = localStorage.getItem('theme') || 'system';
+    setTheme(savedTheme);
+
     inicializarApp();
 });

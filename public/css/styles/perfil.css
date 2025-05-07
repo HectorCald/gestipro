@@ -30,7 +30,7 @@
             border-radius: 50%;
             overflow: hidden;
             background: linear-gradient(45deg, var(--tercer-color), var(--second-color));
-            border: 1px solid var(--tercer-color);
+            border: 1px solid var(--cero-color);
 
             img {
                 width: 100%;
