@@ -110,6 +110,37 @@
             }
         }
 
+        .buscador {
+            display: flex;
+            align-items: center;
+            position: relative;
+
+            .input-busqueda {
+                width: 100%;
+                border: none;
+                outline: none;
+                background: none;
+                font-size: var(--text-subtitulo);
+                color: var(--text);
+                padding: 10px;
+                border-radius: 10px;
+                background-color: var(--primary-color);
+            }
+            .input-busqueda:focus{
+                border: 1px solid var(--tercer-color);
+            }
+        }
+
+        .buscador i {
+            color: var(--cuarto-color);
+            padding: 10px;
+            font-size: var(--text-xl) !important;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            right: 5px;
+        }
+
         .aviso {
             font-size: var(--text-subtitulo);
             margin-left: 10px;
@@ -140,7 +171,8 @@
                     display: flex;
                     flex-direction: column;
                     justify-content: center;
-                    gap: 5px;;
+                    gap: 5px;
+                    ;
                     font-size: var(--text-detalle);
                     color: var(--text);
                 }
@@ -171,14 +203,16 @@
                         padding: 2px 5px;
                         color: var(--success);
                     }
-                    .ingreso{
+
+                    .ingreso {
                         background-color: rgba(102, 196, 102, 0.104);
                         color: var(--success);
                         border-radius: 5px;
                         padding: 2px 5px;
                         color: var(--success);
                     }
-                    .salida{
+
+                    .salida {
                         background-color: rgba(196, 102, 102, 0.104);
                         color: var(--success);
                         border-radius: 5px;
@@ -188,8 +222,9 @@
                 }
             }
         }
-        .btn-cargar-mas{
-            width:100%;
+
+        .btn-cargar-mas {
+            width: 100%;
             color: var(--cuarto-color);
             font-size: var(--text-subtitulo);
             background: none;

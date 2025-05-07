@@ -9,6 +9,7 @@ let usuarioInfo = {
 };
 let registrosProduccion = [];
 let registrosMovimientos = [];
+let registrosFiltrados = [];
 
 async function obtenerUsuario() {
     try {
@@ -303,8 +304,8 @@ export function mostrarHome(view) {
                 </div>
             `;
         } else if (usuarioInfo.rol === 'Almacen') {
-        const tipo = registro.tipo === 'Ingreso' ? 'Ingreso' : 'Salida';
-        return `
+            const tipo = registro.tipo === 'Ingreso' ? 'Ingreso' : 'Salida';
+            return `
             <div class="registro" data-id="${registro.id}">
                 <div class="info">
                     <p class="fecha">${registro.fecha_hora}</p>
@@ -316,7 +317,7 @@ export function mostrarHome(view) {
                 </div>
             </div>
         `;
-    }
+        }
     }).join('');
 
     // Calcular los destacados según el rol
@@ -400,6 +401,10 @@ export function mostrarHome(view) {
                 <button class="btn-filtro">6 meses</button>
                 <button class="btn-filtro">1 año</button>
             </div>
+            <div class="buscador">
+                <input type="text" placeholder="Buscar por producto o fecha" class="input-busqueda">
+                <i class='bx bx-search'></i>
+            </div>
             <p class="aviso">Todos los registros(Segun tus filtros).</p>
             <div class="registros">
                 ${registrosHTML}
@@ -422,6 +427,85 @@ function eventosHome() {
     const estadoButtons = document.querySelectorAll('.filtros-opciones.estado .btn-filtro');
     const tiempoButtons = document.querySelectorAll('.filtros-opciones.tiempo .btn-filtro');
     const registrosContainer = document.querySelector('.registros');
+    const inputBusqueda = document.querySelector('.input-busqueda');
+    const botonBusqueda = document.querySelector('.buscador i.bx-search');
+
+    function normalizarTexto(texto) {
+        if (!texto) return '';
+        return texto.toString().toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/[-\s]/g, '');
+    }
+
+    function buscarRegistros(termino) {
+    if (!termino) {
+        return usuarioInfo.rol === 'Producción' ? registrosProduccion : registrosMovimientos;
+    }
+
+    const terminoNormalizado = normalizarTexto(termino);
+    const registrosBase = usuarioInfo.rol === 'Producción' ? registrosProduccion : registrosMovimientos;
+
+    return registrosBase.filter(registro => {
+        const productoNormalizado = normalizarTexto(registro.producto);
+
+        // Manejar la normalización de la fecha según el rol
+        let registroFecha;
+        if (usuarioInfo.rol === 'Almacen') {
+            registroFecha = registro.fecha_hora.split(',')[0];
+        } else {
+            registroFecha = registro.fecha;
+        }
+
+        const [day, month, year] = registroFecha.split('/').map(Number);
+        const registroFechaNormalizada = `${day.toString().padStart(2, '0')}-${month.toString().padStart(2, '0')}-${year}`;
+
+        // Verificar si el término es una fecha en el formato "dd-mm-yyyy"
+        const esFecha = /^\d{2}-\d{2}-\d{4}$/.test(termino);
+        const esProductoFecha = /^[a-zA-Z].*,\d{2}-\d{2}-\d{4}$/.test(termino);
+
+        if (esProductoFecha) {
+            const [productoTermino, fechaTermino] = termino.split(',');
+            return productoNormalizado.includes(productoTermino) && registroFechaNormalizada === fechaTermino;
+        } else if (esFecha) {
+            return registroFechaNormalizada === termino;
+        } else {
+            return productoNormalizado.includes(terminoNormalizado);
+        }
+    
+    });
+}
+
+    function realizarBusqueda() {
+        const termino = inputBusqueda.value.trim();
+        const resultados = buscarRegistros(termino);
+
+        registrosFiltrados = resultados;
+
+
+        // Desactivar todos los filtros
+        const todosBotonesEstado = document.querySelectorAll('.filtros-opciones.estado .btn-filtro');
+        const todosBotonesTiempo = document.querySelectorAll('.filtros-opciones.tiempo .btn-filtro');
+
+        todosBotonesEstado.forEach(btn => btn.classList.remove('activado'));
+        todosBotonesTiempo.forEach(btn => btn.classList.remove('activado'));
+
+        if (registrosFiltrados.length === 0) {
+            mostrarNotificacion({
+                message: 'No se encontraron registros',
+                type: 'warning',
+                duration: 3500
+            });
+        }
+
+        actualizarRegistrosHTML(registrosFiltrados.slice(0, 10), registrosFiltrados);
+    }
+    botonBusqueda.addEventListener('click', realizarBusqueda);
+    inputBusqueda.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            realizarBusqueda();
+        }
+    });
 
 
     registrosContainer.addEventListener('click', (e) => {
@@ -440,6 +524,9 @@ function eventosHome() {
 
     estadoButtons.forEach(button => {
         button.addEventListener('click', async () => {
+            // Clear the search input
+            inputBusqueda.value = '';
+
             estadoButtons.forEach(btn => btn.classList.remove('activado'));
             button.classList.add('activado');
 
@@ -452,6 +539,9 @@ function eventosHome() {
 
     tiempoButtons.forEach(button => {
         button.addEventListener('click', async () => {
+            // Clear the search input
+            inputBusqueda.value = '';
+
             tiempoButtons.forEach(btn => btn.classList.remove('activado'));
             button.classList.add('activado');
 
@@ -609,7 +699,7 @@ function eventosHome() {
         avisoElement.textContent = `Registros ${estadoActual.toLowerCase()} de ${tiempo}`;
     }
 
-    
+
     function cargarMasRegistros(registrosFiltrados) {
         const registrosContainer = document.querySelector('.registros');
         const registrosActuales = document.querySelectorAll('.registro');
