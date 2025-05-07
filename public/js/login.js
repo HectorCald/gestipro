@@ -512,7 +512,7 @@ function crearFormularioContraseña() {
             <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno">
-            <p class="normal"><i class='bx bx-chevron-right'></i> Ingresa tu correo electrónico para recibir un código de verificación</p>
+            <p><i class='bx bx-chevron-right'></i> Ingresa tu correo electrónico para recibir un código de verificación</p>
             <div class="entrada">
                 <i class='bx bx-envelope'></i>
                 <div class="input">
@@ -693,15 +693,17 @@ function setupVerificationCodeListeners(email) {
 
 
 function crearFormularioInfo() {
-    const anuncio = document.querySelector('.anuncio');
+    const anuncio = document.querySelector('.anuncio .contenido');
     const companyInfoHTML = `
-        <div class="contenido">
-            <h1 class="bienvenida">Información</h1>
+         <div class="encabezado">
+            <h1 class="titulo">Información</h1>
             <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
-            <p>Desarrollamos sistemas a medida para optimizar tus procesos.</p>
-            <p>Quieres agregar tu empresa a la comunidad de Gestipro?</p>
-            <p>Contactanos.</p>
-            <button class="btn green" onclick="window.open('https://wa.me/+59169713972?text=Más%20información%20sobre%20Gestipro%20por%20favor', '_blank')">Contactar por WhatsApp</button>
+        </div>
+        <div class="relleno">
+            <p><i class='bx bx-chevron-right'></i>  Desarrollamos sistemas a medida para optimizar tus procesos.</p>
+            <p><i class='bx bx-chevron-right'></i>  Quieres agregar tu empresa a la comunidad de Gestipro?</p>
+            <p><i class='bx bx-chevron-right'></i>  Contactanos.</p>
+            <button class="btn orange" onclick="window.open('https://wa.me/+59169713972?text=Más%20información%20sobre%20Gestipro%20por%20favor', '_blank')">Contactar por WhatsApp</button>
         </div>
     `;
 
