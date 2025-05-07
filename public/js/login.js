@@ -304,14 +304,12 @@ function crearFormularioRegistro() {
 }
 function eventosFormularioRegistro() {
     crearNotificacion();
-    const registerButton = document.getElementById('register-button');
-    const inputs = document.querySelectorAll('.entrada .input input');
-    const togglePasswordButtons = document.querySelectorAll('.toggle-password');
-    const nombreInput = document.querySelector('.entrada:nth-child(3) .input .nombre');
-    const apellidoInput = document.querySelector('.entrada:nth-child(4) .input .nombre');
+    const nombreInput = document.querySelector('.entrada:nth-child(2) .input .nombre');  // Corregido el selector
+    const apellidoInput = document.querySelector('.entrada:nth-child(3) .input .nombre'); // Corregido el selector
     const emailInput = document.querySelector('.email-registro');
     const passwordInput = document.querySelector('.password-registro');
     const empresaInput = document.querySelector('.empresa');
+    const registerButton = document.getElementById('register-button');
 
 
     [nombreInput, apellidoInput].forEach(input => {
@@ -338,16 +336,9 @@ function eventosFormularioRegistro() {
     };
 
     const validateEmail = debounce(async (email) => {
-        if (!email || email.trim() === '') {
-            validationIcon.className = '';
-            validationIcon.classList.add('validation-icon', 'fas', 'fa-times', 'error');
-            return;
-        }
-
         try {
-            validationIcon.className = '';
-            validationIcon.classList.add('validation-icon', 'fas', 'fa-spinner', 'fa-spin');
-
+            validationIcon.className = 'validation-icon fas fa-spinner fa-spin';
+            
             const response = await fetch('/check-email', {
                 method: 'POST',
                 headers: {
@@ -356,32 +347,40 @@ function eventosFormularioRegistro() {
                 body: JSON.stringify({ email })
             });
 
-            if (!response.ok) throw new Error('Error en la petición');
-
             const data = await response.json();
 
+            if (!response.ok) throw new Error('Error en la petición');
+
+            validationIcon.className = `validation-icon fas ${data.exists ? 'fa-times error' : 'fa-check success'}`;
+            
             if (data.exists) {
-                validationIcon.className = '';
-                validationIcon.classList.add('validation-icon', 'fas', 'fa-times', 'error');
                 mostrarNotificacion({
                     message: 'Este usuario ya existe',
                     type: 'warning',
                     duration: 3000
                 });
-            } else {
-                validationIcon.className = '';
-                validationIcon.classList.add('validation-icon', 'fas', 'fa-check', 'success');
             }
         } catch (error) {
             console.error('Error:', error);
-            validationIcon.className = '';
-            validationIcon.classList.add('validation-icon', 'fas', 'fa-exclamation-triangle', 'warning');
+            validationIcon.className = 'validation-icon fas fa-exclamation-triangle warning';
         }
     }, 500);
 
     emailInput.addEventListener('input', (e) => {
-        validateEmail(e.target.value);
+        const email = e.target.value.trim();
+        
+        // Limpiar espacios automáticamente
+        if (email !== e.target.value) {
+            e.target.value = email;
+        }
+        
+        if (email) {
+            validateEmail(email);
+        } else {
+            validationIcon.className = 'validation-icon fas fa-times error';
+        }
     });
+
 
     passwordInput.addEventListener('input', () => {
         const password = passwordInput.value;
@@ -391,15 +390,11 @@ function eventosFormularioRegistro() {
             numbers: /[0-9]/.test(password)
         };
 
-        const requirementElements = document.querySelectorAll('.requirement');
-        requirementElements[0].className = `requirement ${requirements.length ? 'valid' : 'invalid'}`;
-        requirementElements[0].querySelector('i').className = `fas ${requirements.length ? 'fa-check' : 'fa-times'}`;
-
-        requirementElements[1].className = `requirement ${requirements.letters ? 'valid' : 'invalid'}`;
-        requirementElements[1].querySelector('i').className = `fas ${requirements.letters ? 'fa-check' : 'fa-times'}`;
-
-        requirementElements[2].className = `requirement ${requirements.numbers ? 'valid' : 'invalid'}`;
-        requirementElements[2].querySelector('i').className = `fas ${requirements.numbers ? 'fa-check' : 'fa-times'}`;
+        document.querySelectorAll('.requirement').forEach((elem, index) => {
+            const isValid = Object.values(requirements)[index];
+            elem.className = `requirement ${isValid ? 'valid' : 'invalid'} item`;
+            elem.querySelector('i').className = `fas ${isValid ? 'fa-check' : 'fa-times'}`;
+        });
     });
     registerButton.addEventListener('click', async () => {
         const nombre = nombreInput.value.trim();
@@ -409,9 +404,7 @@ function eventosFormularioRegistro() {
         const password = passwordInput.value;
         const empresa = empresaInput.value;
 
-
-
-        // Validate that all fields are complete
+        // Validar campos vacíos
         if (!nombre || !apellido || !email || !password || !empresa) {
             mostrarNotificacion({
                 message: 'Por favor, complete todos los campos',
@@ -421,7 +414,7 @@ function eventosFormularioRegistro() {
             return;
         }
 
-        // Validate email format
+        // Validar formato de email
         if (email.includes(' ')) {
             mostrarNotificacion({
                 message: 'El usuario/email no debe contener espacios',
@@ -431,8 +424,7 @@ function eventosFormularioRegistro() {
             return;
         }
 
-
-        // Validate password requirements
+        // Validar requisitos de contraseña
         const passwordRequirements = {
             length: password.length >= 8,
             letters: /[a-zA-Z]/.test(password),
@@ -448,51 +440,56 @@ function eventosFormularioRegistro() {
             return;
         }
 
-        // Validate that the email does not exist
-        const validationIcon = emailInput.parentElement.querySelector('.validation-icon');
-        if (validationIcon && validationIcon.classList.contains('error')) {
-            mostrarNotificacion({
-                message: 'El email o usuario ya está registrado',
-                type: 'warning',
-                duration: 3500
-            });
-            return;
-        }
-
+        // Verificar email antes de registrar
         try {
             mostrarCarga();
-            const response = await fetch('/register', {
+            const checkEmailResponse = await fetch('/check-email', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email })
+            });
+
+            const emailData = await checkEmailResponse.json();
+            if (emailData.exists) {
+                mostrarNotificacion({
+                    message: 'Este usuario ya existe',
+                    type: 'warning',
+                    duration: 3500
+                });
+                ocultarCarga();
+                return;
+            }
+
+            // Si el email no existe, proceder con el registro
+            const registerResponse = await fetch('/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    nombre: nombreCompleto, // Enviamos el nombre completo
+                    nombre: nombreCompleto,
                     email,
                     password,
                     empresa
                 })
             });
 
-            const data = await response.json();
-            if (data.success) {
+            const registerData = await registerResponse.json();
+            if (registerData.success) {
                 mostrarNotificacion({
-                    message: data.message || '¡Registro exitoso!',
+                    message: registerData.message || '¡Registro exitoso!',
                     type: 'success',
                     duration: 4000
                 });
                 ocultarAnuncio();
             } else {
-                mostrarNotificacion({
-                    message: data.error || 'Error en el registro',
-                    type: 'error',
-                    duration: 4000
-                });
+                throw new Error(registerData.error || 'Error en el registro');
             }
         } catch (error) {
-            console.error('Error:', error);
             mostrarNotificacion({
-                message: 'Error de conexión',
+                message: error.message || 'Error al registrar usuario',
                 type: 'error',
                 duration: 4000
             });
@@ -500,7 +497,6 @@ function eventosFormularioRegistro() {
             ocultarCarga();
         }
     });
-
 }
 
 /* ==================== FORMULARIO DE OLVIDO DE CONTRASEÑA ==================== */
