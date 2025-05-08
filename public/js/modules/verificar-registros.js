@@ -119,13 +119,18 @@ function evetosVerificacion() {
             div.style.display = 'none';
         });
     });
+    document.querySelector('.contenido').addEventListener('click', () => {
+        document.querySelectorAll('.registro-acciones').forEach(div => {
+            div.style.display = 'none';
+        });
+    });
     document.querySelector('.relleno').addEventListener('scroll', () => {
         document.querySelectorAll('.registro-acciones').forEach(div => {
             div.style.display = 'none';
         });
     });
 
-
+    
     botonesInfo.forEach(btn => {
         btn.addEventListener('click', info);
     });
@@ -634,6 +639,14 @@ function evetosVerificacion() {
                 const data = await response.json();
 
                 if (data.success) {
+
+                    await registrarHistorial(
+                        'Producción',
+                        'Edición',
+                        `Motivo: Se edito el Registro: ${registro.producto} (${registro.lote})`
+                    );
+
+
                     mostrarNotificacion({
                         message: 'Registro actualizado correctamente',
                         type: 'success',
