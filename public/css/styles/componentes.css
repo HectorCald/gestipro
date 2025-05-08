@@ -122,6 +122,7 @@
     font-weight: 800;
 
     i{
+        margin-right: 5px;
         font-size: var(--text-superior) !important;
     }
 }
@@ -148,7 +149,13 @@
         color: rgb(73, 104, 170) !important;
     }
 }
+.btn-icon.gray {
+    background-color:rgba(133, 133, 133, 0.099);
 
+    i {
+        color: rgb(129, 129, 129) !important;
+    }
+}
 
 .notification-container {
     position: fixed;
@@ -789,38 +796,73 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     padding: 10px;
     transition: transform 0.2s ease;
+    position: relative;
 
     .header {
         display: flex;
         font-size: var(--text-subtitulo);
-        color: var(--tercer-color);
+        color: var(--text);
         font-weight: 500;
-        justify-content: space-between;
+        flex-direction: column;
         align-items: center;
-        padding-bottom: 10px;
+        align-items: flex-start;
     }
 
     .info {
         display: flex;
         flex-direction: column;
+        color: var(--cuarto-color);
     }
 
     .detalle {
         display: flex;
-        justify-content: space-between;
+        flex-direction: column;
         gap: 10px;
     }
 
     .detalle .valor {
-        font-size: var(--text-detalle);
+        font-size: var(--text-subtitulo);
         color: var(--text);
+        display: flex;
+        width: 100%;
+        justify-content: space-between;
+    }
+    .valor.verificado{
+        color: var(--success);
+        background-color: rgba(0, 255, 0, 0.11);
+        padding: 5px 10px;
+        border-radius: 10px;
+        font-weight: 500;
+    }
+    .valor.pendiente{
+        color: var(--error);
+        background-color: rgba(255, 0, 0, 0.099);
+        padding: 5px 10px;
+        border-radius: 10px;
+        font-weight: 500;
     }
 
     .registro-acciones {
         display: flex;
-        width: 150px;
-        height: auto;
-        gap: 5px;
+        width: 100%;
+        height: 100%;
+        gap: 10px;
+        flex-direction: row;
+        border-radius: 10px;
+        padding: 10px;
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        z-index: 5;
+        background-color: var(--fondo2);
+        display: none;
+        justify-content: center;
+        align-items: center;
+    }
+    .nombre{
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
     }
 }
 

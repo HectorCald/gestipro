@@ -68,34 +68,14 @@ export async function mostrarVerificacion() {
             ${registrosProduccion.map(registro => `
                 <div class="registro-item" data-id="${registro.id}">
                     <div class="header">
-                        <div class="info">
-                            <span class="nombre">${registro.nombre}</span>
-                            <span class="valor" color var><strong>${registro.producto} - ${registro.gramos}gr.</strong></span>
-                        </div>
-                        <div class="registro-acciones" ${registro.fecha_verificacion ? 'style="display: none;"' : ''}>
-                            <button class="btn-editar btn-icon blue" data-id="${registro.id}"><i class='bx bx-edit'></i></button>
-                            <button class="btn-eliminar btn-icon red" data-id="${registro.id}"><i class="bi bi-trash-fill"></i></button>
-                            <button class="btn-verificar btn-icon green" data-id="${registro.id}"><i class="bi bi-check-circle-fill"></i></button>
-                        </div> 
+                        <span class="nombre">${registro.nombre}<span class="valor ${registro.fecha_verificacion ? 'verificado' : 'pendiente'}">${registro.fecha_verificacion ? 'Verificado' : 'Pendiente'}</span></span>
+                        <span class="valor" color var><strong>${registro.producto} - ${registro.gramos}gr.</strong></span>
                     </div>
-                    <div class="detalle">
-                        <span class="valor"><strong>Fecha: </strong>${registro.fecha}</span>
-                        <span class="valor"><strong>Lote: </strong>${registro.lote}</span>
-                    </div>
-                    <div class="detalle">
-                        <span class="valor"><strong>Proceso: </strong>${registro.proceso}</span>
-                        <span class="valor"><strong>Microondas: </strong>${registro.microondas}</span>
-                    </div>
-                    <div class="detalle">
-                        <span class="valor"><strong>Terminados: </strong>${registro.envases_terminados}</span>
-                        <span class="valor"><strong>Vencimiento: </strong>${registro.fecha_vencimiento}</span>
-                    </div>
-                    <div class="detalle">
-                        <span class="valor"><strong>Real: </strong>${registro.c_real || 'No verificado'}</span>
-                        <span class="valor"><strong>fecha de verificación: </strong>${registro.fecha_verificacion || 'Pendiente'}</span>
-                    </div>
-                    <div class="detalle">
-                        <span class="valor"><strong>Observaciones: </strong>${registro.observaciones || 'Sin observaciones'}</span>
+                    <div class="registro-acciones" ${registro.fecha_verificacion ? 'style="display: none;"' : ''}>
+                        <button class="btn-info btn-icon gray" data-id="${registro.id}"><i class='bx bx-info-circle'></i></button>
+                        <button class="btn-editar btn-icon blue" data-id="${registro.id}"><i class='bx bx-edit'></i></button>
+                        <button class="btn-eliminar btn-icon red" data-id="${registro.id}"><i class="bi bi-trash-fill"></i></button>
+                        <button class="btn-verificar btn-icon green" data-id="${registro.id}"><i class="bi bi-check-circle-fill"></i></button>
                     </div>
                 </div>
             `).join('')}
@@ -114,7 +94,39 @@ function evetosVerificacion() {
     const botonesVerificar = document.querySelectorAll('.btn-verificar');
     const botonesEliminar = document.querySelectorAll('.btn-eliminar');
     const botonesEditar = document.querySelectorAll('.btn-editar');
+    const botonesInfo = document.querySelectorAll('.btn-info');
+    const items = document.querySelectorAll('.registro-item');
 
+    items.forEach(item => {
+        const accionesDiv = item.querySelector('.registro-acciones');
+        if (accionesDiv && !item.querySelector('.fecha_verificacion')) {
+            item.addEventListener('click', (e) => {
+                e.stopPropagation(); // Evitar que el click se propague
+                // Ocultar todos los demás menús de acciones
+                document.querySelectorAll('.registro-acciones').forEach(div => {
+                    if (div !== accionesDiv) {
+                        div.style.display = 'none';
+                    }
+                });
+                accionesDiv.style.display = accionesDiv.style.display === 'flex' ? 'none' : 'flex';
+            });
+        }
+    });
+    document.addEventListener('click', () => {
+        document.querySelectorAll('.registro-acciones').forEach(div => {
+            div.style.display = 'none';
+        });
+    });
+    document.querySelector('.relleno').addEventListener('scroll', () => {
+        document.querySelectorAll('.registro-acciones').forEach(div => {
+            div.style.display = 'none';
+        });
+    });
+
+
+    botonesInfo.forEach(btn => {
+        btn.addEventListener('click', info);
+    });
     botonesVerificar.forEach(btn => {
         btn.addEventListener('click', verificar);
     });
@@ -129,26 +141,26 @@ function evetosVerificacion() {
 
     function aplicarFiltros() {
         const registros = document.querySelectorAll('.registro-item');
-
+    
         registros.forEach(registro => {
-            const nombreRegistro = registro.querySelector('.nombre').textContent;
-            // Corregimos el selector para obtener la fecha de verificación
-            const fechaVerificacion = registro.querySelector('.detalle:nth-child(5) .valor:last-child').textContent;
-            const observaciones = registro.querySelector('.detalle:last-child .valor').textContent;
-
+            const registroId = registro.dataset.id;
+            const registroData = registrosProduccion.find(r => r.id === registroId);
+            // Modificamos el selector para obtener solo el texto del nombre
+            const nombreRegistro = registro.querySelector('.nombre').childNodes[0].textContent;
+    
             let cumpleFiltroNombre = filtroNombreActual === 'Todos' || nombreRegistro === filtroNombreActual;
             let cumpleFiltroEstado = true;
 
-            if (filtroEstadoActual !== 'Todos') {
+            if (filtroEstadoActual !== 'Todos' && registroData) {
                 switch (filtroEstadoActual) {
                     case 'Pendientes':
-                        cumpleFiltroEstado = fechaVerificacion.includes('Pendiente');
+                        cumpleFiltroEstado = !registroData.fecha_verificacion;
                         break;
                     case 'Verificados':
-                        cumpleFiltroEstado = !fechaVerificacion.includes('Pendiente');
+                        cumpleFiltroEstado = !!registroData.fecha_verificacion;
                         break;
                     case 'Observados':
-                        cumpleFiltroEstado = observaciones !== 'Sin observaciones';
+                        cumpleFiltroEstado = registroData.observaciones && registroData.observaciones !== 'Sin observaciones';
                         break;
                 }
             }
@@ -205,10 +217,10 @@ function evetosVerificacion() {
                     <div class="info">
                         <span class="nombre">${registro.nombre}</span>
                         <span class="fecha">${registro.fecha}</span>
+                        <span class="valor">${registro.producto} - ${registro.gramos}gr.</span>
                     </div>
                 </div>
                 <div class="detalle">
-                    <span class="valor">${registro.producto} - ${registro.gramos}gr.</span>
                     <span class="valor"><strong>Lote: </strong>${registro.lote}</span>
                 </div>
                 <div class="detalle">
@@ -321,6 +333,52 @@ function evetosVerificacion() {
             }
         }
     }
+    function info(event) {
+        const registroId = event.currentTarget.dataset.id;
+        // Encontrar el registro correspondiente
+        const registro = registrosProduccion.find(r => r.id === registroId);
+
+        const contenido = document.querySelector('.anuncio-second .contenido');
+        const registrationHTML = `
+        <div class="encabezado">
+            <h1 class="titulo">Verificar</h1>
+            <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
+        </div>
+        <div class="relleno verificar-registro">
+            <p class="normal"><i class='bx bx-chevron-right'></i>Información</p>
+            <div class="registro-item" data-id="${registro.id}">
+                <div class="header">
+                    <div class="info">
+                        <span class="nombre">${registro.nombre}</span>
+                        <span class="fecha">${registro.fecha}</span>
+                        <span class="valor">${registro.producto} - ${registro.gramos}gr.</span>
+                    </div>
+                </div>
+                <div class="detalle">
+                    <span class="valor"><strong>Lote: </strong>${registro.lote}</span>
+                </div>
+                <div class="detalle">
+                    <span class="valor"><strong>Proceso: </strong>${registro.proceso}</span>
+                    <span class="valor"><strong>Microondas: </strong>${registro.microondas}</span>
+                </div>
+                <div class="detalle">
+                    <span class="valor"><strong>Terminados: </strong>${registro.envases_terminados}</span>
+                    <span class="valor"><strong>Vencimiento: </strong>${registro.fecha_vencimiento}</span>
+                </div>
+                <div class="detalle">
+                    <span class="valor"><strong>Real: </strong>${registro.c_real || 'No verificado'}</span>
+                    <span class="valor"><strong>fecha de verificación: </strong>${registro.fecha_verificacion || 'Pendiente'}</span>
+                </div>
+                <div class="detalle">
+                    <span class="valor"><strong>Observaciones: </strong>${registro.observaciones || 'Sin observaciones'}</span>
+                </div>
+            </div>
+        </div>
+    `;
+        contenido.innerHTML = registrationHTML;
+        contenido.style.paddingBottom = '10px';
+        mostrarAnuncioSecond();
+    }
     function eliminar(event) {
         const registroId = event.currentTarget.dataset.id;
         // Encontrar el registro correspondiente
@@ -339,10 +397,10 @@ function evetosVerificacion() {
                     <div class="info">
                         <span class="nombre">${registro.nombre}</span>
                         <span class="fecha">${registro.fecha}</span>
+                        <span class="valor">${registro.producto} - ${registro.gramos}gr.</span>
                     </div>
                 </div>
                 <div class="detalle">
-                    <span class="valor">${registro.producto} - ${registro.gramos}gr.</span>
                     <span class="valor"><strong>Lote: </strong>${registro.lote}</span>
                 </div>
                 <div class="detalle">
