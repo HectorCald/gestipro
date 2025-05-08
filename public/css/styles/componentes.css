@@ -685,7 +685,7 @@
     }
 }
 
-.anuncio .contenido .opcion {
+.contenido .opcion {
     display: flex;
     align-items: center;
     gap: 1rem;
@@ -805,6 +805,11 @@
         flex-direction: column;
         align-items: center;
         align-items: flex-start;
+
+        .fecha{
+            color: var(--cero-color);
+            font-size: 10px !important;
+        }
     }
 
     .info {

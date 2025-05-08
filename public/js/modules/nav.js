@@ -78,7 +78,7 @@ function obtenerOpcionesMenu() {
                 icono: 'fa-history',
                 texto: 'Registros',
                 detalle: 'Ver mis registros de producción',
-                onclick: 'onclick="document.querySelector(\'.seccion2 .normal\').scrollIntoView({behavior: \'smooth\', block: \'start\'});ocultarAnuncio()"'
+                onclick: 'onclick="document.querySelector(\'.seccion2 .normal\').scrollIntoView({behavior: \'smooth\', block: \'start\'});ocultarAnuncioSecond()"'
             },
             {
                 clase: 'opcion-btn',
@@ -86,7 +86,7 @@ function obtenerOpcionesMenu() {
                 icono: 'fa-chart-line',
                 texto: 'Estadisticas',
                 detalle: 'Ver mis estadisticas de registros.',
-                onclick: 'onclick="document.querySelector(\'.seccion3 .normal\').scrollIntoView({behavior: \'smooth\', block: \'start\'});ocultarAnuncio()""'
+                onclick: 'onclick="document.querySelector(\'.seccion3 .normal\').scrollIntoView({behavior: \'smooth\', block: \'start\'});ocultarAnuncioSecond()""'
             }
         ],
         'Acopio': [
@@ -114,7 +114,7 @@ function obtenerOpcionesMenu() {
                 icono: 'fa-check-double',
                 texto: 'Verificar Registros',
                 detalle: 'Verificar registros de producción.',
-                onclick: 'onclick="cargarRegistros()"'
+                onclick: 'onclick="mostrarVerificacion(); ocultarAnuncioSecond()"'
             },
             {
                 clase: 'opcion-btn',
@@ -122,7 +122,7 @@ function obtenerOpcionesMenu() {
                 icono: 'fa-history',
                 texto: 'Registros Almacen',
                 detalle: 'Registros de almacen ingresos/salidas.',
-                onclick: 'onclick="document.querySelector(\'.seccion2 .normal\').scrollIntoView({behavior: \'smooth\', block: \'start\'});ocultarAnuncio()""'
+                onclick: 'onclick="document.querySelector(\'.seccion2 .normal\').scrollIntoView({behavior: \'smooth\', block: \'start\'});ocultarAnuncioSecond()""'
             },
             {
                 clase: 'opcion-btn',
@@ -195,7 +195,7 @@ function mostrarNav() {
     eventosNav();
 }
 function mostrarMenu() {
-    const contenido = document.querySelector('.anuncio .contenido');
+    const contenido = document.querySelector('.anuncio-second .contenido');
     const opcionesUsuario = obtenerOpcionesMenu();
     
     const opcionesHTML = opcionesUsuario.map(opcion => `
@@ -211,7 +211,7 @@ function mostrarMenu() {
     const menuHTML = `
         <div class="encabezado">
             <h1 class="titulo">Menú de ${usuarioInfo.rol}</h1>
-            <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
+            <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno">
             <p class="normal"><i class='bx bx-chevron-right'></i> Tus funciones basicas</p>
@@ -220,7 +220,7 @@ function mostrarMenu() {
     `;
 
     contenido.innerHTML = menuHTML;
-    mostrarAnuncio();
+    mostrarAnuncioSecond();
 }
 function eventosNav() {
     const refreshButton = document.querySelector('.nav-container .refresh');
