@@ -71,11 +71,13 @@ export async function mostrarVerificacion() {
                         <span class="nombre">${registro.nombre}<span class="valor ${registro.fecha_verificacion ? 'verificado' : 'pendiente'}">${registro.fecha_verificacion ? 'Verificado' : 'Pendiente'}</span></span>
                         <span class="valor" color var><strong>${registro.producto} - ${registro.gramos}gr.</strong></span>
                     </div>
-                    <div class="registro-acciones" ${registro.fecha_verificacion ? 'style="display: none;"' : ''}>
+                    <div class="registro-acciones">
                         <button class="btn-info btn-icon gray" data-id="${registro.id}"><i class='bx bx-info-circle'></i></button>
-                        <button class="btn-editar btn-icon blue" data-id="${registro.id}"><i class='bx bx-edit'></i></button>
-                        <button class="btn-eliminar btn-icon red" data-id="${registro.id}"><i class="bi bi-trash-fill"></i></button>
-                        <button class="btn-verificar btn-icon green" data-id="${registro.id}"><i class="bi bi-check-circle-fill"></i></button>
+                        ${!registro.fecha_verificacion ? `
+                            <button class="btn-editar btn-icon blue" data-id="${registro.id}"><i class='bx bx-edit'></i></button>
+                            <button class="btn-eliminar btn-icon red" data-id="${registro.id}"><i class="bi bi-trash-fill"></i></button>
+                            <button class="btn-verificar btn-icon green" data-id="${registro.id}"><i class="bi bi-check-circle-fill"></i></button>
+                        ` : ''}
                     </div>
                 </div>
             `).join('')}
