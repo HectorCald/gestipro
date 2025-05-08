@@ -70,7 +70,7 @@ export async function mostrarVerificacion() {
                     <div class="header">
                         <div class="info">
                             <span class="nombre">${registro.nombre}</span>
-                            <span class="fecha">${registro.fecha}</span>
+                            <span class="valor" color var><strong>${registro.producto} - ${registro.gramos}gr.</strong></span>
                         </div>
                         <div class="registro-acciones" ${registro.fecha_verificacion ? 'style="display: none;"' : ''}>
                             <button class="btn-editar btn-icon blue" data-id="${registro.id}"><i class='bx bx-edit'></i></button>
@@ -79,7 +79,7 @@ export async function mostrarVerificacion() {
                         </div> 
                     </div>
                     <div class="detalle">
-                        <span class="valor">${registro.producto} - ${registro.gramos}gr.</span>
+                        <span class="valor"><strong>Fecha: </strong>${registro.fecha}</span>
                         <span class="valor"><strong>Lote: </strong>${registro.lote}</span>
                     </div>
                     <div class="detalle">
