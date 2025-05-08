@@ -797,7 +797,7 @@ function evetosVerificacion() {
                     if (estado === 'verificado' && !registroData.fecha_verificacion) mostrar = false;
                 }
                 if (producto && registroData.producto !== producto) mostrar = false;
-                if (lote && registroData.lote !== parseInt(lote)) mostrar = false;
+                if (lote && registroData.lote !== lote) mostrar = false;
 
                 registro.style.display = mostrar ? '' : 'none';
             });
