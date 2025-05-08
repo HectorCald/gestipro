@@ -1,3 +1,5 @@
+
+
 let registrosProduccion = [];
 async function obtenerRegistrosProduccion() {
     try {
@@ -70,7 +72,7 @@ export async function mostrarVerificacion() {
                             <span class="nombre">${registro.nombre}</span>
                             <span class="fecha">${registro.fecha}</span>
                         </div>
-                        <div class="registro-acciones">
+                        <div class="registro-acciones" ${registro.fecha_verificacion ? 'style="display: none;"' : ''}>
                             <button class="btn-editar btn-icon blue" data-id="${registro.id}"><i class='bx bx-edit'></i></button>
                             <button class="btn-eliminar btn-icon red" data-id="${registro.id}"><i class="bi bi-trash-fill"></i></button>
                             <button class="btn-verificar btn-icon green" data-id="${registro.id}"><i class="bi bi-check-circle-fill"></i></button>
@@ -102,7 +104,7 @@ export async function mostrarVerificacion() {
     contenido.innerHTML = registrationHTML;
     contenido.style.paddingBottom = '10px';
     mostrarAnuncio();
-    evetosVerificacion();
+    const { aplicarFiltros } = evetosVerificacion();
 
     aplicarFiltros('Todos', 'Todos');
 }
@@ -196,7 +198,7 @@ function evetosVerificacion() {
             <h1 class="titulo">Verificar</h1>
             <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
         </div>
-        <div class="relleno">
+        <div class="relleno verificar-registro">
             <p class="normal"><i class='bx bx-chevron-right'></i>Información</p>
             <div class="registro-item" data-id="${registro.id}">
                 <div class="header">
@@ -242,7 +244,7 @@ function evetosVerificacion() {
             </div>
         </div>
         <div class="anuncio-botones">
-            <button id="btn-registrar" class="btn orange"><i class='bx bx-check-circle'></i> Verificar</button>
+            <button class="btn-verificar-registro btn orange"><i class='bx bx-check-circle'></i> Verificar</button>
         </div>
     `;
         contenido.innerHTML = registrationHTML;
@@ -250,8 +252,74 @@ function evetosVerificacion() {
         mostrarAnuncioSecond();
 
         // Agregar evento al botón guardar
-        const btnGuardar = contenido.querySelector('.btn-guardar');
-        btnGuardar.addEventListener('click', guardarVerificacion);
+        const btnVerificar = contenido.querySelector('.btn-verificar-registro');
+        btnVerificar.addEventListener('click', confirmarVerificacion);
+        async function confirmarVerificacion() {
+            const cantidadReal = document.querySelector('.verificar-registro .cantidad_real').value.trim();
+            const observaciones = document.querySelector('.verificar-registro .observaciones').value.trim();
+
+            if (!cantidadReal) {
+                mostrarNotificacion({
+                    message: 'Debe ingresar la cantidad real verificada',
+                    type: 'warning',
+                    duration: 3500
+                });
+                return;
+            }
+
+            try {
+                mostrarCarga();
+                const registroId = document.querySelector('.verificar-registro .registro-item').dataset.id;
+                const registro = registrosProduccion.find(r => r.id === registroId);
+
+                const response = await fetch(`/verificar-registro-produccion/${registroId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        cantidad_real: cantidadReal,
+                        observaciones: observaciones || 'Sin observaciones'
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Error en la respuesta del servidor');
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Registrar en historial
+                    await registrarHistorial(
+                        'Producción',
+                        'Verificación',
+                        `Cantidad real: ${cantidadReal} - Registro: ${registro.producto} (${registro.lote})`
+                    );
+
+                    mostrarNotificacion({
+                        message: 'Registro verificado correctamente',
+                        type: 'success',
+                        duration: 3000
+                    });
+
+                    ocultarAnuncioSecond();
+                    await obtenerRegistrosProduccion();
+                    await mostrarVerificacion();
+                } else {
+                    throw new Error(data.error || 'Error al verificar el registro');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarNotificacion({
+                    message: error.message || 'Error al verificar el registro',
+                    type: 'error',
+                    duration: 3500
+                });
+            } finally {
+                ocultarCarga();
+            }
+        }
     }
     function eliminar(event) {
         const registroId = event.currentTarget.dataset.id;
@@ -303,7 +371,7 @@ function evetosVerificacion() {
             </div>
         </div>
         <div class="anuncio-botones">
-            <button id="btn-registrar" class="btn red"><i class="bi bi-trash-fill"></i> Eliminar</button>
+            <button class="btn-eliminar-registro btn red"><i class="bi bi-trash-fill"></i> Eliminar</button>
         </div>
     `;
         contenido.innerHTML = registrationHTML;
@@ -311,8 +379,69 @@ function evetosVerificacion() {
         mostrarAnuncioSecond();
 
         // Agregar evento al botón guardar
-        const btnGuardar = contenido.querySelector('.btn-guardar');
-        btnGuardar.addEventListener('click', guardarVerificacion);
+        const btnEliminar = contenido.querySelector('.btn-eliminar-registro');
+        btnEliminar.addEventListener('click', confirmarEliminacion);
+
+        async function confirmarEliminacion() {
+            const motivo = document.querySelector('.motivo').value.trim();
+
+            if (!motivo) {
+                mostrarNotificacion({
+                    message: 'Debe ingresar un motivo para la eliminación',
+                    type: 'warning',
+                    duration: 3500
+                });
+                return;
+            }
+
+            try {
+                mostrarCarga();
+
+                // Aseguramos que la URL sea correcta
+                const response = await fetch(`/eliminar-registro-produccion/${registroId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Error en la respuesta del servidor');
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Registrar en historial
+                    await registrarHistorial(
+                        'Producción',
+                        'Eliminación',
+                        `Motivo: ${motivo} - Registro: ${registro.producto} (${registro.lote})`
+                    );
+
+                    mostrarNotificacion({
+                        message: 'Registro eliminado correctamente',
+                        type: 'success',
+                        duration: 3000
+                    });
+
+                    ocultarAnuncioSecond();
+                    await obtenerRegistrosProduccion();
+                    await mostrarVerificacion();
+                } else {
+                    throw new Error(data.error || 'Error al eliminar el registro');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarNotificacion({
+                    message: error.message || 'Error al eliminar el registro',
+                    type: 'error',
+                    duration: 3500
+                });
+            } finally {
+                ocultarCarga();
+            }
+        }
     }
     function editar(event) {
         const registroId = event.currentTarget.dataset.id;
@@ -325,7 +454,7 @@ function evetosVerificacion() {
             <h1 class="titulo">Editar registro</h1>
             <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
         </div>
-        <div class="relleno">
+        <div class="relleno editar-produccion">
             <p class="normal"><i class='bx bx-chevron-right'></i>Información basica</p>
                 <div class="entrada">
                     <i class='bx bx-cube'></i>
@@ -399,14 +528,87 @@ function evetosVerificacion() {
                 </div>
         </div>
         <div class="anuncio-botones">
-            <button id="btn-registrar" class="btn orange"><i class="bx bx-save"></i> Guardar cambios</button>
+            <button class="btn-editar-registro btn orange"><i class="bx bx-save"></i> Guardar cambios</button>
         </div>
     `;
         contenido.innerHTML = registrationHTML;
         mostrarAnuncioSecond();
 
         // Agregar evento al botón guardar
-        const btnGuardar = contenido.querySelector('.btn-guardar');
-        btnGuardar.addEventListener('click', guardarVerificacion);
+        const btnEditar = contenido.querySelector('.btn-editar-registro');
+        btnEditar.addEventListener('click', confirmarEdicion);
+
+        async function confirmarEdicion() {
+            const producto = document.querySelector('.editar-produccion .producto').value;
+            const gramos = document.querySelector('.editar-produccion .gramaje').value;
+            const lote = document.querySelector('.editar-produccion .lote').value;
+            const proceso = document.querySelector('.editar-produccion .select').value;
+            const microondas = document.querySelector('.editar-produccion .microondas').value;
+            const envases_terminados = document.querySelector('.editar-produccion .terminados').value;
+            const fecha_vencimiento = document.querySelector('.editar-produccion .vencimiento').value;
+            const verificado = document.querySelector('.editar-produccion .cantidad_real').value;
+            const observaciones = document.querySelector('.editar-produccion .observaciones').value;
+
+            if (!producto || !gramos || !proceso || !microondas || !envases_terminados || !fecha_vencimiento) {
+                mostrarNotificacion({
+                    message: 'Todos los campos son obligatorios',
+                    type: 'warning',
+                    duration: 3500
+                });
+                return;
+            }
+
+            try {
+                mostrarCarga();
+
+                const response = await fetch(`/editar-registro-produccion/${registroId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        producto,
+                        gramos,
+                        lote,
+                        proceso,
+                        microondas,
+                        envases_terminados,
+                        fecha_vencimiento,
+                        verificado,
+                        observaciones
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Error en la respuesta del servidor');
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    mostrarNotificacion({
+                        message: 'Registro actualizado correctamente',
+                        type: 'success',
+                        duration: 3000
+                    });
+
+                    ocultarAnuncioSecond();
+                    await obtenerRegistrosProduccion();
+                    await mostrarVerificacion();
+                } else {
+                    throw new Error(data.error || 'Error al actualizar el registro');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarNotificacion({
+                    message: error.message || 'Error al actualizar el registro',
+                    type: 'error',
+                    duration: 3500
+                });
+            } finally {
+                ocultarCarga();
+            }
+        }
     }
+    return { aplicarFiltros };
 }

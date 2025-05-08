@@ -321,3 +321,42 @@ export function configuracionesEntrada() {
         document.querySelector('.password').value = savedCredentials.password;
     }
 }
+export async function registrarHistorial(origen, suceso, detalle) {
+    try {
+        mostrarCarga();
+        const response = await fetch('/registrar-historial', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                origen,
+                suceso,
+                detalle
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            return true;
+        } else {
+            mostrarNotificacion({
+                message: data.error || 'Error al registrar historial',
+                type: 'error',
+                duration: 3500
+            });
+            return false;
+        }
+    } catch (error) {
+        console.error('Error al registrar historial:', error);
+        mostrarNotificacion({
+            message: 'Error al registrar historial',
+            type: 'error',
+            duration: 3500
+        });
+        return false;
+    } finally {
+        ocultarCarga();
+    }
+}

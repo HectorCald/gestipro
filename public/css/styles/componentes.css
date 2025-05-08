@@ -120,10 +120,14 @@
     border-radius: 10px;
     color: white;
     font-weight: 800;
+
+    i{
+        font-size: var(--text-superior) !important;
+    }
 }
 
 .btn-icon.red {
-    background-color: rgba(255, 0, 0, 0.17);
+    background-color: rgba(255, 0, 0, 0.09);
 
     i {
         color: red !important;
@@ -131,17 +135,17 @@
 }
 
 .btn-icon.green {
-    background-color: rgba(0, 128, 0, 0.189);
+    background-color: rgba(0, 128, 0, 0.093);
 
     i {
-        color: green;
+        color: green !important;
     }
 }
 .btn-icon.blue {
-    background-color:rgba(0, 85, 255, 0.211);
+    background-color:rgba(0, 85, 255, 0.099);
 
     i {
-        color: blue;
+        color: rgb(73, 104, 170) !important;
     }
 }
 
@@ -313,7 +317,7 @@
     background: none;
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-    z-index: 10;
+    z-index: 4;
     display: none;
     justify-content: center;
     align-items: center;

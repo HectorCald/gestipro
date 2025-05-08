@@ -261,6 +261,56 @@ app.post('/cerrar-sesion', (req, res) => {
     res.json({ mensaje: 'Sesión cerrada correctamente' });
 });
 
+
+app.post('/registrar-historial', requireAuth, async (req, res) => {
+    const { spreadsheetId } = req.user;
+    const { origen, suceso, detalle } = req.body;
+
+    try {
+        const sheets = google.sheets({ version: 'v4', auth });
+        
+        // Get last ID to generate new one
+        const lastIdResponse = await sheets.spreadsheets.values.get({
+            spreadsheetId: spreadsheetId,
+            range: 'Historial!A2:A'
+        });
+
+        const lastId = lastIdResponse.data.values ? 
+            Math.max(...lastIdResponse.data.values.map(row => parseInt(row[0].split('-')[1]) || 0)) : 0;
+        const newId = `HI-${(lastId + 1).toString().padStart(3, '0')}`;
+
+        const newRow = [
+            newId,              // ID
+            origen,            // ORIGEN
+            suceso,            // SUCESO
+            detalle            // DETALLE
+        ];
+
+        await sheets.spreadsheets.values.append({
+            spreadsheetId: spreadsheetId,
+            range: 'Historial!A:D',
+            valueInputOption: 'USER_ENTERED',
+            insertDataOption: 'INSERT_ROWS',
+            resource: {
+                values: [newRow]
+            }
+        });
+
+        res.json({
+            success: true,
+            message: 'Historial registrado correctamente'
+        });
+
+    } catch (error) {
+        console.error('Error al registrar historial:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error al registrar el historial'
+        });
+    }
+});
+
+
 /* ==================== OBTENER USARIO ACTUAL Y ACTULIZAR USARIO ACTUAL ==================== */
 app.get('/obtener-usuario-actual', requireAuth, async (req, res) => {
     const { email, spreadsheetId } = req.user;
@@ -563,6 +613,202 @@ app.get('/obtener-movimientos-almacen', requireAuth, async (req, res) => {
         res.status(500).json({
             success: false,
             error: 'Error al obtener los movimientos de almacén'
+        });
+    }
+});
+app.delete('/eliminar-registro-produccion/:id', requireAuth, async (req, res) => {
+    const { spreadsheetId } = req.user;
+    const { id } = req.params;
+
+    try {
+        const sheets = google.sheets({ version: 'v4', auth });
+        
+        // Obtener todos los registros
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: 'Produccion!A2:O'
+        });
+
+        const rows = response.data.values || [];
+        // Buscar el índice exacto del registro por su ID completo
+        const rowIndex = rows.findIndex(row => row[0] && row[0].toString() === id.toString());
+
+        if (rowIndex === -1) {
+            return res.status(404).json({
+                success: false,
+                error: 'Registro no encontrado'
+            });
+        }
+
+        // Obtener el ID de la hoja
+        const spreadsheet = await sheets.spreadsheets.get({
+            spreadsheetId
+        });
+        
+        const produccionSheet = spreadsheet.data.sheets.find(
+            sheet => sheet.properties.title === 'Produccion'
+        );
+
+        if (!produccionSheet) {
+            return res.status(404).json({
+                success: false,
+                error: 'Hoja de Producción no encontrada'
+            });
+        }
+
+        // Eliminar la fila
+        await sheets.spreadsheets.batchUpdate({
+            spreadsheetId,
+            resource: {
+                requests: [{
+                    deleteDimension: {
+                        range: {
+                            sheetId: produccionSheet.properties.sheetId,
+                            dimension: 'ROWS',
+                            startIndex: rowIndex + 1, // +1 por el encabezado
+                            endIndex: rowIndex + 2
+                        }
+                    }
+                }]
+            }
+        });
+
+        res.json({
+            success: true,
+            message: 'Registro eliminado correctamente'
+        });
+
+    } catch (error) {
+        console.error('Error al eliminar registro:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error al eliminar el registro'
+        });
+    }
+});
+app.put('/editar-registro-produccion/:id', requireAuth, async (req, res) => {
+    const { spreadsheetId } = req.user;
+    const { id } = req.params;
+    const { producto, gramos,lote, proceso, microondas, envases_terminados, fecha_vencimiento, verificado, observaciones } = req.body;
+
+    try {
+        const sheets = google.sheets({ version: 'v4', auth });
+        
+        // Obtener todos los registros
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: 'Produccion!A2:O'
+        });
+
+        const rows = response.data.values || [];
+        const rowIndex = rows.findIndex(row => row[0] && row[0].toString() === id.toString());
+
+        if (rowIndex === -1) {
+            return res.status(404).json({
+                success: false,
+                error: 'Registro no encontrado'
+            });
+        }
+
+        // Mantener los valores existentes que no se actualizan
+        const existingRow = rows[rowIndex];
+        const updatedRow = [
+            id,                             // ID
+            existingRow[1],                 // FECHA
+            producto,                       // PRODUCTO
+            lote,                 // LOTE
+            gramos,                         // GRAMOS
+            proceso,                        // PROCESO
+            microondas,                     // MICROONDAS
+            envases_terminados,             // ENVASES TERMINADOS
+            fecha_vencimiento,              // FECHA VENCIMIENTO
+            existingRow[9],                 // NOMBRE
+            verificado,                // C_REAL
+            existingRow[11],                // FECHA_VERIFICACION
+            observaciones,                // OBSERVACIONES
+            existingRow[13],                // PAGADO
+            existingRow[14]                 // USER
+        ];
+
+        // Actualizar la fila
+        await sheets.spreadsheets.values.update({
+            spreadsheetId,
+            range: `Produccion!A${rowIndex + 2}:O${rowIndex + 2}`,
+            valueInputOption: 'USER_ENTERED',
+            resource: {
+                values: [updatedRow]
+            }
+        });
+
+        res.json({
+            success: true,
+            message: 'Registro actualizado correctamente'
+        });
+
+    } catch (error) {
+        console.error('Error al actualizar registro:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error al actualizar el registro'
+        });
+    }
+});
+app.put('/verificar-registro-produccion/:id', requireAuth, async (req, res) => {
+    const { spreadsheetId } = req.user;
+    const { id } = req.params;
+    const { cantidad_real, observaciones } = req.body;
+
+    try {
+        const sheets = google.sheets({ version: 'v4', auth });
+        
+        // Obtener registros actuales
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: 'Produccion!A2:O'
+        });
+
+        const rows = response.data.values || [];
+        const rowIndex = rows.findIndex(row => row[0] && row[0].toString() === id.toString());
+
+        if (rowIndex === -1) {
+            return res.status(404).json({
+                success: false,
+                error: 'Registro no encontrado'
+            });
+        }
+
+        // Mantener valores existentes y actualizar solo los campos de verificación
+        const existingRow = rows[rowIndex];
+        const currentDate = new Date().toLocaleDateString('es-ES');
+        
+        const updatedRow = [
+            ...existingRow.slice(0, 10),    // Mantener datos hasta la columna 10
+            cantidad_real,                   // Cantidad real verificada
+            currentDate,                     // Fecha de verificación
+            observaciones,                   // Observaciones
+            ...existingRow.slice(13)         // Mantener resto de datos
+        ];
+
+        // Actualizar la fila
+        await sheets.spreadsheets.values.update({
+            spreadsheetId,
+            range: `Produccion!A${rowIndex + 2}:O${rowIndex + 2}`,
+            valueInputOption: 'USER_ENTERED',
+            resource: {
+                values: [updatedRow]
+            }
+        });
+
+        res.json({
+            success: true,
+            message: 'Registro verificado correctamente'
+        });
+
+    } catch (error) {
+        console.error('Error al verificar registro:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error al verificar el registro'
         });
     }
 });
