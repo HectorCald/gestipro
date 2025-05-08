@@ -345,11 +345,11 @@ function evetosVerificacion() {
         const contenido = document.querySelector('.anuncio-second .contenido');
         const registrationHTML = `
         <div class="encabezado">
-            <h1 class="titulo">Verificar</h1>
+            <h1 class="titulo">Info registro</h1>
             <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno verificar-registro">
-            <p class="normal"><i class='bx bx-chevron-right'></i>Información</p>
+            <p class="normal"><i class='bx bx-chevron-right'></i>Detalles</p>
             <div class="registro-item" data-id="${registro.id}">
                 <div class="header">
                     <div class="info">

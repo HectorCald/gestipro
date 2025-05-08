@@ -808,7 +808,7 @@
 
         .fecha{
             color: var(--cero-color);
-            font-size: 10px !important;
+            font-size: 10px;
         }
     }
 
@@ -816,6 +816,12 @@
         display: flex;
         flex-direction: column;
         color: var(--cuarto-color);
+
+        .fecha{
+            color: var(--cuarto-color);
+            font-size: var(--text-subtitulo);
+        }
+
     }
 
     .detalle {
