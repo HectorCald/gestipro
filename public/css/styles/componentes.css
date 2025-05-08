@@ -139,21 +139,21 @@
     background-color: rgba(0, 128, 0, 0.093);
 
     i {
-        color: green !important;
+        color: var(--success) !important;
     }
 }
 .btn-icon.blue {
     background-color:rgba(0, 85, 255, 0.099);
 
     i {
-        color: rgb(73, 104, 170) !important;
+        color: rgb(74, 146, 254) !important;
     }
 }
 .btn-icon.gray {
     background-color:rgba(133, 133, 133, 0.099);
 
     i {
-        color: rgb(129, 129, 129) !important;
+        color: rgb(179, 179, 179) !important;
     }
 }
 
