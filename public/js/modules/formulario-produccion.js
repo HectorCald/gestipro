@@ -104,7 +104,6 @@ export async function mostrarFormularioProduccion() {
                     <input class="vencimiento" type="month" placeholder=" " required>
                 </div>
             </div>
-            
         </div>
         <div class="anuncio-botones">
             <button id="btn-registrar" class="btn orange"><i class="bx bx-notepad"></i> Registrar</button>

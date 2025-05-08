@@ -64,14 +64,95 @@ export async function mostrarAnuncio() {
     }
     configuracionesEntrada();
 }
+export async function mostrarAnuncioSecond() {
+    const anuncio = document.querySelector('.anuncio-second');
+    anuncio.style.transform = 'translateX(100%)';
+    anuncio.style.display = 'flex';
+    anuncio.offsetHeight;
+    anuncio.classList.add('slide-in');
+
+    let startX = 0;
+    let currentX = 0;
+
+    const handleTouchStart = (e) => {
+        startX = e.touches[0].clientX;
+    };
+
+    const handleTouchMove = (e) => {
+        currentX = e.touches[0].clientX;
+        if (startX - currentX > 100) {  // Si el deslizamiento es significativo
+            anuncio.removeEventListener('touchstart', handleTouchStart);
+            anuncio.removeEventListener('touchmove', handleTouchMove);
+            ocultarAnuncio();
+            history.back();
+        }
+    };
+
+    anuncio.addEventListener('touchstart', handleTouchStart);
+    anuncio.addEventListener('touchmove', handleTouchMove);
+
+    // Agregar estado al historial
+    const currentState = history.state || {};
+    window.history.pushState({ ...currentState, anuncioAbierto: true }, '');
+
+    // Manejar el botón atrás
+    const handlePopState = async () => {
+        const anuncioVisible = document.querySelector('.anuncio')?.style.display === 'flex';
+        if (anuncioVisible) {
+            await ocultarAnuncio();
+            anuncio.removeEventListener('touchstart', handleTouchStart);
+            anuncio.removeEventListener('touchmove', handleTouchMove);
+        }
+    };
+
+    window.removeEventListener('popstate', handlePopState);
+    window.addEventListener('popstate', handlePopState, { once: true });
+
+    // Solo agregamos el evento de clic si no es la selección inicial de empresa
+    const isSpreadsheetSelection = anuncio.querySelector('#spreadsheet-select');
+    if (!isSpreadsheetSelection) {
+        anuncio.addEventListener('click', async (e) => {
+            if (e.target === anuncio) {
+                e.preventDefault();
+                await ocultarAnuncio();
+                anuncio.removeEventListener('touchstart', handleTouchStart);
+                anuncio.removeEventListener('touchmove', handleTouchMove);
+                history.back();
+            }
+        });
+
+        const contenido = anuncio.querySelector('.contenido');
+        if (contenido) {
+            contenido.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+        }
+    }
+    configuracionesEntrada();
+}
 export async function ocultarAnuncio() {
     const anuncio = document.querySelector('.anuncio');
+    const contenido = document.querySelector('.anuncio .contenido');
+
     if (!anuncio || anuncio.style.display === 'none') return;
     
     anuncio.classList.add('slide-out');
     await new Promise(resolve => setTimeout(resolve, 300));
     anuncio.style.display = 'none';
     anuncio.classList.remove('slide-out', 'slide-in');
+    contenido.style.paddingBottom = '75px';
+}
+export async function ocultarAnuncioSecond() {
+    const anuncio = document.querySelector('.anuncio-second');
+    const contenido = document.querySelector('.anuncio-second .contenido');
+
+    if (!anuncio || anuncio.style.display === 'none') return;
+    
+    anuncio.classList.add('slide-out');
+    await new Promise(resolve => setTimeout(resolve, 300));
+    anuncio.style.display = 'none';
+    anuncio.classList.remove('slide-out', 'slide-in');
+    contenido.style.paddingBottom = '75px';
 }
 
 export function mostrarCarga() {

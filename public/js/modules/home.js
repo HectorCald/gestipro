@@ -149,7 +149,7 @@ function obtenerFunciones() {
                 icono: 'fa-check-double',
                 texto: 'Verificar',
                 detalle: 'Verifica registros.',
-                onclick: 'onclick="cargarRegistros()"'
+                onclick: 'onclick="mostrarVerificacion()"'
             },
             {
                 clase: 'opcion-btn',
@@ -439,43 +439,43 @@ function eventosHome() {
     }
 
     function buscarRegistros(termino) {
-    if (!termino) {
-        return usuarioInfo.rol === 'Producción' ? registrosProduccion : registrosMovimientos;
+        if (!termino) {
+            return usuarioInfo.rol === 'Producción' ? registrosProduccion : registrosMovimientos;
+        }
+
+        const terminoNormalizado = normalizarTexto(termino);
+        const registrosBase = usuarioInfo.rol === 'Producción' ? registrosProduccion : registrosMovimientos;
+
+        return registrosBase.filter(registro => {
+            const productoNormalizado = normalizarTexto(registro.producto);
+
+            // Manejar la normalización de la fecha según el rol
+            let registroFecha;
+            if (usuarioInfo.rol === 'Almacen') {
+                registroFecha = registro.fecha_hora.split(',')[0];
+            } else {
+                registroFecha = registro.fecha;
+            }
+
+            const [day, month, year] = registroFecha.split('/').map(Number);
+            const registroFechaNormalizada = `${day.toString().padStart(2, '0')}-${month.toString().padStart(2, '0')}-${year}`;
+
+            // Verificar si el término es una fecha en el formato "dd-mm-yyyy"
+            const esFecha = /^\d{2}-\d{2}-\d{4}$/.test(termino);
+            const esProductoFecha = /^[a-zA-Z].*,\d{2}-\d{2}-\d{4}$/.test(termino);
+
+            if (esProductoFecha) {
+                const [productoTermino, fechaTermino] = termino.split(',');
+                const producto = normalizarTexto(productoTermino);
+                return productoNormalizado.includes(producto) && registroFechaNormalizada === fechaTermino;
+            } else if (esFecha) {
+                return registroFechaNormalizada === termino;
+            } else {
+                return productoNormalizado.includes(terminoNormalizado);
+            }
+
+        });
     }
-
-    const terminoNormalizado = normalizarTexto(termino);
-    const registrosBase = usuarioInfo.rol === 'Producción' ? registrosProduccion : registrosMovimientos;
-
-    return registrosBase.filter(registro => {
-        const productoNormalizado = normalizarTexto(registro.producto);
-
-        // Manejar la normalización de la fecha según el rol
-        let registroFecha;
-        if (usuarioInfo.rol === 'Almacen') {
-            registroFecha = registro.fecha_hora.split(',')[0];
-        } else {
-            registroFecha = registro.fecha;
-        }
-
-        const [day, month, year] = registroFecha.split('/').map(Number);
-        const registroFechaNormalizada = `${day.toString().padStart(2, '0')}-${month.toString().padStart(2, '0')}-${year}`;
-
-        // Verificar si el término es una fecha en el formato "dd-mm-yyyy"
-        const esFecha = /^\d{2}-\d{2}-\d{4}$/.test(termino);
-        const esProductoFecha = /^[a-zA-Z].*,\d{2}-\d{2}-\d{4}$/.test(termino);
-
-        if (esProductoFecha) {
-            const [productoTermino, fechaTermino] = termino.split(',');
-            const producto=normalizarTexto(productoTermino);
-            return productoNormalizado.includes(producto) && registroFechaNormalizada === fechaTermino;
-        } else if (esFecha) {
-            return registroFechaNormalizada === termino;
-        } else {
-            return productoNormalizado.includes(terminoNormalizado);
-        }
-    
-    });
-}
 
     function realizarBusqueda() {
         const termino = inputBusqueda.value.trim();
