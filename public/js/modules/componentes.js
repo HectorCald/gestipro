@@ -5,22 +5,24 @@ export async function mostrarAnuncio() {
     anuncio.offsetHeight;
     anuncio.classList.add('slide-in');
 
-    // Agregar estado al historial
-    const currentState = history.state || {};
-    window.history.pushState({ ...currentState, anuncioAbierto: true }, '');
+    // Crear estado inicial y agregar una entrada al historial
+    history.pushState({ nivel: 1, tipo: 'anuncio' }, '');
 
-    // Manejar el botón atrás
-    const handlePopState = async () => {
+    const handlePopState = async (event) => {
+        const state = event.state || {};
+        const anuncioSecondVisible = document.querySelector('.anuncio-second')?.style.display === 'flex';
         const anuncioVisible = document.querySelector('.anuncio')?.style.display === 'flex';
-        if (anuncioVisible) {
+        
+        if (anuncioSecondVisible) {
+            await ocultarAnuncioSecond();
+        } else if (anuncioVisible) {
             await ocultarAnuncio();
-            anuncio.removeEventListener('touchstart', handleTouchStart);
-            anuncio.removeEventListener('touchmove', handleTouchMove);
+            window.removeEventListener('popstate', handlePopState);
         }
     };
 
     window.removeEventListener('popstate', handlePopState);
-    window.addEventListener('popstate', handlePopState, { once: true });
+    window.addEventListener('popstate', handlePopState);
 
     // Solo agregamos el evento de clic si no es la selección inicial de empresa
     const isSpreadsheetSelection = anuncio.querySelector('#spreadsheet-select');
@@ -51,23 +53,19 @@ export async function mostrarAnuncioSecond() {
     anuncio.offsetHeight;
     anuncio.classList.add('slide-in');
 
+    // Agregar una nueva entrada al historial (nivel 2)
+    history.pushState({ nivel: 2, tipo: 'anuncioSecond' }, '');
 
-    // Agregar estado al historial
-    const currentState = history.state || {};
-    window.history.pushState({ ...currentState, anuncioAbierto: true }, '');
-
-    // Manejar el botón atrás
-    const handlePopState = async () => {
-        const anuncioVisible = document.querySelector('.anuncio')?.style.display === 'flex';
-        if (anuncioVisible) {
+    const handlePopState = async (event) => {
+        const anuncioSecondVisible = document.querySelector('.anuncio-second')?.style.display === 'flex';
+        if (anuncioSecondVisible) {
             await ocultarAnuncioSecond();
-            anuncio.removeEventListener('touchstart', handleTouchStart);
-            anuncio.removeEventListener('touchmove', handleTouchMove);
+            // No agregamos nuevo estado aquí, dejamos que el history.back() funcione naturalmente
         }
     };
 
     window.removeEventListener('popstate', handlePopState);
-    window.addEventListener('popstate', handlePopState, { once: true });
+    window.addEventListener('popstate', handlePopState);
 
     // Solo agregamos el evento de clic si no es la selección inicial de empresa
     const isSpreadsheetSelection = anuncio.querySelector('#spreadsheet-select');

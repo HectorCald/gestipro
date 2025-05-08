@@ -1,5 +1,3 @@
-
-
 let registrosProduccion = [];
 async function obtenerRegistrosProduccion() {
     try {
@@ -46,7 +44,7 @@ export async function mostrarVerificacion() {
     const nombresUnicos = [...new Set(registrosProduccion.map(registro => registro.nombre))];
     const registrationHTML = `
         <div class="encabezado">
-            <h1 class="titulo">Verificar</h1>
+            <h1 class="titulo">Registros de producción</h1>
             <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
             <button class="btn filtros" onclick="ocultarAnuncio();"><i class='bx bx-filter'></i></button>
         </div>
@@ -130,7 +128,7 @@ function evetosVerificacion() {
         });
     });
 
-    
+
     botonesInfo.forEach(btn => {
         btn.addEventListener('click', info);
     });
@@ -214,7 +212,7 @@ function evetosVerificacion() {
         const contenido = document.querySelector('.anuncio-second .contenido');
         const registrationHTML = `
         <div class="encabezado">
-            <h1 class="titulo">Verificar</h1>
+            <h1 class="titulo">Verificar registro</h1>
             <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno verificar-registro">
