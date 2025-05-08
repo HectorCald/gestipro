@@ -701,7 +701,7 @@ function evetosVerificacion() {
                     <div class="input">
                         <p class="detalle">Operador</p>
                         <select class="select-operador">
-                            <option value="">Todos</option>
+                            <option value="Todos">Todos</option>
                             ${[...new Set(registrosProduccion.map(r => r.nombre))].map(nombre =>
             `<option value="${nombre}">${nombre}</option>`
         ).join('')}
@@ -714,7 +714,7 @@ function evetosVerificacion() {
                     <div class="input">
                         <p class="detalle">Estado</p>
                         <select class="select-estado">
-                            <option value="">Todos</option>
+                            <option value="Todos">Todos</option>
                             <option value="pendiente">Pendientes</option>
                             <option value="verificado">Verificados</option>
                         </select>
@@ -726,7 +726,7 @@ function evetosVerificacion() {
                     <div class="input">
                         <p class="detalle">Producto</p>
                         <select class="select-producto">
-                            <option value="">Todos</option>
+                            <option value="Todos">Todos</option>
                             ${[...new Set(registrosProduccion.map(r => r.producto))].map(producto =>
             `<option value="${producto}">${producto}</option>`
         ).join('')}
@@ -755,9 +755,9 @@ function evetosVerificacion() {
         function aplicarFiltrosAvanzados() {
             const fechaDesde = document.querySelector('.anuncio-second .fecha-desde').value;
             const fechaHasta = document.querySelector('.anuncio-second .fecha-hasta').value;
-            const operador = document.querySelector('.anuncio-second .select-operador').value;
-            const estado = document.querySelector('.anuncio-second .select-estado').value;
-            const producto = document.querySelector('.anuncio-second .select-producto').value;
+            const operador = document.querySelector('.anuncio-second .select-operador').value === 'Todos' ? '' : document.querySelector('.anuncio-second .select-operador').value;
+            const estado = document.querySelector('.anuncio-second .select-estado').value === 'Todos' ? '' : document.querySelector('.anuncio-second .select-estado').value;
+            const producto = document.querySelector('.anuncio-second .select-producto').value === 'Todos' ? '' : document.querySelector('.anuncio-second .select-producto').value;
             const lote = document.querySelector('.anuncio-second .lote').value;
 
             const registros = document.querySelectorAll('.anuncio .registro-item');
@@ -769,7 +769,7 @@ function evetosVerificacion() {
                 if (fechaDesde || fechaHasta) {
                     const [dia, mes, anioStr] = registroData.fecha.split('/');
                     const anioCompleto = anioStr.length === 2 ? '20' + anioStr : anioStr;
-                    
+
                     // Crear fecha del registro al inicio del día
                     const fechaRegistro = new Date(anioCompleto, parseInt(mes) - 1, parseInt(dia));
                     fechaRegistro.setHours(0, 0, 0, 0);
@@ -801,6 +801,10 @@ function evetosVerificacion() {
 
                 registro.style.display = mostrar ? '' : 'none';
             });
+
+            // Desactivar botones de filtro
+            const botonesFiltro = document.querySelectorAll('.btn-filtro');
+            botonesFiltro.forEach(boton => boton.classList.remove('activado'));
 
             ocultarAnuncioSecond();
         }
