@@ -217,27 +217,23 @@ function evetosVerificacion() {
             <div class="registro-item" data-id="${registro.id}">
                 <div class="header">
                     <div class="info">
+                        <span class="valor">${registro.producto} - ${registro.gramos}gr.</span>
                         <span class="nombre">${registro.nombre}</span>
                         <span class="fecha">${registro.fecha}</span>
-                        <span class="valor">${registro.producto} - ${registro.gramos}gr.</span>
                     </div>
                 </div>
                 <div class="detalle">
                     <span class="valor"><strong>Lote: </strong>${registro.lote}</span>
-                </div>
-                <div class="detalle">
-                    <span class="valor"><strong>Proceso: </strong>${registro.proceso}</span>
+
+                    <span class="valor"><strong>Selección/Cernido: </strong>${registro.proceso}</span>
                     <span class="valor"><strong>Microondas: </strong>${registro.microondas}</span>
-                </div>
-                <div class="detalle">
-                    <span class="valor"><strong>Terminados: </strong>${registro.envases_terminados}</span>
-                    <span class="valor"><strong>Vencimiento: </strong>${registro.fecha_vencimiento}</span>
-                </div>
-                <div class="detalle">
-                    <span class="valor"><strong>Real: </strong>${registro.c_real || 'No verificado'}</span>
-                    <span class="valor"><strong>fecha de verificación: </strong>${registro.fecha_verificacion || 'Pendiente'}</span>
-                </div>
-                <div class="detalle">
+
+                    <span class="valor"><strong>Envases terminados: </strong>${registro.envases_terminados}</span>
+                    <span class="valor"><strong>Fecha de vencimiento: </strong>${registro.fecha_vencimiento}</span>
+
+                    <span class="valor"><strong>Cantidad real: </strong>${registro.c_real || 'No verificado'}</span>
+                    <span class="valor"><strong>Fecha de verificación: </strong>${registro.fecha_verificacion || 'Pendiente'}</span>
+
                     <span class="valor"><strong>Observaciones: </strong>${registro.observaciones || 'Sin observaciones'}</span>
                 </div>
             </div>
@@ -351,27 +347,23 @@ function evetosVerificacion() {
             <div class="registro-item" data-id="${registro.id}">
                 <div class="header">
                     <div class="info">
+                        <span class="valor">${registro.producto} - ${registro.gramos}gr.</span>
                         <span class="nombre">${registro.nombre}</span>
                         <span class="fecha">${registro.fecha}</span>
-                        <span class="valor">${registro.producto} - ${registro.gramos}gr.</span>
                     </div>
                 </div>
                 <div class="detalle">
                     <span class="valor"><strong>Lote: </strong>${registro.lote}</span>
-                </div>
-                <div class="detalle">
-                    <span class="valor"><strong>Proceso: </strong>${registro.proceso}</span>
+
+                    <span class="valor"><strong>Selección/Cernido: </strong>${registro.proceso}</span>
                     <span class="valor"><strong>Microondas: </strong>${registro.microondas}</span>
-                </div>
-                <div class="detalle">
-                    <span class="valor"><strong>Terminados: </strong>${registro.envases_terminados}</span>
-                    <span class="valor"><strong>Vencimiento: </strong>${registro.fecha_vencimiento}</span>
-                </div>
-                <div class="detalle">
-                    <span class="valor"><strong>Real: </strong>${registro.c_real || 'No verificado'}</span>
-                    <span class="valor"><strong>fecha de verificación: </strong>${registro.fecha_verificacion || 'Pendiente'}</span>
-                </div>
-                <div class="detalle">
+
+                    <span class="valor"><strong>Envases terminados: </strong>${registro.envases_terminados}</span>
+                    <span class="valor"><strong>Fecha de vencimiento: </strong>${registro.fecha_vencimiento}</span>
+
+                    <span class="valor"><strong>Cantidad real: </strong>${registro.c_real || 'No verificado'}</span>
+                    <span class="valor"><strong>Fecha de verificación: </strong>${registro.fecha_verificacion || 'Pendiente'}</span>
+
                     <span class="valor"><strong>Observaciones: </strong>${registro.observaciones || 'Sin observaciones'}</span>
                 </div>
             </div>
@@ -397,27 +389,23 @@ function evetosVerificacion() {
             <div class="registro-item" data-id="${registro.id}">
                 <div class="header">
                     <div class="info">
+                        <span class="valor">${registro.producto} - ${registro.gramos}gr.</span>
                         <span class="nombre">${registro.nombre}</span>
                         <span class="fecha">${registro.fecha}</span>
-                        <span class="valor">${registro.producto} - ${registro.gramos}gr.</span>
                     </div>
                 </div>
                 <div class="detalle">
                     <span class="valor"><strong>Lote: </strong>${registro.lote}</span>
-                </div>
-                <div class="detalle">
-                    <span class="valor"><strong>Proceso: </strong>${registro.proceso}</span>
+
+                    <span class="valor"><strong>Selección/Cernido: </strong>${registro.proceso}</span>
                     <span class="valor"><strong>Microondas: </strong>${registro.microondas}</span>
-                </div>
-                <div class="detalle">
-                    <span class="valor"><strong>Terminados: </strong>${registro.envases_terminados}</span>
-                    <span class="valor"><strong>Vencimiento: </strong>${registro.fecha_vencimiento}</span>
-                </div>
-                <div class="detalle">
-                    <span class="valor"><strong>Real: </strong>${registro.c_real || 'No verificado'}</span>
-                    <span class="valor"><strong>fecha de verificación: </strong>${registro.fecha_verificacion || 'Pendiente'}</span>
-                </div>
-                <div class="detalle">
+
+                    <span class="valor"><strong>Envases terminados: </strong>${registro.envases_terminados}</span>
+                    <span class="valor"><strong>Fecha de vencimiento: </strong>${registro.fecha_vencimiento}</span>
+
+                    <span class="valor"><strong>Cantidad real: </strong>${registro.c_real || 'No verificado'}</span>
+                    <span class="valor"><strong>Fecha de verificación: </strong>${registro.fecha_verificacion || 'Pendiente'}</span>
+
                     <span class="valor"><strong>Observaciones: </strong>${registro.observaciones || 'Sin observaciones'}</span>
                 </div>
             </div>

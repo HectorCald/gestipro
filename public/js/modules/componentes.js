@@ -60,7 +60,7 @@ export async function mostrarAnuncioSecond() {
     const handlePopState = async () => {
         const anuncioVisible = document.querySelector('.anuncio')?.style.display === 'flex';
         if (anuncioVisible) {
-            await ocultarAnuncio();
+            await ocultarAnuncioSecond();
             anuncio.removeEventListener('touchstart', handleTouchStart);
             anuncio.removeEventListener('touchmove', handleTouchMove);
         }
@@ -75,7 +75,7 @@ export async function mostrarAnuncioSecond() {
         anuncio.addEventListener('click', async (e) => {
             if (e.target === anuncio) {
                 e.preventDefault();
-                await ocultarAnuncio();
+                await ocultarAnuncioSecond();
                 anuncio.removeEventListener('touchstart', handleTouchStart);
                 anuncio.removeEventListener('touchmove', handleTouchMove);
                 history.back();
