@@ -358,3 +358,4 @@ export async function registrarHistorial(origen, suceso, detalle) {
         ocultarCarga();
     }
 }
+

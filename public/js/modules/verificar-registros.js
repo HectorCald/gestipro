@@ -1,3 +1,13 @@
+let usuarioInfo = {
+    nombre: '',
+    apellido: '',
+    email: '',
+    foto: '',
+    rol: '',
+    estado: '',
+    plugins: ''
+};
+
 let registrosProduccion = [];
 async function obtenerRegistrosProduccion() {
     try {
@@ -36,10 +46,62 @@ async function obtenerRegistrosProduccion() {
         ocultarCarga();
     }
 }
+export async function obtenerUsuario() {
+    try {
+        const response = await fetch('/obtener-usuario-actual');
+        const data = await response.json();
+
+        if (data.success) {
+            const nombreCompleto = data.usuario.nombre.split(' ');
+            usuarioInfo = {
+                nombre: nombreCompleto[0] || '',
+                apellido: nombreCompleto[1] || '',
+                email: data.usuario.email,
+                rol: data.usuario.rol,
+                estado: data.usuario.estado,
+                plugins: data.usuario.plugins
+            };
+
+            // Procesar la foto
+            if (!data.usuario.foto || data.usuario.foto === './icons/icon.png') {
+                usuarioInfo.foto = './icons/icon.png';
+            } else if (data.usuario.foto.startsWith('data:image')) {
+                usuarioInfo.foto = data.usuario.foto;
+            } else {
+                try {
+                    const imgResponse = await fetch(data.usuario.foto);
+                    if (!imgResponse.ok) throw new Error('Error al cargar la imagen');
+                    const blob = await imgResponse.blob();
+                    usuarioInfo.foto = URL.createObjectURL(blob);
+                } catch (error) {
+                    console.error('Error loading image:', error);
+                    usuarioInfo.foto = './icons/icon.png';
+                }
+            }
+            return true;
+        } else {
+            mostrarNotificacion({
+                message: 'Error al obtener datos del usuario',
+                type: 'error',
+                duration: 3500
+            });
+            return false;
+        }
+    } catch (error) {
+        console.error('Error al obtener datos del usuario:', error);
+        mostrarNotificacion({
+            message: 'Error al obtener datos del usuario',
+            type: 'error',
+            duration: 3500
+        });
+        return false;
+    }
+}
 
 
 export async function mostrarVerificacion() {
     await obtenerRegistrosProduccion();
+    await obtenerUsuario()
     const contenido = document.querySelector('.anuncio .contenido');
     const nombresUnicos = [...new Set(registrosProduccion.map(registro => registro.nombre))];
     const registrationHTML = `
@@ -85,11 +147,11 @@ export async function mostrarVerificacion() {
     contenido.innerHTML = registrationHTML;
     contenido.style.paddingBottom = '10px';
     mostrarAnuncio();
-    const { aplicarFiltros } = evetosVerificacion();
+    const { aplicarFiltros } = eventosVerificacion();
 
     aplicarFiltros('Todos', 'Todos');
 }
-function evetosVerificacion() {
+function eventosVerificacion() {
     const botonesNombre = document.querySelectorAll('.filtros-opciones.nombre .btn-filtro');
     const botonesEstado = document.querySelectorAll('.filtros-opciones.estado .btn-filtro');
     const botonesVerificar = document.querySelectorAll('.btn-verificar');
@@ -308,7 +370,7 @@ function evetosVerificacion() {
                 if (data.success) {
                     // Registrar en historial
                     await registrarHistorial(
-                        'Producción',
+                        `${usuarioInfo.nombre} ${usuarioInfo.apellido}`,
                         'Verificación',
                         `Cantidad real: ${cantidadReal} - Registro: ${registro.producto} (${registro.lote})`
                     );
@@ -441,7 +503,7 @@ function evetosVerificacion() {
 
             if (!motivo) {
                 mostrarNotificacion({
-                    message: 'Debe ingresar un motivo para la eliminación',
+                    message: 'Debe ingresar el motivo de la eliminación',
                     type: 'warning',
                     duration: 3500
                 });
@@ -468,7 +530,7 @@ function evetosVerificacion() {
                 if (data.success) {
                     // Registrar en historial
                     await registrarHistorial(
-                        'Producción',
+                        `${usuarioInfo.nombre} ${usuarioInfo.apellido}`,
                         'Eliminación',
                         `Motivo: ${motivo} - Registro: ${registro.producto} (${registro.lote})`
                     );
@@ -580,6 +642,14 @@ function evetosVerificacion() {
                         <input class="observaciones" type="text" value="${registro.observaciones}" autocomplete="off" placeholder=" " required>
                     </div>
                 </div>
+            <p class="normal"><i class='bx bx-chevron-right'></i>Motivo de la edición</p>
+                <div class="entrada">
+                    <i class='bx bx-comment-detail'></i>
+                    <div class="input">
+                        <p class="detalle">Motivo</p>
+                        <input class="motivo" type="text" autocomplete="off" placeholder=" " required>
+                    </div>
+                </div>
         </div>
         <div class="anuncio-botones">
             <button class="btn-editar-registro btn orange"><i class="bx bx-save"></i> Guardar cambios</button>
@@ -602,10 +672,11 @@ function evetosVerificacion() {
             const fecha_vencimiento = document.querySelector('.editar-produccion .vencimiento').value;
             const verificado = document.querySelector('.editar-produccion .cantidad_real').value;
             const observaciones = document.querySelector('.editar-produccion .observaciones').value;
+            const motivo = document.querySelector('.editar-produccion .motivo').value;
 
-            if (!producto || !gramos || !proceso || !microondas || !envases_terminados || !fecha_vencimiento) {
+            if (!motivo) { // Solo el campo "Motivo" es obligatorio
                 mostrarNotificacion({
-                    message: 'Todos los campos son obligatorios',
+                    message: 'Debe ingresar el motivo de la edición',
                     type: 'warning',
                     duration: 3500
                 });
@@ -629,7 +700,8 @@ function evetosVerificacion() {
                         envases_terminados,
                         fecha_vencimiento,
                         verificado,
-                        observaciones
+                        observaciones,
+                        motivo
                     })
                 });
 
@@ -640,13 +712,11 @@ function evetosVerificacion() {
                 const data = await response.json();
 
                 if (data.success) {
-
                     await registrarHistorial(
-                        'Producción',
+                        `${usuarioInfo.nombre} ${usuarioInfo.apellido}`,
                         'Edición',
-                        `Motivo: Se edito el Registro: ${registro.producto} (${registro.lote})`
+                        `Motivo: ${motivo} - Registro: ${registro.producto} (${registro.lote})`
                     );
-
 
                     mostrarNotificacion({
                         message: 'Registro actualizado correctamente',

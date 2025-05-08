@@ -1,10 +1,13 @@
-import { crearNotificacion, mostrarNotificacion, mostrarAnuncio, ocultarAnuncio, mostrarCarga, ocultarCarga, configuracionesEntrada, mostrarAnuncioSecond, ocultarAnuncioSecond, registrarHistorial } from './modules/componentes.js'
+import { crearNotificacion, mostrarNotificacion, mostrarAnuncio, ocultarAnuncio, mostrarCarga, ocultarCarga, configuracionesEntrada, mostrarAnuncioSecond, ocultarAnuncioSecond, registrarHistorial} from './modules/componentes.js'
 import { crearHome, mostrarHome } from './modules/home.js';
 import { crearNav } from './modules/nav.js'
 import { crearPerfil } from './modules/perfil.js';
 import { flotante } from './modules/flotante.js';
 import { mostrarFormularioProduccion } from './modules/formulario-produccion.js'
 import { mostrarVerificacion } from './modules/verificar-registros.js'
+
+
+
 
 window.crearHome = crearHome
 window.mostrarHome = mostrarHome
