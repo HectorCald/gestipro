@@ -5,26 +5,6 @@ export async function mostrarAnuncio() {
     anuncio.offsetHeight;
     anuncio.classList.add('slide-in');
 
-    let startX = 0;
-    let currentX = 0;
-
-    const handleTouchStart = (e) => {
-        startX = e.touches[0].clientX;
-    };
-
-    const handleTouchMove = (e) => {
-        currentX = e.touches[0].clientX;
-        if (startX - currentX > 100) {  // Si el deslizamiento es significativo
-            anuncio.removeEventListener('touchstart', handleTouchStart);
-            anuncio.removeEventListener('touchmove', handleTouchMove);
-            ocultarAnuncio();
-            history.back();
-        }
-    };
-
-    anuncio.addEventListener('touchstart', handleTouchStart);
-    anuncio.addEventListener('touchmove', handleTouchMove);
-
     // Agregar estado al historial
     const currentState = history.state || {};
     window.history.pushState({ ...currentState, anuncioAbierto: true }, '');
@@ -71,25 +51,6 @@ export async function mostrarAnuncioSecond() {
     anuncio.offsetHeight;
     anuncio.classList.add('slide-in');
 
-    let startX = 0;
-    let currentX = 0;
-
-    const handleTouchStart = (e) => {
-        startX = e.touches[0].clientX;
-    };
-
-    const handleTouchMove = (e) => {
-        currentX = e.touches[0].clientX;
-        if (startX - currentX > 100) {  // Si el deslizamiento es significativo
-            anuncio.removeEventListener('touchstart', handleTouchStart);
-            anuncio.removeEventListener('touchmove', handleTouchMove);
-            ocultarAnuncio();
-            history.back();
-        }
-    };
-
-    anuncio.addEventListener('touchstart', handleTouchStart);
-    anuncio.addEventListener('touchmove', handleTouchMove);
 
     // Agregar estado al historial
     const currentState = history.state || {};
