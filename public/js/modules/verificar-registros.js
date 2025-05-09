@@ -161,36 +161,48 @@ function eventosVerificacion() {
     const filtros = document.querySelector('.filtros');
     const items = document.querySelectorAll('.registro-item');
 
-    items.forEach(item => {
+        items.forEach(item => {
         const accionesDiv = item.querySelector('.registro-acciones');
         if (accionesDiv && !item.querySelector('.fecha_verificacion')) {
             item.addEventListener('click', (e) => {
-                e.stopPropagation(); // Evitar que el click se propague
-                // Ocultar todos los demás menús de acciones
-                document.querySelectorAll('.registro-acciones').forEach(div => {
-                    if (div !== accionesDiv) {
-                        div.style.display = 'none';
+                e.stopPropagation();
+                // Ocultar todos los demás menús
+                document.querySelectorAll('.registro-item').forEach(otroItem => {
+                    if (otroItem !== item) {
+                        otroItem.classList.remove('activo');
+                        otroItem.querySelector('.registro-acciones')?.classList.remove('mostrar');
                     }
                 });
-                accionesDiv.style.display = accionesDiv.style.display === 'flex' ? 'none' : 'flex';
+
+                // Alternar estado actual
+                item.classList.toggle('activo');
+                accionesDiv.classList.toggle('mostrar');
             });
         }
     });
+
+    // Modificar los event listeners existentes para incluir la eliminación de la clase 'activo'
     document.addEventListener('click', () => {
-        document.querySelectorAll('.registro-acciones').forEach(div => {
-            div.style.display = 'none';
+        document.querySelectorAll('.registro-item').forEach(item => {
+            item.classList.remove('activo');
+            item.querySelector('.registro-acciones')?.classList.remove('mostrar');
         });
     });
+
     document.querySelector('.contenido').addEventListener('click', () => {
-        document.querySelectorAll('.registro-acciones').forEach(div => {
-            div.style.display = 'none';
+        document.querySelectorAll('.registro-item').forEach(item => {
+            item.classList.remove('activo');
+            item.querySelector('.registro-acciones')?.classList.remove('mostrar');
         });
     });
+
     document.querySelector('.relleno').addEventListener('scroll', () => {
-        document.querySelectorAll('.registro-acciones').forEach(div => {
-            div.style.display = 'none';
+        document.querySelectorAll('.registro-item').forEach(item => {
+            item.classList.remove('activo');
+            item.querySelector('.registro-acciones')?.classList.remove('mostrar');
         });
     });
+
 
 
     botonesInfo.forEach(btn => {
@@ -321,7 +333,7 @@ function eventosVerificacion() {
         <div class="anuncio-botones">
             <button class="btn-verificar-registro btn orange"><i class='bx bx-check-circle'></i> Verificar</button>
         </div>
-    `;
+        `;
         contenido.innerHTML = registrationHTML;
         mostrarAnuncioSecond();
 
@@ -495,7 +507,6 @@ function eventosVerificacion() {
         </div>
     `;
         contenido.innerHTML = registrationHTML;
-        contenido.style.paddingBottom = '10px';
         mostrarAnuncioSecond();
 
         // Agregar evento al botón guardar

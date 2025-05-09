@@ -786,8 +786,8 @@ function eventosHome() {
             <div class="relleno">
                 <p class="normal"><i class='bx bx-chevron-right'></i> Información básica</p>
                 <div class="campo-vertical">
-                    <p class="item"><i class='bx bx-calendar'></i> <strong>Fecha:</strong> ${registro.fecha}</p>
-                    <p class="item"><i class='bx bx-id-card'></i> <strong>ID:</strong> ${registro.id}</p>
+                    <span><strong><i class='bx bx-calendar'></i> Fecha:</strong> ${registro.fecha}</span>
+                    <span><strong><i class='bx bx-id-card'></i> ID:</strong> ${registro.id}</span>
                 </div>
 
                 <p class="normal"><i class='bx bx-chevron-right'></i> Información del producto</p>
@@ -829,28 +829,28 @@ function eventosHome() {
             <div class="relleno">
                 <p class="normal"><i class='bx bx-chevron-right'></i> Información básica</p>
                 <div class="campo-vertical">
-                    <p class="item"><i class='bx bx-calendar'></i> <strong>Fecha y Hora:</strong> ${registro.fecha_hora}</p>
-                    <p class="item"><i class='bx bx-id-card'></i> <strong>ID:</strong> ${registro.id}</p>
+                    <span><strong><i class='bx bx-calendar'></i> Fecha y Hora:</strong> ${registro.fecha_hora}</span>
+                    <span><strong><i class='bx bx-id-card'></i> ID:</strong> ${registro.id}</span>
                 </div>
 
                 <p class="normal"><i class='bx bx-chevron-right'></i> Información del producto</p>
                 <div class="campo-vertical">
-                    <p class="item"><i class='bx bx-package'></i> <strong>Producto:</strong> ${registro.producto}</p>
-                    <p class="item"><i class='bx bx-cube'></i> <strong>Cantidad:</strong> ${registro.cantidad}Unidades</p>
+                    <span><strong><i class='bx bx-package'></i> Producto:</strong> ${registro.producto}</span>
+                    <span><strong><i class='bx bx-cube'></i> Cantidad:</strong> ${registro.cantidad}Unidades</span>
                 </div>
 
                 <p class="normal"><i class='bx bx-chevron-right'></i> Detalles del movimiento</p>
                 <div class="campo-vertical">
-                    <p class="item"><i class='bx bx-transfer'></i> <strong>Tipo:</strong> ${registro.tipo === 'entrada' ? 'Ingreso' : 'Salida'}</p>
-                    ${registro.destino ? `<p class="item"><i class='bx bx-map'></i> <strong>Destino:</strong> ${registro.destino}</p>` : ''}
-                    ${registro.origen ? `<p class="item"><i class='bx bx-map-pin'></i> <strong>Origen:</strong> ${registro.origen}</p>` : ''}
-                    ${registro.motivo ? `<p class="item"><i class='bx bx-message-square-detail'></i> <strong>Motivo:</strong> ${registro.motivo}</p>` : ''}
+                    <span><strong><i class='bx bx-transfer'></i> Tipo:</strong> ${registro.tipo === 'entrada' ? 'Ingreso' : 'Salida'}</span>
+                    ${registro.destino ? `<span><strong><i class='bx bx-map'></i> Destino:</strong> ${registro.destino}</p>` : ''}
+                    ${registro.origen ? `<span><strong><i class='bx bx-map-pin'></i> Origen:</strong> ${registro.origen}</span>` : ''}
+                    ${registro.motivo ? `<span><strong><i class='bx bx-message-square-detail'></i>Motivo:</strong> ${registro.motivo}</span>` : ''}
                 </div>
 
                 ${registro.observaciones ? `
                     <p class="normal"><i class='bx bx-chevron-right'></i> Observaciones</p>
                     <div class="campo-vertical">
-                        <p class="item"><i class='bx bx-comment-detail'></i> ${registro.observaciones}</p>
+                        <span><strong><i class='bx bx-comment-detail'></i> Obervaciones:</strong>${registro.observaciones}</span>
                     </div>
                 ` : ''}
             </div>
