@@ -14,6 +14,7 @@ let registrosFiltrados = [];
 
 async function obtenerUsuario() {
     try {
+        mostrarCarga();
         const response = await fetch('/obtener-usuario-actual');
         const data = await response.json();
 
@@ -61,6 +62,9 @@ async function obtenerUsuario() {
             duration: 3500
         });
         return false;
+    }
+    finally{
+        ocultarCarga();
     }
 }
 async function obtenerMisRegistros() {

@@ -1,14 +1,13 @@
-let usuarioInfo = {
-    nombre: '',
-    apellido: '',
-    email: '',
-    foto: '',
-    rol: '',
-    estado: '',
-    plugins: ''
-};
+let usuarioInfo = recuperarUsuarioLocal();
 let registrosProduccion = [];
 let registrosMovimientos = [];
+    function recuperarUsuarioLocal() {
+    const usuarioGuardado = localStorage.getItem('damabrava_usuario');
+    if (usuarioGuardado) {
+        return JSON.parse(usuarioGuardado);
+    }
+    return null;
+}
 async function obtenerUsuario() {
     try {
         const response = await fetch('/obtener-usuario-actual');

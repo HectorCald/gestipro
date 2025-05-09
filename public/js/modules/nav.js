@@ -7,8 +7,17 @@ let usuarioInfo = {
     estado: '',
     plugins: ''
 };
+
 async function obtenerUsuario() {
     try {
+        mostrarCarga();
+        // Intentar recuperar del localStorage
+        const usuarioGuardado = localStorage.getItem('damabrava_usuario');
+        if (usuarioGuardado) {
+            usuarioInfo = JSON.parse(usuarioGuardado);
+            return true;
+        }
+
         mostrarCarga();
         const response = await fetch('/obtener-usuario-actual');
         const data = await response.json();
@@ -40,6 +49,9 @@ async function obtenerUsuario() {
                     usuarioInfo.foto = './icons/icon.png';
                 }
             }
+
+            // Guardar en localStorage
+            localStorage.setItem('damabrava_usuario', JSON.stringify(usuarioInfo));
             return true;
         } else {
             mostrarNotificacion({
@@ -57,10 +69,31 @@ async function obtenerUsuario() {
             duration: 3500
         });
         return false;
-    }finally{
+    } finally {
         ocultarCarga();
     }
 }
+export function recuperarUsuarioLocal() {
+    const usuarioGuardado = localStorage.getItem('damabrava_usuario');
+    if (usuarioGuardado) {
+        return JSON.parse(usuarioGuardado);
+    }
+    return null;
+}
+export function limpiarUsuarioLocal() {
+    localStorage.removeItem('damabrava_usuario');
+    usuarioInfo = {
+        nombre: '',
+        apellido: '',
+        email: '',
+        foto: '',
+        rol: '',
+        estado: '',
+        plugins: ''
+    };
+}
+
+
 function obtenerOpcionesMenu() {
     const atajosPorRol = {
         'Producción': [
@@ -130,7 +163,7 @@ function obtenerOpcionesMenu() {
                 icono: 'fa-dolly',
                 texto: 'Gestionar Almacen',
                 detalle: 'Gestionar tu alamcen general',
-                onclick: 'onclick="inicializarAlmacenGral()"'
+                onclick: 'onclick="mostrarAlmacenGeneral(); ocultarAnuncioSecond()"'
             },
         ],
         'Administración': [
@@ -178,6 +211,8 @@ export async function crearNav() {
         obtenerUsuario().then(() => mostrarNav(view));
     }
 }
+
+
 
 function mostrarNav() {
     const view = document.querySelector('.nav');

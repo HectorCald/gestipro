@@ -570,47 +570,6 @@ app.post('/registrar-produccion', requireAuth, async (req, res) => {
 
 
 /* ==================== RUTAS DE AlMACEN ==================== */
-app.get('/obtener-productos', requireAuth, async (req, res) => {
-    const { spreadsheetId } = req.user;
-
-    try {
-        const sheets = google.sheets({ version: 'v4', auth });
-        
-        const response = await sheets.spreadsheets.values.get({
-            spreadsheetId: spreadsheetId,
-            range: 'Almacen general!A2:K' // Asegúrate de que el rango cubra todas las columnas necesarias
-        });
-
-        const rows = response.data.values || [];
-        
-        // Mapear los datos a un formato más legible
-        const productos = rows.map(row => ({
-            id: row[0] || '',
-            producto: row[1] || '',
-            gramos: row[2] || '',
-            stock: row[3] || '',
-            grupo: row[4] || '',
-            lista: row[5] || '',
-            codigo_barras: row[6] || '',
-            precios: row[7] || '',
-            etiquetas: row[8] || '',
-            acopio_id: row[9] || '',
-            alm_acopio_nombre: row[10] || ''
-        }));
-
-        res.json({
-            success: true,
-            productos
-        });
-
-    } catch (error) {
-        console.error('Error al obtener productos:', error);
-        res.status(500).json({
-            success: false,
-            error: 'Error al obtener los productos'
-        });
-    }
-});
 app.get('/obtener-movimientos-almacen', requireAuth, async (req, res) => {
     const { spreadsheetId } = req.user;
 
@@ -848,6 +807,113 @@ app.put('/verificar-registro-produccion/:id', requireAuth, async (req, res) => {
         });
     }
 });
+app.get('/obtener-productos', requireAuth, async (req, res) => {
+    const { spreadsheetId } = req.user;
+
+    try {
+        const sheets = google.sheets({ version: 'v4', auth });
+        
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId: spreadsheetId,
+            range: 'Almacen general!A2:L' // Ahora incluye la columna L para la imagen
+        });
+
+        const rows = response.data.values || [];
+        
+        // Mapear los datos al formato especificado
+        const productos = rows.map(row => ({
+            id: row[0] || '',
+            producto: row[1] || '',
+            gramos: row[2] || '',
+            stock: row[3] || '',
+            cantidadxgrupo: row[4] || '',
+            lista: row[5] || '',
+            codigo_barras: row[6] || '',
+            precios: row[7] || '',
+            etiquetas: row[8] || '',
+            acopio_id: row[9] || '',
+            alm_acopio_producto: row[10] || '',
+            imagen: row[11] || './icons/default-product.png' // Valor por defecto si no hay imagen
+        }));
+
+        res.json({
+            success: true,
+            productos
+        });
+
+    } catch (error) {
+        console.error('Error al obtener productos:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error al obtener los productos'
+        });
+    }
+});
+app.get('/obtener-etiquetas', requireAuth, async (req, res) => {
+    const { spreadsheetId } = req.user;
+
+    try {
+        const sheets = google.sheets({ version: 'v4', auth });
+        
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId: spreadsheetId,
+            range: 'Etiquetas!A2:B' // Columnas A y B para ID y ETIQUETA
+        });
+
+        const rows = response.data.values || [];
+        
+        const etiquetas = rows.map(row => ({
+            id: row[0] || '',
+            etiqueta: row[1] || ''
+        }));
+
+        res.json({
+            success: true,
+            etiquetas
+        });
+
+    } catch (error) {
+        console.error('Error al obtener etiquetas:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error al obtener las etiquetas'
+        });
+    }
+});
+app.get('/obtener-precios', requireAuth, async (req, res) => {
+    const { spreadsheetId } = req.user;
+
+    try {
+        const sheets = google.sheets({ version: 'v4', auth });
+        
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId: spreadsheetId,
+            range: 'Precios!A2:B' // Columnas A y B para ID y PRECIO
+        });
+
+        const rows = response.data.values || [];
+        
+        const precios = rows.map(row => ({
+            id: row[0] || '',
+            precio: row[1] || ''
+        }));
+
+        res.json({
+            success: true,
+            precios
+        });
+
+    } catch (error) {
+        console.error('Error al obtener precios:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error al obtener los precios'
+        });
+    }
+});
+
+
+
 
 
 

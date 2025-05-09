@@ -72,7 +72,7 @@
 
 
 .btn.close {
-    background-color: var(--fondo2);
+    background: none;
     color: var(--tercer-color);
     position: absolute;
     right: 15px;
@@ -92,7 +92,7 @@
 }
 
 .btn.filtros {
-    background-color: var(--fondo2);
+    background: none;
     color: var(--tercer-color);
     position: absolute;
     left: 15px;
@@ -580,12 +580,14 @@
 
     .input {
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
         width: 100%;
         position: relative;
         z-index: 2;
         font-size: var(--text-subtitulo);
         text-align: left !important;
+        justify-content: center;
+        align-items: center;
 
         .detalle {
             color: var(--cero-color);
@@ -625,6 +627,9 @@
             font-size: var(--text-subtitulo);
             width: 100%;
             color: var(--text);
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
 
             option {
                 background-color: var(--primary-color);
@@ -655,10 +660,6 @@
         button {
             border: none;
             background: none;
-            position: absolute;
-            right: 0;
-            top: 50%;
-            transform: translate(0, -50%);
             z-index: 3;
 
             i {
@@ -669,6 +670,37 @@
 
 
     }
+}
+
+.etiquetas-container {
+    margin:0;
+
+    .etiquetas-actuales {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 10px;
+    }
+    .etiqueta-item {
+        display: flex;
+        align-items: center;
+        background-color: var(--fondo2);
+        padding: 5px 10px;
+        border-radius: 15px;
+        gap: 5px;
+        color: white;
+    }
+    .btn-quitar-etiqueta {
+        background: none;
+        border: none;
+        color: #ff4444;
+        cursor: pointer;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        font-size: var(--text-titulo) !important;
+    }
+    
 }
 
 
@@ -751,6 +783,8 @@
     height: auto;
     padding: 10px 20px;
     padding-bottom: 15px;
+    display: flex;
+    gap: 10px;
 }
 
 .tema-selector {
@@ -798,7 +832,7 @@
 .registro-item {
     background-color: var(--fondo2) !important;
     border-radius: 8px;
-    padding: 10px;
+    padding: 15px;
     transition: transform 0.2s ease;
     position: relative;
 
@@ -867,6 +901,13 @@
         border-radius: 10px;
         font-weight: 600;
     }
+    .valor.stock{
+        color: orange;
+        background-color: rgba(151, 118, 55, 0.1);
+        padding: 5px 10px;
+        border-radius: 10px;
+        font-weight: 600;
+    }
 
     .registro-acciones {
         position: absolute;
@@ -892,12 +933,12 @@
         visibility: visible;
         transform: translateY(0);
     }
-    
+
     .registro-item .header {
         position: relative;
         transition: transform 0.3s ease;
     }
-    
+
     .registro-item.activo .header {
         transform: translateY(-5px);
     }
@@ -938,4 +979,38 @@
         color: var(--tercer-color);
         border: 1px solid var(--tercer-color);
     }
+}
+
+.buscador {
+    display: flex;
+    align-items: center;
+    position: relative;
+
+    input {
+        width: 100%;
+        border: none;
+        outline: none;
+        background: none;
+        font-size: var(--text-subtitulo);
+        color: var(--text);
+        padding: 10px;
+        border-radius: 10px;
+        background-color: var(--primary-color);
+
+        &:focus {
+            border: 1px solid var(--tercer-color);
+        }
+    }
+
+    i {
+        color: var(--cuarto-color);
+        padding: 10px;
+        font-size: var(--text-xl) !important;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        right: 5px;
+
+    }
+
 }
