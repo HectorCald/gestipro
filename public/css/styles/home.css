@@ -276,24 +276,15 @@
                 }
 
                 .cantidad.green {
-                    background: linear-gradient(45deg, rgb(0, 255, 0), rgb(0, 86, 0));
-                    -webkit-background-clip: text;
-                    background-clip: text;
-                    color: transparent;
+                    color: var(--success);
                 }
 
                 .cantidad.blue {
-                    background: linear-gradient(45deg, rgb(88, 147, 250), rgb(54, 105, 247));
-                    -webkit-background-clip: text;
-                    background-clip: text;
-                    color: transparent;
+                    color:rgb(46, 130, 255);
                 }
 
                 .cantidad.yellow {
-                    background: linear-gradient(45deg, yellow, rgb(194, 126, 0));
-                    -webkit-background-clip: text;
-                    background-clip: text;
-                    color: transparent;
+                    color: orange;
                 }
 
                 .tipo {
