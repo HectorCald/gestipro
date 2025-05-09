@@ -804,7 +804,6 @@ function eventosHome() {
                     <span><strong><i class='bx bx-microchip'></i> Microondas:</strong> ${registro.microondas}</span>
                     <span><strong><i class='bx bx-package'></i> Envases terminados:</strong> ${registro.envases_terminados} Und.</span>
                     <span><strong><i class='bx bx-calendar'></i> Fecha de vencimiento:</strong> ${registro.fecha_vencimiento}</span>
-                    <span><strong><i class='bx bx-transfer'></i> Verificado:</strong> ${registro.fecha_verificacion ? 'Verificado' : 'Pendiente'}</span>
                 </div>
                 <p class="normal"><i class='bx bx-chevron-right'></i> Detalles de verificación</p>
                 <div class="campo-vertical">
