@@ -355,7 +355,7 @@ export function mostrarHome(view) {
                 ${usuarioInfo.rol === 'Producción' ? `
                     <div class="destacado">
                         <p class="cantidad blue">${destacados.total}</p>
-                        <p class="tipo">Total registros</p>
+                        <p class="tipo">Registros</p>
                     </div>
                     <div class="destacado">
                         <p class="cantidad green">${destacados.verificados}</p>
@@ -368,7 +368,7 @@ export function mostrarHome(view) {
                 ` : `
                     <div class="destacado">
                         <p class="cantidad blue">${destacados.total}</p>
-                        <p class="tipo">Total registros</p>
+                        <p class="tipo">Registros</p>
                     </div>
                     <div class="destacado">
                         <p class="cantidad green">${destacados.entradas}</p>
