@@ -189,7 +189,7 @@
                     }
 
                     .estado.pendiente {
-                        background-color: rgba(255, 0, 0, 0.077);
+                        background-color: rgba(255, 0, 0, 0.071);
                         color: var(--error);
                         border-radius: 10px;
                         padding: 5px 10px;
@@ -213,7 +213,7 @@
                     }
 
                     .salida {
-                        background-color: rgba(196, 102, 102, 0.077);
+                        background-color: rgba(255, 0, 0, 0.071);
                         border-radius: 10px;
                         padding: 5px 10px;
                         color: var(--error);
