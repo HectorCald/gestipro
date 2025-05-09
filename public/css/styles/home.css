@@ -196,14 +196,14 @@
                     }
 
                     .estado.verificado {
-                        background-color: rgba(102, 196, 102, 0.068);
+                        background-color: rgba(0, 255, 0, 0.077);
                         border-radius: 10px;
                         padding: 5px 10px;
                         color: var(--success);
                     }
 
                     .ingreso {
-                        background-color: rgba(102, 196, 102, 0.085);
+                        background-color: rgba(0, 255, 0, 0.077);
                         border-radius: 10px;
                         padding: 5px 10px;
                         color: var(--success);
