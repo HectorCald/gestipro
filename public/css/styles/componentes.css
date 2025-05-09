@@ -470,7 +470,7 @@
     display: flex;
     flex-direction: column;
     padding: 10px;
-    font-size: var(--text-detalle);
+    font-size: var(--text-subtitulo);
     margin: 0;
     padding-left: 20px;
     color: var(--text);
@@ -814,7 +814,7 @@
 
         .fecha {
             color: var(--cero-color);
-            font-size: 10px;
+            font-size: var(--text-detalle);
         }
     }
 
