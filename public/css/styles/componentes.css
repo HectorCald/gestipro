@@ -805,7 +805,7 @@
 
     .header {
         display: flex;
-        font-size: var(--text-subtitulo);
+        font-size: var(--text-detalle);
         color: var(--text);
         font-weight: 500;
         flex-direction: column;
@@ -868,8 +868,6 @@
         border-radius: 10px;
         font-weight: 500;
     }
-
-    /* ... código existente ... */
 
     .registro-acciones {
         position: absolute;
