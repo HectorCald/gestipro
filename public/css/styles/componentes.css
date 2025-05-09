@@ -854,7 +854,7 @@
 
     .valor.verificado {
         color: var(--success);
-        background-color: rgba(0, 255, 0, 0.11);
+        background-color: rgba(0, 255, 0, 0.077);
         padding: 5px 10px;
         border-radius: 10px;
         font-weight: 500;
@@ -862,7 +862,7 @@
 
     .valor.pendiente {
         color: var(--error);
-        background-color: rgba(255, 0, 0, 0.099);
+        background-color: rgba(255, 0, 0, 0.071);
         padding: 5px 10px;
         border-radius: 10px;
         font-weight: 500;
