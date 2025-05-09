@@ -189,35 +189,37 @@
                     }
 
                     .estado.pendiente {
-                        background-color: rgba(128, 128, 128, 0.203);
-                        color: rgb(67, 67, 67);
-                        border-radius: 5px;
-                        padding: 2px 5px;
-                        color: var(--cero-color);
+                        background-color: rgba(255, 0, 0, 0.077);
+                        color: var(--error);
+                        border-radius: 10px;
+                        padding: 5px 10px;
                     }
 
                     .estado.verificado {
-                        background-color: rgba(102, 196, 102, 0.104);
-                        color: var(--success);
-                        border-radius: 5px;
-                        padding: 2px 5px;
+                        background-color: rgba(102, 196, 102, 0.068);
+                        border-radius: 10px;
+                        padding: 5px 10px;
                         color: var(--success);
                     }
 
                     .ingreso {
-                        background-color: rgba(102, 196, 102, 0.104);
+                        background-color: rgba(102, 196, 102, 0.085);
+                        border-radius: 10px;
+                        padding: 5px 10px;
                         color: var(--success);
-                        border-radius: 5px;
-                        padding: 2px 5px;
-                        color: var(--success);
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
                     }
 
                     .salida {
-                        background-color: rgba(196, 102, 102, 0.104);
-                        color: var(--success);
-                        border-radius: 5px;
-                        padding: 2px 5px;
+                        background-color: rgba(196, 102, 102, 0.077);
+                        border-radius: 10px;
+                        padding: 5px 10px;
                         color: var(--error);
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
                     }
                 }
             }

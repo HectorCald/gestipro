@@ -300,7 +300,7 @@ export function mostrarHome(view) {
                     <div class="detalles">
                         <p class="cantidad">Envasados: <strong>${registro.envases_terminados} Und.</strong></p>
                         <p class="lote">Lote: <strong>${registro.lote}</strong></p>
-                        <p class="estado ${estado.toLowerCase()}">Estado: <strong>${estado}</strong></p>
+                        <p class="estado ${estado.toLowerCase()}"><strong>${estado}</strong></p>
                     </div>
                 </div>
             `;
@@ -314,7 +314,7 @@ export function mostrarHome(view) {
                 </div>
                 <div class="detalles">
                     <p class="cantidad">Cantidad: <strong>${registro.cantidad}</strong></p>
-                    <p class="tipo-movimiento ${tipo.toLowerCase()}">Tipo: <strong>${registro.tipo}</strong></p>
+                    <p class="tipo-movimiento ${tipo.toLowerCase()}"><strong>${registro.tipo}</strong></p>
                 </div>
             </div>
         `;
@@ -655,7 +655,7 @@ function eventosHome() {
                         <div class="detalles">
                             <p class="cantidad">Envasados: <strong>${registro.envases_terminados} Und.</strong></p>
                             <p class="lote">Lote: <strong>${registro.lote}</strong></p>
-                            <p class="estado ${estado.toLowerCase()}">Estado: <strong>${estado}</strong></p>
+                            <p class="estado ${estado.toLowerCase()}"><strong>${estado}</strong></p>
                         </div>
                     </div>
                 `;
@@ -669,7 +669,7 @@ function eventosHome() {
                         </div>
                         <div class="detalles">
                             <p class="cantidad">Cantidad: <strong>${registro.cantidad}</strong></p>
-                            <p class="tipo-movimiento ${tipo.toLowerCase()}">Tipo: <strong>${registro.tipo}</strong></p>
+                            <p class="tipo-movimiento ${tipo.toLowerCase()}"><strong>${registro.tipo}</strong></p>
                         </div>
                     </div>
                 `;
