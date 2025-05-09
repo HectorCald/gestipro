@@ -693,6 +693,7 @@
         border-radius: 15px;
         gap: 5px;
         color: var(--text);
+        font-size: var(--text-detalle);
     }
     .btn-quitar-etiqueta {
         background: none;
