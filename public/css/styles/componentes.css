@@ -692,7 +692,7 @@
         padding: 5px 10px;
         border-radius: 15px;
         gap: 5px;
-        color: white;
+        color: var(--text);
     }
     .btn-quitar-etiqueta {
         background: none;
