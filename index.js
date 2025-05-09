@@ -310,6 +310,42 @@ app.post('/registrar-historial', requireAuth, async (req, res) => {
     }
 });
 
+app.get('/obtener-historial', requireAuth, async (req, res) => {
+    const { spreadsheetId } = req.user;
+
+    try {
+        const sheets = google.sheets({ version: 'v4', auth });
+        
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId: spreadsheetId,
+            range: 'Historial!A2:E' // Columns A through E
+        });
+
+        const rows = response.data.values || [];
+        
+        // Map the data to the specified format
+        const historial = rows.map(row => ({
+            id: row[0] || '',
+            fecha: row[1] || '',
+            destino: row[2] || '',
+            suceso: row[3] || '',
+            detalle: row[4] || ''
+        }));
+
+        res.json({
+            success: true,
+            historial
+        });
+
+    } catch (error) {
+        console.error('Error al obtener historial:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error al obtener el historial'
+        });
+    }
+});
+
 
 /* ==================== OBTENER USARIO ACTUAL Y ACTULIZAR USARIO ACTUAL ==================== */
 app.get('/obtener-usuario-actual', requireAuth, async (req, res) => {
@@ -812,7 +848,6 @@ app.put('/verificar-registro-produccion/:id', requireAuth, async (req, res) => {
         });
     }
 });
-
 
 
 

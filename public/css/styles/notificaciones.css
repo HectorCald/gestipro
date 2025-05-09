@@ -10,6 +10,7 @@
         display: flex;
         flex-direction: column;
         width: 100%;
+        gap: 10px;
 
         .notificacion {
             background-color: var(--primary-color);
@@ -21,8 +22,8 @@
             width: 100%;
             gap: 5px;
 
-            i{
-                color:rgb(54, 121, 255) ;
+            i {
+                color: gray;
                 font-size: var(--text-3xl);
                 min-width: 60px;
                 height: 60px;
@@ -30,39 +31,76 @@
                 display: flex;
                 justify-content: center;
                 align-items: center;
+                background-color: var(--primary-color);
+            }
+            i.bx-trash{
+                color: var(--error);
+                background-color: rgba(224, 89, 89, 0.099);
+            }
+            i.bx-edit{
+                color: rgb(54, 121, 255);
                 background-color: rgba(89, 134, 224, 0.099);
             }
-
-            .cabeza {
-                display: flex;
-                width: 100%;
-                justify-content: space-between;
-                align-items: center;
-
-                .suceso {
-                    font-size: var(--text-subtitulo);
-                    font-weight: 600;
-                    color: rgb(54, 121, 255);
-                    text-align: left;
-                    min-width: 100px;
-                    width: 100px;
-                    border-radius: 10px;
-                    display: flex;
-                    text-align: left;
-                }
-
-                .fecha {
-                    color: var(--cero-color);
-                    font-size: var(--text-detalle);
-                    width: 80px;
-                }
-
+            i.bx-info-circle{
+                color: gray;
+                background-color: rgba(202, 202, 202, 0.099);
+            }
+            i.bx-check-circle{
+                color: var(--success);
+                background-color: rgba(121, 180, 81, 0.099);
+            }
+            i.bx-plus-circle{
+                color: orange;
+                background-color: rgba(173, 136, 68, 0.101);
             }
 
-            .detalle {
-                color: var(--text);
-                font-size: var(--text-detalle);
+            .notificacion-info {
                 width: 100%;
+                height: 100%;
+
+                .cabeza {
+                    display: flex;
+                    width: 100%;
+                    justify-content: space-between;
+                    align-items: center;
+
+                    .suceso {
+                        font-size: var(--text-subtitulo);
+                        font-weight: 600;
+                        color: gray;
+                        text-align: left;
+                        min-width: 100px;
+                        width: 100px;
+                        border-radius: 10px;
+                        display: flex;
+                        text-align: left;
+                    }
+                    .suceso.Eliminación{
+                        color: var(--error);
+                    }
+                    .suceso.Edición{
+                        color: rgb(54, 121, 255);
+                    }
+                    .suceso.Verificación{
+                        color: var(--success);
+                    }
+                    .suceso.Creación{
+                        color: orange;
+                    }
+
+                    .fecha {
+                        color: var(--cero-color);
+                        font-size: var(--text-detalle);
+                        width: 80px;
+                    }
+
+                }
+
+                .detalle {
+                    color: var(--text);
+                    font-size: var(--text-detalle);
+                    width: 100%;
+                }
             }
         }
     }

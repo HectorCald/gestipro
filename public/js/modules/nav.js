@@ -70,7 +70,7 @@ function obtenerOpcionesMenu() {
                 icono: 'fa-clipboard-list',
                 texto: 'Formulario',
                 detalle: 'Registra una nueva producción',
-                onclick: 'onclick="mostrarFormularioProduccion()"'
+                onclick: 'onclick="mostrarFormularioProduccion(); ocultarAnuncioSecond();"'
             },
             {
                 clase: 'opcion-btn',
@@ -86,7 +86,7 @@ function obtenerOpcionesMenu() {
                 icono: 'fa-chart-line',
                 texto: 'Estadisticas',
                 detalle: 'Ver mis estadisticas de registros.',
-                onclick: 'onclick="document.querySelector(\'.seccion3 .normal\').scrollIntoView({behavior: \'smooth\', block: \'start\'});ocultarAnuncioSecond()""'
+                onclick: 'onclick="document.querySelector(\'.seccion3 .normal\').scrollIntoView({behavior: \'smooth\', block: \'start\'});ocultarAnuncioSecond()"'
             }
         ],
         'Acopio': [
@@ -122,7 +122,7 @@ function obtenerOpcionesMenu() {
                 icono: 'fa-history',
                 texto: 'Registros Almacen',
                 detalle: 'Registros de almacen ingresos/salidas.',
-                onclick: 'onclick="document.querySelector(\'.seccion2 .normal\').scrollIntoView({behavior: \'smooth\', block: \'start\'});ocultarAnuncioSecond()""'
+                onclick: 'onclick="document.querySelector(\'.seccion2 .normal\').scrollIntoView({behavior: \'smooth\', block: \'start\'}); ocultarAnuncioSecond()"'
             },
             {
                 clase: 'opcion-btn',
