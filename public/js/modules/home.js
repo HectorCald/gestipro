@@ -807,7 +807,7 @@ function eventosHome() {
                 </div>
                 <p class="normal"><i class='bx bx-chevron-right'></i> Detalles de verificación</p>
                 <div class="campo-vertical">
-                    <span><strong><i class='bx bx-transfer'></i> Verificado:</strong> ${registro.fecha_verificacion ? 'Verificado' : 'Pendiente'}</span>
+                    <span><strong><i class='bx bx-transfer'></i> Verificado:</strong> ${registro.fecha_verificacion ? `${registro.c_real} Und.` : 'Pendiente'}</span>
                     ${registro.fecha_verificacion ? `<span><strong><i class='bx bx-calendar-check'></i> Fecha verificación:</strong> ${registro.fecha_verificacion}</span>` : ''}
                 ${registro.observaciones ? `
                         <span><strong><i class='bx bx-comment-detail'></i> Observaciones: </strong> ${registro.observaciones}</span>
