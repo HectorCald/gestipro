@@ -368,7 +368,7 @@ export function mostrarHome(view) {
                 ` : `
                     <div class="destacado">
                         <p class="cantidad blue">${destacados.total}</p>
-                        <p class="tipo">Total</p>
+                        <p class="tipo">Total registros</p>
                     </div>
                     <div class="destacado">
                         <p class="cantidad green">${destacados.entradas}</p>
