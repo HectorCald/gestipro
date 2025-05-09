@@ -302,13 +302,6 @@ function eventosVerificacion() {
                 <span class="valor"><strong><i class='bx bx-check-shield'></i> Envases terminados: </strong>${registro.envases_terminados}</span>
                 <span class="valor"><strong><i class='bx bx-calendar'></i> Fecha de vencimiento: </strong>${registro.fecha_vencimiento}</span>
             </div>
-
-            <p class="normal"><i class='bx bx-chevron-right'></i> Detalles de verificación</p>
-            <div class="campo-vertical">
-                <span class="valor"><strong><i class='bx bx-hash'></i> Cantidad real: </strong>${registro.c_real || 'No verificado'}</span>
-                <span class="valor"><strong><i class='bx bx-calendar'></i> Fecha de verificación: </strong>${registro.fecha_verificacion || 'Pendiente'}</span>
-                <span class="valor"><strong><i class='bx bx-comment-detail'></i> Observaciones: </strong>${registro.observaciones || 'Sin observaciones'}</span>
-            </div>
             <p class="normal"><i class='bx bx-chevron-right'></i>Verificación</p>
             <div class="entrada">
                 <i class='bx bx-hash'></i>
@@ -330,7 +323,6 @@ function eventosVerificacion() {
         </div>
     `;
         contenido.innerHTML = registrationHTML;
-        contenido.style.paddingBottom = '10px';
         mostrarAnuncioSecond();
 
         // Agregar evento al botón guardar
