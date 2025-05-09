@@ -281,29 +281,33 @@ function eventosVerificacion() {
             <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno verificar-registro">
-            <p class="normal"><i class='bx bx-chevron-right'></i>Información</p>
-            <div class="registro-item" data-id="${registro.id}">
-                <div class="header">
-                    <div class="info">
-                        <span class="valor">${registro.producto} - ${registro.gramos}gr.</span>
-                        <span class="nombre">${registro.nombre}</span>
-                        <span class="fecha">${registro.fecha}</span>
-                    </div>
-                </div>
-                <div class="detalle">
-                    <span class="valor"><strong>Lote: </strong>${registro.lote}</span>
+           <p class="normal"><i class='bx bx-chevron-right'></i> Información básica</p>
+            <div class="campo-vertical">
+                <span class="nombre"><strong><i class='bx bx-id-card'></i> Id: </strong>${registro.id}</span>
+                <span class="nombre"><strong><i class='bx bx-user'></i> Operador: </strong>${registro.nombre}</span>
+                <span class="fecha"><strong><i class='bx bx-calendar'></i> Fecha: </strong>${registro.fecha}</span>
+            </div>
 
-                    <span class="valor"><strong>Selección/Cernido: </strong>${registro.proceso}</span>
-                    <span class="valor"><strong>Microondas: </strong>${registro.microondas}</span>
+            <p class="normal"><i class='bx bx-chevron-right'></i> Información del producto</p>
+            <div class="campo-vertical">
+                <span class="producto"><strong><i class='bx bx-cube'></i> Producto: </strong>${registro.producto}</span>
+                <span class="valor"><strong><i class="ri-scales-line"></i> Gramaje: </strong>${registro.gramos}gr.</span>
+                <span class="valor"><strong><i class='bx bx-barcode'></i> Lote: </strong>${registro.lote}</span>
+            </div>
 
-                    <span class="valor"><strong>Envases terminados: </strong>${registro.envases_terminados}</span>
-                    <span class="valor"><strong>Fecha de vencimiento: </strong>${registro.fecha_vencimiento}</span>
+            <p class="normal"><i class='bx bx-chevron-right'></i> Detalles de producción</p>
+            <div class="campo-vertical">
+                <span class="valor"><strong><i class='bx bx-cog'></i> Selección/Cernido: </strong>${registro.proceso}</span>
+                <span class="valor"><strong><i class='bx bx-bowl-hot'></i> Microondas: </strong>${registro.microondas}</span>
+                <span class="valor"><strong><i class='bx bx-check-shield'></i> Envases terminados: </strong>${registro.envases_terminados}</span>
+                <span class="valor"><strong><i class='bx bx-calendar'></i> Fecha de vencimiento: </strong>${registro.fecha_vencimiento}</span>
+            </div>
 
-                    <span class="valor"><strong>Cantidad real: </strong>${registro.c_real || 'No verificado'}</span>
-                    <span class="valor"><strong>Fecha de verificación: </strong>${registro.fecha_verificacion || 'Pendiente'}</span>
-
-                    <span class="valor"><strong>Observaciones: </strong>${registro.observaciones || 'Sin observaciones'}</span>
-                </div>
+            <p class="normal"><i class='bx bx-chevron-right'></i> Detalles de verificación</p>
+            <div class="campo-vertical">
+                <span class="valor"><strong><i class='bx bx-hash'></i> Cantidad real: </strong>${registro.c_real || 'No verificado'}</span>
+                <span class="valor"><strong><i class='bx bx-calendar'></i> Fecha de verificación: </strong>${registro.fecha_verificacion || 'Pendiente'}</span>
+                <span class="valor"><strong><i class='bx bx-comment-detail'></i> Observaciones: </strong>${registro.observaciones || 'Sin observaciones'}</span>
             </div>
             <p class="normal"><i class='bx bx-chevron-right'></i>Verificación</p>
             <div class="entrada">
@@ -411,29 +415,33 @@ function eventosVerificacion() {
             <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno verificar-registro">
-            <p class="normal"><i class='bx bx-chevron-right'></i>Detalles</p>
-            <div class="registro-item" data-id="${registro.id}">
-                <div class="header">
-                    <div class="info">
-                        <span class="valor">${registro.producto} - ${registro.gramos}gr.</span>
-                        <span class="nombre">${registro.nombre}</span>
-                        <span class="fecha">${registro.fecha}</span>
-                    </div>
-                </div>
-                <div class="detalle">
-                    <span class="valor"><strong>Lote: </strong>${registro.lote}</span>
+            <p class="normal"><i class='bx bx-chevron-right'></i> Información básica</p>
+            <div class="campo-vertical">
+                <span class="nombre"><strong><i class='bx bx-id-card'></i> Id: </strong>${registro.id}</span>
+                <span class="nombre"><strong><i class='bx bx-user'></i> Operador: </strong>${registro.nombre}</span>
+                <span class="fecha"><strong><i class='bx bx-calendar'></i> Fecha: </strong>${registro.fecha}</span>
+            </div>
 
-                    <span class="valor"><strong>Selección/Cernido: </strong>${registro.proceso}</span>
-                    <span class="valor"><strong>Microondas: </strong>${registro.microondas}</span>
+            <p class="normal"><i class='bx bx-chevron-right'></i> Información del producto</p>
+            <div class="campo-vertical">
+                <span class="producto"><strong><i class='bx bx-cube'></i> Producto: </strong>${registro.producto}</span>
+                <span class="valor"><strong><i class="ri-scales-line"></i> Gramaje: </strong>${registro.gramos}gr.</span>
+                <span class="valor"><strong><i class='bx bx-barcode'></i> Lote: </strong>${registro.lote}</span>
+            </div>
 
-                    <span class="valor"><strong>Envases terminados: </strong>${registro.envases_terminados}</span>
-                    <span class="valor"><strong>Fecha de vencimiento: </strong>${registro.fecha_vencimiento}</span>
+            <p class="normal"><i class='bx bx-chevron-right'></i> Detalles de producción</p>
+            <div class="campo-vertical">
+                <span class="valor"><strong><i class='bx bx-cog'></i> Selección/Cernido: </strong>${registro.proceso}</span>
+                <span class="valor"><strong><i class='bx bx-bowl-hot'></i> Microondas: </strong>${registro.microondas}</span>
+                <span class="valor"><strong><i class='bx bx-check-shield'></i> Envases terminados: </strong>${registro.envases_terminados}</span>
+                <span class="valor"><strong><i class='bx bx-calendar'></i> Fecha de vencimiento: </strong>${registro.fecha_vencimiento}</span>
+            </div>
 
-                    <span class="valor"><strong>Cantidad real: </strong>${registro.c_real || 'No verificado'}</span>
-                    <span class="valor"><strong>Fecha de verificación: </strong>${registro.fecha_verificacion || 'Pendiente'}</span>
-
-                    <span class="valor"><strong>Observaciones: </strong>${registro.observaciones || 'Sin observaciones'}</span>
-                </div>
+            <p class="normal"><i class='bx bx-chevron-right'></i> Detalles de verificación</p>
+            <div class="campo-vertical">
+                <span class="valor"><strong><i class='bx bx-hash'></i> Cantidad real: </strong>${registro.c_real || 'No verificado'}</span>
+                <span class="valor"><strong><i class='bx bx-calendar'></i> Fecha de verificación: </strong>${registro.fecha_verificacion || 'Pendiente'}</span>
+                <span class="valor"><strong><i class='bx bx-comment-detail'></i> Observaciones: </strong>${registro.observaciones || 'Sin observaciones'}</span>
             </div>
         </div>
     `;
@@ -453,29 +461,33 @@ function eventosVerificacion() {
             <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno">
-            <p class="normal"><i class='bx bx-chevron-right'></i>Información</p>
-            <div class="registro-item" data-id="${registro.id}">
-                <div class="header">
-                    <div class="info">
-                        <span class="valor">${registro.producto} - ${registro.gramos}gr.</span>
-                        <span class="nombre">${registro.nombre}</span>
-                        <span class="fecha">${registro.fecha}</span>
-                    </div>
-                </div>
-                <div class="detalle">
-                    <span class="valor"><strong>Lote: </strong>${registro.lote}</span>
+            <p class="normal"><i class='bx bx-chevron-right'></i> Información básica</p>
+            <div class="campo-vertical">
+                <span class="nombre"><strong><i class='bx bx-id-card'></i> Id: </strong>${registro.id}</span>
+                <span class="nombre"><strong><i class='bx bx-user'></i> Operador: </strong>${registro.nombre}</span>
+                <span class="fecha"><strong><i class='bx bx-calendar'></i> Fecha: </strong>${registro.fecha}</span>
+            </div>
 
-                    <span class="valor"><strong>Selección/Cernido: </strong>${registro.proceso}</span>
-                    <span class="valor"><strong>Microondas: </strong>${registro.microondas}</span>
+            <p class="normal"><i class='bx bx-chevron-right'></i> Información del producto</p>
+            <div class="campo-vertical">
+                <span class="producto"><strong><i class='bx bx-cube'></i> Producto: </strong>${registro.producto}</span>
+                <span class="valor"><strong><i class="ri-scales-line"></i> Gramaje: </strong>${registro.gramos}gr.</span>
+                <span class="valor"><strong><i class='bx bx-barcode'></i> Lote: </strong>${registro.lote}</span>
+            </div>
 
-                    <span class="valor"><strong>Envases terminados: </strong>${registro.envases_terminados}</span>
-                    <span class="valor"><strong>Fecha de vencimiento: </strong>${registro.fecha_vencimiento}</span>
+            <p class="normal"><i class='bx bx-chevron-right'></i> Detalles de producción</p>
+            <div class="campo-vertical">
+                <span class="valor"><strong><i class='bx bx-cog'></i> Selección/Cernido: </strong>${registro.proceso}</span>
+                <span class="valor"><strong><i class='bx bx-bowl-hot'></i> Microondas: </strong>${registro.microondas}</span>
+                <span class="valor"><strong><i class='bx bx-check-shield'></i> Envases terminados: </strong>${registro.envases_terminados}</span>
+                <span class="valor"><strong><i class='bx bx-calendar'></i> Fecha de vencimiento: </strong>${registro.fecha_vencimiento}</span>
+            </div>
 
-                    <span class="valor"><strong>Cantidad real: </strong>${registro.c_real || 'No verificado'}</span>
-                    <span class="valor"><strong>Fecha de verificación: </strong>${registro.fecha_verificacion || 'Pendiente'}</span>
-
-                    <span class="valor"><strong>Observaciones: </strong>${registro.observaciones || 'Sin observaciones'}</span>
-                </div>
+            <p class="normal"><i class='bx bx-chevron-right'></i> Detalles de verificación</p>
+            <div class="campo-vertical">
+                <span class="valor"><strong><i class='bx bx-hash'></i> Cantidad real: </strong>${registro.c_real || 'No verificado'}</span>
+                <span class="valor"><strong><i class='bx bx-calendar'></i> Fecha de verificación: </strong>${registro.fecha_verificacion || 'Pendiente'}</span>
+                <span class="valor"><strong><i class='bx bx-comment-detail'></i> Observaciones: </strong>${registro.observaciones || 'Sin observaciones'}</span>
             </div>
             <p class="normal"><i class='bx bx-chevron-right'></i>Motivo de la eliminación</p>
             <div class="entrada">
