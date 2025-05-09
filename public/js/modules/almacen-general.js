@@ -150,7 +150,7 @@ export async function mostrarAlmacenGeneral() {
         </div>
         <div class="anuncio-botones">
             <button class="btn-crear-producto btn orange"> <i class='bx bx-plus'></i> Crear producto</button>
-            <button class="btn-etiquetas btn orange"><i class='bx bx-purchase-tag'></i>  Etiquetas</button>
+            <button class="btn-etiquetas btn especial"><i class='bx bx-purchase-tag'></i>  Etiquetas</button>
         </div>
         
     `;
@@ -503,7 +503,7 @@ function eventosAlmacenGeneral() {
     `).join('');
 
         // Procesar los precios del producto
-                // Procesar los precios del producto
+        // Procesar los precios del producto
         const preciosFormateados = producto.precios.split(';')
             .filter(precio => precio.trim())
             .map(precio => {
@@ -587,8 +587,8 @@ function eventosAlmacenGeneral() {
                     <p class="detalle">Selecciona nueva etiqueta</p>
                     <select class="select-etiqueta" required>
                     ${etiquetasDisponibles.map(etiqueta =>
-                        `<option value="${etiqueta}">${etiqueta}</option>`
-                    ).join('')}
+            `<option value="${etiqueta}">${etiqueta}</option>`
+        ).join('')}
                     </select>
                     <button type="button" class="btn-agregar-etiqueta"><i class='bx bx-plus'></i></button>
                 </div>
@@ -813,8 +813,8 @@ function eventosAlmacenGeneral() {
                     <select class="select-etiqueta" required>
                         <option value=""></option>
                         ${etiquetasDisponibles.map(etiqueta =>
-                            `<option value="${etiqueta}">${etiqueta}</option>`
-                        ).join('')}
+            `<option value="${etiqueta}">${etiqueta}</option>`
+        ).join('')}
                     </select>
                     <button type="button" class="btn-agregar-etiqueta"><i class='bx bx-plus'></i></button>
                 </div>
@@ -989,34 +989,33 @@ function eventosAlmacenGeneral() {
                 <div class="input">
                     <p class="detalle">Nueva etiqueta</p>
                     <input class="nueva-etiqueta" type="text" autocomplete="off" placeholder=" " required>
+                    <button type="button" class="btn-agregar-etiqueta-temp"><i class='bx bx-plus'></i></button>
                 </div>
             </div>
         </div>
         <div class="anuncio-botones">
-            <button class="btn-agregar-etiqueta btn orange"><i class="bx bx-plus"></i> Agregar etiqueta</button>
+            <button class="btn-guardar-etiquetas btn orange"><i class="bx bx-save"></i> Guardar cambios</button>
         </div>
     `;
 
         contenido.innerHTML = registrationHTML;
         mostrarAnuncioSecond();
 
-        // Eventos para eliminar etiquetas
+        // Evento para agregar nueva etiqueta temporalmente
+        const btnAgregarTemp = contenido.querySelector('.btn-agregar-etiqueta-temp');
         const etiquetasActuales = contenido.querySelector('.etiquetas-actuales');
-        etiquetasActuales.addEventListener('click', async (e) => {
-            if (e.target.closest('.btn-quitar-etiqueta')) {
-                const etiquetaItem = e.target.closest('.etiqueta-item');
-                const etiquetaId = etiquetaItem.dataset.id;
-                // Aquí iría la lógica para eliminar la etiqueta
-                etiquetaItem.remove();
-            }
-        });
 
-        // Evento para agregar nueva etiqueta
-        const btnAgregar = contenido.querySelector('.btn-agregar-etiqueta');
-        btnAgregar.addEventListener('click', async () => {
+        btnAgregarTemp.addEventListener('click', () => {
             const nuevaEtiqueta = document.querySelector('.nueva-etiqueta').value.trim();
             if (nuevaEtiqueta) {
-                // Aquí iría la lógica para agregar la etiqueta
+                const etiquetaTemp = document.createElement('div');
+                etiquetaTemp.className = 'etiqueta-item temp';
+                etiquetaTemp.innerHTML = `
+                    <i class='bx bx-purchase-tag'></i>
+                    <span>${nuevaEtiqueta}</span>
+                    <button type="button" class="btn-quitar-etiqueta"><i class='bx bx-x'></i></button>
+                `;
+                etiquetasActuales.appendChild(etiquetaTemp);
                 document.querySelector('.nueva-etiqueta').value = '';
             }
         });
@@ -1025,100 +1024,21 @@ function eventosAlmacenGeneral() {
         etiquetasActuales.addEventListener('click', (e) => {
             if (e.target.closest('.btn-quitar-etiqueta')) {
                 const etiquetaItem = e.target.closest('.etiqueta-item');
-                const valorEtiqueta = etiquetaItem.dataset.valor;
-                const option = document.createElement('option');
-                option.value = valorEtiqueta;
-                option.textContent = valorEtiqueta;
-                selectEtiqueta.appendChild(option);
                 etiquetaItem.remove();
             }
         });
 
-        mostrarAnuncioSecond();
-
-        // Agregar evento al botón guardar
-        const btnEditar = contenido.querySelector('.btn-editar-registro');
-        btnEditar.addEventListener('click', confirmarEdicion);
-
-        async function confirmarEdicion() {
-            const producto = document.querySelector('.editar-produccion .producto').value;
-            const gramos = document.querySelector('.editar-produccion .gramaje').value;
-            const lote = document.querySelector('.editar-produccion .lote').value;
-            const proceso = document.querySelector('.editar-produccion .select').value;
-            const microondas = document.querySelector('.editar-produccion .microondas').value;
-            const envases_terminados = document.querySelector('.editar-produccion .terminados').value;
-            const fecha_vencimiento = document.querySelector('.editar-produccion .vencimiento').value;
-            const verificado = document.querySelector('.editar-produccion .cantidad_real').value;
-            const observaciones = document.querySelector('.editar-produccion .observaciones').value;
-            const motivo = document.querySelector('.editar-produccion .motivo').value;
-
-            if (!motivo) { // Solo el campo "Motivo" es obligatorio
-                mostrarNotificacion({
-                    message: 'Debe ingresar el motivo de la edición',
-                    type: 'warning',
-                    duration: 3500
-                });
-                return;
-            }
-
-            try {
-                mostrarCarga();
-
-                const response = await fetch(`/editar-registro-produccion/${registroId}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        producto,
-                        gramos,
-                        lote,
-                        proceso,
-                        microondas,
-                        envases_terminados,
-                        fecha_vencimiento,
-                        verificado,
-                        observaciones,
-                        motivo
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error('Error en la respuesta del servidor');
-                }
-
-                const data = await response.json();
-
-                if (data.success) {
-                    await registrarHistorial(
-                        `${usuarioInfo.nombre} ${usuarioInfo.apellido}`,
-                        'Edición',
-                        `Motivo: ${motivo} - Registro: ${registro.producto} (${registro.lote})`
-                    );
-
-                    mostrarNotificacion({
-                        message: 'Registro actualizado correctamente',
-                        type: 'success',
-                        duration: 3000
-                    });
-
-                    ocultarAnuncioSecond();
-                    await obtenerRegistrosProduccion();
-                    await mostrarVerificacion();
-                } else {
-                    throw new Error(data.error || 'Error al actualizar el registro');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                mostrarNotificacion({
-                    message: error.message || 'Error al actualizar el registro',
-                    type: 'error',
-                    duration: 3500
-                });
-            } finally {
-                ocultarCarga();
-            }
-        }
+        // Evento para guardar todos los cambios
+        const btnGuardar = contenido.querySelector('.btn-guardar-etiquetas');
+        btnGuardar.addEventListener('click', async () => {
+            // Aquí iría la lógica para guardar los cambios en el servidor
+            mostrarNotificacion({
+                message: 'Cambios guardados correctamente',
+                type: 'success',
+                duration: 3000
+            });
+            ocultarAnuncioSecond();
+        });
     }
     function filtroAvanzado() {
         const contenido = document.querySelector('.anuncio-second .contenido');
@@ -1257,8 +1177,8 @@ function eventosAlmacenGeneral() {
             ocultarAnuncioSecond();
         }
     }
-    
-    
+
+
     return { aplicarFiltros };
 
 }

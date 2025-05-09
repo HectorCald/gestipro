@@ -69,7 +69,11 @@
 .btn.blue {
     background-color: rgb(1, 56, 221);
 }
-
+.btn.especial {
+    background:none;
+    border: 1px solid var(--tercer-color);
+    color: var(--tercer-color);
+}
 
 .btn.close {
     background: none;
