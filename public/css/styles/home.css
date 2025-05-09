@@ -189,21 +189,21 @@
                     }
 
                     .estado.pendiente {
-                        background-color: rgba(255, 0, 0, 0.071);
+                        background-color: rgba(255, 0, 0, 0.077);
                         color: var(--error);
                         border-radius: 10px;
                         padding: 5px 10px;
                     }
 
                     .estado.verificado {
-                        background-color: rgba(0, 255, 0, 0.077);
+                        background-color: rgba(102, 196, 102, 0.068);
                         border-radius: 10px;
                         padding: 5px 10px;
                         color: var(--success);
                     }
 
                     .ingreso {
-                        background-color: rgba(0, 255, 0, 0.077);
+                        background-color: rgba(102, 196, 102, 0.085);
                         border-radius: 10px;
                         padding: 5px 10px;
                         color: var(--success);
@@ -213,7 +213,7 @@
                     }
 
                     .salida {
-                        background-color: rgba(255, 0, 0, 0.071);
+                        background-color: rgba(196, 102, 102, 0.077);
                         border-radius: 10px;
                         padding: 5px 10px;
                         color: var(--error);
