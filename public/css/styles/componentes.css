@@ -622,14 +622,14 @@
             border: none;
             background-color: transparent;
             z-index: 2;
-            font-size: var(--text-titulo);
+            font-size: var(--text-subtitulo);
             width: 100%;
             color: var(--text);
 
             option {
                 background-color: var(--primary-color);
                 color: var(--text);
-                font-size: var(--text-subtitulo) !important;
+                font-size: var(--text-detalle) !important;
             }
         }
 

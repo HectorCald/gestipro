@@ -93,7 +93,7 @@
                 padding: 5px 15px;
                 border: 1px solid var(--primary-color);
                 border-radius: 10px;
-                font-size: var(--text-subtitulo);
+                font-size: var(--text-detalle);
                 background-color: var(--primary-color);
                 text-wrap: nowrap;
                 color: var(--text);

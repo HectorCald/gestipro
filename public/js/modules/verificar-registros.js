@@ -161,7 +161,7 @@ function eventosVerificacion() {
     const filtros = document.querySelector('.filtros');
     const items = document.querySelectorAll('.registro-item');
 
-        items.forEach(item => {
+    items.forEach(item => {
         const accionesDiv = item.querySelector('.registro-acciones');
         if (accionesDiv && !item.querySelector('.fecha_verificacion')) {
             item.addEventListener('click', (e) => {
