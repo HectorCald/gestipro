@@ -584,7 +584,7 @@
         width: 100%;
         position: relative;
         z-index: 2;
-        font-size: var(--text-titulo);
+        font-size: var(--text-subtitulo);
         text-align: left !important;
 
         .detalle {
@@ -610,7 +610,7 @@
             border: none;
             background-color: transparent;
             z-index: 2;
-            font-size: var(--text-titulo);
+            font-size: var(--text-subtitulo);
             width: 100%;
             color: var(--text);
         }
@@ -925,7 +925,7 @@
         padding: 5px 15px;
         border: 1px solid var(--fondo2);
         border-radius: 10px;
-        font-size: var(--text-subtitulo);
+        font-size: var(--text-detalle);
         background-color: var(--fondo2);
         text-wrap: nowrap;
         color: var(--text);
