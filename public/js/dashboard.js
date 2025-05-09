@@ -5,9 +5,7 @@ import { crearPerfil } from './modules/perfil.js';
 import { flotante } from './modules/flotante.js';
 import { mostrarFormularioProduccion } from './modules/formulario-produccion.js'
 import { mostrarVerificacion } from './modules/verificar-registros.js'
-
-
-
+import { crearNotificaciones }from './modules/notificaciones.js'
 
 window.crearHome = crearHome
 window.mostrarHome = mostrarHome
@@ -32,8 +30,11 @@ window.mostrarFormularioProduccion = mostrarFormularioProduccion
 
 window.mostrarVerificacion = mostrarVerificacion
 
+window.crearNotificaciones = crearNotificaciones
+
 document.addEventListener('DOMContentLoaded', async () => {
     flotante();
+    await crearNotificaciones();
     await crearNav();
     await crearHome();
     await crearPerfil();

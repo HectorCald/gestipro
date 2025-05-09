@@ -344,13 +344,13 @@ export function mostrarHome(view) {
     const home = `
         <h1 class="titulo"><i class='bx bx-home'></i> Inicio</h1>
         <div class="seccion1">
-            <h2 class="normal"><i class='bx bx-chevron-right'></i> Tus atajos</h2>
+            <h2 class="normal">Tus atajos</h2>
             <div class="funciones-rol">
                 ${funcionesHTML}
             </div>
         </div>
         <div class="seccion3">
-            <h2 class="normal"><i class='bx bx-chevron-right'></i> Tus destacados</h2>
+            <h2 class="normal">Tus destacados</h2>
             <div class="destacados">
                 ${usuarioInfo.rol === 'Producción' ? `
                     <div class="destacado">
@@ -382,7 +382,7 @@ export function mostrarHome(view) {
             </div>
         </div>
         <div class="seccion2">
-            <h2 class="normal"><i class='bx bx-chevron-right'></i> Tus registros de ${tipoRegistro}</h2>
+            <h2 class="normal">Tus registros de ${tipoRegistro}</h2>
             <div class="filtros-opciones estado">
                 <button class="btn-filtro activado">Todos</button>
                 ${usuarioInfo.rol === 'Producción' ? `
