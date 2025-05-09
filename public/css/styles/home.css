@@ -266,7 +266,7 @@
 
                 .cantidad {
                     font-size: 25px;
-                    font-weight: 800;
+                    font-family: 'Impact', sans-serif !important;
                     width: 100%;
                     height: 40px;
                     border-radius: 10px;
@@ -284,7 +284,7 @@
                 }
 
                 .cantidad.yellow {
-                    color: orange;
+                    color: var(--error);
                 }
 
                 .tipo {
