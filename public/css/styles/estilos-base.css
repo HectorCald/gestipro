@@ -31,17 +31,18 @@ body {
 }
 :root {
     --text: black;
-    --fondo: rgba(149, 149, 149, 0.04);
+    --fondo: rgba(149, 149, 149, 0.064);
     --fondo2: #4fd0b620;
     --fondo3: #ffffff;
     --fondo4: #ffffff;
-    --fondo5: #95c3ba;
+    --fondo5: #efefef;
+    --sep-color: #358a79;
     --primary-color: #ffffff;
     --second-color: #1a1a1a;
     --cero-color: rgb(141, 141, 141);
 
     /* Colores de acento que se mantienen en ambos temas */
-    --cuarto-color: #3ea38f;
+    --cuarto-color: #358a79;
     --tercer-color: #48c9b0;
     --error: #fc3737;
     --success: #4CAF50;
@@ -62,10 +63,11 @@ body {
     --fondo: #1a1a1a;
     --fondo3: #1a1a1a;
     --fondo4: #2d2d2d;
-    --fondo5: #2d2d2d;
+    --fondo5: #373737;
     --fondo2: #383838;
     --primary-color: #2a2a2a;
     --second-color: #ffffff;
     --cuarto-color: #3ca48f;
     --cero-color: #808080;
+    --sep-color: #2f2f2f;
 }
