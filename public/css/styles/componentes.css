@@ -717,6 +717,37 @@
     }
     
 }
+.precios-container {
+    margin:0;
+
+    .precios-actuales {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 10px;
+    }
+    .precio-item {
+        display: flex;
+        align-items: center;
+        background-color: var(--primary-color);
+        padding: 5px 10px;
+        border-radius: 15px;
+        gap: 5px;
+        color: var(--text);
+        font-size: var(--text-detalle);
+    }
+    .btn-eliminar-precio {
+        background: none;
+        border: none;
+        color: #ff4444;
+        cursor: pointer;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        font-size: var(--text-titulo) !important;
+    }
+    
+}
 
 
 .sugerencias {

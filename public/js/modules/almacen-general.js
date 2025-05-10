@@ -1,5 +1,6 @@
 
 let productos = [];
+let productosAcopio = [];
 let etiquetas = [];
 let precios = [];
 let usuarioInfo = recuperarUsuarioLocal();
@@ -71,11 +72,44 @@ async function obtenerPrecios() {
         return false;
     }
 }
+async function obtenerAlmacenAcopio() {
+    try {
+        const response = await fetch('/obtener-productos-acopio');
+        const data = await response.json();
+
+        if (data.success) {
+            productosAcopio = data.productosAcopio.sort((a, b) => {
+                const idA = parseInt(a.id.split('-')[1]);
+                const idB = parseInt(b.id.split('-')[1]);
+                return idB - idA;
+            });
+            return true;
+        } else {
+            mostrarNotificacion({
+                message: 'Error al obtener productos de acopio',
+                type: 'error',
+                duration: 3500
+            });
+            return false;
+        }
+    } catch (error) {
+        console.error('Error al obtener productos de acopio:', error);
+        mostrarNotificacion({
+            message: 'Error al obtener productos de acopio',
+            type: 'error',
+            duration: 3500
+        });
+        return false;
+    }
+}
+
+
 async function obtenerAlmacenGeneral() {
     try {
         mostrarCarga();
         await obtenerEtiquetas();
         await obtenerPrecios();
+        await obtenerAlmacenAcopio();
         const response = await fetch('/obtener-productos');
         const data = await response.json();
 
@@ -107,8 +141,6 @@ async function obtenerAlmacenGeneral() {
         ocultarCarga();
     }
 }
-
-
 export async function mostrarAlmacenGeneral() {
     await obtenerAlmacenGeneral();
     const contenido = document.querySelector('.anuncio .contenido');
@@ -149,8 +181,9 @@ export async function mostrarAlmacenGeneral() {
             `).join('')}
         </div>
         <div class="anuncio-botones">
-            <button class="btn-crear-producto btn orange"> <i class='bx bx-plus'></i> Crear producto</button>
+            <button class="btn-crear-producto btn orange"> <i class='bx bx-plus'></i> Crear</button>
             <button class="btn-etiquetas btn especial"><i class='bx bx-purchase-tag'></i>  Etiquetas</button>
+            <button class="btn-precios btn especial"><i class='bx bx-dollar'></i> Precios</button>
         </div>
         
     `;
@@ -171,6 +204,7 @@ function eventosAlmacenGeneral() {
 
     const btnCrearProducto = document.querySelector('.btn-crear-producto');
     const btnEtiquetas = document.querySelector('.btn-etiquetas');
+    const btnPrecios = document.querySelector('.btn-precios');
 
     const items = document.querySelectorAll('.registro-item');
 
@@ -283,6 +317,7 @@ function eventosAlmacenGeneral() {
     filtros.addEventListener('click', filtroAvanzado);
     btnCrearProducto.addEventListener('click', crearProducto);
     btnEtiquetas.addEventListener('click', gestionarEtiquetas);
+    btnPrecios.addEventListener('click', gestionarPrecios);
 
 
 
@@ -603,10 +638,10 @@ function eventosAlmacenGeneral() {
         mostrarAnuncioSecond();
 
         // Agregar evento al botón guardar
-        const btnEliminar = contenido.querySelector('.btn-eliminar-producto');
-        btnEliminar.addEventListener('click', confirmarEliminacion);
+        const btnEliminarProducto = contenido.querySelector('.btn-eliminar-producto');
+        btnEliminarProducto.addEventListener('click', confirmarEliminacionProducto);
 
-        async function confirmarEliminacion() {
+        async function confirmarEliminacionProducto() {
             const motivo = document.querySelector('.motivo').value.trim();
 
             if (!motivo) {
@@ -621,12 +656,12 @@ function eventosAlmacenGeneral() {
             try {
                 mostrarCarga();
 
-                // Aseguramos que la URL sea correcta
-                const response = await fetch(`/eliminar-registro-produccion/${registroId}`, {
+                const response = await fetch(`/eliminar-producto/${registroId}`, {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json'
-                    }
+                    },
+                    body: JSON.stringify({ motivo })
                 });
 
                 if (!response.ok) {
@@ -636,29 +671,26 @@ function eventosAlmacenGeneral() {
                 const data = await response.json();
 
                 if (data.success) {
-                    // Registrar en historial
+                    await mostrarAlmacenGeneral();
                     await registrarHistorial(
                         `${usuarioInfo.nombre} ${usuarioInfo.apellido}`,
                         'Eliminación',
-                        `Motivo: ${motivo} - Registro: ${registro.producto} (${registro.lote})`
+                        `Motivo: ${motivo} - Producto: ${producto.producto} (${producto.id})`
                     );
 
                     mostrarNotificacion({
-                        message: 'Registro eliminado correctamente',
+                        message: 'Producto eliminado correctamente',
                         type: 'success',
                         duration: 3000
                     });
-
                     ocultarAnuncioSecond();
-                    await obtenerRegistrosProduccion();
-                    await mostrarVerificacion();
                 } else {
-                    throw new Error(data.error || 'Error al eliminar el registro');
+                    throw new Error(data.error || 'Error al eliminar el producto');
                 }
             } catch (error) {
                 console.error('Error:', error);
                 mostrarNotificacion({
-                    message: error.message || 'Error al eliminar el registro',
+                    message: error.message || 'Error al eliminar el producto',
                     type: 'error',
                     duration: 3500
                 });
@@ -708,7 +740,7 @@ function eventosAlmacenGeneral() {
             <h1 class="titulo">Editar producto</h1>
             <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
         </div>
-        <div class="relleno editar-produccion">
+        <div class="relleno editar-producto">
             <p class="normal"><i class='bx bx-chevron-right'></i>Información basica</p>
                 <div class="entrada">
                     <i class='bx bx-cube'></i>
@@ -786,7 +818,7 @@ function eventosAlmacenGeneral() {
                 </div>
         </div>
         <div class="anuncio-botones">
-            <button class="btn-editar-registro btn orange"><i class="bx bx-save"></i> Guardar cambios</button>
+            <button class="btn-editar-producto btn orange"><i class="bx bx-save"></i> Guardar cambios</button>
         </div>
     `;
 
@@ -830,34 +862,42 @@ function eventosAlmacenGeneral() {
         mostrarAnuncioSecond();
 
         // Agregar evento al botón guardar
-        const btnEditar = contenido.querySelector('.btn-editar-registro');
-        btnEditar.addEventListener('click', confirmarEdicion);
+        const btnEditarProducto = contenido.querySelector('.btn-editar-producto');
+        btnEditarProducto.addEventListener('click', confirmarEdicionProducto);
 
-        async function confirmarEdicion() {
-            const producto = document.querySelector('.editar-produccion .producto').value;
-            const gramos = document.querySelector('.editar-produccion .gramaje').value;
-            const lote = document.querySelector('.editar-produccion .lote').value;
-            const proceso = document.querySelector('.editar-produccion .select').value;
-            const microondas = document.querySelector('.editar-produccion .microondas').value;
-            const envases_terminados = document.querySelector('.editar-produccion .terminados').value;
-            const fecha_vencimiento = document.querySelector('.editar-produccion .vencimiento').value;
-            const verificado = document.querySelector('.editar-produccion .cantidad_real').value;
-            const observaciones = document.querySelector('.editar-produccion .observaciones').value;
-            const motivo = document.querySelector('.editar-produccion .motivo').value;
-
-            if (!motivo) { // Solo el campo "Motivo" es obligatorio
-                mostrarNotificacion({
-                    message: 'Debe ingresar el motivo de la edición',
-                    type: 'warning',
-                    duration: 3500
-                });
-                return;
-            }
-
+        async function confirmarEdicionProducto() {
             try {
+                const producto = document.querySelector('.editar-producto .producto').value.trim();
+                const gramos = document.querySelector('.editar-producto .gramaje').value.trim();
+                const stock = document.querySelector('.editar-producto .stock').value.trim();
+                const cantidadxgrupo = document.querySelector('.editar-producto .cantidad-grupo').value.trim();
+                const lista = document.querySelector('.editar-producto .lista').value.trim();
+                const codigo_barras = document.querySelector('.editar-producto .codigo-barras').value.trim(); // Fixed hyphen
+                const motivo = document.querySelector('.editar-producto .motivo').value.trim();
+
+                // Get selected etiquetas
+                const etiquetasSeleccionadas = Array.from(document.querySelectorAll('.etiqueta-item'))
+                    .map(item => item.dataset.valor)
+                    .join(';');
+
+                // Get precios
+                const preciosInputs = document.querySelectorAll('.editar-producto .precio-input');
+                const preciosActualizados = Array.from(preciosInputs)
+                    .map(input => `${input.dataset.ciudad},${input.value}`)
+                    .join(';');
+
+                if (!producto || !gramos || !stock || !cantidadxgrupo || !lista || !motivo) {
+                    mostrarNotificacion({
+                        message: 'Todos los campos obligatorios deben ser completados',
+                        type: 'warning',
+                        duration: 3500
+                    });
+                    return;
+                }
+
                 mostrarCarga();
 
-                const response = await fetch(`/editar-registro-produccion/${registroId}`, {
+                const response = await fetch(`/actualizar-producto/${registroId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json'
@@ -865,20 +905,14 @@ function eventosAlmacenGeneral() {
                     body: JSON.stringify({
                         producto,
                         gramos,
-                        lote,
-                        proceso,
-                        microondas,
-                        envases_terminados,
-                        fecha_vencimiento,
-                        verificado,
-                        observaciones,
-                        motivo
+                        stock,
+                        cantidadxgrupo,
+                        lista,
+                        codigo_barras,
+                        precios: preciosActualizados,
+                        etiquetas: etiquetasSeleccionadas
                     })
                 });
-
-                if (!response.ok) {
-                    throw new Error('Error en la respuesta del servidor');
-                }
 
                 const data = await response.json();
 
@@ -886,25 +920,23 @@ function eventosAlmacenGeneral() {
                     await registrarHistorial(
                         `${usuarioInfo.nombre} ${usuarioInfo.apellido}`,
                         'Edición',
-                        `Motivo: ${motivo} - Registro: ${registro.producto} (${registro.lote})`
+                        `Motivo: ${motivo} - Producto: ${producto} (${registroId})`
                     );
-
+                    await obtenerAlmacenGeneral();
                     mostrarNotificacion({
-                        message: 'Registro actualizado correctamente',
+                        message: 'Producto actualizado correctamente',
                         type: 'success',
                         duration: 3000
                     });
 
                     ocultarAnuncioSecond();
-                    await obtenerRegistrosProduccion();
-                    await mostrarVerificacion();
                 } else {
-                    throw new Error(data.error || 'Error al actualizar el registro');
+                    throw new Error(data.error || 'Error al actualizar el producto');
                 }
             } catch (error) {
                 console.error('Error:', error);
                 mostrarNotificacion({
-                    message: error.message || 'Error al actualizar el registro',
+                    message: error.message || 'Error al actualizar el producto',
                     type: 'error',
                     duration: 3500
                 });
@@ -934,7 +966,7 @@ function eventosAlmacenGeneral() {
             <h1 class="titulo">Nuevo producto</h1>
             <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
         </div>
-        <div class="relleno editar-produccion">
+        <div class="relleno nuevo-producto">
             <p class="normal"><i class='bx bx-chevron-right'></i>Información basica</p>
                 <div class="entrada">
                     <i class='bx bx-cube'></i>
@@ -1002,17 +1034,22 @@ function eventosAlmacenGeneral() {
             <p class="normal"><i class='bx bx-chevron-right'></i>Precios</p>
                 ${preciosFormateados}
 
-            <p class="normal"><i class='bx bx-chevron-right'></i>Motivo de la edición</p>
-                <div class="entrada">
-                    <i class='bx bx-comment-detail'></i>
-                    <div class="input">
-                        <p class="detalle">Motivo</p>
-                        <input class="motivo" type="text" autocomplete="off" placeholder=" " required>
-                    </div>
+            <p class="normal"><i class='bx bx-chevron-right'></i>Almacen Index</p>
+            <div class="entrada">
+                <i class='bx bx-package'></i>
+                <div class="input">
+                    <p class="detalle">Selecciona Almacén Index</p>
+                    <select class="alm-acopio-producto" required>
+                        <option value=""></option>
+                        ${productosAcopio.map(producto => `
+                            <option value="${producto.id}">${producto.producto}</option>
+                        `).join('')}
+                    </select>
                 </div>
+            </div>
         </div>
         <div class="anuncio-botones">
-            <button class="btn-editar-registro btn orange"><i class="bx bx-plus"></i> Crear producto</button>
+            <button class="btn-crear-producto btn orange"><i class="bx bx-plus"></i> Crear producto</button>
         </div>
     `;
 
@@ -1056,24 +1093,37 @@ function eventosAlmacenGeneral() {
         mostrarAnuncioSecond();
 
         // Agregar evento al botón guardar
-        const btnEditar = contenido.querySelector('.btn-editar-registro');
-        btnEditar.addEventListener('click', confirmarCreacion);
+        const btnCrear = contenido.querySelector('.btn-crear-producto');
+        btnCrear.addEventListener('click', confirmarCreacion);
 
         async function confirmarCreacion() {
-            const producto = document.querySelector('.editar-produccion .producto').value;
-            const gramos = document.querySelector('.editar-produccion .gramaje').value;
-            const lote = document.querySelector('.editar-produccion .lote').value;
-            const proceso = document.querySelector('.editar-produccion .select').value;
-            const microondas = document.querySelector('.editar-produccion .microondas').value;
-            const envases_terminados = document.querySelector('.editar-produccion .terminados').value;
-            const fecha_vencimiento = document.querySelector('.editar-produccion .vencimiento').value;
-            const verificado = document.querySelector('.editar-produccion .cantidad_real').value;
-            const observaciones = document.querySelector('.editar-produccion .observaciones').value;
-            const motivo = document.querySelector('.editar-produccion .motivo').value;
+            const producto = document.querySelector('.nuevo-producto .producto').value.trim();
+            const gramos = document.querySelector('.nuevo-producto .gramaje').value.trim();
+            const stock = document.querySelector('.nuevo-producto .stock').value.trim();
+            const cantidadxgrupo = document.querySelector('.nuevo-producto .cantidad-grupo').value.trim();
+            const lista = document.querySelector('.nuevo-producto .lista').value.trim();
+            const codigo_barras = document.querySelector('.nuevo-producto .codigo-barras').value.trim();
+            const acopioSelect = document.querySelector('.nuevo-producto .alm-acopio-producto');
 
-            if (!motivo) { // Solo el campo "Motivo" es obligatorio
+            // Obtener precios formateados (ciudad,valor;ciudad,valor)
+            const preciosSeleccionados = Array.from(document.querySelectorAll('.nuevo-producto .precio-input'))
+                .map(input => `${input.dataset.ciudad},${input.value || '0'}`)
+                .join(';');
+
+            // Obtener etiquetas del contenedor (etiqueta;etiqueta)
+            const etiquetasSeleccionadas = Array.from(document.querySelectorAll('.nuevo-producto .etiquetas-actuales .etiqueta-item'))
+                .map(item => item.dataset.valor)
+                .join(';');
+
+            // Obtener info del producto de acopio
+            const acopio_id = acopioSelect.value;
+            const alm_acopio_producto = acopio_id ?
+                productosAcopio.find(p => p.id === acopio_id)?.producto :
+                'No hay índice seleccionado';
+
+            if (!producto || !gramos || !stock || !cantidadxgrupo || !lista) {
                 mostrarNotificacion({
-                    message: 'Debe ingresar el motivo de la edición',
+                    message: 'Por favor complete todos los campos obligatorios',
                     type: 'warning',
                     duration: 3500
                 });
@@ -1082,55 +1132,42 @@ function eventosAlmacenGeneral() {
 
             try {
                 mostrarCarga();
-
-                const response = await fetch(`/editar-registro-produccion/${registroId}`, {
-                    method: 'PUT',
+                const response = await fetch('/crear-producto', {
+                    method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
                         producto,
                         gramos,
-                        lote,
-                        proceso,
-                        microondas,
-                        envases_terminados,
-                        fecha_vencimiento,
-                        verificado,
-                        observaciones,
-                        motivo
+                        stock,
+                        cantidadxgrupo,
+                        lista,
+                        codigo_barras,
+                        precios: preciosSeleccionados,
+                        etiquetas: etiquetasSeleccionadas,
+                        acopio_id,
+                        alm_acopio_producto
                     })
                 });
-
-                if (!response.ok) {
-                    throw new Error('Error en la respuesta del servidor');
-                }
 
                 const data = await response.json();
 
                 if (data.success) {
-                    await registrarHistorial(
-                        `${usuarioInfo.nombre} ${usuarioInfo.apellido}`,
-                        'Edición',
-                        `Motivo: ${motivo} - Registro: ${registro.producto} (${registro.lote})`
-                    );
-
+                    await mostrarAlmacenGeneral();
                     mostrarNotificacion({
-                        message: 'Registro actualizado correctamente',
+                        message: 'Producto creado correctamente',
                         type: 'success',
                         duration: 3000
                     });
-
                     ocultarAnuncioSecond();
-                    await obtenerRegistrosProduccion();
-                    await mostrarVerificacion();
                 } else {
-                    throw new Error(data.error || 'Error al actualizar el registro');
+                    throw new Error(data.error || 'Error al crear el producto');
                 }
             } catch (error) {
                 console.error('Error:', error);
                 mostrarNotificacion({
-                    message: error.message || 'Error al actualizar el registro',
+                    message: error.message || 'Error al crear el producto',
                     type: 'error',
                     duration: 3500
                 });
@@ -1198,6 +1235,7 @@ function eventosAlmacenGeneral() {
                     const data = await response.json();
                     if (data.success) {
                         await obtenerEtiquetas();
+                        await mostrarAlmacenGeneral();
                         document.querySelector('.nueva-etiqueta').value = '';
                         mostrarNotificacion({
                             message: 'Etiqueta agregada correctamente',
@@ -1205,7 +1243,7 @@ function eventosAlmacenGeneral() {
                             duration: 3000
                         });
                         gestionarEtiquetas(); // Refresh the view
-                        await mostrarAlmacenGeneral();
+
                     }
                 } catch (error) {
                     mostrarNotificacion({
@@ -1233,6 +1271,7 @@ function eventosAlmacenGeneral() {
 
                     const data = await response.json();
                     if (data.success) {
+                        await mostrarAlmacenGeneral();
                         await obtenerEtiquetas();
                         mostrarNotificacion({
                             message: 'Etiqueta eliminada correctamente',
@@ -1240,7 +1279,7 @@ function eventosAlmacenGeneral() {
                             duration: 3000
                         });
                         gestionarEtiquetas(); // Refresh the view
-                        await mostrarAlmacenGeneral();
+
                     }
                 } catch (error) {
                     mostrarNotificacion({
@@ -1254,6 +1293,137 @@ function eventosAlmacenGeneral() {
             }
         });
     }
+    function gestionarPrecios() {
+        const preciosActuales = precios.map(precio => `
+            <div class="precio-item" data-id="${precio.id}">
+                <i class='bx bx-tag'></i>
+                <span>${precio.precio}</span>
+                <button class="btn-eliminar-precio"><i class='bx bx-x'></i></button>
+            </div>
+        `).join('');
+    
+        const contenido = document.querySelector('.anuncio-second .contenido');
+        const registrationHTML = `
+            <div class="encabezado">
+                <h1 class="titulo">Gestionar precios</h1>
+                <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
+            </div>
+            <div class="relleno">
+                <p class="normal"><i class='bx bx-chevron-right'></i>Precios actuales</p>
+                <div class="precios-container">
+                    <div class="precios-actuales">
+                    ${preciosActuales}
+                    </div>
+                </div>
+    
+                <p class="normal"><i class='bx bx-chevron-right'></i>Agregar nuevo precio</p>
+                <div class="entrada">
+                    <i class='bx bx-tag'></i>
+                    <div class="input">
+                        <p class="detalle">Nuevo precio</p>
+                        <input class="nuevo-precio" type="text" autocomplete="off" placeholder=" " required>
+                        <button class="btn-agregar-precio"><i class='bx bx-plus'></i></button>
+                    </div>
+                </div>
+            </div>
+        `;
+    
+        contenido.innerHTML = registrationHTML;
+        mostrarAnuncioSecond();
+    
+        // Event listeners
+        const btnAgregarPrecio = contenido.querySelector('.btn-agregar-precio');
+        btnAgregarPrecio.addEventListener('click', agregarPrecio);
+    
+        contenido.addEventListener('click', async (e) => {
+            if (e.target.closest('.btn-eliminar-precio')) {
+                const precioItem = e.target.closest('.precio-item');
+                const precioId = precioItem.dataset.id;
+                await eliminarPrecio(precioId);
+            }
+        });
+        async function agregarPrecio() {
+            const nuevoPrecioInput = document.querySelector('.nuevo-precio');
+            const nuevoPrecio = nuevoPrecioInput.value.trim();
+        
+            if (!nuevoPrecio) {
+                mostrarNotificacion({
+                    message: 'Debe ingresar un precio',
+                    type: 'warning',
+                    duration: 3500
+                });
+                return;
+            }
+        
+            try {
+                mostrarCarga();
+                const response = await fetch('/agregar-precio', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ precio: nuevoPrecio })
+                });
+        
+                const data = await response.json();
+        
+                if (data.success) {
+                    await obtenerPrecios();
+                    await gestionarPrecios();
+                    mostrarNotificacion({
+                        message: 'Precio agregado correctamente',
+                        type: 'success',
+                        duration: 3000
+                    });
+                } else {
+                    throw new Error(data.error || 'Error al agregar el precio');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarNotificacion({
+                    message: error.message || 'Error al agregar el precio',
+                    type: 'error',
+                    duration: 3500
+                });
+            } finally {
+                ocultarCarga();
+            }
+        }
+        async function eliminarPrecio(id) {
+            try {
+                mostrarCarga();
+                const response = await fetch(`/eliminar-precio/${id}`, {
+                    method: 'DELETE'
+                });
+        
+                const data = await response.json();
+        
+                if (data.success) {
+                    await obtenerPrecios();
+                    await gestionarPrecios();
+                    mostrarNotificacion({
+                        message: 'Precio eliminado correctamente',
+                        type: 'success',
+                        duration: 3000
+                    });
+                } else {
+                    throw new Error(data.error || 'Error al eliminar el precio');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarNotificacion({
+                    message: error.message || 'Error al eliminar el precio',
+                    type: 'error',
+                    duration: 3500
+                });
+            } finally {
+                ocultarCarga();
+            }
+        }
+    }
 
     return { aplicarFiltros };
 }
+
+
+

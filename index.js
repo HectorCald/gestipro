@@ -849,6 +849,178 @@ app.get('/obtener-productos', requireAuth, async (req, res) => {
         });
     }
 });
+app.post('/crear-producto', requireAuth, async (req, res) => {
+    const { spreadsheetId } = req.user;
+    const { producto, gramos, stock, cantidadxgrupo, lista, codigo_barras, precios, etiquetas, acopio_id, alm_acopio_producto } = req.body;
+
+    try {
+        const sheets = google.sheets({ version: 'v4', auth });
+        
+        // Validar campos requeridos
+        if (!producto || !gramos || !stock || !cantidadxgrupo || !lista) {
+            return res.status(400).json({
+                success: false,
+                error: 'Todos los campos obligatorios deben ser completados'
+            });
+        }
+
+        // Get last ID to generate new one
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: 'Almacen general!A2:A'
+        });
+
+        const rows = response.data.values || [];
+        const lastId = rows.length > 0 ? 
+            Math.max(...rows.map(row => parseInt(row[0].split('-')[1]) || 0)) : 0;
+        const newId = `PG-${(lastId + 1).toString().padStart(3, '0')}`;
+
+        const newRow = [
+            newId,                  // ID
+            producto,               // PRODUCTO
+            gramos,                 // GR.
+            stock,                  // STOCK
+            cantidadxgrupo,         // GRUP
+            lista,                  // LISTA
+            codigo_barras || 'no definido', // C. BARRAS
+            precios,                // PRECIOS
+            etiquetas,              // ETIQUETAS
+            acopio_id || '',        // ACOPIO ID
+            alm_acopio_producto || 'No hay índice seleccionado', // ALM-ACOPIO NOMBRE
+            './icons/default-product.png'  // Imagen por defecto
+        ];
+
+        // Append the new row at the end
+        await sheets.spreadsheets.values.append({
+            spreadsheetId,
+            range: 'Almacen general!A2:L',
+            valueInputOption: 'USER_ENTERED',
+            insertDataOption: 'INSERT_ROWS',
+            resource: { values: [newRow] }
+        });
+
+        res.json({
+            success: true,
+            message: 'Producto creado correctamente',
+        });
+
+    } catch (error) {
+        console.error('Error al crear producto:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error al crear el producto'
+        });
+    }
+});
+app.delete('/eliminar-producto/:id', requireAuth, async (req, res) => {
+    try {
+        const { spreadsheetId } = req.user;
+        const { id } = req.params;
+        const sheets = google.sheets({ version: 'v4', auth });
+
+        // Get spreadsheet info
+        const spreadsheet = await sheets.spreadsheets.get({
+            spreadsheetId
+        });
+        
+        const almacenSheet = spreadsheet.data.sheets.find(
+            sheet => sheet.properties.title === 'Almacen general'
+        );
+
+        if (!almacenSheet) {
+            throw new Error('Hoja de Almacén general no encontrada');
+        }
+
+        // Get current products
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: 'Almacen general!A2:L'
+        });
+
+        const rows = response.data.values || [];
+        const rowIndex = rows.findIndex(row => row[0] === id);
+
+        if (rowIndex === -1) {
+            return res.status(404).json({ success: false, error: 'Producto no encontrado' });
+        }
+
+        // Delete the row
+        await sheets.spreadsheets.batchUpdate({
+            spreadsheetId,
+            resource: {
+                requests: [{
+                    deleteDimension: {
+                        range: {
+                            sheetId: almacenSheet.properties.sheetId,
+                            dimension: 'ROWS',
+                            startIndex: rowIndex + 1, // +1 for header row
+                            endIndex: rowIndex + 2
+                        }
+                    }
+                }]
+            }
+        });
+
+        res.json({ success: true, message: 'Producto eliminado correctamente' });
+    } catch (error) {
+        console.error('Error al eliminar producto:', error);
+        res.status(500).json({ success: false, error: 'Error al eliminar el producto' });
+    }
+});
+app.put('/actualizar-producto/:id', requireAuth, async (req, res) => {
+    try {
+        const { spreadsheetId } = req.user;
+        const { id } = req.params;
+        const { producto, gramos, stock, cantidadxgrupo, lista, codigo_barras, precios, etiquetas, acopio_id, alm_acopio_producto } = req.body;
+        const sheets = google.sheets({ version: 'v4', auth });
+
+        // Get current products
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: 'Almacen general!A2:L'
+        });
+
+        const rows = response.data.values || [];
+        const rowIndex = rows.findIndex(row => row[0] === id);
+
+        if (rowIndex === -1) {
+            return res.status(404).json({ success: false, error: 'Producto no encontrado' });
+        }
+
+        const updatedRow = [
+            id,                     // ID
+            producto,               // PRODUCTO
+            gramos,                 // GR.
+            stock,                  // STOCK
+            cantidadxgrupo,         // GRUP
+            lista,                  // LISTA
+            codigo_barras || 'no definido', // C. BARRAS
+            precios,                // PRECIOS
+            etiquetas,              // ETIQUETAS
+            acopio_id || '',        // ACOPIO ID
+            alm_acopio_producto || 'No hay índice seleccionado', // ALM-ACOPIO NOMBRE
+            rows[rowIndex][11] || './icons/default-product.png'  // Mantener imagen existente
+        ];
+
+        // Update the row
+        await sheets.spreadsheets.values.update({
+            spreadsheetId,
+            range: `Almacen general!A${rowIndex + 2}:L${rowIndex + 2}`,
+            valueInputOption: 'USER_ENTERED',
+            resource: { values: [updatedRow] }
+        });
+
+        res.json({ 
+            success: true, 
+            message: 'Producto actualizado correctamente',
+            producto: updatedRow
+        });
+
+    } catch (error) {
+        console.error('Error al actualizar producto:', error);
+        res.status(500).json({ success: false, error: 'Error al actualizar el producto' });
+    }
+});
 
 
 app.get('/obtener-etiquetas', requireAuth, async (req, res) => {
@@ -995,8 +1167,161 @@ app.get('/obtener-precios', requireAuth, async (req, res) => {
         });
     }
 });
+app.post('/agregar-precio', requireAuth, async (req, res) => {
+    try {
+        const { spreadsheetId } = req.user;
+        const { precio } = req.body;
+        const sheets = google.sheets({ version: 'v4', auth });
+
+        // Agregar nuevo precio a la hoja de Precios
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: 'Precios!A2:B'
+        });
+
+        const rows = response.data.values || [];
+        const nextId = rows.length > 0 ? 
+            parseInt(rows[rows.length - 1][0].split('-')[1]) + 1 : 1;
+
+        const newPrice = [`PR-${nextId.toString().padStart(3, '0')}`, precio];
+
+        await sheets.spreadsheets.values.append({
+            spreadsheetId,
+            range: 'Precios!A2:B',
+            valueInputOption: 'RAW',
+            insertDataOption: 'INSERT_ROWS',
+            resource: { values: [newPrice] }
+        });
+
+        // Actualizar todos los productos en Almacen general
+        const productosResponse = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: 'Almacen general!A2:L'
+        });
+
+        const productos = productosResponse.data.values || [];
+        const actualizaciones = productos.map((producto, index) => {
+            const preciosActuales = producto[7] || '';
+            const nuevosPrecios = preciosActuales ? 
+                `${preciosActuales};${precio},0` : 
+                `${precio},0`;
+
+            return {
+                range: `Almacen general!H${index + 2}`,
+                values: [[nuevosPrecios]]
+            };
+        });
+
+        if (actualizaciones.length > 0) {
+            await sheets.spreadsheets.values.batchUpdate({
+                spreadsheetId,
+                resource: {
+                    valueInputOption: 'RAW',
+                    data: actualizaciones
+                }
+            });
+        }
+
+        res.json({ success: true, id: newPrice[0], precio });
+    } catch (error) {
+        console.error('Error al agregar precio:', error);
+        res.status(500).json({ success: false, error: 'Error al agregar precio' });
+    }
+});
+app.delete('/eliminar-precio/:id', requireAuth, async (req, res) => {
+    try {
+        const { spreadsheetId } = req.user;
+        const { id } = req.params;
+        const sheets = google.sheets({ version: 'v4', auth });
+
+        // Obtener el precio a eliminar
+        const preciosResponse = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: 'Precios!A2:B'
+        });
+
+        const precios = preciosResponse.data.values || [];
+        const precioIndex = precios.findIndex(row => row[0] === id);
+        const precioCiudad = precios[precioIndex][1];
+
+        // Eliminar de la hoja de Precios
+        await sheets.spreadsheets.values.clear({
+            spreadsheetId,
+            range: `Precios!A${precioIndex + 2}:B${precioIndex + 2}`
+        });
+
+        // Actualizar productos en Almacen general
+        const productosResponse = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: 'Almacen general!A2:L'
+        });
+
+        const productos = productosResponse.data.values || [];
+        const actualizaciones = productos.map((producto, index) => {
+            const preciosActuales = producto[7] || '';
+            const preciosArray = preciosActuales.split(';').filter(p => !p.startsWith(precioCiudad + ','));
+            const nuevosPrecios = preciosArray.join(';');
+
+            return {
+                range: `Almacen general!H${index + 2}`,
+                values: [[nuevosPrecios]]
+            };
+        });
+
+        if (actualizaciones.length > 0) {
+            await sheets.spreadsheets.values.batchUpdate({
+                spreadsheetId,
+                resource: {
+                    valueInputOption: 'RAW',
+                    data: actualizaciones
+                }
+            });
+        }
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error al eliminar precio:', error);
+        res.status(500).json({ success: false, error: 'Error al eliminar precio' });
+    }
+});
 
 
+
+
+app.get('/obtener-productos-acopio', requireAuth, async (req, res) => {
+    const { spreadsheetId } = req.user;
+
+    try {
+        const sheets = google.sheets({ version: 'v4', auth });
+        
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId: spreadsheetId,
+            range: 'Almacen acopio!A2:D' // Columns A to D for ID, PRODUCTO, BRUTO-PESO-LOTE, PRIMA-PESO-LOTE
+        });
+
+        const rows = response.data.values || [];
+        
+        // Map the data to the specified format
+        const productosAcopio = rows.map(row => ({
+            id: row[0] || '',
+            producto: row[1] || '',
+            bruto_peso_lote: row[2] || '',
+            prima_peso_lote: row[3] || ''
+        }));
+
+        res.json({
+            success: true,
+            productosAcopio
+        });
+
+    } catch (error) {
+        console.error('Error al obtener productos de acopio:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error al obtener los productos de acopio'
+        });
+    }
+});
 
 
 
