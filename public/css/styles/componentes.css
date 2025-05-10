@@ -485,7 +485,7 @@
     margin: 0;
     padding-left: 20px;
     color: var(--text);
-    background-color: var(--fondo2);
+    background-color: var(--primary-color);
     border-radius: 10px;
 
     span {
