@@ -746,6 +746,9 @@
     i {
         font-size: 1.5rem;
         color: var(--tercer-color) !important;
+        background-color: var(--fondo2);
+        padding: 10px;
+        border-radius: 50%;
     }
 
     .info {
@@ -774,7 +777,7 @@
     .registro-item {
         padding: 10px;
         border-bottom: 1px solid var(--border-color);
-        background-color: var(--fondo2);
+        background-color: var(--primary-color);
         border-radius: 10px;
     }
 
