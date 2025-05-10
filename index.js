@@ -1234,7 +1234,7 @@ app.delete('/eliminar-precio/:id', requireAuth, async (req, res) => {
         const { id } = req.params;
         const sheets = google.sheets({ version: 'v4', auth });
 
-        // Obtener el precio a eliminar
+        // Obtener precios actuales
         const preciosResponse = await sheets.spreadsheets.values.get({
             spreadsheetId,
             range: 'Precios!A2:B'
@@ -1242,9 +1242,12 @@ app.delete('/eliminar-precio/:id', requireAuth, async (req, res) => {
 
         const precios = preciosResponse.data.values || [];
         const precioIndex = precios.findIndex(row => row[0] === id);
-        const precioCiudad = precios[precioIndex][1];
 
-        // Eliminar de la hoja de Precios
+        if (precioIndex === -1) {
+            return res.status(404).json({ success: false, error: 'Precio no encontrado' });
+        }
+
+        // Eliminar el precio de la hoja
         await sheets.spreadsheets.values.clear({
             spreadsheetId,
             range: `Precios!A${precioIndex + 2}:B${precioIndex + 2}`
@@ -1259,7 +1262,7 @@ app.delete('/eliminar-precio/:id', requireAuth, async (req, res) => {
         const productos = productosResponse.data.values || [];
         const actualizaciones = productos.map((producto, index) => {
             const preciosActuales = producto[7] || '';
-            const preciosArray = preciosActuales.split(';').filter(p => !p.startsWith(precioCiudad + ','));
+            const preciosArray = preciosActuales.split(';').filter(p => !p.startsWith(precios[precioIndex][1] + ','));
             const nuevosPrecios = preciosArray.join(';');
 
             return {

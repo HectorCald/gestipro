@@ -1402,6 +1402,10 @@ function eventosAlmacenGeneral() {
                         method: 'DELETE'
                     });
 
+                    if (!response.ok) {
+                        throw new Error('Error al eliminar el precio');
+                    }
+
                     const data = await response.json();
 
                     if (data.success) {
