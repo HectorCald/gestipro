@@ -745,7 +745,7 @@
 
     i {
         font-size: 1.5rem;
-        color: var(--tercer-color);
+        color: var(--tercer-color) !important;
     }
 
     .info {
