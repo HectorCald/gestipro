@@ -49,11 +49,11 @@ body {
 
     /* Variables para tamaños de texto se mantienen igual */
     --text-detalle: 14px;
-    --text-subtitulo: 16px;
-    --text-titulo: 18px;
-    --text-superior: 20px;
-    --text-xl: 22px;
-    --text-2xl: 26px;
+    --text-subtitulo: 15px;
+    --text-titulo: 16px;
+    --text-superior: 17px;
+    --text-xl: 18px;
+    --text-2xl: 20px;
     --text-3xl: 1.875rem;
     --text-4xl: 2.25rem;
 }
