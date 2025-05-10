@@ -741,7 +741,7 @@
     cursor: pointer;
     border-radius: 0.5rem;
     transition: background 0.3s ease;
-    background-color: var(--fondo2);
+    background-color: var(--primary-color);
 
     i {
         font-size: 1.5rem;
