@@ -1295,57 +1295,48 @@ function eventosAlmacenGeneral() {
     }
     function gestionarPrecios() {
         const preciosActuales = precios.map(precio => `
-            <div class="precio-item" data-id="${precio.id}">
-                <i class='bx bx-tag'></i>
-                <span>${precio.precio}</span>
-                <button class="btn-eliminar-precio"><i class='bx bx-x'></i></button>
-            </div>
-        `).join('');
-    
+        <div class="precio-item" data-id="${precio.id}">
+            <i class='bx bx-tag'></i>
+            <span>${precio.precio}</span>
+            <button class="btn-eliminar-precio"><i class='bx bx-x'></i></button>
+        </div>
+    `).join('');
+
         const contenido = document.querySelector('.anuncio-second .contenido');
         const registrationHTML = `
-            <div class="encabezado">
-                <h1 class="titulo">Gestionar precios</h1>
-                <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
-            </div>
-            <div class="relleno">
-                <p class="normal"><i class='bx bx-chevron-right'></i>Precios actuales</p>
-                <div class="precios-container">
-                    <div class="precios-actuales">
-                    ${preciosActuales}
-                    </div>
-                </div>
-    
-                <p class="normal"><i class='bx bx-chevron-right'></i>Agregar nuevo precio</p>
-                <div class="entrada">
-                    <i class='bx bx-tag'></i>
-                    <div class="input">
-                        <p class="detalle">Nuevo precio</p>
-                        <input class="nuevo-precio" type="text" autocomplete="off" placeholder=" " required>
-                        <button class="btn-agregar-precio"><i class='bx bx-plus'></i></button>
-                    </div>
+        <div class="encabezado">
+            <h1 class="titulo">Gestionar precios</h1>
+            <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
+        </div>
+        <div class="relleno">
+            <p class="normal"><i class='bx bx-chevron-right'></i>Precios actuales</p>
+            <div class="precios-container">
+                <div class="precios-actuales">
+                ${preciosActuales}
                 </div>
             </div>
-        `;
-    
+
+            <p class="normal"><i class='bx bx-chevron-right'></i>Agregar nuevo precio</p>
+            <div class="entrada">
+                <i class='bx bx-tag'></i>
+                <div class="input">
+                    <p class="detalle">Nuevo precio</p>
+                    <input class="nuevo-precio" type="text" autocomplete="off" placeholder=" " required>
+                    <button class="btn-agregar-precio"><i class='bx bx-plus'></i></button>
+                </div>
+            </div>
+        </div>
+    `;
+
         contenido.innerHTML = registrationHTML;
         mostrarAnuncioSecond();
-    
+
         // Event listeners
         const btnAgregarPrecio = contenido.querySelector('.btn-agregar-precio');
-        btnAgregarPrecio.addEventListener('click', agregarPrecio);
-    
-        contenido.addEventListener('click', async (e) => {
-            if (e.target.closest('.btn-eliminar-precio')) {
-                const precioItem = e.target.closest('.precio-item');
-                const precioId = precioItem.dataset.id;
-                await eliminarPrecio(precioId);
-            }
-        });
-        async function agregarPrecio() {
+        btnAgregarPrecio.addEventListener('click', async () => {
             const nuevoPrecioInput = document.querySelector('.nuevo-precio');
             const nuevoPrecio = nuevoPrecioInput.value.trim();
-        
+
             if (!nuevoPrecio) {
                 mostrarNotificacion({
                     message: 'Debe ingresar un precio',
@@ -1354,7 +1345,7 @@ function eventosAlmacenGeneral() {
                 });
                 return;
             }
-        
+
             try {
                 mostrarCarga();
                 const response = await fetch('/agregar-precio', {
@@ -1364,12 +1355,22 @@ function eventosAlmacenGeneral() {
                     },
                     body: JSON.stringify({ precio: nuevoPrecio })
                 });
-        
+
                 const data = await response.json();
-        
+
                 if (data.success) {
+                    await mostrarAlmacenGeneral();
                     await obtenerPrecios();
-                    await gestionarPrecios();
+                    nuevoPrecioInput.value = '';
+                    const preciosActualesDiv = document.querySelector('.precios-actuales');
+                    preciosActualesDiv.innerHTML = precios.map(precio => `
+                    <div class="precio-item" data-id="${precio.id}">
+                        <i class='bx bx-tag'></i>
+                        <span>${precio.precio}</span>
+                        <button class="btn-eliminar-precio"><i class='bx bx-x'></i></button>
+                    </div>
+                `).join('');
+
                     mostrarNotificacion({
                         message: 'Precio agregado correctamente',
                         type: 'success',
@@ -1388,38 +1389,45 @@ function eventosAlmacenGeneral() {
             } finally {
                 ocultarCarga();
             }
-        }
-        async function eliminarPrecio(id) {
-            try {
-                mostrarCarga();
-                const response = await fetch(`/eliminar-precio/${id}`, {
-                    method: 'DELETE'
-                });
-        
-                const data = await response.json();
-        
-                if (data.success) {
-                    await obtenerPrecios();
-                    await gestionarPrecios();
-                    mostrarNotificacion({
-                        message: 'Precio eliminado correctamente',
-                        type: 'success',
-                        duration: 3000
+        });
+
+        contenido.addEventListener('click', async (e) => {
+            if (e.target.closest('.btn-eliminar-precio')) {
+                const precioItem = e.target.closest('.precio-item');
+                const precioId = precioItem.dataset.id;
+
+                try {
+                    mostrarCarga();
+                    const response = await fetch(`/eliminar-precio/${precioId}`, {
+                        method: 'DELETE'
                     });
-                } else {
-                    throw new Error(data.error || 'Error al eliminar el precio');
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        await mostrarAlmacenGeneral();
+                        await obtenerPrecios();
+                        precioItem.remove();
+                        mostrarNotificacion({
+                            message: 'Precio eliminado correctamente',
+                            type: 'success',
+                            duration: 3000
+                        });
+                    } else {
+                        throw new Error(data.error || 'Error al eliminar el precio');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    mostrarNotificacion({
+                        message: error.message || 'Error al eliminar el precio',
+                        type: 'error',
+                        duration: 3500
+                    });
+                } finally {
+                    ocultarCarga();
                 }
-            } catch (error) {
-                console.error('Error:', error);
-                mostrarNotificacion({
-                    message: error.message || 'Error al eliminar el precio',
-                    type: 'error',
-                    duration: 3500
-                });
-            } finally {
-                ocultarCarga();
             }
-        }
+        });
     }
 
     return { aplicarFiltros };
