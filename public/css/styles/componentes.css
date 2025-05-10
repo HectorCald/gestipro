@@ -698,7 +698,7 @@
     .etiqueta-item {
         display: flex;
         align-items: center;
-        background-color: var(--fondo2);
+        background-color: var(--primary-color);
         padding: 5px 10px;
         border-radius: 15px;
         gap: 5px;
@@ -979,22 +979,18 @@
         width: fit-content;
         height: 40px;
         padding: 5px 15px;
-        border: 1px solid var(--fondo2);
+        border: none;
         border-radius: 10px;
         font-size: var(--text-detalle);
         background-color: var(--fondo2);
         text-wrap: nowrap;
         color: var(--text);
-        transition: background-color 0.5s ease-in-out;
-        transition: color 0.5s ease-in-out;
-        transition: font-weight 0.5s ease-in-out;
-        transition: border 0.5s ease-in-out;
+        transition: all 0.5s ease ;
     }
 
     .btn-filtro.activado {
         background-color: var(--cuarto-color);
         color: white;
-        border: 1px solid var(--cuarto-color);
     }
 }
 
@@ -1013,6 +1009,7 @@
         padding: 10px;
         border-radius: 10px;
         background-color: var(--primary-color);
+        transition: all 0.5s ease;
 
         &:focus {
             border: 1px solid var(--tercer-color);
@@ -1022,11 +1019,11 @@
     i {
         color: var(--cuarto-color);
         padding: 10px;
-        font-size: var(--text-xl) !important;
+        font-size: var(--text-3xl) !important;
         position: absolute;
         top: 50%;
         transform: translateY(-50%);
-        right: 5px;
+        right: 0px;
 
     }
 

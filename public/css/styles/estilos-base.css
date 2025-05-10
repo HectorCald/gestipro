@@ -54,8 +54,8 @@ body {
     --text-superior: 17px;
     --text-xl: 18px;
     --text-2xl: 20px;
-    --text-3xl: 1.875rem;
-    --text-4xl: 2.25rem;
+    --text-3xl: 24px;
+    --text-4xl: 26px;
 }
 
 [data-theme="dark"] {
@@ -64,7 +64,7 @@ body {
     --fondo3: #1a1a1a;
     --fondo4: #2d2d2d;
     --fondo5: #1a1a1a;
-    --fondo2: #383838;
+    --fondo2: #282828;
     --primary-color: #2a2a2a;
     --second-color: #ffffff;
     --cuarto-color: #3ca48f;
