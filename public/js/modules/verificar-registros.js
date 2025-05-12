@@ -45,6 +45,7 @@ async function obtenerRegistrosProduccion() {
     }
 }
 
+
 export async function mostrarVerificacion() {
     await obtenerRegistrosProduccion();
 

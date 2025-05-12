@@ -145,7 +145,7 @@ function obtenerOpcionesMenu() {
                 clase: 'opcion-btn',
                 vista: 'verificarRegistros-view',
                 icono: 'fa-check-double',
-                texto: 'Verificar Registros',
+                texto: 'Verificar',
                 detalle: 'Verificar registros de producción.',
                 onclick: 'onclick="mostrarVerificacion(); ocultarAnuncioSecond()"'
             },
@@ -153,17 +153,33 @@ function obtenerOpcionesMenu() {
                 clase: 'opcion-btn',
                 vista: 'regAlmacen-view',
                 icono: 'fa-history',
-                texto: 'Registros Almacen',
-                detalle: 'Registros de almacen ingresos/salidas.',
+                texto: 'Registros',
+                detalle: 'Ingresos/salidas.',
                 onclick: 'onclick="document.querySelector(\'.seccion2 .normal\').scrollIntoView({behavior: \'smooth\', block: \'start\'}); ocultarAnuncioSecond()"'
             },
             {
                 clase: 'opcion-btn',
                 vista: 'almacen-view',
                 icono: 'fa-dolly',
-                texto: 'Gestionar Almacen',
+                texto: 'Almacen',
                 detalle: 'Gestionar tu alamcen general',
                 onclick: 'onclick="mostrarAlmacenGeneral(); ocultarAnuncioSecond()"'
+            },
+            {
+                clase: 'opcion-btn',
+                vista: 'almacen-view',
+                icono: 'fa-id-card',
+                texto: 'Clientes',
+                detalle: 'Gestionar tu lista de clientes',
+                onclick: 'onclick="mostrarClientes(); ocultarAnuncioSecond()"'
+            },
+            {
+                clase: 'opcion-btn',
+                vista: 'almacen-view',
+                icono: 'fa-truck',
+                texto: 'Proovedores',
+                detalle: 'Gestionar tu lista de proovedores',
+                onclick: 'onclick="mostrarProovedores(); ocultarAnuncioSecond()"'
             },
         ],
         'Administración': [
@@ -202,7 +218,7 @@ function obtenerOpcionesMenu() {
     if (atajosRol) {
         atajosUsuario = [...atajosRol];
     }
-    return atajosUsuario.slice(0, 3);
+    return atajosUsuario.slice(0, 5);
 }
 export async function crearNav() {
     // Solo ejecutar si estamos en el dashboard

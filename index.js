@@ -1289,7 +1289,6 @@ app.delete('/eliminar-precio/:id', requireAuth, async (req, res) => {
 });
 
 
-// Replace the current obtener-clientes endpoint with this corrected version
 app.get('/obtener-clientes', requireAuth, async (req, res) => {
     const { spreadsheetId } = req.user;
 
@@ -1322,6 +1321,379 @@ app.get('/obtener-clientes', requireAuth, async (req, res) => {
         });
     }
 });
+app.post('/agregar-cliente', requireAuth, async (req, res) => {
+    try {
+        const { spreadsheetId } = req.user;
+        const { nombre, telefono, direccion, zona } = req.body;
+        const sheets = google.sheets({ version: 'v4', auth });
+
+        // Obtener clientes actuales para calcular el siguiente ID
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: 'Clientes!A2:E'
+        });
+
+        const rows = response.data.values || [];
+        const nextId = rows.length > 0 ? 
+            parseInt(rows[rows.length - 1][0].split('-')[1]) + 1 : 1;
+
+        const newClient = [
+            `CL-${nextId.toString().padStart(3, '0')}`,
+            nombre,
+            telefono || '',
+            direccion || '',
+            zona || ''
+        ];
+
+        // Agregar el nuevo cliente
+        await sheets.spreadsheets.values.append({
+            spreadsheetId,
+            range: 'Clientes!A2:E',
+            valueInputOption: 'RAW',
+            insertDataOption: 'INSERT_ROWS',
+            resource: { values: [newClient] }
+        });
+
+        res.json({ 
+            success: true, 
+            cliente: {
+                id: newClient[0],
+                nombre,
+                telefono,
+                direccion,
+                zona
+            }
+        });
+    } catch (error) {
+        console.error('Error al agregar cliente:', error);
+        res.status(500).json({ success: false, error: 'Error al agregar cliente' });
+    }
+});
+app.delete('/eliminar-cliente/:id', requireAuth, async (req, res) => {
+    try {
+        const { spreadsheetId } = req.user;
+        const { id } = req.params;
+        const sheets = google.sheets({ version: 'v4', auth });
+
+        // Obtener información de la hoja
+        const spreadsheet = await sheets.spreadsheets.get({
+            spreadsheetId
+        });
+        
+        const clientesSheet = spreadsheet.data.sheets.find(
+            sheet => sheet.properties.title === 'Clientes'
+        );
+
+        if (!clientesSheet) {
+            return res.status(404).json({ 
+                success: false, 
+                error: 'Hoja de Clientes no encontrada' 
+            });
+        }
+
+        // Obtener clientes actuales
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: 'Clientes!A2:E'
+        });
+
+        const rows = response.data.values || [];
+        const rowIndex = rows.findIndex(row => row[0] === id);
+
+        if (rowIndex === -1) {
+            return res.status(404).json({ 
+                success: false, 
+                error: 'Cliente no encontrado' 
+            });
+        }
+
+        // Eliminar la fila
+        await sheets.spreadsheets.batchUpdate({
+            spreadsheetId,
+            resource: {
+                requests: [{
+                    deleteDimension: {
+                        range: {
+                            sheetId: clientesSheet.properties.sheetId,
+                            dimension: 'ROWS',
+                            startIndex: rowIndex + 1, // +1 por el encabezado
+                            endIndex: rowIndex + 2
+                        }
+                    }
+                }]
+            }
+        });
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error al eliminar cliente:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: 'Error al eliminar cliente' 
+        });
+    }
+});
+app.put('/editar-cliente/:id', requireAuth, async (req, res) => {
+    const { spreadsheetId } = req.user;
+    const { id } = req.params;
+    const { nombre, telefono, direccion, zona, motivo } = req.body;
+
+    try {
+        const sheets = google.sheets({ version: 'v4', auth });
+
+        // Obtener todos los clientes
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: 'Clientes!A2:E'
+        });
+
+        const rows = response.data.values || [];
+        const rowIndex = rows.findIndex(row => row[0] === id);
+
+        if (rowIndex === -1) {
+            return res.status(404).json({
+                success: false,
+                error: 'Cliente no encontrado'
+            });
+        }
+
+        // Actualizar la fila con los nuevos datos
+        const updatedRow = [
+            id,         // ID
+            nombre,     // Nombre
+            telefono,   // Teléfono
+            direccion,  // Dirección
+            zona        // Zona
+        ];
+
+        await sheets.spreadsheets.values.update({
+            spreadsheetId,
+            range: `Clientes!A${rowIndex + 2}:E${rowIndex + 2}`,
+            valueInputOption: 'USER_ENTERED',
+            resource: {
+                values: [updatedRow]
+            }
+        });
+
+        console.log(`Cliente ${id} actualizado con motivo: ${motivo}`);
+
+        res.json({
+            success: true,
+            message: 'Cliente actualizado correctamente'
+        });
+
+    } catch (error) {
+        console.error('Error al actualizar cliente:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error al actualizar el cliente'
+        });
+    }
+});
+
+
+app.get('/obtener-proovedores', requireAuth, async (req, res) => {
+    const { spreadsheetId } = req.user;
+
+    try {
+        const sheets = google.sheets({ version: 'v4', auth });
+
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId: spreadsheetId,
+            range: 'Proovedores!A2:E'
+        });
+
+        const rows = response.data.values || [];
+        const proovedores = rows.map(row => ({
+            id: row[0] || '',
+            nombre: row[1] || '',
+            telefono: row[2] || '',
+            direccion: row[3] || '',
+            zona: row[4] || ''
+        }));
+
+        res.json({
+            success: true,
+            proovedores
+        });
+    } catch (error) {
+        console.error('Error al obtener proovedores:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error al obtener proovedores'
+        });
+    }
+});
+app.post('/agregar-proovedor', requireAuth, async (req, res) => {
+    try {
+        const { spreadsheetId } = req.user;
+        const { nombre, telefono, direccion, zona } = req.body;
+        const sheets = google.sheets({ version: 'v4', auth });
+
+        // Obtener clientes actuales para calcular el siguiente ID
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: 'Proovedores!A2:E'
+        });
+
+        const rows = response.data.values || [];
+        const nextId = rows.length > 0 ? 
+            parseInt(rows[rows.length - 1][0].split('-')[1]) + 1 : 1;
+
+        const newProv = [
+            `PRV-${nextId.toString().padStart(3, '0')}`,
+            nombre,
+            telefono || '',
+            direccion || '',
+            zona || ''
+        ];
+
+        // Agregar el nuevo cliente
+        await sheets.spreadsheets.values.append({
+            spreadsheetId,
+            range: 'Proovedores!A2:E',
+            valueInputOption: 'RAW',
+            insertDataOption: 'INSERT_ROWS',
+            resource: { values: [newProv] }
+        });
+
+        res.json({ 
+            success: true, 
+            cliente: {
+                id: newProv[0],
+                nombre,
+                telefono,
+                direccion,
+                zona
+            }
+        });
+    } catch (error) {
+        console.error('Error al agregar proovedor:', error);
+        res.status(500).json({ success: false, error: 'Error al agregar proovedor' });
+    }
+});
+app.delete('/eliminar-proovedor/:id', requireAuth, async (req, res) => {
+    try {
+        const { spreadsheetId } = req.user;
+        const { id } = req.params;
+        const sheets = google.sheets({ version: 'v4', auth });
+
+        // Obtener información de la hoja
+        const spreadsheet = await sheets.spreadsheets.get({
+            spreadsheetId
+        });
+        
+        const clientesSheet = spreadsheet.data.sheets.find(
+            sheet => sheet.properties.title === 'Proovedores'
+        );
+
+        if (!clientesSheet) {
+            return res.status(404).json({ 
+                success: false, 
+                error: 'Hoja de Clientes no encontrada' 
+            });
+        }
+
+        // Obtener clientes actuales
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: 'Proovedores!A2:E'
+        });
+
+        const rows = response.data.values || [];
+        const rowIndex = rows.findIndex(row => row[0] === id);
+
+        if (rowIndex === -1) {
+            return res.status(404).json({ 
+                success: false, 
+                error: 'Proovedor no encontrado' 
+            });
+        }
+
+        // Eliminar la fila
+        await sheets.spreadsheets.batchUpdate({
+            spreadsheetId,
+            resource: {
+                requests: [{
+                    deleteDimension: {
+                        range: {
+                            sheetId: clientesSheet.properties.sheetId,
+                            dimension: 'ROWS',
+                            startIndex: rowIndex + 1, // +1 por el encabezado
+                            endIndex: rowIndex + 2
+                        }
+                    }
+                }]
+            }
+        });
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error al eliminar proovedor:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: 'Error al eliminar proovedor' 
+        });
+    }
+});
+app.put('/editar-proovedor/:id', requireAuth, async (req, res) => {
+    const { spreadsheetId } = req.user;
+    const { id } = req.params;
+    const { nombre, telefono, direccion, zona, motivo } = req.body;
+
+    try {
+        const sheets = google.sheets({ version: 'v4', auth });
+
+        // Obtener todos los clientes
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: 'Proovedores!A2:E'
+        });
+
+        const rows = response.data.values || [];
+        const rowIndex = rows.findIndex(row => row[0] === id);
+
+        if (rowIndex === -1) {
+            return res.status(404).json({
+                success: false,
+                error: 'Proovedor no encontrado'
+            });
+        }
+
+        // Actualizar la fila con los nuevos datos
+        const updatedRow = [
+            id,         // ID
+            nombre,     // Nombre
+            telefono,   // Teléfono
+            direccion,  // Dirección
+            zona        // Zona
+        ];
+
+        await sheets.spreadsheets.values.update({
+            spreadsheetId,
+            range: `Proovedores!A${rowIndex + 2}:E${rowIndex + 2}`,
+            valueInputOption: 'USER_ENTERED',
+            resource: {
+                values: [updatedRow]
+            }
+        });
+
+        console.log(`Proovedor ${id} actualizado con motivo: ${motivo}`);
+
+        res.json({
+            success: true,
+            message: 'Proovedor actualizado correctamente'
+        });
+
+    } catch (error) {
+        console.error('Error al actualizar proovedor:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error al actualizar el proovedor'
+        });
+    }
+});
+
 
 
 

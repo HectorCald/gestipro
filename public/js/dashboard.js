@@ -7,7 +7,9 @@ import { flotante } from './modules/flotante.js';
 import { mostrarFormularioProduccion } from './modules/formulario-produccion.js'
 import { mostrarVerificacion } from './modules/verificar-registros.js'
 import { mostrarAlmacenGeneral } from './modules/almacen-general.js'
-import { mostrarSalidas } from './modules/salidas-almacen-general.js'
+import { mostrarSalidas } from './modules/salidas-almacen-general.js';
+import { mostrarClientes } from './modules/clientes.js';
+import { mostrarProovedores } from './modules/proovedores.js';
 
 
 window.crearHome = crearHome
@@ -39,6 +41,10 @@ window.mostrarAlmacenGeneral = mostrarAlmacenGeneral
 
 window.mostrarSalidas = mostrarSalidas
 
+window.mostrarClientes = mostrarClientes
+
+window.mostrarProovedores = mostrarProovedores
+
 
 document.addEventListener('DOMContentLoaded', async () => {
     flotante();
@@ -47,8 +53,3 @@ document.addEventListener('DOMContentLoaded', async () => {
     await crearPerfil();
     await crearNotificaciones();
 });
-
-
-
-
-

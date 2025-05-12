@@ -236,10 +236,11 @@ function eventosSalidas() {
     const inputBusqueda = document.querySelector('.buscar-producto');
     const iconoBusqueda = document.querySelector('.almacen-general .buscador i');
     const botonFlotante = document.createElement('button');
+
+    
     botonFlotante.className = 'btn-flotante-salidas';
     botonFlotante.innerHTML = '<i class="bx bx-cart"></i>';
     document.body.appendChild(botonFlotante);
-
     selectPrecios.addEventListener('change', () => {
         const ciudadSeleccionada = selectPrecios.options[selectPrecios.selectedIndex].text;
 
@@ -267,17 +268,13 @@ function eventosSalidas() {
 
         actualizarCarritoUI();
     });
-
-    // Actualizar el botón flotante al inicio
     actualizarBotonFlotante();
-
     botonFlotante.addEventListener('click', mostrarCarritoSalidas);
-
-    // Agregar eventos a los items
     const items = document.querySelectorAll('.registro-item');
     items.forEach(item => {
         item.addEventListener('click', () => agregarAlCarrito(item.dataset.id));
     });
+
 
     inputBusqueda.addEventListener('input', (e) => {
         const busqueda = normalizarTexto(e.target.value);
@@ -378,12 +375,6 @@ function eventosSalidas() {
             });
         });
     });
-
-
-
-
-
-
     let filtroNombreActual = 'Todos';
     function aplicarFiltros() {
         const registros = document.querySelectorAll('.registro-item');
@@ -704,8 +695,6 @@ function eventosSalidas() {
             actualizarCarritoUI();
         }
     };
-
-
     window.actualizarCantidad = (id, valor) => {
         const item = carritoSalidas.get(id);
         if (!item) return;
@@ -722,7 +711,6 @@ function eventosSalidas() {
             actualizarCarritoUI();
         }
     };
-
     function actualizarCarritoUI() {
         if (carritoSalidas.size === 0) {
             ocultarAnuncioSecond();
