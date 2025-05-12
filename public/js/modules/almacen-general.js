@@ -1,4 +1,3 @@
-
 let productos = [];
 let productosAcopio = [];
 let etiquetas = [];
@@ -630,6 +629,7 @@ function eventosAlmacenGeneral() {
             <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno verificar-registro">
+        
             <p class="normal"><i class='bx bx-chevron-right'></i> Información básica</p>
             <div class="campo-vertical">
                 <span class="nombre"><strong><i class='bx bx-id-card'></i> Id: </strong>${producto.id}</span>
@@ -898,8 +898,8 @@ function eventosAlmacenGeneral() {
                     <p class="detalle">Selecciona nueva etiqueta</p>
                     <select class="select-etiqueta" required>
                     ${etiquetasDisponibles.map(etiqueta =>
-            `<option value="${etiqueta}">${etiqueta}</option>`
-        ).join('')}
+                        `<option value="${etiqueta}">${etiqueta}</option>`
+                    ).join('')}
                     </select>
                     <button type="button" class="btn-agregar-etiqueta"><i class='bx bx-plus'></i></button>
                 </div>

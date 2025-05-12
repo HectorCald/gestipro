@@ -1289,6 +1289,41 @@ app.delete('/eliminar-precio/:id', requireAuth, async (req, res) => {
 });
 
 
+// Replace the current obtener-clientes endpoint with this corrected version
+app.get('/obtener-clientes', requireAuth, async (req, res) => {
+    const { spreadsheetId } = req.user;
+
+    try {
+        const sheets = google.sheets({ version: 'v4', auth });
+
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId: spreadsheetId,
+            range: 'Clientes!A2:E'
+        });
+
+        const rows = response.data.values || [];
+        const clientes = rows.map(row => ({
+            id: row[0] || '',
+            nombre: row[1] || '',
+            telefono: row[2] || '',
+            direccion: row[3] || '',
+            zona: row[4] || ''
+        }));
+
+        res.json({
+            success: true,
+            clientes
+        });
+    } catch (error) {
+        console.error('Error al obtener clientes:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error al obtener clientes'
+        });
+    }
+});
+
+
 
 
 app.get('/obtener-productos-acopio', requireAuth, async (req, res) => {

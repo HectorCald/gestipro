@@ -7,6 +7,7 @@ import { flotante } from './modules/flotante.js';
 import { mostrarFormularioProduccion } from './modules/formulario-produccion.js'
 import { mostrarVerificacion } from './modules/verificar-registros.js'
 import { mostrarAlmacenGeneral } from './modules/almacen-general.js'
+import { mostrarSalidas } from './modules/salidas-almacen-general.js'
 
 
 window.crearHome = crearHome
@@ -35,6 +36,8 @@ window.mostrarVerificacion = mostrarVerificacion
 window.crearNotificaciones = crearNotificaciones
 
 window.mostrarAlmacenGeneral = mostrarAlmacenGeneral
+
+window.mostrarSalidas = mostrarSalidas
 
 
 document.addEventListener('DOMContentLoaded', async () => {

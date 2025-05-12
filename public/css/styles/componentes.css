@@ -457,7 +457,9 @@
 .relleno {
     background: none;
     border-radius: 0;
-    padding: 20px 20px;
+    padding-inline: 15px;
+    padding-top: 15px;
+    padding-bottom: 0;
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -501,11 +503,10 @@
 .campo-horizontal {
     display: flex;
     flex-direction: row;
-    padding: 10px;
     font-size: var(--text-detalle);
     margin: 0;
     justify-content: space-between;
-    padding-left: 20px;
+    gap: 5px;
 
     .item {
         margin: 2px 0;
@@ -1100,3 +1101,161 @@
     }
 
 }
+
+.btn-flotante-salidas {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #2196F3;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    z-index: 3;
+
+    i {
+        font-size: var(--text-5xl) !important;
+    }
+}
+
+.btn-flotante-salidas .cantidad {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: red;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+}
+
+.relleno .carrito-items {
+    height: 100%;
+    overflow-y: auto;
+    display: flex;
+    gap: 10px;
+    flex-direction: column;
+    
+
+    .carrito-item {
+        background-color: var(--primary-color);
+        border-radius: 10px;
+        padding: 10px 15px;
+        transition: transform 0.2s ease;
+        display: flex;
+        flex-direction: column;
+        
+
+        .item-info{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+
+            h3{
+                color: white;
+                font-size: var(--text-subtitulo);
+            }
+            .cantidad-control {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+        
+                input {
+                    width: 60px;
+                    text-align: center;
+                    background: none;
+                    border-radius: 10px;
+                    padding: 10px;
+                    border: 1px solid gray;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    text-align: center;
+                    transition: all 0.5s ease;
+                    color: white;
+        
+                    &:focus{
+                        border: 1px solid var(--tercer-color);
+                    }	
+                }
+                button{
+                    width: 40px;
+                    min-height: 40px;
+                    border: none;
+                    border-radius:50%;
+                    height: 100%;
+                    color: white;
+                    font-size: var(--text-3xl) !important;
+                    font-size: 900;
+                    font-family: 'Impact', sans-serif !important;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    text-align: center;
+                    background: none;
+                }
+            }
+
+        }
+        .subtotal-delete{
+            margin-top: 10px;
+            display: flex;
+            width: 100%;
+            justify-content: space-between;
+            align-items: center;
+
+            .info-valores{
+                display: flex;
+                gap: 10px;
+
+                p{
+                    font-size: var(--text-detalle);
+                    font-weight: 500;
+                    padding: 5px 10px;
+                    border-radius: 10px;
+                    text-align: center;
+                }
+
+                p.subtotal{
+                    color: var(--success);
+                    background-color: #4caf4f2f;
+                }
+                p.stock-disponible{
+                    color: orange;
+                    background-color: #ff98002f;
+                }
+
+            }
+
+            button{
+                background-color: #a72f2f4d;
+                border: none;
+                padding: 5px 10px;
+                border-radius: 10px;
+                width: 50px;
+
+                i{
+                    color: var(--error) !important;
+                }
+            }
+        }
+    }
+}
+.carrito-total {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+

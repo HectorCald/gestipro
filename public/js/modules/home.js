@@ -170,7 +170,7 @@ function obtenerFunciones() {
                 icono: 'fa-arrow-up',
                 texto: 'Salidas',
                 detalle: 'Salidas de tu almacen.',
-                onclick: 'onclick="cargarRegistrosAlmacenGral()"'
+                onclick: 'onclick="mostrarSalidas()"'
             }
         ],
         'Administración': [
