@@ -146,7 +146,12 @@ export async function mostrarAlmacenGeneral() {
     const contenido = document.querySelector('.anuncio .contenido');
     // Usar etiquetas en lugar de nombres para los filtros
     const etiquetasUnicas = [...new Set(etiquetas.map(etiqueta => etiqueta.etiqueta))];
-    const registrationHTML = `
+    const preciosOpciones = precios.map((precio, index) => {
+        const primerPrecio = precio.precio.split(';')[0].split(',')[0]; // Obtener la primera ciudad
+        return `<option value="${precio.id}" ${index === 1 ? 'selected' : ''}>${primerPrecio}</option>`;
+    }).join('');
+
+    const registrationHTML = `  
         <div class="encabezado">
             <h1 class="titulo">Almacén General</h1>
             <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
@@ -164,12 +169,27 @@ export async function mostrarAlmacenGeneral() {
                     <button class="btn-filtro">${etiqueta}</button>
                 `).join('')}
             </div>
+            <div class="filtros-opciones cantidad-filter" style="overflow:hidden">
+                <button class="btn-filtro"><i class='bx bx-sort-down'></i></button>
+                <button class="btn-filtro"><i class='bx bx-sort-up'></i></button>
+                <button class="btn-filtro"><i class='bx bx-sort-a-z'></i></button>
+                <button class="btn-filtro"><i class='bx bx-sort-z-a'></i></button>
+                <select class="precios-select" style="width:100%">
+                    ${preciosOpciones}
+                </select>
+            </div>
+
             <p class="normal"><i class='bx bx-chevron-right'></i>Productos</p>
                 ${productos.map(producto => `
                 <div class="registro-item" data-id="${producto.id}">
                     <div class="header">
-                        <span class="nombre">${producto.id}<span class="valor stock">${producto.stock} Und.</span></span>
-                        <span class="valor" color var><strong>${producto.producto} - ${producto.gramos}gr.</strong></span>
+                        <div class="nombre">${producto.id}
+                            <div class="precio-cantidad">
+                                <span class="valor stock">${producto.stock} Und.</span>
+                                <span class="valor precio">Bs/.${producto.precios.split(';')[0].split(',')[1]}</span>
+                            </div>
+                        </div>
+                        <span class="valor producto-header" color var><strong>${producto.producto} - ${producto.gramos}gr.</strong></span>
                         <span class="fecha">${producto.etiquetas.split(';').join(' • ')}</span>
                     </div>
                     <div class="registro-acciones">
@@ -189,12 +209,19 @@ export async function mostrarAlmacenGeneral() {
     `;
     contenido.innerHTML = registrationHTML;
     mostrarAnuncio();
-    const { aplicarFiltros } = eventosAlmacenGeneral();
 
+    const selectPrecios = document.querySelector('.precios-select');
+    if (selectPrecios) {
+        selectPrecios.dispatchEvent(new Event('change'));
+    }
+
+    const { aplicarFiltros } = eventosAlmacenGeneral();
     aplicarFiltros('Todos', 'Todos');
 }
 function eventosAlmacenGeneral() {
     const botonesEtiquetas = document.querySelectorAll('.filtros-opciones.etiquetas-filter .btn-filtro');
+    const botonesCantidad = document.querySelectorAll('.filtros-opciones.cantidad-filter .btn-filtro');
+    const selectPrecios = document.querySelector('.precios-select');
 
     const botonesEliminar = document.querySelectorAll('.btn-eliminar');
     const botonesEditar = document.querySelectorAll('.btn-editar');
@@ -320,6 +347,76 @@ function eventosAlmacenGeneral() {
     btnPrecios.addEventListener('click', gestionarPrecios);
 
 
+    botonesCantidad.forEach((boton, index) => {
+        boton.addEventListener('click', () => {
+            // Remover clase 'activado' de todos los botones de cantidad
+            botonesCantidad.forEach(b => b.classList.remove('activado'));
+            // Agregar clase 'activado' al botón clickeado
+            boton.classList.add('activado');
+
+            const registros = Array.from(document.querySelectorAll('.registro-item'));
+            
+            switch(index) {
+                case 0: // Mayor a menor cantidad
+                    registros.sort((a, b) => {
+                        const stockA = parseInt(a.querySelector('.stock').textContent);
+                        const stockB = parseInt(b.querySelector('.stock').textContent);
+                        return stockB - stockA;
+                    });
+                    break;
+                case 1: // Menor a mayor cantidad
+                    registros.sort((a, b) => {
+                        const stockA = parseInt(a.querySelector('.stock').textContent);
+                        const stockB = parseInt(b.querySelector('.stock').textContent);
+                        return stockA - stockB;
+                    });
+                    break;
+                case 2: // A-Z
+                    registros.sort((a, b) => {
+                        const nombreA = a.querySelector('.producto-header').textContent.toLowerCase();
+                        const nombreB = b.querySelector('.producto-header').textContent.toLowerCase();
+                        return nombreA.localeCompare(nombreB);
+                    });
+                    break;
+                case 3: // Z-A
+                    registros.sort((a, b) => {
+                        const nombreA = a.querySelector('.producto-header').textContent.toLowerCase();
+                        const nombreB = b.querySelector('.producto-header').textContent.toLowerCase();
+                        return nombreB.localeCompare(nombreA);
+                    });
+                    break;
+            }
+
+            // Reordenar los elementos en el DOM
+            const contenedor = document.querySelector('.relleno.almacen-general');
+            registros.forEach(registro => {
+                contenedor.appendChild(registro);
+            });
+        });
+    });
+    selectPrecios.addEventListener('change', () => {
+        const ciudadSeleccionada = selectPrecios.options[selectPrecios.selectedIndex].text;
+        const registros = document.querySelectorAll('.registro-item');
+
+        registros.forEach(registro => {
+            const registroId = registro.dataset.id;
+            const producto = productos.find(p => p.id === registroId);
+            const preciosProducto = producto.precios.split(';');
+            
+            const precioSeleccionado = preciosProducto
+                .find(precio => precio.split(',')[0] === ciudadSeleccionada);
+
+            const valorPrecio = precioSeleccionado ? 
+                precioSeleccionado.split(',')[1] : 
+                '0';
+
+            const spanPrecio = registro.querySelector('.precio-cantidad .precio');
+            spanPrecio.textContent = `Bs/.${valorPrecio}`;
+        });
+    });
+
+    
+
 
     let filtroNombreActual = 'Todos';
 
@@ -365,6 +462,7 @@ function eventosAlmacenGeneral() {
             scrollToCenter(boton, boton.parentElement);
         });
     });
+
     function filtroAvanzado() {
         const contenido = document.querySelector('.anuncio-second .contenido');
         const registrationHTML = `
@@ -922,7 +1020,7 @@ function eventosAlmacenGeneral() {
                         'Edición',
                         `Motivo: ${motivo} - Producto: ${producto} (${registroId})`
                     );
-                    await obtenerAlmacenGeneral();
+                    await mostrarAlmacenGeneral();
                     mostrarNotificacion({
                         message: 'Producto actualizado correctamente',
                         type: 'success',
@@ -1296,7 +1394,7 @@ function eventosAlmacenGeneral() {
     function gestionarPrecios() {
         const preciosActuales = precios.map(precio => `
         <div class="precio-item" data-id="${precio.id}">
-            <i class='bx bx-tag'></i>
+            <i class='bx bx-dollar'></i>
             <span>${precio.precio}</span>
             <button class="btn-eliminar-precio"><i class='bx bx-x'></i></button>
         </div>
@@ -1318,7 +1416,7 @@ function eventosAlmacenGeneral() {
 
             <p class="normal"><i class='bx bx-chevron-right'></i>Agregar nuevo precio</p>
             <div class="entrada">
-                <i class='bx bx-tag'></i>
+                <i class='bx bx-dollar'></i>
                 <div class="input">
                     <p class="detalle">Nuevo precio</p>
                     <input class="nuevo-precio" type="text" autocomplete="off" placeholder=" " required>

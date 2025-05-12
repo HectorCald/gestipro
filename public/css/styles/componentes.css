@@ -898,6 +898,30 @@
             color: var(--cero-color);
             font-size: var(--text-detalle);
         }
+        .producto-header{
+            font-size: var(--text-subtitulo);
+        }
+        .precio-cantidad{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+
+            .stock{
+                color: rgb(0, 145, 255);
+                background-color: rgba(55, 114, 151, 0.1);
+                padding: 5px 10px;
+                border-radius: 10px;
+                font-weight: 600;
+            }
+            .precio{
+                color: orange;
+                background-color: rgba(151, 118, 55, 0.1);
+                padding: 5px 10px;
+                border-radius: 10px;
+                font-weight: 600;
+            }
+        }
     }
 
     .info {
@@ -950,13 +974,7 @@
         border-radius: 10px;
         font-weight: 600;
     }
-    .valor.stock{
-        color: orange;
-        background-color: rgba(151, 118, 55, 0.1);
-        padding: 5px 10px;
-        border-radius: 10px;
-        font-weight: 600;
-    }
+    
 
     .registro-acciones {
         position: absolute;
@@ -1017,11 +1035,35 @@
         text-wrap: nowrap;
         color: var(--text);
         transition: all 0.5s ease ;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        i{
+            color: white !important;
+            font-size: var(--text-2xl);
+        }
     }
 
     .btn-filtro.activado {
         background-color: var(--cuarto-color);
         color: white;
+
+        i{
+            color: white !important;
+        }
+    }
+    select{
+        width: fit-content;
+        height: 40px;
+        padding: 5px 15px;
+        border: none;
+        border-radius: 10px;
+        font-size: var(--text-detalle);
+        background-color: var(--fondo2);
+        text-wrap: nowrap;
+        color: var(--text);
+        transition: all 0.5s ease ;
     }
 }
 
