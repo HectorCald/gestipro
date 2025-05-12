@@ -931,6 +931,23 @@
                 border-radius: 10px;
                 font-weight: 600;
             }
+
+            .carrito-cantidad {
+                display: inline-block;
+                background-color: var(--success);
+                color: white;
+                border-radius: 50%;
+                min-width: 20px;
+                height: 20px;
+                text-align: center;
+                line-height: 20px;
+                font-size: 12px;
+                margin-left: 5px;
+            }
+
+            .carrito-cantidad:empty {
+                display: none;
+            }
         }
     }
 
@@ -1254,7 +1271,6 @@
                     color: orange;
                     background-color: #ff98002f;
                 }
-
             }
 
             button {
@@ -1286,7 +1302,7 @@
 
     50% {
         transform: scale(1.05);
-        background-color: var(--success-light);
+        background-color: var(--success);
     }
 
     100% {
@@ -1305,6 +1321,7 @@
         opacity: 1;
         max-height: 200px;
     }
+
     100% {
         transform: scale(0.8);
         opacity: 0;

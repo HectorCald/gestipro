@@ -192,6 +192,7 @@ export async function mostrarSalidas() {
                             <div class="precio-cantidad">
                                 <span class="valor stock">${producto.stock} Und.</span>
                                 <span class="valor precio">Bs/.${producto.precios.split(';')[0].split(',')[1]}</span>
+                                <span class="carrito-cantidad"></span>
                             </div>
                         </div>
                         <span class="valor producto-header" color var><strong>${producto.producto} - ${producto.gramos}gr.</strong></span>
@@ -208,10 +209,18 @@ export async function mostrarSalidas() {
     contenido.innerHTML = registrationHTML;
     mostrarAnuncio();
 
+    carritoSalidas.forEach((item, id) => {
+        const headerCounter = document.querySelector(`.registro-item[data-id="${id}"] .carrito-cantidad`);
+        if (headerCounter) {
+            headerCounter.textContent = item.cantidad;
+        }
+    });
+
     const selectPrecios = document.querySelector('.precios-select');
     if (selectPrecios) {
         selectPrecios.dispatchEvent(new Event('change'));
     }
+    
 
     const { aplicarFiltros } = eventosSalidas();
     aplicarFiltros('Todos', 'Todos');
@@ -384,19 +393,9 @@ function eventosSalidas() {
         });
     });
 
-
     function agregarAlCarrito(productoId) {
         const producto = productos.find(p => p.id === productoId);
         if (!producto) return;
-
-        if (carritoSalidas.has(productoId)) {
-            mostrarNotificacion({
-                message: 'Producto ya agregado al carrito',
-                type: 'warning',
-                duration: 2000
-            });
-            return;
-        }
 
         // Vibrar el dispositivo si es compatible
         if (navigator.vibrate) {
@@ -412,19 +411,32 @@ function eventosSalidas() {
             }, 500);
         }
 
-        carritoSalidas.set(productoId, {
-            ...producto,
-            cantidad: 1,
-            subtotal: parseFloat(producto.precios.split(';')[0].split(',')[1])
-        });
+        if (carritoSalidas.has(productoId)) {
+            const itemCarrito = carritoSalidas.get(productoId);
+            if (itemCarrito.cantidad < producto.stock) {
+                itemCarrito.cantidad += 1;
+                // Actualizar el contador en el item
+                const cantidadSpan = item.querySelector('.carrito-cantidad');
+                if (cantidadSpan) {
+                    cantidadSpan.textContent = itemCarrito.cantidad;
+                }
+            }
+        } else {
+            carritoSalidas.set(productoId, {
+                ...producto,
+                cantidad: 1,
+                subtotal: parseFloat(producto.precios.split(';')[0].split(',')[1])
+            });
+            // Inicializar el contador en el item
+            const cantidadSpan = item.querySelector('.carrito-cantidad');
+            if (cantidadSpan) {
+                cantidadSpan.textContent = '1';
+            }
+        }
 
         actualizarCarritoLocal();
         actualizarBotonFlotante();
-        mostrarNotificacion({
-            message: 'Producto agregado al carrito',
-            type: 'info',
-            duration: 2000
-        });
+        actualizarCarritoUI();
     }
     function actualizarBotonFlotante() {
         const botonFlotante = document.querySelector('.btn-flotante-salidas');
@@ -577,8 +589,14 @@ function eventosSalidas() {
     };
     window.eliminarDelCarrito = (id) => {
         const itemToRemove = document.querySelector(`.carrito-item[data-id="${id}"]`);
+        // Update quantity counter in header
+        const headerCounter = document.querySelector(`.registro-item[data-id="${id}"] .carrito-cantidad`);
+        if (headerCounter) {
+            headerCounter.textContent = '';
+        }
+
         if (itemToRemove) {
-            itemToRemove.style.height = `${itemToRemove.offsetHeight}px`; // Fijar altura inicial
+            itemToRemove.style.height = `${itemToRemove.offsetHeight}px`;
             itemToRemove.classList.add('eliminar-item');
 
             setTimeout(() => {
@@ -592,12 +610,22 @@ function eventosSalidas() {
                     actualizarBotonFlotante();
                     itemToRemove.remove();
 
+                    // Vibrate device if supported
+                    if (navigator.vibrate) {
+                        navigator.vibrate(50);
+                    }
+
                     if (carritoSalidas.size === 0) {
                         ocultarAnuncioSecond();
+                        mostrarNotificacion({
+                            message: 'Carrito vacío',
+                            type: 'info',
+                            duration: 2000
+                        });
                         return;
                     }
 
-                    // Actualizar totales
+                    // Update totals
                     const subtotal = Array.from(carritoSalidas.values())
                         .reduce((sum, item) => sum + (item.cantidad * item.subtotal), 0);
                     const totalElement = document.querySelector('.total-final');
