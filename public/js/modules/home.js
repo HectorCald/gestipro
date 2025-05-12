@@ -162,7 +162,7 @@ function obtenerFunciones() {
                 icono: 'fa-arrow-down',
                 texto: 'Ingresos',
                 detalle: 'Ingresos de tu almacen.',
-                onclick: 'onclick="inicializarAlmacenGral()"'
+                onclick: 'onclick="mostrarIngresos()"'
             },
             {
                 clase: 'opcion-btn',

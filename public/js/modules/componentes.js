@@ -92,6 +92,12 @@ export async function mostrarAnuncioSecond() {
 export async function ocultarAnuncio() {
     const anuncio = document.querySelector('.anuncio');
     const contenido = document.querySelector('.anuncio .contenido');
+    const btni = document.querySelector('.btn-flotante-salidas');
+    const btns = document.querySelector('.btn-flotante-ingresos');
+
+    // Asegúrate de ocultar los botones flotantes
+    if (btni) btni.style.display = 'none';
+    if (btns) btns.style.display = 'none';
 
     if (!anuncio || anuncio.style.display === 'none') return;
     

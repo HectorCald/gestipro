@@ -1135,7 +1135,7 @@
 
 }
 
-.btn-flotante-salidas {
+.btn-flotante-salidas{
     position: fixed;
     bottom: 20px;
     right: 20px;
@@ -1145,7 +1145,28 @@
     border-radius: 50%;
     width: 60px;
     height: 60px;
-    display: flex;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    z-index: 3;
+
+    i {
+        font-size: var(--text-5xl) !important;
+    }
+}
+.btn-flotante-ingresos {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #2196F3;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    display: none;
     align-items: center;
     justify-content: center;
     cursor: pointer;
@@ -1157,7 +1178,7 @@
     }
 }
 
-.btn-flotante-salidas .cantidad {
+.btn-flotante-salidas .cantidad, .btn-flotante-ingresos .cantidad {
     position: absolute;
     top: -5px;
     right: -5px;
@@ -1170,7 +1191,7 @@
     align-items: center;
     justify-content: center;
     font-size: 12px;
-    z-index: 3;
+    z-index: 4;
 }
 
 .relleno .carrito-items {

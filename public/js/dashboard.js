@@ -8,8 +8,10 @@ import { mostrarFormularioProduccion } from './modules/formulario-produccion.js'
 import { mostrarVerificacion } from './modules/verificar-registros.js'
 import { mostrarAlmacenGeneral } from './modules/almacen-general.js'
 import { mostrarSalidas } from './modules/salidas-almacen-general.js';
+import { mostrarIngresos } from './modules/ingresos-almacen-general.js';
 import { mostrarClientes } from './modules/clientes.js';
 import { mostrarProovedores } from './modules/proovedores.js';
+
 
 
 window.crearHome = crearHome
@@ -40,6 +42,7 @@ window.crearNotificaciones = crearNotificaciones
 window.mostrarAlmacenGeneral = mostrarAlmacenGeneral
 
 window.mostrarSalidas = mostrarSalidas
+window.mostrarIngresos = mostrarIngresos
 
 window.mostrarClientes = mostrarClientes
 

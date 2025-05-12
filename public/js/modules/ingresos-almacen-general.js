@@ -2,8 +2,9 @@ let productos = [];
 let etiquetas = [];
 let precios = [];
 let clientes = [];
+let proovedores = [];
 let usuarioInfo = recuperarUsuarioLocal();
-let carritoSalidas = new Map(JSON.parse(localStorage.getItem('damabrava_carrito') || '[]'));
+let carritoSalidas = new Map(JSON.parse(localStorage.getItem('damabrava_carrito_ingresos') || '[]'));
 
 function recuperarUsuarioLocal() {
     const usuarioGuardado = localStorage.getItem('damabrava_usuario');
@@ -104,6 +105,40 @@ async function obtenerClientes() {
         return false;
     }
 }
+async function obtenerProovedores() {
+    try {
+        mostrarCarga();
+        const response = await fetch('/obtener-proovedores');
+        const data = await response.json();
+
+        if (data.success) {
+            proovedores = data.proovedores.sort((a, b) => {
+                const nombreA = a.nombre.toLowerCase();
+                const nombreB = b.nombre.toLowerCase();
+                return nombreA.localeCompare(nombreB);
+            });
+            return true;
+        } else {
+            mostrarNotificacion({
+                message: 'Error al obtener proovedores',
+                type: 'error',
+                duration: 3500
+            });
+            return false;
+        }
+    } catch (error) {
+        console.error('Error al obtener proovedores:', error);
+        mostrarNotificacion({
+            message: 'Error al obtener proovedores',
+            type: 'error',
+            duration: 3500
+        });
+        return false;
+    } finally {
+        ocultarCarga();
+    }
+}
+
 
 
 async function obtenerAlmacenGeneral() {
@@ -146,7 +181,7 @@ async function obtenerAlmacenGeneral() {
 
 
 
-export async function mostrarSalidas() {
+export async function mostrarIngresos() {
     await obtenerAlmacenGeneral();
     
     const contenido = document.querySelector('.anuncio .contenido');
@@ -160,7 +195,7 @@ export async function mostrarSalidas() {
 
     const registrationHTML = `  
         <div class="encabezado">
-            <h1 class="titulo">Salidas de almacen</h1>
+            <h1 class="titulo">Ingresos de almacen</h1>
             <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
             <button class="btn filtros"><i class='bx bx-filter'></i></button>
         </div>
@@ -225,12 +260,12 @@ export async function mostrarSalidas() {
     }
 
 
-    const { aplicarFiltros } = eventosSalidas();
+    const { aplicarFiltros } = eventosIngresos();
     aplicarFiltros('Todos', 'Todos');
 
     contenido.style.paddingBottom = '10px';
 }
-function eventosSalidas() {
+function eventosIngresos() {
     const botonesEtiquetas = document.querySelectorAll('.filtros-opciones.etiquetas-filter .btn-filtro');
     const botonesCantidad = document.querySelectorAll('.filtros-opciones.cantidad-filter .btn-filtro');
     const selectPrecios = document.querySelector('.precios-select');
@@ -239,8 +274,8 @@ function eventosSalidas() {
     const botonFlotante = document.createElement('button');
 
     
-    botonFlotante.className = 'btn-flotante-salidas';
-    botonFlotante.innerHTML = '<i class="fas fa-arrow-up"></i>';
+    botonFlotante.className = 'btn-flotante-ingresos';
+    botonFlotante.innerHTML = '<i class="fas fa-arrow-down"></i>';
     document.body.appendChild(botonFlotante);
     selectPrecios.addEventListener('change', () => {
         const ciudadSeleccionada = selectPrecios.options[selectPrecios.selectedIndex].text;
@@ -270,7 +305,7 @@ function eventosSalidas() {
         actualizarCarritoUI();
     });
     actualizarBotonFlotante();
-    botonFlotante.addEventListener('click', mostrarCarritoSalidas);
+    botonFlotante.addEventListener('click', mostrarCarritoIngresos);
     const items = document.querySelectorAll('.registro-item');
     items.forEach(item => {
         item.addEventListener('click', () => agregarAlCarrito(item.dataset.id));
@@ -468,8 +503,7 @@ function eventosSalidas() {
                 if (stockSpan) stockSpan.textContent = `${producto.stock - 1} Und.`;
             }
         }
-
-        actualizarCarritoLocal();
+        actualizarCarritoLocalIngresos();
         actualizarBotonFlotante();
         actualizarCarritoUI();
     }
@@ -497,7 +531,7 @@ function eventosSalidas() {
 
                 setTimeout(() => {
                     carritoSalidas.delete(id);
-                    actualizarCarritoLocal();
+                    actualizarCarritoLocalIngresos();
                     actualizarBotonFlotante();
                     itemToRemove.remove();
 
@@ -539,16 +573,16 @@ function eventosSalidas() {
         }
     };
     function actualizarBotonFlotante() {
-        const botonFlotante = document.querySelector('.btn-flotante-salidas');
+        const botonFlotante = document.querySelector('.btn-flotante-ingresos');
         if (!botonFlotante) return;
 
         botonFlotante.style.display = carritoSalidas.size > 0 ? 'flex' : 'none';
         botonFlotante.innerHTML = `
-            <i class="fas fa-arrow-up"></i>
+            <i class="fas fa-arrow-down"></i>
             <span class="cantidad">${carritoSalidas.size}</span>
         `;
     }
-    function mostrarCarritoSalidas() {
+    function mostrarCarritoIngresos() {
         const anuncioSecond = document.querySelector('.anuncio-second .contenido');
         if (!anuncioSecond) return;
 
@@ -558,7 +592,7 @@ function eventosSalidas() {
 
         anuncioSecond.innerHTML = `
             <div class="encabezado">
-                <h1 class="titulo">Carrito de Salidas</h1>
+                <h1 class="titulo">Carrito de Ingresos</h1>
                 <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
                 <button class="btn filtros limpiar"><i class="fas fa-broom"></i></button>
             </div>
@@ -631,7 +665,7 @@ function eventosSalidas() {
                 </div>
             </div>
             <div class="anuncio-botones">
-                <button class="btn-procesar-salida btn orange"><i class='bx bx-export'></i> Procesar Salida</button>
+                <button class="btn-procesar-salida btn orange"><i class='bx bx-import'></i> Procesar Ingresos</button>
             </div>
         `;
 
@@ -654,7 +688,6 @@ function eventosSalidas() {
 
         const botonLimpiar = anuncioSecond.querySelector('.btn.filtros.limpiar');
         botonLimpiar.addEventListener('click', () => {
-            
             carritoSalidas.forEach((item, id) => {
                 const headerItem = document.querySelector(`.registro-item[data-id="${id}"]`);
                 if (headerItem) {
@@ -666,7 +699,8 @@ function eventosSalidas() {
             });
 
             carritoSalidas.clear();
-            actualizarCarritoLocal();
+            document.querySelector('.btn-flotante-ingresos').style.display='none';
+            actualizarCarritoLocalIngresos();
             actualizarBotonFlotante();
             ocultarAnuncioSecond();
             mostrarNotificacion({
@@ -674,8 +708,8 @@ function eventosSalidas() {
                 type: 'success',
                 duration: 2000
             });
-            document.querySelector('.btn-flotante-saldias').style.display='none';
         });
+
     }
     window.ajustarCantidad = (id, delta) => {
         const item = carritoSalidas.get(id);
@@ -692,7 +726,7 @@ function eventosSalidas() {
                 if (cantidadSpan) cantidadSpan.textContent = nuevaCantidad;
                 if (stockSpan) stockSpan.textContent = `${item.stock - nuevaCantidad} Und.`;
             }
-            actualizarCarritoLocal();
+            actualizarCarritoLocalIngresos();
             actualizarCarritoUI();
         }
     };
@@ -708,14 +742,14 @@ function eventosSalidas() {
             if (headerCounter) {
                 headerCounter.textContent = cantidad;
             }
-            actualizarCarritoLocal();
+            actualizarCarritoLocalIngresos();
             actualizarCarritoUI();
         }
     };
     function actualizarCarritoUI() {
         if (carritoSalidas.size === 0) {
             ocultarAnuncioSecond();
-            document.querySelector('.btn-flotante-salidas').style.display='none';
+            document.querySelector('.btn-flotante-ingresos').style.display='none';
             return;
         }
 
@@ -753,8 +787,8 @@ function eventosSalidas() {
             totalElement.innerHTML = `<strong>Total Final: </strong>Bs/.${totalCalculado.toFixed(2)}`;
         }
     }
-    function actualizarCarritoLocal() {
-        localStorage.setItem('damabrava_carrito', JSON.stringify(Array.from(carritoSalidas.entries())));
+    function actualizarCarritoLocalIngresos() {
+        localStorage.setItem('damabrava_carrito_ingresos', JSON.stringify(Array.from(carritoSalidas.entries())));
     }
 
 
