@@ -154,6 +154,7 @@ export async function mostrarSalidas() {
         const primerPrecio = precio.precio.split(';')[0].split(',')[0];
         return `<option value="${precio.id}" ${index === 1 ? 'selected' : ''}>${primerPrecio}</option>`;
     }).join('');
+    const precioInicial = precios[1]?.precio.split(';')[0].split(',')[0];
 
 
     const registrationHTML = `  
@@ -237,6 +238,34 @@ function eventosSalidas() {
     botonFlotante.className = 'btn-flotante-salidas';
     botonFlotante.innerHTML = '<i class="bx bx-cart"></i>';
     document.body.appendChild(botonFlotante);
+
+    selectPrecios.addEventListener('change', () => {
+        const ciudadSeleccionada = selectPrecios.options[selectPrecios.selectedIndex].text;
+
+        // Actualizar precios en el carrito y en los items mostrados
+        carritoSalidas.forEach((item, id) => {
+            const preciosProducto = item.precios.split(';');
+            const precioSeleccionado = preciosProducto.find(p => p.split(',')[0] === ciudadSeleccionada);
+            item.subtotal = precioSeleccionado ? parseFloat(precioSeleccionado.split(',')[1]) : 0;
+        });
+
+        // Actualizar precios mostrados en los items
+        document.querySelectorAll('.registro-item').forEach(registro => {
+            const id = registro.dataset.id;
+            const producto = productos.find(p => p.id === id);
+            if (producto) {
+                const preciosProducto = producto.precios.split(';');
+                const precioSeleccionado = preciosProducto.find(p => p.split(',')[0] === ciudadSeleccionada);
+                const precio = precioSeleccionado ? parseFloat(precioSeleccionado.split(',')[1]) : 0;
+                const precioSpan = registro.querySelector('.precio');
+                if (precioSpan) {
+                    precioSpan.textContent = `Bs/.${precio.toFixed(2)}`;
+                }
+            }
+        });
+
+        actualizarCarritoUI();
+    });
 
     // Actualizar el botón flotante al inicio
     actualizarBotonFlotante();
@@ -724,18 +753,6 @@ function eventosSalidas() {
             totalElement.innerHTML = `<strong>Total Final: </strong>Bs/.${totalCalculado.toFixed(2)}`;
         }
     }
-    selectPrecios.addEventListener('change', () => {
-        const ciudadSeleccionada = selectPrecios.options[selectPrecios.selectedIndex].text;
-
-        // Actualizar precios en el carrito
-        carritoSalidas.forEach((item, id) => {
-            const preciosProducto = item.precios.split(';');
-            const precioSeleccionado = preciosProducto.find(p => p.split(',')[0] === ciudadSeleccionada);
-            item.subtotal = precioSeleccionado ? parseFloat(precioSeleccionado.split(',')[1]) : 0;
-        });
-
-        actualizarCarritoUI();
-    });
     function actualizarCarritoLocal() {
         localStorage.setItem('damabrava_carrito', JSON.stringify(Array.from(carritoSalidas.entries())));
     }
