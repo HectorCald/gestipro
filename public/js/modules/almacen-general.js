@@ -12,6 +12,7 @@ function recuperarUsuarioLocal() {
     return null;
 }
 
+
 async function obtenerEtiquetas() {
     try {
         const response = await fetch('/obtener-etiquetas');
@@ -102,6 +103,7 @@ async function obtenerAlmacenAcopio() {
         return false;
     }
 }
+
 
 
 async function obtenerAlmacenGeneral() {
