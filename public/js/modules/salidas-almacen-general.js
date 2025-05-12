@@ -494,6 +494,13 @@ function eventosSalidas() {
                             </select>
                         </div>
                     </div>
+                    <div class="entrada">
+                        <i class='bx bx-comment-detail'></i>
+                        <div class="input">
+                            <p class="detalle">Observaciones</p>
+                            <input class="Observaciones" type="text" autocomplete="off" placeholder=" " required>
+                        </div>
+                    </div>
                 </div>
                 </div>
             </div>
