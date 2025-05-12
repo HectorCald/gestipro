@@ -46,6 +46,7 @@ body {
     --tercer-color: #48c9b0;
     --error: #fc3737;
     --success: #4CAF50;
+    --success-claro: #4caf4f5d;
 
     /* Variables para tamaños de texto se mantienen igual */
     --text-detalle: 13px;

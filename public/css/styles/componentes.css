@@ -1302,7 +1302,7 @@
 
     50% {
         transform: scale(1.05);
-        background-color: var(--success);
+        background-color:rgb(64, 64, 64);
     }
 
     100% {

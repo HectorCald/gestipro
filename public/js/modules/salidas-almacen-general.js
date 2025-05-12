@@ -220,7 +220,7 @@ export async function mostrarSalidas() {
     if (selectPrecios) {
         selectPrecios.dispatchEvent(new Event('change'));
     }
-    
+
 
     const { aplicarFiltros } = eventosSalidas();
     aplicarFiltros('Todos', 'Todos');
@@ -415,10 +415,12 @@ function eventosSalidas() {
             const itemCarrito = carritoSalidas.get(productoId);
             if (itemCarrito.cantidad < producto.stock) {
                 itemCarrito.cantidad += 1;
-                // Actualizar el contador en el item
-                const cantidadSpan = item.querySelector('.carrito-cantidad');
-                if (cantidadSpan) {
-                    cantidadSpan.textContent = itemCarrito.cantidad;
+                // Actualizar el contador y stock en el header
+                if (item) {
+                    const cantidadSpan = item.querySelector('.carrito-cantidad');
+                    const stockSpan = item.querySelector('.stock');
+                    if (cantidadSpan) cantidadSpan.textContent = itemCarrito.cantidad;
+                    if (stockSpan) stockSpan.textContent = `${producto.stock - itemCarrito.cantidad} Und.`;
                 }
             }
         } else {
@@ -427,10 +429,12 @@ function eventosSalidas() {
                 cantidad: 1,
                 subtotal: parseFloat(producto.precios.split(';')[0].split(',')[1])
             });
-            // Inicializar el contador en el item
-            const cantidadSpan = item.querySelector('.carrito-cantidad');
-            if (cantidadSpan) {
-                cantidadSpan.textContent = '1';
+            // Actualizar el contador y stock en el header
+            if (item) {
+                const cantidadSpan = item.querySelector('.carrito-cantidad');
+                const stockSpan = item.querySelector('.stock');
+                if (cantidadSpan) cantidadSpan.textContent = '1';
+                if (stockSpan) stockSpan.textContent = `${producto.stock - 1} Und.`;
             }
         }
 
@@ -438,6 +442,72 @@ function eventosSalidas() {
         actualizarBotonFlotante();
         actualizarCarritoUI();
     }
+
+    window.eliminarDelCarrito = (id) => {
+        const itemToRemove = document.querySelector(`.carrito-item[data-id="${id}"]`);
+        const item = carritoSalidas.get(id);
+
+        // Actualizar contador y stock en el header
+        const headerItem = document.querySelector(`.registro-item[data-id="${id}"]`);
+        if (headerItem && item) {
+            const cantidadSpan = headerItem.querySelector('.carrito-cantidad');
+            const stockSpan = headerItem.querySelector('.stock');
+            if (cantidadSpan) cantidadSpan.textContent = '';
+            if (stockSpan) stockSpan.textContent = `${item.stock} Und.`;
+        }
+
+        if (itemToRemove) {
+            itemToRemove.style.height = `${itemToRemove.offsetHeight}px`;
+            itemToRemove.classList.add('eliminar-item');
+
+            setTimeout(() => {
+                itemToRemove.style.height = '0';
+                itemToRemove.style.margin = '0';
+                itemToRemove.style.padding = '0';
+
+                setTimeout(() => {
+                    carritoSalidas.delete(id);
+                    actualizarCarritoLocal();
+                    actualizarBotonFlotante();
+                    itemToRemove.remove();
+
+                    if (navigator.vibrate) {
+                        navigator.vibrate(50);
+                    }
+
+                    if (carritoSalidas.size === 0) {
+                        ocultarAnuncioSecond();
+                        mostrarNotificacion({
+                            message: 'Carrito vacío',
+                            type: 'info',
+                            duration: 2000
+                        });
+                        return;
+                    }
+
+                    // Actualizar totales
+                    const subtotal = Array.from(carritoSalidas.values())
+                        .reduce((sum, item) => sum + (item.cantidad * item.subtotal), 0);
+                    const totalElement = document.querySelector('.total-final');
+                    const subtotalElement = document.querySelector('.campo-vertical span:first-child');
+
+                    if (subtotalElement && totalElement) {
+                        subtotalElement.innerHTML = `<strong>Subtotal: </strong>Bs/.${subtotal.toFixed(2)}`;
+                        totalElement.innerHTML = `<strong>Total Final: </strong>Bs/.${subtotal.toFixed(2)}`;
+
+                        const descuentoInput = document.querySelector('.descuento');
+                        const aumentoInput = document.querySelector('.aumento');
+                        if (descuentoInput && aumentoInput) {
+                            const descuentoValor = parseFloat(descuentoInput.value) || 0;
+                            const aumentoValor = parseFloat(aumentoInput.value) || 0;
+                            const totalCalculado = subtotal - descuentoValor + aumentoValor;
+                            totalElement.innerHTML = `<strong>Total Final: </strong>Bs/.${totalCalculado.toFixed(2)}`;
+                        }
+                    }
+                }, 300);
+            }, 0);
+        }
+    };
     function actualizarBotonFlotante() {
         const botonFlotante = document.querySelector('.btn-flotante-salidas');
         if (!botonFlotante) return;
@@ -554,8 +624,19 @@ function eventosSalidas() {
 
         const botonLimpiar = anuncioSecond.querySelector('.btn.filtros.limpiar');
         botonLimpiar.addEventListener('click', () => {
+            // Actualizar todos los contadores y stocks en el header antes de limpiar
+            carritoSalidas.forEach((item, id) => {
+                const headerItem = document.querySelector(`.registro-item[data-id="${id}"]`);
+                if (headerItem) {
+                    const cantidadSpan = headerItem.querySelector('.carrito-cantidad');
+                    const stockSpan = headerItem.querySelector('.stock');
+                    if (cantidadSpan) cantidadSpan.textContent = '';
+                    if (stockSpan) stockSpan.textContent = `${item.stock} Und.`;
+                }
+            });
+
             carritoSalidas.clear();
-            actualizarCarritoLocal(); // Guardar en localStorage
+            actualizarCarritoLocal();
             actualizarBotonFlotante();
             ocultarAnuncioSecond();
             mostrarNotificacion({
@@ -572,10 +653,20 @@ function eventosSalidas() {
         const nuevaCantidad = item.cantidad + delta;
         if (nuevaCantidad > 0 && nuevaCantidad <= item.stock) {
             item.cantidad = nuevaCantidad;
-            actualizarCarritoLocal(); // Guardar en localStorage
+            // Actualizar contador y stock en el header
+            const headerItem = document.querySelector(`.registro-item[data-id="${id}"]`);
+            if (headerItem) {
+                const cantidadSpan = headerItem.querySelector('.carrito-cantidad');
+                const stockSpan = headerItem.querySelector('.stock');
+                if (cantidadSpan) cantidadSpan.textContent = nuevaCantidad;
+                if (stockSpan) stockSpan.textContent = `${item.stock - nuevaCantidad} Und.`;
+            }
+            actualizarCarritoLocal();
             actualizarCarritoUI();
         }
     };
+
+
     window.actualizarCantidad = (id, valor) => {
         const item = carritoSalidas.get(id);
         if (!item) return;
@@ -583,71 +674,16 @@ function eventosSalidas() {
         const cantidad = parseInt(valor);
         if (cantidad > 0 && cantidad <= item.stock) {
             item.cantidad = cantidad;
-            actualizarCarritoLocal(); // Agregamos esta línea
+            // Actualizar contador en el header
+            const headerCounter = document.querySelector(`.registro-item[data-id="${id}"] .carrito-cantidad`);
+            if (headerCounter) {
+                headerCounter.textContent = cantidad;
+            }
+            actualizarCarritoLocal();
             actualizarCarritoUI();
         }
     };
-    window.eliminarDelCarrito = (id) => {
-        const itemToRemove = document.querySelector(`.carrito-item[data-id="${id}"]`);
-        // Update quantity counter in header
-        const headerCounter = document.querySelector(`.registro-item[data-id="${id}"] .carrito-cantidad`);
-        if (headerCounter) {
-            headerCounter.textContent = '';
-        }
 
-        if (itemToRemove) {
-            itemToRemove.style.height = `${itemToRemove.offsetHeight}px`;
-            itemToRemove.classList.add('eliminar-item');
-
-            setTimeout(() => {
-                itemToRemove.style.height = '0';
-                itemToRemove.style.margin = '0';
-                itemToRemove.style.padding = '0';
-
-                setTimeout(() => {
-                    carritoSalidas.delete(id);
-                    actualizarCarritoLocal();
-                    actualizarBotonFlotante();
-                    itemToRemove.remove();
-
-                    // Vibrate device if supported
-                    if (navigator.vibrate) {
-                        navigator.vibrate(50);
-                    }
-
-                    if (carritoSalidas.size === 0) {
-                        ocultarAnuncioSecond();
-                        mostrarNotificacion({
-                            message: 'Carrito vacío',
-                            type: 'info',
-                            duration: 2000
-                        });
-                        return;
-                    }
-
-                    // Update totals
-                    const subtotal = Array.from(carritoSalidas.values())
-                        .reduce((sum, item) => sum + (item.cantidad * item.subtotal), 0);
-                    const totalElement = document.querySelector('.total-final');
-                    const subtotalElement = document.querySelector('.campo-vertical span:first-child');
-
-                    if (subtotalElement && totalElement) {
-                        subtotalElement.innerHTML = `<strong>Subtotal: </strong>Bs/.${subtotal.toFixed(2)}`;
-                        totalElement.innerHTML = `<strong>Total Final: </strong>Bs/.${subtotal.toFixed(2)}`;
-
-                        const descuentoInput = document.querySelector('.descuento');
-                        const aumentoInput = document.querySelector('.aumento');
-                        if (descuentoInput && aumentoInput) {
-                            const descuentoValor = parseFloat(descuentoInput.value) || 0;
-                            const aumentoValor = parseFloat(aumentoInput.value) || 0;
-                            const totalCalculado = subtotal - descuentoValor + aumentoValor;
-                            totalElement.innerHTML = `<strong>Total Final: </strong>Bs/.${totalCalculado.toFixed(2)}`;
-                        }
-                    }
-                }, 300);
-            }, 0);
-        }
-    };
     function actualizarCarritoUI() {
         if (carritoSalidas.size === 0) {
             ocultarAnuncioSecond();
