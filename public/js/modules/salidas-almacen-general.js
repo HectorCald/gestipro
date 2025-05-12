@@ -445,6 +445,7 @@ function eventosSalidas() {
                                 <div class="cantidad-control">
                                     <button class="btn-cantidad" style="color:var(--error)" onclick="ajustarCantidad('${item.id}', -1)">-</button>
                                     <input type="number" value="${item.cantidad}" min="1" max="${item.stock}"
+                                        onfocus="this.select()"
                                         onchange="actualizarCantidad('${item.id}', this.value)">
                                     <button class="btn-cantidad"style="color:var(--success)" onclick="ajustarCantidad('${item.id}', 1)">+</button>
                                 </div>
