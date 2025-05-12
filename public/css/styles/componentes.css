@@ -1040,7 +1040,7 @@
         align-items: center;
 
         i{
-            color: white !important;
+            color: var(--text) !important;
             font-size: var(--text-2xl);
         }
     }
@@ -1163,7 +1163,7 @@
             width: 100%;
 
             h3{
-                color: var(--text);
+                color: var(--text) !important;
                 font-size: var(--text-subtitulo);
             }
             .cantidad-control {
