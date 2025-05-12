@@ -229,7 +229,7 @@ function eventosVerificacion() {
     });
     function verificar(event) {
         const registroId = event.currentTarget.dataset.id;
-        // Encontrar el registro correspondiente
+
         const registro = registrosProduccion.find(r => r.id === registroId);
 
         const contenido = document.querySelector('.anuncio-second .contenido');
@@ -286,6 +286,7 @@ function eventosVerificacion() {
         // Agregar evento al botón guardar
         const btnVerificar = contenido.querySelector('.btn-verificar-registro');
         btnVerificar.addEventListener('click', confirmarVerificacion);
+
         async function confirmarVerificacion() {
             const cantidadReal = document.querySelector('.verificar-registro .cantidad_real').value.trim();
             const observaciones = document.querySelector('.verificar-registro .observaciones').value.trim();
@@ -301,7 +302,7 @@ function eventosVerificacion() {
 
             try {
                 mostrarCarga();
-                const registroId = document.querySelector('.verificar-registro .registro-item').dataset.id;
+                
                 const registro = registrosProduccion.find(r => r.id === registroId);
 
                 const response = await fetch(`/verificar-registro-produccion/${registroId}`, {

@@ -380,6 +380,10 @@ function eventosSalidas() {
     });
 
 
+
+
+
+
     let filtroNombreActual = 'Todos';
     function aplicarFiltros() {
         const registros = document.querySelectorAll('.registro-item');
@@ -422,6 +426,11 @@ function eventosSalidas() {
             scrollToCenter(boton, boton.parentElement);
         });
     });
+
+
+
+
+
 
     function agregarAlCarrito(productoId) {
         const producto = productos.find(p => p.id === productoId);
@@ -472,7 +481,6 @@ function eventosSalidas() {
         actualizarBotonFlotante();
         actualizarCarritoUI();
     }
-
     window.eliminarDelCarrito = (id) => {
         const itemToRemove = document.querySelector(`.carrito-item[data-id="${id}"]`);
         const item = carritoSalidas.get(id);
@@ -654,7 +662,7 @@ function eventosSalidas() {
 
         const botonLimpiar = anuncioSecond.querySelector('.btn.filtros.limpiar');
         botonLimpiar.addEventListener('click', () => {
-            // Actualizar todos los contadores y stocks en el header antes de limpiar
+            
             carritoSalidas.forEach((item, id) => {
                 const headerItem = document.querySelector(`.registro-item[data-id="${id}"]`);
                 if (headerItem) {
@@ -674,6 +682,7 @@ function eventosSalidas() {
                 type: 'success',
                 duration: 2000
             });
+            document.querySelector('.btn-flotante-saldias').style.display='none';
         });
     }
     window.ajustarCantidad = (id, delta) => {
