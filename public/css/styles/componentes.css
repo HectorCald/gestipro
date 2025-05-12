@@ -1177,7 +1177,7 @@
                     background: none;
                     border-radius: 10px;
                     padding: 10px;
-                    border: 1px solid gray;
+                    border: 1px solid var(--fondo2);
                     display: flex;
                     justify-content: center;
                     align-items: center;
