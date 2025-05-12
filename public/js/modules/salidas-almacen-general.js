@@ -546,7 +546,40 @@ function eventosSalidas() {
             document.querySelector('.anuncio-second').style.display = 'none';
             return;
         }
-        mostrarCarritoSalidas();
+
+        // En lugar de recargar todo el carrito, actualizamos solo los valores necesarios
+        const items = document.querySelectorAll('.carrito-item');
+        items.forEach(item => {
+            const id = item.dataset.id;
+            const producto = carritoSalidas.get(id);
+            if (producto) {
+                const cantidadInput = item.querySelector('input[type="number"]');
+                const stockDisponible = item.querySelector('.stock-disponible');
+                const subtotalElement = item.querySelector('.subtotal');
+
+                cantidadInput.value = producto.cantidad;
+                stockDisponible.textContent = `${producto.stock - producto.cantidad} Und.`;
+                subtotalElement.textContent = `Bs/.${(producto.cantidad * producto.subtotal).toFixed(2)}`;
+            }
+        });
+
+        // Actualizar el total
+        const subtotal = Array.from(carritoSalidas.values()).reduce((sum, item) => sum + (item.cantidad * item.subtotal), 0);
+        const totalElement = document.querySelector('.total-final');
+        const subtotalElement = document.querySelector('.campo-vertical span:first-child');
+
+        subtotalElement.innerHTML = `<strong>Subtotal: </strong>Bs/.${subtotal.toFixed(2)}`;
+        totalElement.innerHTML = `<strong>Total Final: </strong>Bs/.${subtotal.toFixed(2)}`;
+
+        // Mantener los valores de descuento y aumento
+        const descuentoInput = document.querySelector('.descuento');
+        const aumentoInput = document.querySelector('.aumento');
+        if (descuentoInput && aumentoInput) {
+            const descuentoValor = parseFloat(descuentoInput.value) || 0;
+            const aumentoValor = parseFloat(aumentoInput.value) || 0;
+            const totalCalculado = subtotal - descuentoValor + aumentoValor;
+            totalElement.innerHTML = `<strong>Total Final: </strong>Bs/.${totalCalculado.toFixed(2)}`;
+        }
     }
     selectPrecios.addEventListener('change', () => {
         const ciudadSeleccionada = selectPrecios.options[selectPrecios.selectedIndex].text;
