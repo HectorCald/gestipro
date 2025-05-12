@@ -189,7 +189,8 @@ export async function mostrarSalidas() {
                 ${productos.map(producto => `
                 <div class="registro-item" data-id="${producto.id}">
                     <div class="header">
-                        <div class="nombre">${producto.id}
+                        <div class="nombre">
+                            <span class="id-producto">${producto.id}</span>
                             <div class="precio-cantidad">
                                 <span class="valor stock">${producto.stock} Und.</span>
                                 <span class="valor precio">Bs/.${producto.precios.split(';')[0].split(',')[1]}</span>
