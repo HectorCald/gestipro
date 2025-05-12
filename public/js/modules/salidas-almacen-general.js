@@ -3,7 +3,7 @@ let etiquetas = [];
 let precios = [];
 let clientes = [];
 let usuarioInfo = recuperarUsuarioLocal();
-let carritoSalidas = new Map();
+let carritoSalidas = new Map(JSON.parse(localStorage.getItem('damabrava_carrito') || '[]'));
 
 function recuperarUsuarioLocal() {
     const usuarioGuardado = localStorage.getItem('damabrava_usuario');
@@ -158,7 +158,7 @@ export async function mostrarSalidas() {
 
     const registrationHTML = `  
         <div class="encabezado">
-            <h1 class="titulo">Salidas de alamcen</h1>
+            <h1 class="titulo">Salidas de almacen</h1>
             <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
             <button class="btn filtros"><i class='bx bx-filter'></i></button>
         </div>
@@ -227,9 +227,11 @@ function eventosSalidas() {
     const botonFlotante = document.createElement('button');
     botonFlotante.className = 'btn-flotante-salidas';
     botonFlotante.innerHTML = '<i class="bx bx-cart"></i>';
-    botonFlotante.style.display = 'none';
     document.body.appendChild(botonFlotante);
-
+    
+    // Actualizar el botón flotante al inicio
+    actualizarBotonFlotante();
+    
     botonFlotante.addEventListener('click', mostrarCarritoSalidas);
 
     // Agregar eventos a los items
@@ -402,10 +404,11 @@ function eventosSalidas() {
             subtotal: parseFloat(producto.precios.split(';')[0].split(',')[1])
         });
 
+        actualizarCarritoLocal(); // Guardar en localStorage
         actualizarBotonFlotante();
         mostrarNotificacion({
             message: 'Producto agregado al carrito',
-            type: 'success',
+            type: 'info',
             duration: 2000
         });
     }
@@ -431,6 +434,7 @@ function eventosSalidas() {
             <div class="encabezado">
                 <h1 class="titulo">Carrito de Salidas</h1>
                 <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
+                <button class="btn filtros limpiar"><i class="fas fa-broom"></i></button>
             </div>
             <div class="relleno">
                 <div class="carrito-items">
@@ -513,6 +517,19 @@ function eventosSalidas() {
 
         inputDescuento.addEventListener('input', actualizarTotal);
         inputAumento.addEventListener('input', actualizarTotal);
+
+        const botonLimpiar = anuncioSecond.querySelector('.btn.filtros.limpiar');
+        botonLimpiar.addEventListener('click', () => {
+            carritoSalidas.clear();
+            actualizarCarritoLocal(); // Guardar en localStorage
+            actualizarBotonFlotante();
+            ocultarAnuncioSecond();
+            mostrarNotificacion({
+                message: 'Carrito limpiado exitosamente',
+                type: 'success',
+                duration: 2000
+            });
+        });
     }
     window.ajustarCantidad = (id, delta) => {
         const item = carritoSalidas.get(id);
@@ -521,6 +538,7 @@ function eventosSalidas() {
         const nuevaCantidad = item.cantidad + delta;
         if (nuevaCantidad > 0 && nuevaCantidad <= item.stock) {
             item.cantidad = nuevaCantidad;
+            actualizarCarritoLocal(); // Guardar en localStorage
             actualizarCarritoUI();
         }
     };
@@ -534,10 +552,43 @@ function eventosSalidas() {
             actualizarCarritoUI();
         }
     };
+    // Modificar la función eliminarDelCarrito
     window.eliminarDelCarrito = (id) => {
         carritoSalidas.delete(id);
+        actualizarCarritoLocal(); // Guardar en localStorage
         actualizarBotonFlotante();
-        actualizarCarritoUI();
+
+        // Eliminar el elemento del DOM directamente
+        const itemToRemove = document.querySelector(`.carrito-item[data-id="${id}"]`);
+        if (itemToRemove) {
+            itemToRemove.remove();
+        }
+
+        // Si no quedan items, cerrar el carrito
+        if (carritoSalidas.size === 0) {
+            ocultarAnuncioSecond();
+            return;
+        }
+
+        // Actualizar totales
+        const subtotal = Array.from(carritoSalidas.values()).reduce((sum, item) => sum + (item.cantidad * item.subtotal), 0);
+        const totalElement = document.querySelector('.total-final');
+        const subtotalElement = document.querySelector('.campo-vertical span:first-child');
+
+        if (subtotalElement && totalElement) {
+            subtotalElement.innerHTML = `<strong>Subtotal: </strong>Bs/.${subtotal.toFixed(2)}`;
+            totalElement.innerHTML = `<strong>Total Final: </strong>Bs/.${subtotal.toFixed(2)}`;
+
+            // Mantener los valores de descuento y aumento si existen
+            const descuentoInput = document.querySelector('.descuento');
+            const aumentoInput = document.querySelector('.aumento');
+            if (descuentoInput && aumentoInput) {
+                const descuentoValor = parseFloat(descuentoInput.value) || 0;
+                const aumentoValor = parseFloat(aumentoInput.value) || 0;
+                const totalCalculado = subtotal - descuentoValor + aumentoValor;
+                totalElement.innerHTML = `<strong>Total Final: </strong>Bs/.${totalCalculado.toFixed(2)}`;
+            }
+        }
     };
     function actualizarCarritoUI() {
         if (carritoSalidas.size === 0) {
@@ -591,6 +642,10 @@ function eventosSalidas() {
 
         actualizarCarritoUI();
     });
+    function actualizarCarritoLocal() {
+        localStorage.setItem('damabrava_carrito', JSON.stringify(Array.from(carritoSalidas.entries())));
+    }
+
 
 
     return { aplicarFiltros };
