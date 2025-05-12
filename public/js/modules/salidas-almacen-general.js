@@ -1,5 +1,3 @@
-
-
 let productos = [];
 let etiquetas = [];
 let precios = [];
@@ -543,7 +541,7 @@ function eventosSalidas() {
     };
     function actualizarCarritoUI() {
         if (carritoSalidas.size === 0) {
-            document.querySelector('.anuncio-second').style.display = 'none';
+            ocultarAnuncioSecond();
             return;
         }
 
