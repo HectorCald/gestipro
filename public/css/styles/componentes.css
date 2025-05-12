@@ -1163,7 +1163,7 @@
             width: 100%;
 
             h3{
-                color: white;
+                color: var(--text);
                 font-size: var(--text-subtitulo);
             }
             .cantidad-control {
