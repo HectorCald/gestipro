@@ -228,10 +228,10 @@ function eventosSalidas() {
     botonFlotante.className = 'btn-flotante-salidas';
     botonFlotante.innerHTML = '<i class="bx bx-cart"></i>';
     document.body.appendChild(botonFlotante);
-    
+
     // Actualizar el botón flotante al inicio
     actualizarBotonFlotante();
-    
+
     botonFlotante.addEventListener('click', mostrarCarritoSalidas);
 
     // Agregar eventos a los items
@@ -398,13 +398,27 @@ function eventosSalidas() {
             return;
         }
 
+        // Vibrar el dispositivo si es compatible
+        if (navigator.vibrate) {
+            navigator.vibrate(100);
+        }
+
+        // Agregar efecto visual al item
+        const item = document.querySelector(`.registro-item[data-id="${productoId}"]`);
+        if (item) {
+            item.classList.add('agregado-al-carrito');
+            setTimeout(() => {
+                item.classList.remove('agregado-al-carrito');
+            }, 500);
+        }
+
         carritoSalidas.set(productoId, {
             ...producto,
             cantidad: 1,
             subtotal: parseFloat(producto.precios.split(';')[0].split(',')[1])
         });
 
-        actualizarCarritoLocal(); // Guardar en localStorage
+        actualizarCarritoLocal();
         actualizarBotonFlotante();
         mostrarNotificacion({
             message: 'Producto agregado al carrito',
@@ -557,45 +571,53 @@ function eventosSalidas() {
         const cantidad = parseInt(valor);
         if (cantidad > 0 && cantidad <= item.stock) {
             item.cantidad = cantidad;
+            actualizarCarritoLocal(); // Agregamos esta línea
             actualizarCarritoUI();
         }
     };
-    // Modificar la función eliminarDelCarrito
     window.eliminarDelCarrito = (id) => {
-        carritoSalidas.delete(id);
-        actualizarCarritoLocal(); // Guardar en localStorage
-        actualizarBotonFlotante();
-
-        // Eliminar el elemento del DOM directamente
         const itemToRemove = document.querySelector(`.carrito-item[data-id="${id}"]`);
         if (itemToRemove) {
-            itemToRemove.remove();
-        }
+            itemToRemove.style.height = `${itemToRemove.offsetHeight}px`; // Fijar altura inicial
+            itemToRemove.classList.add('eliminar-item');
 
-        // Si no quedan items, cerrar el carrito
-        if (carritoSalidas.size === 0) {
-            ocultarAnuncioSecond();
-            return;
-        }
+            setTimeout(() => {
+                itemToRemove.style.height = '0';
+                itemToRemove.style.margin = '0';
+                itemToRemove.style.padding = '0';
 
-        // Actualizar totales
-        const subtotal = Array.from(carritoSalidas.values()).reduce((sum, item) => sum + (item.cantidad * item.subtotal), 0);
-        const totalElement = document.querySelector('.total-final');
-        const subtotalElement = document.querySelector('.campo-vertical span:first-child');
+                setTimeout(() => {
+                    carritoSalidas.delete(id);
+                    actualizarCarritoLocal();
+                    actualizarBotonFlotante();
+                    itemToRemove.remove();
 
-        if (subtotalElement && totalElement) {
-            subtotalElement.innerHTML = `<strong>Subtotal: </strong>Bs/.${subtotal.toFixed(2)}`;
-            totalElement.innerHTML = `<strong>Total Final: </strong>Bs/.${subtotal.toFixed(2)}`;
+                    if (carritoSalidas.size === 0) {
+                        ocultarAnuncioSecond();
+                        return;
+                    }
 
-            // Mantener los valores de descuento y aumento si existen
-            const descuentoInput = document.querySelector('.descuento');
-            const aumentoInput = document.querySelector('.aumento');
-            if (descuentoInput && aumentoInput) {
-                const descuentoValor = parseFloat(descuentoInput.value) || 0;
-                const aumentoValor = parseFloat(aumentoInput.value) || 0;
-                const totalCalculado = subtotal - descuentoValor + aumentoValor;
-                totalElement.innerHTML = `<strong>Total Final: </strong>Bs/.${totalCalculado.toFixed(2)}`;
-            }
+                    // Actualizar totales
+                    const subtotal = Array.from(carritoSalidas.values())
+                        .reduce((sum, item) => sum + (item.cantidad * item.subtotal), 0);
+                    const totalElement = document.querySelector('.total-final');
+                    const subtotalElement = document.querySelector('.campo-vertical span:first-child');
+
+                    if (subtotalElement && totalElement) {
+                        subtotalElement.innerHTML = `<strong>Subtotal: </strong>Bs/.${subtotal.toFixed(2)}`;
+                        totalElement.innerHTML = `<strong>Total Final: </strong>Bs/.${subtotal.toFixed(2)}`;
+
+                        const descuentoInput = document.querySelector('.descuento');
+                        const aumentoInput = document.querySelector('.aumento');
+                        if (descuentoInput && aumentoInput) {
+                            const descuentoValor = parseFloat(descuentoInput.value) || 0;
+                            const aumentoValor = parseFloat(aumentoInput.value) || 0;
+                            const totalCalculado = subtotal - descuentoValor + aumentoValor;
+                            totalElement.innerHTML = `<strong>Total Final: </strong>Bs/.${totalCalculado.toFixed(2)}`;
+                        }
+                    }
+                }, 300);
+            }, 0);
         }
     };
     function actualizarCarritoUI() {
