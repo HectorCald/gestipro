@@ -12,6 +12,7 @@ import { mostrarIngresos } from './modules/ingresos-almacen-general.js';
 import { mostrarClientes } from './modules/clientes.js';
 import { mostrarProovedores } from './modules/proovedores.js';
 import { mostrarHacerPedido } from './modules/hacer-pedido.js';
+import { mostrarAlmacenAcopio } from './modules/almacen-acopio.js';
 
 
 
@@ -50,6 +51,8 @@ window.mostrarClientes = mostrarClientes
 window.mostrarProovedores = mostrarProovedores
 
 window.mostrarHacerPedido = mostrarHacerPedido
+
+window.mostrarAlmacenAcopio = mostrarAlmacenAcopio
 
 
 document.addEventListener('DOMContentLoaded', async () => {

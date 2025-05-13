@@ -127,16 +127,24 @@ function obtenerOpcionesMenu() {
                 clase: 'opcion-btn',
                 vista: 'almAcopio-view',
                 icono: 'fa-dolly',
-                texto: 'Gestionar Almacen',
-                detalle: 'Aqui puedes gestionar el almacen de Acopio: (Materia Prima, Materia Bruta, Movimientos).',
-                onclick: 'onclick="inicializarAlmacen()"'
+                texto: 'Almacen',
+                detalle: 'Gestionar almacen acopio(editar, eliminar, crear).',
+                onclick: 'onclick="mostrarAlmacenAcopio(); ocultarAnuncioSecond()"'
             },
             {
                 clase: 'opcion-btn',
                 vista: 'regAcopio-view',
                 icono: 'fa-history',
-                texto: 'Registros Acopio.',
-                detalle: 'Aqui puedes ver todos los registros de Acopio que hiciste: (Pedidos, Movimientos).',
+                texto: 'Registros',
+                detalle: 'Todos los movimientos del alamcen(ingresos, saldias).',
+                onclick: 'onclick="cargarRegistrosAcopio()"'
+            },
+            {
+                clase: 'opcion-btn',
+                vista: 'regAcopio-view',
+                icono: 'fa-truck',
+                texto: 'Proovedores',
+                detalle: 'Gestiona tus proovedores(agregar, editar, eliminar).',
                 onclick: 'onclick="cargarRegistrosAcopio()"'
             }
         ],
@@ -170,7 +178,7 @@ function obtenerOpcionesMenu() {
                 vista: 'almacen-view',
                 icono: 'fa-id-card',
                 texto: 'Clientes',
-                detalle: 'Gestionar tu lista de clientes',
+                detalle: 'Gestiona tus clientes (agregar, editar, eliminar).',
                 onclick: 'onclick="mostrarClientes(); ocultarAnuncioSecond()"'
             },
             {
@@ -178,7 +186,7 @@ function obtenerOpcionesMenu() {
                 vista: 'almacen-view',
                 icono: 'fa-truck',
                 texto: 'Proovedores',
-                detalle: 'Gestionar tu lista de proovedores',
+                detalle: 'Gestiona tus proovedores (agregar, editar, eliminar).',
                 onclick: 'onclick="mostrarProovedores(); ocultarAnuncioSecond()"'
             },
         ],

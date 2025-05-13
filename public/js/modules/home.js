@@ -139,19 +139,19 @@ function obtenerFunciones() {
             },
             {
                 clase: 'opcion-btn',
-                vista: 'regAcopio-view',
-                icono: 'fa-dolly',
-                texto: 'Almacen',
-                detalle: 'Gestiona tu almacen',
-                onclick: 'onclick="cargarRegistrosAcopio()"'
+                vista: 'almacen-view',
+                icono: 'fa-arrow-down',
+                texto: 'Ingresos',
+                detalle: 'Ingresos de tu almacen.',
+                onclick: 'onclick="mostrarIngresos()"'
             },
             {
                 clase: 'opcion-btn',
-                vista: 'regAcopio-view',
-                icono: 'fa-clipboard',
-                texto: 'Registros',
-                detalle: 'Movientos en tu almacen',
-                onclick: 'onclick="cargarRegistrosAcopio()"'
+                vista: 'regAlmacen-view',
+                icono: 'fa-arrow-up',
+                texto: 'Salidas',
+                detalle: 'Salidas de tu almacen.',
+                onclick: 'onclick="mostrarSalidas()"'
             }
         ],
         'Almacen': [

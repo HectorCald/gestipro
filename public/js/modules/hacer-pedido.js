@@ -51,19 +51,11 @@ async function obtenerAlmacenAcopio() {
 
         if (data.success) {
             productos = data.productos.map(producto => {
-                const [brutoPeso, brutoLote] = (producto.bruto || '0-1').split('-');
-                const [primaPeso, primaLote] = (producto.prima || '0-1').split('-');
                 return {
                     id: producto.id,
                     producto: producto.producto,
-                    bruto: {
-                        peso: parseFloat(brutoPeso) || 0,
-                        lote: parseInt(brutoLote) || 1
-                    },
-                    prima: {
-                        peso: parseFloat(primaPeso) || 0,
-                        lote: parseInt(primaLote) || 1
-                    },
+                    bruto: producto.bruto || '0-1',
+                    prima: producto.prima || '0-1',
                     etiquetas: producto.etiquetas || ''
                 };
             }).sort((a, b) => {
@@ -128,26 +120,33 @@ export async function mostrarHacerPedido(busquedaProducto = '') {
             </div>
 
             <p class="normal"><i class='bx bx-chevron-right'></i>Productos</p>
-            ${productos.map(producto => `
-                <div class="registro-item" data-id="${producto.id}">
-                    <div class="header">
-                        <div class="nombre">
-                            <span class="id-producto">${producto.id}</span>
-                            <div class="precio-cantidad">
-                                <span class="valor stock">${producto.bruto.peso.toFixed(2)} Kg.</span>
-                                <span class="carrito-cantidad"></span>
+            ${productos.map(producto => {
+        // Calcular totales de bruto y prima
+        const totalBruto = producto.bruto.split(';')
+            .reduce((sum, lote) => sum + parseFloat(lote.split('-')[0]), 0);
+        const totalPrima = producto.prima.split(';')
+            .reduce((sum, lote) => sum + parseFloat(lote.split('-')[0]), 0);
+
+        return `
+                    <div class="registro-item" data-id="${producto.id}">
+                        <div class="header">
+                            <div class="nombre">
+                                <span class="id-producto">${producto.id}</span>
+                                <div class="precio-cantidad">
+                                    <span class="valor stock">${totalBruto.toFixed(2)} Kg.</span>
+                                    <span class="carrito-cantidad"></span>
+                                </div>
                             </div>
+                            <span class="valor producto-header"><strong>${producto.producto}</strong></span>
+                            <span class="fecha">${producto.etiquetas.split(';').join(' • ')}</span>
                         </div>
-                        <span class="valor producto-header"><strong>${producto.producto}</strong></span>
-                        <span class="fecha">${producto.etiquetas.split(';').join(' • ')}</span>
-                    </div>
-                    <div class="registro-acciones">
-                        <button class="btn-pedido btn-icon green" data-id="${producto.id}">
-                            <i class='bx bx-cart-add'></i>
-                        </button>
-                    </div>
-                </div>
-            `).join('')}
+                        <div class="registro-acciones">
+                            <button class="btn-pedido btn-icon green" data-id="${producto.id}">
+                                <i class='bx bx-cart-add'></i>
+                            </button>
+                        </div>
+                    </div>`;
+    }).join('')}
         </div>
     `;
 
@@ -251,17 +250,23 @@ function eventosPedidos() {
 
             // Handle weight display switches
             if (index === 4) { // Bruto button
+                pesoMostrado = 'bruto';
                 registros.forEach(registro => {
                     const producto = productos.find(p => p.id === registro.dataset.id);
+                    const totalBruto = producto.bruto.split(';')
+                        .reduce((sum, lote) => sum + parseFloat(lote.split('-')[0]), 0);
                     const stockSpan = registro.querySelector('.valor.stock');
-                    stockSpan.textContent = `${producto.bruto.peso.toFixed(2)} Kg.`;
+                    stockSpan.textContent = `${totalBruto.toFixed(2)} Kg.`;
                 });
                 return;
             } else if (index === 5) { // Prima button
+                pesoMostrado = 'prima';
                 registros.forEach(registro => {
                     const producto = productos.find(p => p.id === registro.dataset.id);
+                    const totalPrima = producto.prima.split(';')
+                        .reduce((sum, lote) => sum + parseFloat(lote.split('-')[0]), 0);
                     const stockSpan = registro.querySelector('.valor.stock');
-                    stockSpan.textContent = `${producto.prima.peso.toFixed(2)} Kg.`;
+                    stockSpan.textContent = `${totalPrima.toFixed(2)} Kg.`;
                 });
                 return;
             }
@@ -272,14 +277,32 @@ function eventosPedidos() {
                     registros.sort((a, b) => {
                         const productoA = productos.find(p => p.id === a.dataset.id);
                         const productoB = productos.find(p => p.id === b.dataset.id);
-                        return productoB.bruto.peso - productoA.bruto.peso;
+
+                        const totalA = pesoMostrado === 'bruto' ?
+                            productoA.bruto.split(';').reduce((sum, lote) => sum + parseFloat(lote.split('-')[0]), 0) :
+                            productoA.prima.split(';').reduce((sum, lote) => sum + parseFloat(lote.split('-')[0]), 0);
+
+                        const totalB = pesoMostrado === 'bruto' ?
+                            productoB.bruto.split(';').reduce((sum, lote) => sum + parseFloat(lote.split('-')[0]), 0) :
+                            productoB.prima.split(';').reduce((sum, lote) => sum + parseFloat(lote.split('-')[0]), 0);
+
+                        return totalB - totalA;
                     });
                     break;
                 case 1: // Menor a mayor
                     registros.sort((a, b) => {
                         const productoA = productos.find(p => p.id === a.dataset.id);
                         const productoB = productos.find(p => p.id === b.dataset.id);
-                        return productoA.bruto.peso - productoB.bruto.peso;
+
+                        const totalA = pesoMostrado === 'bruto' ?
+                            productoA.bruto.split(';').reduce((sum, lote) => sum + parseFloat(lote.split('-')[0]), 0) :
+                            productoA.prima.split(';').reduce((sum, lote) => sum + parseFloat(lote.split('-')[0]), 0);
+
+                        const totalB = pesoMostrado === 'bruto' ?
+                            productoB.bruto.split(';').reduce((sum, lote) => sum + parseFloat(lote.split('-')[0]), 0) :
+                            productoB.prima.split(';').reduce((sum, lote) => sum + parseFloat(lote.split('-')[0]), 0);
+
+                        return totalA - totalB;
                     });
                     break;
                 case 2: // A-Z
@@ -298,7 +321,7 @@ function eventosPedidos() {
                     break;
             }
 
-            const contenedor = document.querySelector('.relleno.almacen-general');
+            const contenedor = document.querySelector('.relleno.almacen-acopio');
             registros.forEach(registro => {
                 contenedor.appendChild(registro);
             });

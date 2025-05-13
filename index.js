@@ -1788,6 +1788,163 @@ app.get('/obtener-productos-acopio', requireAuth, async (req, res) => {
         });
     }
 });
+app.post('/crear-producto-acopio', requireAuth, async (req, res) => {
+    try {
+        const { spreadsheetId } = req.user;
+        const sheets = google.sheets({ version: 'v4', auth });
+        const { producto, pesoBruto, loteBruto, pesoPrima, lotePrima, etiquetas } = req.body;
+
+        // Get current products to determine next ID
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: 'Almacen acopio!A2:E'  // Fixed sheet name
+        });
+
+        const values = response.data.values || [];
+        const lastId = values.length > 0 ? 
+            Math.max(...values.map(row => parseInt(row[0].split('-')[1]))) : 0;
+        const newId = `PB-${(lastId + 1).toString().padStart(3, '0')}`;
+
+        // Format weights with their lots
+        const brutoFormatted = `${pesoBruto}-${loteBruto}`;
+        const primaFormatted = `${pesoPrima}-${lotePrima}`;
+
+        // Add new product
+        await sheets.spreadsheets.values.append({
+            spreadsheetId,
+            range: 'Almacen acopio!A2:E',  // Fixed sheet name
+            valueInputOption: 'USER_ENTERED',
+            insertDataOption: 'INSERT_ROWS',
+            resource: {
+                values: [[newId, producto, brutoFormatted, primaFormatted, etiquetas]]
+            }
+        });
+
+        res.json({ success: true, id: newId });
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ success: false, error: 'Error al crear el producto' });
+    }
+});
+app.delete('/eliminar-producto-acopio/:id', requireAuth, async (req, res) => {
+    try {
+        const { spreadsheetId } = req.user;
+        const { id } = req.params;
+        const sheets = google.sheets({ version: 'v4', auth });
+
+        // Get spreadsheet info
+        const spreadsheet = await sheets.spreadsheets.get({
+            spreadsheetId
+        });
+        
+        const almacenSheet = spreadsheet.data.sheets.find(
+            sheet => sheet.properties.title === 'Almacen acopio'
+        );
+
+        if (!almacenSheet) {
+            return res.status(404).json({ 
+                success: false, 
+                error: 'Hoja de Almacén acopio no encontrada' 
+            });
+        }
+
+        // Get current products
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: 'Almacen acopio!A2:E'
+        });
+
+        const rows = response.data.values || [];
+        const rowIndex = rows.findIndex(row => row[0] === id);
+
+        if (rowIndex === -1) {
+            return res.status(404).json({ 
+                success: false, 
+                error: 'Producto no encontrado' 
+            });
+        }
+
+        // Delete the row
+        await sheets.spreadsheets.batchUpdate({
+            spreadsheetId,
+            resource: {
+                requests: [{
+                    deleteDimension: {
+                        range: {
+                            sheetId: almacenSheet.properties.sheetId,
+                            dimension: 'ROWS',
+                            startIndex: rowIndex + 1,
+                            endIndex: rowIndex + 2
+                        }
+                    }
+                }]
+            }
+        });
+
+        res.json({ 
+            success: true,
+            message: 'Producto eliminado correctamente'
+        });
+    } catch (error) {
+        console.error('Error al eliminar producto:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: 'Error al eliminar el producto' 
+        });
+    }
+});
+app.put('/editar-producto-acopio/:id', requireAuth, async (req, res) => {
+    const { spreadsheetId } = req.user;
+    const { id } = req.params;
+    const { producto, bruto, prima, etiquetas, motivo } = req.body;
+
+    try {
+        const sheets = google.sheets({ version: 'v4', auth });
+
+        // Get current products
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: 'Almacen acopio!A2:E'
+        });
+
+        const rows = response.data.values || [];
+        const rowIndex = rows.findIndex(row => row[0] === id);
+
+        if (rowIndex === -1) {
+            return res.status(404).json({
+                success: false,
+                error: 'Producto no encontrado'
+            });
+        }
+
+        // Update the row (columns: A=ID, B=Producto, C=Bruto, D=Prima, E=Etiquetas)
+        const updatedRow = [id, producto, bruto, prima, etiquetas];
+
+        await sheets.spreadsheets.values.update({
+            spreadsheetId,
+            range: `Almacen acopio!A${rowIndex + 2}:E${rowIndex + 2}`,
+            valueInputOption: 'USER_ENTERED',
+            resource: { values: [updatedRow] }
+        });
+
+        console.log(`Producto ${id} actualizado con motivo: ${motivo}`);
+        
+        res.json({
+            success: true,
+            message: 'Producto actualizado correctamente'
+        });
+
+    } catch (error) {
+        console.error('Error al actualizar producto:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error al actualizar el producto'
+        });
+    }
+});
+
+
+
 app.get('/obtener-etiquetas-acopio', requireAuth, async (req, res) => {
     const { spreadsheetId } = req.user;
 
@@ -1819,6 +1976,87 @@ app.get('/obtener-etiquetas-acopio', requireAuth, async (req, res) => {
         });
     }
 });
+app.post('/agregar-etiqueta-acopio', requireAuth, async (req, res) => {
+    try {
+        const { spreadsheetId } = req.user;
+        const { etiqueta } = req.body;
+        const sheets = google.sheets({ version: 'v4', auth });
+
+        // Get existing tags to calculate next ID
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: 'Etiquetas acopio!A2:B'
+        });
+
+        const rows = response.data.values || [];
+        const nextId = rows.length > 0 ? 
+            parseInt(rows[rows.length - 1][0].split('-')[1]) + 1 : 1;
+
+        const newTag = [`ETA-${nextId.toString().padStart(3, '0')}`, etiqueta];
+
+        // Append the new tag
+        await sheets.spreadsheets.values.append({
+            spreadsheetId,
+            range: 'Etiquetas acopio!A2:B',
+            valueInputOption: 'RAW',
+            insertDataOption: 'INSERT_ROWS',
+            resource: { values: [newTag] }
+        });
+
+        res.json({ success: true, id: newTag[0], etiqueta });
+    } catch (error) {
+        console.error('Error al agregar etiqueta:', error);
+        res.status(500).json({ success: false, error: 'Error al agregar etiqueta' });
+    }
+});
+app.delete('/eliminar-etiqueta-acopio/:id', requireAuth, async (req, res) => {
+    try {
+        const { spreadsheetId } = req.user;
+        const { id } = req.params;
+        const sheets = google.sheets({ version: 'v4', auth });
+
+        // Get current tags
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: 'Etiquetas acopio!A2:B'
+        });
+
+        const rows = response.data.values || [];
+        const rowIndex = rows.findIndex(row => row[0] === id);
+
+        if (rowIndex === -1) {
+            return res.status(404).json({ success: false, error: 'Etiqueta no encontrada' });
+        }
+
+        // Clear the specific row
+        await sheets.spreadsheets.values.clear({
+            spreadsheetId,
+            range: `Etiquetas acopio!A${rowIndex + 2}:B${rowIndex + 2}`
+        });
+
+        // Get remaining tags and reorder them
+        const remainingTags = rows.filter((_, index) => index !== rowIndex);
+        if (remainingTags.length > 0) {
+            await sheets.spreadsheets.values.clear({
+                spreadsheetId,
+                range: 'Etiquetas acopio!A2:B'
+            });
+
+            await sheets.spreadsheets.values.update({
+                spreadsheetId,
+                range: 'Etiquetas acopio!A2',
+                valueInputOption: 'RAW',
+                resource: { values: remainingTags }
+            });
+        }
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error al eliminar etiqueta:', error);
+        res.status(500).json({ success: false, error: 'Error al eliminar etiqueta' });
+    }
+});
+
 
 
 
