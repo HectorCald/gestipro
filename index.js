@@ -570,49 +570,6 @@ app.post('/registrar-produccion', requireAuth, async (req, res) => {
 
 
 /* ==================== RUTAS DE AlMACEN ==================== */
-app.get('/obtener-movimientos-almacen', requireAuth, async (req, res) => {
-    const { spreadsheetId } = req.user;
-
-    try {
-        const sheets = google.sheets({ version: 'v4', auth });
-        
-        const response = await sheets.spreadsheets.values.get({
-            spreadsheetId: spreadsheetId,
-            range: 'Movimientos alm-gral!A2:M' // Columns A through H
-        });
-
-        const rows = response.data.values || [];
-        
-        // Map the data to a more readable format
-        const movimientos = rows.map(row => ({
-            id: row[0] || '',
-            fecha_hora: row[1] || '',
-            tipo: row[2] || '',
-            productos: row[3] || '',
-            cantidades: row[4] || '',
-            operario: row[5] || '',
-            cliente_proovedor: row[6] || '',
-            nombre_movimiento: row[7] || '',
-            subtotal: row[8] || '',
-            descuento: row[9] || '',
-            aumento: row[10] || '',
-            total: row[11] || '',
-            observaciones: row[12] || ''
-        }));
-
-        res.json({
-            success: true,
-            movimientos
-        });
-
-    } catch (error) {
-        console.error('Error al obtener movimientos de almacén:', error);
-        res.status(500).json({
-            success: false,
-            error: 'Error al obtener los movimientos de almacén'
-        });
-    }
-});
 app.delete('/eliminar-registro-produccion/:id', requireAuth, async (req, res) => {
     const { spreadsheetId } = req.user;
     const { id } = req.params;
@@ -1023,6 +980,51 @@ app.put('/actualizar-producto/:id', requireAuth, async (req, res) => {
         res.status(500).json({ success: false, error: 'Error al actualizar el producto' });
     }
 });
+
+
+app.get('/obtener-movimientos-almacen', requireAuth, async (req, res) => {
+    const { spreadsheetId } = req.user;
+
+    try {
+        const sheets = google.sheets({ version: 'v4', auth });
+        
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId: spreadsheetId,
+            range: 'Movimientos alm-gral!A2:M' // Columns A through H
+        });
+
+        const rows = response.data.values || [];
+        
+        // Map the data to a more readable format
+        const movimientos = rows.map(row => ({
+            id: row[0] || '',
+            fecha_hora: row[1] || '',
+            tipo: row[2] || '',
+            productos: row[3] || '',
+            cantidades: row[4] || '',
+            operario: row[5] || '',
+            cliente_proovedor: row[6] || '',
+            nombre_movimiento: row[7] || '',
+            subtotal: row[8] || '',
+            descuento: row[9] || '',
+            aumento: row[10] || '',
+            total: row[11] || '',
+            observaciones: row[12] || ''
+        }));
+
+        res.json({
+            success: true,
+            movimientos
+        });
+
+    } catch (error) {
+        console.error('Error al obtener movimientos de almacén:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error al obtener los movimientos de almacén'
+        });
+    }
+});
 app.post('/registrar-movimiento', requireAuth, async (req, res) => {
     const { spreadsheetId } = req.user;
     const { fechaHora, tipo, productos, cantidades, operario, clienteId, nombre_movimiento, subtotal, descuento, aumento, total, observaciones } = req.body;
@@ -1075,6 +1077,151 @@ app.post('/registrar-movimiento', requireAuth, async (req, res) => {
         res.status(500).json({ 
             success: false,
             error: `Error interno: ${error.message || 'Consulte los logs para más detalles'}`
+        });
+    }
+});
+app.delete('/eliminar-registro-almacen/:id', requireAuth, async (req, res) => {
+    const { spreadsheetId } = req.user;
+    const { id } = req.params;
+
+    try {
+        const sheets = google.sheets({ version: 'v4', auth });
+        
+        // Obtener todos los registros
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: 'Movimientos alm-gral!A2:M'
+        });
+
+        const rows = response.data.values || [];
+        // Buscar el índice exacto del registro por su ID completo
+        const rowIndex = rows.findIndex(row => row[0] && row[0].toString() === id.toString());
+
+        if (rowIndex === -1) {
+            return res.status(404).json({
+                success: false,
+                error: 'Registro no encontrado'
+            });
+        }
+
+        // Obtener el ID de la hoja
+        const spreadsheet = await sheets.spreadsheets.get({
+            spreadsheetId
+        });
+        
+        const produccionSheet = spreadsheet.data.sheets.find(
+            sheet => sheet.properties.title === 'Movimientos alm-gral'
+        );
+
+        if (!produccionSheet) {
+            return res.status(404).json({
+                success: false,
+                error: 'Hoja de Movimeintos no encontrada'
+            });
+        }
+
+        // Eliminar la fila
+        await sheets.spreadsheets.batchUpdate({
+            spreadsheetId,
+            resource: {
+                requests: [{
+                    deleteDimension: {
+                        range: {
+                            sheetId: produccionSheet.properties.sheetId,
+                            dimension: 'ROWS',
+                            startIndex: rowIndex + 1, // +1 por el encabezado
+                            endIndex: rowIndex + 2
+                        }
+                    }
+                }]
+            }
+        });
+
+        res.json({
+            success: true,
+            message: 'Registro eliminado correctamente'
+        });
+
+    } catch (error) {
+        console.error('Error al eliminar registro:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error al eliminar el registro'
+        });
+    }
+});
+app.put('/editar-registro-almacen/:id', requireAuth, async (req, res) => {
+    const { spreadsheetId } = req.user;
+    const { id } = req.params;
+    const { 
+        nombre_movimiento,
+        cliente_proovedor,
+        operario,
+        productos,
+        cantidades,
+        subtotal,
+        descuento,
+        aumento,
+        total,
+        observaciones,
+    } = req.body;
+
+    try {
+        const sheets = google.sheets({ version: 'v4', auth });
+        
+        // Get current almacen records
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: 'Movimientos alm-gral!A2:M'
+        });
+
+        const rows = response.data.values || [];
+        const rowIndex = rows.findIndex(row => row[0] === id);
+
+        if (rowIndex === -1) {
+            return res.status(404).json({
+                success: false,
+                error: 'Registro no encontrado'
+            });
+        }
+
+        // Prepare updated row data
+        const updatedRow = [
+            id,
+            rows[rowIndex][1], // Keep original fecha_hora
+            rows[rowIndex][2], // Keep original tipo
+            productos,
+            cantidades,
+            operario,
+            cliente_proovedor,
+            nombre_movimiento,
+            subtotal,
+            descuento,
+            aumento,
+            total,
+            observaciones
+        ];
+
+        // Update the row
+        await sheets.spreadsheets.values.update({
+            spreadsheetId,
+            range: `Movimientos alm-gral!A${rowIndex + 2}:M${rowIndex + 2}`,
+            valueInputOption: 'USER_ENTERED',
+            resource: {
+                values: [updatedRow]
+            }
+        });
+
+        res.json({
+            success: true,
+            message: 'Registro de almacén actualizado correctamente'
+        });
+
+    } catch (error) {
+        console.error('Error al actualizar registro de almacén:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error al actualizar el registro de almacén'
         });
     }
 });

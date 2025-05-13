@@ -14,6 +14,7 @@ import { mostrarProovedores } from './modules/proovedores.js';
 import { mostrarHacerPedido } from './modules/hacer-pedido.js';
 import { mostrarAlmacenAcopio } from './modules/almacen-acopio.js';
 import { mostrarMovimientosAlmacen } from './modules/registros-almacen.js';
+import { mostrarMisRegistros } from './modules/registros-produccion.js';
 
 
 window.crearHome = crearHome
@@ -39,6 +40,7 @@ window.crearNotificaciones = crearNotificaciones
 
 window.mostrarFormularioProduccion = mostrarFormularioProduccion
 window.mostrarVerificacion = mostrarVerificacion
+window.mostrarMisRegistros = mostrarMisRegistros
 
 
 window.mostrarAlmacenGeneral = mostrarAlmacenGeneral

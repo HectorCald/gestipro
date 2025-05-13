@@ -75,27 +75,26 @@ async function obtenerPrecios() {
 async function obtenerAlmacenAcopio() {
     try {
         const response = await fetch('/obtener-productos-acopio');
+        if (!response.ok) {
+            throw new Error('Error en la respuesta del servidor');
+        }
+
         const data = await response.json();
 
         if (data.success) {
-            productosAcopio = data.productosAcopio.sort((a, b) => {
+            productosAcopio = data.productos.sort((a, b) => {
                 const idA = parseInt(a.id.split('-')[1]);
                 const idB = parseInt(b.id.split('-')[1]);
                 return idB - idA;
             });
             return true;
         } else {
-            mostrarNotificacion({
-                message: 'Error al obtener productos de acopio',
-                type: 'error',
-                duration: 3500
-            });
-            return false;
+            throw new Error(data.error || 'Error al obtener los productos');
         }
     } catch (error) {
-        console.error('Error al obtener productos de acopio:', error);
+        console.error('Error al obtener productos:', error);
         mostrarNotificacion({
-            message: 'Error al obtener productos de acopio',
+            message: 'Error al obtener los productos de acopio',
             type: 'error',
             duration: 3500
         });

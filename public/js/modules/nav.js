@@ -111,7 +111,7 @@ function obtenerOpcionesMenu() {
                 icono: 'fa-history',
                 texto: 'Registros',
                 detalle: 'Ver mis registros de producción',
-                onclick: 'onclick="document.querySelector(\'.seccion2 .normal\').scrollIntoView({behavior: \'smooth\', block: \'start\'});ocultarAnuncioSecond()"'
+                onclick: 'onclick="mostrarMisRegistros(); ocultarAnuncioSecond()"'
             },
             {
                 clase: 'opcion-btn',
@@ -151,18 +151,10 @@ function obtenerOpcionesMenu() {
         'Almacen': [
             {
                 clase: 'opcion-btn',
-                vista: 'verificarRegistros-view',
-                icono: 'fa-check-double',
-                texto: 'Verificar',
-                detalle: 'Verificar registros de producción.',
-                onclick: 'onclick="mostrarVerificacion(); ocultarAnuncioSecond()"'
-            },
-            {
-                clase: 'opcion-btn',
                 vista: 'regAlmacen-view',
                 icono: 'fa-history',
                 texto: 'Registros',
-                detalle: 'Movimientos (Ingresos, salidas).',
+                detalle: 'Movimientos del almacen (Ingresos, salidas).',
                 onclick: 'onclick="mostrarMovimientosAlmacen(); ocultarAnuncioSecond()"'
             },
             {
@@ -170,7 +162,7 @@ function obtenerOpcionesMenu() {
                 vista: 'almacen-view',
                 icono: 'fa-dolly',
                 texto: 'Almacen',
-                detalle: 'Gestionar tu alamcen general',
+                detalle: 'Gestionar tu almacen general (crear, editar, eliminar).',
                 onclick: 'onclick="mostrarAlmacenGeneral(); ocultarAnuncioSecond()"'
             },
             {
@@ -235,7 +227,6 @@ export async function crearNav() {
         obtenerUsuario().then(() => mostrarNav(view));
     }
 }
-
 
 
 function mostrarNav() {

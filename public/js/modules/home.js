@@ -117,7 +117,7 @@ function obtenerFunciones() {
                 icono: 'fa-history',
                 texto: 'Registros',
                 detalle: 'Ver mis registros.',
-                onclick: 'onclick="document.querySelector(\'.seccion2 .normal\').scrollIntoView({behavior: \'smooth\', block: \'start\'})"'
+                onclick: 'onclick="mostrarMisRegistros()"'
             },
             {
                 clase: 'opcion-btn',
