@@ -163,7 +163,6 @@ export async function mostrarSalidas() {
         <div class="encabezado">
             <h1 class="titulo">Salidas de almacen</h1>
             <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
-            <button class="btn filtros"><i class='bx bx-filter'></i></button>
         </div>
         <div class="relleno almacen-general">
             <div class="buscador">
