@@ -578,7 +578,7 @@ app.get('/obtener-movimientos-almacen', requireAuth, async (req, res) => {
         
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId: spreadsheetId,
-            range: 'Movimientos alm-gral!A2:K' // Columns A through H
+            range: 'Movimientos alm-gral!A2:M' // Columns A through H
         });
 
         const rows = response.data.values || [];
@@ -591,11 +591,13 @@ app.get('/obtener-movimientos-almacen', requireAuth, async (req, res) => {
             producto: row[3] || '',
             cantidad: row[4] || '',
             operario: row[5] || '',
-            almacen: row[6] || '',
-            motivo: row[7] || '',
-            origen: row[8] || '',
-            destino: row[9] || '',
-            observaciones: row[10] || ''
+            cliente_proovedor: row[6] || '',
+            destino: row[7] || '',
+            subtotal: row[8] || '',
+            descuento: row[9] || '',
+            aumento: row[10] || '',
+            total: row[11] || '',
+            obeservaciones: row[12] || ''
         }));
 
         res.json({
@@ -1698,7 +1700,7 @@ app.put('/editar-proovedor/:id', requireAuth, async (req, res) => {
 
 app.post('/registrar-movimiento', requireAuth, async (req, res) => {
     const { spreadsheetId } = req.user;
-    const { fechaHora, tipo, productos, cantidades, operario, clienteId, destino, subtotal, descuento, aumento, total, observaciones } = req.body;
+    const { fechaHora, tipo, productos, cantidades, operario, clienteId, nombre_movimiento, subtotal, descuento, aumento, total, observaciones } = req.body;
 
     try {
         const sheets = google.sheets({ version: 'v4', auth });
@@ -1722,7 +1724,7 @@ app.post('/registrar-movimiento', requireAuth, async (req, res) => {
             cantidades, 
             operario, 
             clienteId, 
-            destino, 
+            nombre_movimiento, 
             subtotal, 
             descuento, 
             aumento, 

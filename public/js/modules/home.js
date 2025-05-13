@@ -314,10 +314,10 @@ export function mostrarHome(view) {
             <div class="registro" data-id="${registro.id}">
                 <div class="info">
                     <p class="fecha">${registro.fecha_hora}</p>
-                    <p class="producto">${registro.producto}</p>
+                    <p class="producto">${registro.destino}</p>
                 </div>
                 <div class="detalles">
-                    <p class="cantidad">Cantidad: <strong>${registro.cantidad}</strong></p>
+                    <p class="proovedor_cliente"><strong>${registro.cliente_proovedor}</strong></p>
                     <p class="tipo-movimiento ${tipo.toLowerCase()}"><strong>${registro.tipo}</strong></p>
                 </div>
             </div>

@@ -630,6 +630,13 @@ function eventosIngresos() {
                         </div>
                     </div>
                     <div class="entrada">
+                        <i class='bx bx-label'></i>
+                        <div class="input">
+                            <p class="detalle">Nombre del movimiento</p>
+                            <input class="nombre-movimiento" type="text" autocomplete="off" placeholder=" " required>
+                        </div>
+                    </div>
+                    <div class="entrada">
                         <i class='bx bx-comment-detail'></i>
                         <div class="input">
                             <p class="detalle">Observaciones</p>
@@ -770,9 +777,18 @@ function eventosIngresos() {
 
     async function registrarIngreso() {
         const proovedorSelect = document.querySelector('.select-proovedor');
+        const nombreMovimiento= document.querySelector('.nombre-movimiento');
         if (!proovedorSelect.value) {
             mostrarNotificacion({
                 message: 'Seleccione un prooveedor antes de continuar',
+                type: 'error',
+                duration: 3000
+            });
+            return;
+        }
+        if (!nombreMovimiento.value) {
+            mostrarNotificacion({
+                message: 'Ingrese un nombre para el movimiento',
                 type: 'error',
                 duration: 3000
             });
@@ -786,7 +802,7 @@ function eventosIngresos() {
             cantidades: Array.from(carritoSalidas.values()).map(item => item.cantidad).join(';'),
             operario: `${usuarioInfo.nombre} ${usuarioInfo.apellido}`,
             clienteId: proovedorSelect.value,
-            destino: 'Almacen General',
+            nombre_movimiento: nombreMovimiento.value,
             subtotal: Array.from(carritoSalidas.values()).reduce((sum, item) => sum + (item.cantidad * item.subtotal), 0),
             descuento: parseFloat(document.querySelector('.descuento').value) || 0,
             aumento: parseFloat(document.querySelector('.aumento').value) || 0,
