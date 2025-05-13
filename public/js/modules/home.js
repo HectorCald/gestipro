@@ -358,13 +358,18 @@ export function mostrarHome(view) {
             </div>
         </div>
         <div class="seccion2">
-            <h2 class="normal">Actividad de los últimos 7 días</h2>
+            <h2 class="normal nota">Actividad de los últimos 7 días</h2>
             <canvas id="graficoVelas"></canvas>
         </div>
     `;
 
     view.innerHTML = home;
-    crearGraficoVelas();
+    const nota = document.querySelector('.nota');
+    if (usuarioInfo.rol === 'Producción') {
+        crearGraficoVelas();
+    } else if (usuarioInfo.rol === 'Almacen') {
+        crearGraficoAlmacen();
+    }
 }
 
 function crearGraficoVelas() {
@@ -550,5 +555,173 @@ function crearGraficoVelas() {
         console.log('Gráfico creado con estilo moderno');
     } catch (error) {
         console.error('Error al crear el gráfico:', error);
+    }
+}
+function crearGraficoAlmacen() {
+    console.log('Iniciando creación de gráfico de almacén...');
+    
+    // Verificar si hay registros de movimientos
+    console.log('Registros de movimientos:', registrosMovimientos);
+    if (!registrosMovimientos || registrosMovimientos.length === 0) {
+        console.warn('No hay registros de movimientos para mostrar en el gráfico');
+        return;
+    }
+
+    // Procesar datos para los últimos 7 días
+    const ultimos7Dias = Array(7).fill().map((_, i) => {
+        const fecha = new Date();
+        fecha.setDate(fecha.getDate() - i);
+        return fecha.toLocaleDateString('es-ES'); // Formato DD/MM/YYYY
+    }).reverse();
+
+    // Sumar totales por día y contar movimientos
+    const datosPorDia = ultimos7Dias.map(fecha => {
+        const registrosDia = registrosMovimientos.filter(registro => {
+            if (!registro.fecha_hora) {
+                return false;
+            }
+            // Extraer solo la parte de la fecha (DD/MM/YYYY)
+            const registroFecha = registro.fecha_hora.split(',')[0].trim();
+            return registroFecha === fecha;
+        });
+        
+        // Sumar los totales de todos los registros del día
+        const totalDia = registrosDia.reduce((sum, registro) => {
+            return sum + (parseFloat(registro.total) || 0);
+        }, 0);
+        
+        return totalDia;
+    });
+
+    // Determinar colores según comparación con día anterior
+    const colores = datosPorDia.map((total, index) => {
+        if (index === 0) return '#2196F3'; // Azul para el primer día
+        
+        const totalAyer = datosPorDia[index - 1];
+        if (total > totalAyer) {
+            return '#4CAF50'; // Verde si hay más ingresos
+        } else if (total < totalAyer) {
+            return '#F44336'; // Rojo si hay menos ingresos
+        } else {
+            return '#FFC107'; // Amarillo si es igual
+        }
+    });
+
+    const canvas = document.getElementById('graficoVelas');
+    if (!canvas) {
+        return;
+    }
+
+    try {
+        const ctx = canvas.getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ultimos7Dias.map(fecha => fecha.split('/')[0] + '/' + fecha.split('/')[1]),
+                datasets: [{
+                    label: 'Total movimientos $',
+                    data: datosPorDia,
+                    backgroundColor: colores,
+                    borderColor: 'transparent',
+                    borderWidth: 0,
+                    borderRadius: {
+                        topLeft: 6,
+                        topRight: 6,
+                        bottomLeft: 0,
+                        bottomRight: 0
+                    },
+                    barThickness: 20,
+                    maxBarThickness: 30
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                layout: {
+                    padding: {
+                        top: 20,
+                        right: 15,
+                        bottom: 10,
+                        left: 15
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        enabled: true,
+                        backgroundColor: '#ffffff',
+                        titleColor: '#333',
+                        bodyColor: '#666',
+                        borderColor: '#e0e0e0',
+                        borderWidth: 1,
+                        padding: 12,
+                        cornerRadius: 8,
+                        displayColors: false,
+                        bodyFont: {
+                            family: "'Inter', -apple-system, sans-serif",
+                            size: 13
+                        },
+                        titleFont: {
+                            family: "'Inter', -apple-system, sans-serif",
+                            size: 14,
+                            weight: 'bold'
+                        },
+                        callbacks: {
+                            label: function(context) {
+                                return `Total: $${context.raw.toFixed(2)}`;
+                            },
+                            title: function(context) {
+                                return `Día ${context[0].label}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.03)',
+                            drawBorder: false,
+                            drawTicks: false
+                        },
+                        ticks: {
+                            color: '#666',
+                            font: {
+                                family: "'Inter', -apple-system, sans-serif",
+                                size: 12
+                            },
+                            padding: 8,
+                            callback: function(value) {
+                                return '$' + value.toFixed(2);
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false,
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: '#666',
+                            font: {
+                                family: "'Inter', -apple-system, sans-serif",
+                                size: 12
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Aplicar estilo al canvas
+        canvas.style.background = 'none';
+        canvas.style.borderRadius = '12px';
+        canvas.style.boxShadow = '0 2px 10px rgba(0,0,0,0.05)';
+        
+        console.log('Gráfico de almacén creado con éxito');
+    } catch (error) {
+        console.error('Error al crear el gráfico de almacén:', error);
     }
 }
