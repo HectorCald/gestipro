@@ -1446,6 +1446,6 @@
 #graficoVelas {
     width: 100% !important;
     height: 200px !important;
-    margin-top: 15px;
-    display: flex;
+    background-color: var(--primary-color) !important;
+    padding: 10px!important;
 }
