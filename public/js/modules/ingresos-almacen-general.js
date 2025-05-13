@@ -1,7 +1,6 @@
 let productos = [];
 let etiquetas = [];
 let precios = [];
-let clientes = [];
 let proovedores = [];
 let usuarioInfo = recuperarUsuarioLocal();
 let carritoSalidas = new Map(JSON.parse(localStorage.getItem('damabrava_carrito_ingresos') || '[]'));
@@ -75,36 +74,6 @@ async function obtenerPrecios() {
         return false;
     }
 }
-async function obtenerClientes() {
-    try {
-        const response = await fetch('/obtener-clientes');
-        const data = await response.json();
-
-        if (data.success) {
-            clientes = data.clientes.sort((a, b) => {
-                const nombreA = a.nombre.toLowerCase();
-                const nombreB = b.nombre.toLowerCase();
-                return nombreA.localeCompare(nombreB);
-            });
-            return true;
-        } else {
-            mostrarNotificacion({
-                message: 'Error al obtener clientes',
-                type: 'error',
-                duration: 3500
-            });
-            return false;
-        }
-    } catch (error) {
-        console.error('Error al obtener clientes:', error);
-        mostrarNotificacion({
-            message: 'Error al obtener clientes',
-            type: 'error',
-            duration: 3500
-        });
-        return false;
-    }
-}
 async function obtenerProovedores() {
     try {
         mostrarCarga();
@@ -146,7 +115,7 @@ async function obtenerAlmacenGeneral() {
         mostrarCarga();
         await obtenerEtiquetas();
         await obtenerPrecios();
-        await obtenerClientes();
+        await obtenerProovedores();
         const response = await fetch('/obtener-productos');
         const data = await response.json();
 
@@ -181,7 +150,7 @@ async function obtenerAlmacenGeneral() {
 
 
 
-export async function mostrarIngresos() {
+export async function mostrarIngresos(busquedaProducto = '') {
     await obtenerAlmacenGeneral();
     
     const contenido = document.querySelector('.anuncio .contenido');
@@ -192,7 +161,6 @@ export async function mostrarIngresos() {
     }).join('');
     const precioInicial = precios[1]?.precio.split(';')[0].split(',')[0];
 
-
     const registrationHTML = `  
         <div class="encabezado">
             <h1 class="titulo">Ingresos de almacen</h1>
@@ -201,7 +169,7 @@ export async function mostrarIngresos() {
         </div>
         <div class="relleno almacen-general">
             <div class="buscador">
-                <input type="text" class="buscar-producto" placeholder="Buscar...">
+                <input type="text" class="buscar-producto" placeholder="Buscar..." value="${busquedaProducto}">
                 <i class='bx bx-search'></i>
             </div>
             <p class="normal"><i class='bx bx-chevron-right'></i>Filtros</p>
@@ -259,11 +227,18 @@ export async function mostrarIngresos() {
         selectPrecios.dispatchEvent(new Event('change'));
     }
 
-
     const { aplicarFiltros } = eventosIngresos();
     aplicarFiltros('Todos', 'Todos');
 
     contenido.style.paddingBottom = '10px';
+
+    // Aplicar búsqueda automática si se proporcionó un nombre de producto
+    if (busquedaProducto) {
+        const inputBusqueda = document.querySelector('.buscar-producto');
+        const iconoBusqueda = document.querySelector('.almacen-general .buscador i');
+        inputBusqueda.dispatchEvent(new Event('input'));
+        iconoBusqueda.className = 'bx bx-x';
+    }
 }
 function eventosIngresos() {
     const botonesEtiquetas = document.querySelectorAll('.filtros-opciones.etiquetas-filter .btn-filtro');
@@ -645,11 +620,11 @@ function eventosIngresos() {
                     <div class="entrada">
                         <i class='bx bx-user'></i>
                         <div class="input">
-                            <p class="detalle">Selecciona un cliente</p>
-                            <select class="select-cliente" required>
+                            <p class="detalle">Selecciona proovedor</p>
+                            <select class="select-proovedor" required>
                                 <option value=""></option>
-                                ${clientes.map(cliente => `
-                                    <option value="${cliente.id}">${cliente.nombre}</option>
+                                ${proovedores.map(proovedor => `
+                                    <option value="${proovedor.nombre}(${proovedor.id})">${proovedor.nombre}</option>
                                 `).join('')}
                             </select>
                         </div>
@@ -665,7 +640,7 @@ function eventosIngresos() {
                 </div>
             </div>
             <div class="anuncio-botones">
-                <button class="btn-procesar-salida btn orange"><i class='bx bx-import'></i> Procesar Ingresos</button>
+                <button class="btn-procesar-salida btn orange" onclick="registrarIngreso()"><i class='bx bx-import'></i> Procesar Ingresos</button>
             </div>
         `;
 
@@ -792,6 +767,87 @@ function eventosIngresos() {
     }
 
 
+
+    async function registrarIngreso() {
+        const proovedorSelect = document.querySelector('.select-proovedor');
+        if (!proovedorSelect.value) {
+            mostrarNotificacion({
+                message: 'Seleccione un prooveedor antes de continuar',
+                type: 'error',
+                duration: 3000
+            });
+            return;
+        }
+
+        const registroSalida = {
+            fechaHora: new Date().toLocaleString(),
+            tipo: 'Ingreso', 
+            productos: Array.from(carritoSalidas.values()).map(item => `${item.producto} - ${item.gramos}gr`).join(';'),
+            cantidades: Array.from(carritoSalidas.values()).map(item => item.cantidad).join(';'),
+            operario: `${usuarioInfo.nombre} ${usuarioInfo.apellido}`,
+            clienteId: proovedorSelect.value,
+            destino: 'Almacen General',
+            subtotal: Array.from(carritoSalidas.values()).reduce((sum, item) => sum + (item.cantidad * item.subtotal), 0),
+            descuento: parseFloat(document.querySelector('.descuento').value) || 0,
+            aumento: parseFloat(document.querySelector('.aumento').value) || 0,
+            total: 0,
+            observaciones: document.querySelector('.Observaciones').value || 'Ninguna'
+        };
+
+        registroSalida.total = registroSalida.subtotal - registroSalida.descuento + registroSalida.aumento;
+
+        try {
+            mostrarCarga();
+            const response = await fetch('/registrar-movimiento', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('damabrava_token')}`
+                },
+                body: JSON.stringify(registroSalida)
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(data.error || 'Error en la respuesta del servidor');
+            }
+
+            // Limpiar después de éxito
+            carritoSalidas.clear();
+            localStorage.removeItem('damabrava_carrito');
+            productos.forEach(producto => {
+                const headerItem = document.querySelector(`.registro-item[data-id="${producto.id}"]`);
+                if (headerItem) {
+                    const cantidadSpan = headerItem.querySelector('.carrito-cantidad');
+                    const stockSpan = headerItem.querySelector('.stock');
+                    if (cantidadSpan) cantidadSpan.textContent = '';
+                    if (stockSpan) stockSpan.textContent = `${producto.stock} Und.`;
+                }
+            });
+    
+            actualizarCarritoUI();
+            ocultarAnuncioSecond();
+
+            mostrarNotificacion({
+                message: 'Salida registrada y cliente actualizado',
+                type: 'success',
+                duration: 3000
+            });
+
+        } catch (error) {
+            console.error('Error en registrarSalida:', error);
+            mostrarNotificacion({
+                message: error.message || 'Error al procesar la salida',
+                type: 'error',
+                duration: 4000
+            });
+        } finally {
+            ocultarCarga();
+        }
+    }
+
+    window.registrarIngreso = registrarIngreso;
 
     return { aplicarFiltros };
 }

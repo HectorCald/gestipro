@@ -1297,7 +1297,7 @@ app.get('/obtener-clientes', requireAuth, async (req, res) => {
 
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId: spreadsheetId,
-            range: 'Clientes!A2:E'
+            range: 'Clientes!A2:F'
         });
 
         const rows = response.data.values || [];
@@ -1306,7 +1306,8 @@ app.get('/obtener-clientes', requireAuth, async (req, res) => {
             nombre: row[1] || '',
             telefono: row[2] || '',
             direccion: row[3] || '',
-            zona: row[4] || ''
+            zona: row[4] || '',
+            pedidos_id: row[5] || '',
         }));
 
         res.json({
@@ -1690,6 +1691,63 @@ app.put('/editar-proovedor/:id', requireAuth, async (req, res) => {
         res.status(500).json({
             success: false,
             error: 'Error al actualizar el proovedor'
+        });
+    }
+});
+
+
+app.post('/registrar-movimiento', requireAuth, async (req, res) => {
+    const { spreadsheetId } = req.user;
+    const { fechaHora, tipo, productos, cantidades, operario, clienteId, destino, subtotal, descuento, aumento, total, observaciones } = req.body;
+
+    try {
+        const sheets = google.sheets({ version: 'v4', auth });
+
+        // Generar nuevo ID
+        const lastIdResponse = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: 'Movimientos alm-gral!A2:A'
+        });
+
+        const lastId = lastIdResponse.data.values ? 
+            Math.max(...lastIdResponse.data.values.map(row => parseInt(row[0]?.split('-')[1]) || 0)) : 0;
+        const newId = `MAG-${lastId + 1}`;
+
+        // Registrar movimiento
+        const newMovimiento = [
+            newId, 
+            fechaHora, 
+            tipo, 
+            productos, 
+            cantidades, 
+            operario, 
+            clienteId, 
+            destino, 
+            subtotal, 
+            descuento, 
+            aumento, 
+            total, 
+            observaciones
+        ];
+
+        await sheets.spreadsheets.values.append({
+            spreadsheetId,
+            range: 'Movimientos alm-gral!A2:N',
+            valueInputOption: 'USER_ENTERED',
+            resource: { values: [newMovimiento] }
+        });
+
+        res.json({ 
+            success: true,
+            id: newId,
+            message: 'Movimiento registrado correctamente'
+        });
+
+    } catch (error) {
+        console.error('Error en registrar movimiento:', error);
+        res.status(500).json({ 
+            success: false,
+            error: `Error interno: ${error.message || 'Consulte los logs para más detalles'}`
         });
     }
 });

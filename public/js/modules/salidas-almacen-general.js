@@ -1,3 +1,4 @@
+
 let productos = [];
 let etiquetas = [];
 let precios = [];
@@ -148,7 +149,7 @@ async function obtenerAlmacenGeneral() {
 
 export async function mostrarSalidas() {
     await obtenerAlmacenGeneral();
-    
+
     const contenido = document.querySelector('.anuncio .contenido');
     const etiquetasUnicas = [...new Set(etiquetas.map(etiqueta => etiqueta.etiqueta))];
     const preciosOpciones = precios.map((precio, index) => {
@@ -238,7 +239,7 @@ function eventosSalidas() {
     const iconoBusqueda = document.querySelector('.almacen-general .buscador i');
     const botonFlotante = document.createElement('button');
 
-    
+
     botonFlotante.className = 'btn-flotante-salidas';
     botonFlotante.innerHTML = '<i class="fas fa-arrow-up"></i>';
     document.body.appendChild(botonFlotante);
@@ -615,7 +616,7 @@ function eventosSalidas() {
                             <select class="select-cliente" required>
                                 <option value=""></option>
                                 ${clientes.map(cliente => `
-                                    <option value="${cliente.id}">${cliente.nombre}</option>
+                                    <option value="${cliente.nombre}(${cliente.id})">${cliente.nombre}</option>
                                 `).join('')}
                             </select>
                         </div>
@@ -631,7 +632,7 @@ function eventosSalidas() {
                 </div>
             </div>
             <div class="anuncio-botones">
-                <button class="btn-procesar-salida btn orange"><i class='bx bx-export'></i> Procesar Salida</button>
+                <button class="btn-procesar-salida btn orange" onclick="registrarSalida()"><i class='bx bx-export'></i> Procesar Salida</button>
             </div>
         `;
 
@@ -654,7 +655,7 @@ function eventosSalidas() {
 
         const botonLimpiar = anuncioSecond.querySelector('.btn.filtros.limpiar');
         botonLimpiar.addEventListener('click', () => {
-            
+
             carritoSalidas.forEach((item, id) => {
                 const headerItem = document.querySelector(`.registro-item[data-id="${id}"]`);
                 if (headerItem) {
@@ -674,7 +675,7 @@ function eventosSalidas() {
                 type: 'success',
                 duration: 2000
             });
-            document.querySelector('.btn-flotante-saldias').style.display='none';
+            document.querySelector('.btn-flotante-saldias').style.display = 'none';
         });
     }
     window.ajustarCantidad = (id, delta) => {
@@ -715,7 +716,7 @@ function eventosSalidas() {
     function actualizarCarritoUI() {
         if (carritoSalidas.size === 0) {
             ocultarAnuncioSecond();
-            document.querySelector('.btn-flotante-salidas').style.display='none';
+            document.querySelector('.btn-flotante-salidas').style.display = 'none';
             return;
         }
 
@@ -756,8 +757,85 @@ function eventosSalidas() {
     function actualizarCarritoLocal() {
         localStorage.setItem('damabrava_carrito', JSON.stringify(Array.from(carritoSalidas.entries())));
     }
+    async function registrarSalida() {
+        const clienteSelect = document.querySelector('.select-cliente');
+        if (!clienteSelect.value) {
+            mostrarNotificacion({
+                message: 'Seleccione un cliente antes de continuar',
+                type: 'error',
+                duration: 3000
+            });
+            return;
+        }
 
+        const registroSalida = {
+            fechaHora: new Date().toLocaleString(),
+            tipo: 'Salida', 
+            productos: Array.from(carritoSalidas.values()).map(item => `${item.producto} - ${item.gramos}gr`).join(';'),
+            cantidades: Array.from(carritoSalidas.values()).map(item => item.cantidad).join(';'),
+            operario: `${usuarioInfo.nombre} ${usuarioInfo.apellido}`,
+            clienteId: clienteSelect.value,
+            destino: 'Pedido',
+            subtotal: Array.from(carritoSalidas.values()).reduce((sum, item) => sum + (item.cantidad * item.subtotal), 0),
+            descuento: parseFloat(document.querySelector('.descuento').value) || 0,
+            aumento: parseFloat(document.querySelector('.aumento').value) || 0,
+            total: 0,
+            observaciones: document.querySelector('.Observaciones').value || 'Ninguna'
+        };
 
+        registroSalida.total = registroSalida.subtotal - registroSalida.descuento + registroSalida.aumento;
+
+        try {
+            mostrarCarga();
+            const response = await fetch('/registrar-movimiento', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('damabrava_token')}`
+                },
+                body: JSON.stringify(registroSalida)
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(data.error || 'Error en la respuesta del servidor');
+            }
+
+            // Limpiar después de éxito
+            carritoSalidas.clear();
+            localStorage.removeItem('damabrava_carrito');
+            productos.forEach(producto => {
+                const headerItem = document.querySelector(`.registro-item[data-id="${producto.id}"]`);
+                if (headerItem) {
+                    const cantidadSpan = headerItem.querySelector('.carrito-cantidad');
+                    const stockSpan = headerItem.querySelector('.stock');
+                    if (cantidadSpan) cantidadSpan.textContent = '';
+                    if (stockSpan) stockSpan.textContent = `${producto.stock} Und.`;
+                }
+            });
+    
+            actualizarCarritoUI();
+            ocultarAnuncioSecond();
+
+            mostrarNotificacion({
+                message: 'Salida registrada y cliente actualizado',
+                type: 'success',
+                duration: 3000
+            });
+
+        } catch (error) {
+            console.error('Error en registrarSalida:', error);
+            mostrarNotificacion({
+                message: error.message || 'Error al procesar la salida',
+                type: 'error',
+                duration: 4000
+            });
+        } finally {
+            ocultarCarga();
+        }
+    }
+    window.registrarSalida = registrarSalida;
 
     return { aplicarFiltros };
 }

@@ -303,7 +303,7 @@ function eventosVerificacion() {
 
             try {
                 mostrarCarga();
-                
+
                 const registro = registrosProduccion.find(r => r.id === registroId);
 
                 const response = await fetch(`/verificar-registro-produccion/${registroId}`, {
@@ -324,7 +324,6 @@ function eventosVerificacion() {
                 const data = await response.json();
 
                 if (data.success) {
-                    // Registrar en historial
                     await registrarHistorial(
                         `${usuarioInfo.nombre} ${usuarioInfo.apellido}`,
                         'Verificación',
@@ -340,6 +339,7 @@ function eventosVerificacion() {
                     ocultarAnuncioSecond();
                     await obtenerRegistrosProduccion();
                     await mostrarVerificacion();
+                    await mostrarIngresos(registro.producto); // Pasar el nombre del producto verificado
                 } else {
                     throw new Error(data.error || 'Error al verificar el registro');
                 }
