@@ -162,8 +162,8 @@ function obtenerOpcionesMenu() {
                 vista: 'regAlmacen-view',
                 icono: 'fa-history',
                 texto: 'Registros',
-                detalle: 'Ingresos/salidas.',
-                onclick: 'onclick="document.querySelector(\'.seccion2 .normal\').scrollIntoView({behavior: \'smooth\', block: \'start\'}); ocultarAnuncioSecond()"'
+                detalle: 'Movimientos (Ingresos, salidas).',
+                onclick: 'onclick="mostrarMovimientosAlmacen(); ocultarAnuncioSecond()"'
             },
             {
                 clase: 'opcion-btn',
@@ -279,6 +279,7 @@ function mostrarMenu() {
     `;
 
     contenido.innerHTML = menuHTML;
+    contenido.style.paddingBottom = '10px';
     mostrarAnuncioSecond();
 }
 function eventosNav() {

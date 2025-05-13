@@ -588,16 +588,16 @@ app.get('/obtener-movimientos-almacen', requireAuth, async (req, res) => {
             id: row[0] || '',
             fecha_hora: row[1] || '',
             tipo: row[2] || '',
-            producto: row[3] || '',
-            cantidad: row[4] || '',
+            productos: row[3] || '',
+            cantidades: row[4] || '',
             operario: row[5] || '',
             cliente_proovedor: row[6] || '',
-            destino: row[7] || '',
+            nombre_movimiento: row[7] || '',
             subtotal: row[8] || '',
             descuento: row[9] || '',
             aumento: row[10] || '',
             total: row[11] || '',
-            obeservaciones: row[12] || ''
+            observaciones: row[12] || ''
         }));
 
         res.json({

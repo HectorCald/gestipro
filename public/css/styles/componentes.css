@@ -949,6 +949,25 @@
                 display: none;
             }
         }
+
+        .Ingreso {
+            background-color: rgba(102, 196, 102, 0.085);
+            border-radius: 10px;
+            padding: 5px 10px;
+            color: var(--success);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .Salida {
+            background-color: rgba(196, 102, 102, 0.077);
+            border-radius: 10px;
+            padding: 5px 10px;
+            color: var(--error);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
     }
 
     .info {
@@ -1041,10 +1060,7 @@
         justify-content: space-between;
         width: 100%;
         align-items: center;
-
-        .id-producto{
-            color: var(--cero-color);
-        }
+        color:  var(--cero-color);
     }
 }
 
@@ -1135,7 +1151,7 @@
 
 }
 
-.btn-flotante-salidas{
+.btn-flotante-salidas {
     position: fixed;
     bottom: 20px;
     right: 20px;
@@ -1156,6 +1172,7 @@
         font-size: var(--text-5xl) !important;
     }
 }
+
 .btn-flotante-ingresos {
     position: fixed;
     bottom: 20px;
@@ -1177,6 +1194,7 @@
         font-size: var(--text-5xl) !important;
     }
 }
+
 .btn-flotante-pedidos {
     position: fixed;
     bottom: 20px;
@@ -1199,7 +1217,9 @@
     }
 }
 
-.btn-flotante-salidas .cantidad, .btn-flotante-ingresos .cantidad,.btn-flotante-pedidos .cantidad {
+.btn-flotante-salidas .cantidad,
+.btn-flotante-ingresos .cantidad,
+.btn-flotante-pedidos .cantidad {
     position: absolute;
     top: -5px;
     right: -5px;
@@ -1302,15 +1322,17 @@
                 display: flex;
                 gap: 10px;
 
-                select{
+                select {
                     min-width: 70px !important;
                     background-color: var(--primary-color);
                     color: var(--text);
                     border-radius: 10px;
                     padding: 10px;
                     border: none;
+                    font-size: var(--text-subtitulo);
                 }
-                .detalle{
+
+                .detalle {
                     width: 100%;
                     background-color: var(--primary-color);
                     color: var(--text);
@@ -1318,8 +1340,10 @@
                     padding: 10px;
                     border: none;
                     transition: all 0.5s ease;
+                    font-size: var(--text-subtitulo);
+                    margin-right: 10px;
 
-                    &:focus{
+                    &:focus {
                         border: 1px solid var(--tercer-color);
                     }
                 }
@@ -1372,7 +1396,7 @@
 
     50% {
         transform: scale(1.05);
-        background-color:rgb(64, 64, 64);
+        background-color: rgb(64, 64, 64);
     }
 
     100% {

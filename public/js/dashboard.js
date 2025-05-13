@@ -13,7 +13,7 @@ import { mostrarClientes } from './modules/clientes.js';
 import { mostrarProovedores } from './modules/proovedores.js';
 import { mostrarHacerPedido } from './modules/hacer-pedido.js';
 import { mostrarAlmacenAcopio } from './modules/almacen-acopio.js';
-
+import { mostrarMovimientosAlmacen } from './modules/registros-almacen.js';
 
 
 window.crearHome = crearHome
@@ -29,29 +29,27 @@ window.mostrarAnuncio = mostrarAnuncio
 window.mostrarAnuncioSecond = mostrarAnuncioSecond
 window.ocultarAnuncioSecond = ocultarAnuncioSecond
 
+
 window.mostrarCarga = mostrarCarga
 window.ocultarCarga = ocultarCarga
 window.configuracionesEntrada = configuracionesEntrada
-
 window.registrarHistorial = registrarHistorial
-
-window.mostrarFormularioProduccion = mostrarFormularioProduccion
-
-window.mostrarVerificacion = mostrarVerificacion
-
 window.crearNotificaciones = crearNotificaciones
 
-window.mostrarAlmacenGeneral = mostrarAlmacenGeneral
 
+window.mostrarFormularioProduccion = mostrarFormularioProduccion
+window.mostrarVerificacion = mostrarVerificacion
+
+
+window.mostrarAlmacenGeneral = mostrarAlmacenGeneral
 window.mostrarSalidas = mostrarSalidas
 window.mostrarIngresos = mostrarIngresos
-
+window.mostrarMovimientosAlmacen = mostrarMovimientosAlmacen
 window.mostrarClientes = mostrarClientes
-
 window.mostrarProovedores = mostrarProovedores
 
-window.mostrarHacerPedido = mostrarHacerPedido
 
+window.mostrarHacerPedido = mostrarHacerPedido
 window.mostrarAlmacenAcopio = mostrarAlmacenAcopio
 
 

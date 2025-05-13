@@ -76,7 +76,6 @@ async function obtenerPrecios() {
 }
 async function obtenerProovedores() {
     try {
-        mostrarCarga();
         const response = await fetch('/obtener-proovedores');
         const data = await response.json();
 
@@ -103,8 +102,6 @@ async function obtenerProovedores() {
             duration: 3500
         });
         return false;
-    } finally {
-        ocultarCarga();
     }
 }
 
