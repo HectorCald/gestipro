@@ -11,14 +11,7 @@ let usuarioInfo = {
 async function obtenerUsuario() {
     try {
         mostrarCarga();
-        // Intentar recuperar del localStorage
-        const usuarioGuardado = localStorage.getItem('damabrava_usuario');
-        if (usuarioGuardado) {
-            usuarioInfo = JSON.parse(usuarioGuardado);
-            return true;
-        }
-
-        mostrarCarga();
+        // Primero intentamos obtener del servidor
         const response = await fetch('/obtener-usuario-actual');
         const data = await response.json();
         
@@ -45,15 +38,22 @@ async function obtenerUsuario() {
                     const blob = await imgResponse.blob();
                     usuarioInfo.foto = URL.createObjectURL(blob);
                 } catch (error) {
-                    console.error('Error loading image:', error);
+                    console.error('Error al cargar imagen:', error);
                     usuarioInfo.foto = './icons/icon.png';
                 }
             }
 
-            // Guardar en localStorage
+            // Guardar en localStorage después de obtener del servidor
             localStorage.setItem('damabrava_usuario', JSON.stringify(usuarioInfo));
             return true;
         } else {
+            // Si falla el servidor, intentar recuperar del localStorage
+            const usuarioGuardado = localStorage.getItem('damabrava_usuario');
+            if (usuarioGuardado) {
+                usuarioInfo = JSON.parse(usuarioGuardado);
+                return true;
+            }
+            
             mostrarNotificacion({
                 message: 'Error al obtener datos del usuario',
                 type: 'error',

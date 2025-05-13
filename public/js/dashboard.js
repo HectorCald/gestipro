@@ -11,6 +11,7 @@ import { mostrarSalidas } from './modules/salidas-almacen-general.js';
 import { mostrarIngresos } from './modules/ingresos-almacen-general.js';
 import { mostrarClientes } from './modules/clientes.js';
 import { mostrarProovedores } from './modules/proovedores.js';
+import { mostrarHacerPedido } from './modules/hacer-pedido.js';
 
 
 
@@ -47,6 +48,8 @@ window.mostrarIngresos = mostrarIngresos
 window.mostrarClientes = mostrarClientes
 
 window.mostrarProovedores = mostrarProovedores
+
+window.mostrarHacerPedido = mostrarHacerPedido
 
 
 document.addEventListener('DOMContentLoaded', async () => {

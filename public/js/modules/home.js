@@ -11,7 +11,6 @@ let registrosProduccion = [];
 let registrosMovimientos = [];
 let registrosFiltrados = [];
 
-
 async function obtenerUsuario() {
     try {
         mostrarCarga();
@@ -133,17 +132,25 @@ function obtenerFunciones() {
             {
                 clase: 'opcion-btn',
                 vista: 'almAcopio-view',
-                icono: 'fa-dolly',
-                texto: 'Gestionar Almacen',
-                detalle: 'Aqui puedes gestionar el almacen de Acopio: (Materia Prima, Materia Bruta, Movimientos).',
-                onclick: 'onclick="inicializarAlmacen()"'
+                icono: 'fa-shopping-cart',
+                texto: 'Pedido',
+                detalle: 'Hacer nuevo pedido',
+                onclick: 'onclick="mostrarHacerPedido()"'
             },
             {
                 clase: 'opcion-btn',
                 vista: 'regAcopio-view',
-                icono: 'fa-history',
-                texto: 'Registros Acopio.',
-                detalle: 'Aqui puedes ver todos los registros de Acopio que hiciste: (Pedidos, Movimientos).',
+                icono: 'fa-dolly',
+                texto: 'Almacen',
+                detalle: 'Gestiona tu almacen',
+                onclick: 'onclick="cargarRegistrosAcopio()"'
+            },
+            {
+                clase: 'opcion-btn',
+                vista: 'regAcopio-view',
+                icono: 'fa-clipboard',
+                texto: 'Registros',
+                detalle: 'Movientos en tu almacen',
                 onclick: 'onclick="cargarRegistrosAcopio()"'
             }
         ],

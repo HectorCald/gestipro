@@ -1177,8 +1177,29 @@
         font-size: var(--text-5xl) !important;
     }
 }
+.btn-flotante-pedidos {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #2196F3;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    z-index: 3;
 
-.btn-flotante-salidas .cantidad, .btn-flotante-ingresos .cantidad {
+    i {
+        font-size: var(--text-5xl) !important;
+    }
+}
+
+.btn-flotante-salidas .cantidad, .btn-flotante-ingresos .cantidad,.btn-flotante-pedidos .cantidad {
     position: absolute;
     top: -5px;
     right: -5px;
@@ -1280,6 +1301,28 @@
             .info-valores {
                 display: flex;
                 gap: 10px;
+
+                select{
+                    min-width: 70px !important;
+                    background-color: var(--primary-color);
+                    color: var(--text);
+                    border-radius: 10px;
+                    padding: 10px;
+                    border: none;
+                }
+                .detalle{
+                    width: 100%;
+                    background-color: var(--primary-color);
+                    color: var(--text);
+                    border-radius: 10px;
+                    padding: 10px;
+                    border: none;
+                    transition: all 0.5s ease;
+
+                    &:focus{
+                        border: 1px solid var(--tercer-color);
+                    }
+                }
 
                 p {
                     font-size: var(--text-detalle);

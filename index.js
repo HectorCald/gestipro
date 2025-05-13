@@ -1023,6 +1023,61 @@ app.put('/actualizar-producto/:id', requireAuth, async (req, res) => {
         res.status(500).json({ success: false, error: 'Error al actualizar el producto' });
     }
 });
+app.post('/registrar-movimiento', requireAuth, async (req, res) => {
+    const { spreadsheetId } = req.user;
+    const { fechaHora, tipo, productos, cantidades, operario, clienteId, nombre_movimiento, subtotal, descuento, aumento, total, observaciones } = req.body;
+
+    try {
+        const sheets = google.sheets({ version: 'v4', auth });
+
+        // Generar nuevo ID
+        const lastIdResponse = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: 'Movimientos alm-gral!A2:A'
+        });
+
+        const lastId = lastIdResponse.data.values ? 
+            Math.max(...lastIdResponse.data.values.map(row => parseInt(row[0]?.split('-')[1]) || 0)) : 0;
+        const newId = `MAG-${lastId + 1}`;
+
+        // Registrar movimiento
+        const newMovimiento = [
+            newId, 
+            fechaHora, 
+            tipo, 
+            productos, 
+            cantidades, 
+            operario, 
+            clienteId, 
+            nombre_movimiento, 
+            subtotal, 
+            descuento, 
+            aumento, 
+            total, 
+            observaciones
+        ];
+
+        await sheets.spreadsheets.values.append({
+            spreadsheetId,
+            range: 'Movimientos alm-gral!A2:N',
+            valueInputOption: 'USER_ENTERED',
+            resource: { values: [newMovimiento] }
+        });
+
+        res.json({ 
+            success: true,
+            id: newId,
+            message: 'Movimiento registrado correctamente'
+        });
+
+    } catch (error) {
+        console.error('Error en registrar movimiento:', error);
+        res.status(500).json({ 
+            success: false,
+            error: `Error interno: ${error.message || 'Consulte los logs para más detalles'}`
+        });
+    }
+});
 
 
 app.get('/obtener-etiquetas', requireAuth, async (req, res) => {
@@ -1698,65 +1753,6 @@ app.put('/editar-proovedor/:id', requireAuth, async (req, res) => {
 });
 
 
-app.post('/registrar-movimiento', requireAuth, async (req, res) => {
-    const { spreadsheetId } = req.user;
-    const { fechaHora, tipo, productos, cantidades, operario, clienteId, nombre_movimiento, subtotal, descuento, aumento, total, observaciones } = req.body;
-
-    try {
-        const sheets = google.sheets({ version: 'v4', auth });
-
-        // Generar nuevo ID
-        const lastIdResponse = await sheets.spreadsheets.values.get({
-            spreadsheetId,
-            range: 'Movimientos alm-gral!A2:A'
-        });
-
-        const lastId = lastIdResponse.data.values ? 
-            Math.max(...lastIdResponse.data.values.map(row => parseInt(row[0]?.split('-')[1]) || 0)) : 0;
-        const newId = `MAG-${lastId + 1}`;
-
-        // Registrar movimiento
-        const newMovimiento = [
-            newId, 
-            fechaHora, 
-            tipo, 
-            productos, 
-            cantidades, 
-            operario, 
-            clienteId, 
-            nombre_movimiento, 
-            subtotal, 
-            descuento, 
-            aumento, 
-            total, 
-            observaciones
-        ];
-
-        await sheets.spreadsheets.values.append({
-            spreadsheetId,
-            range: 'Movimientos alm-gral!A2:N',
-            valueInputOption: 'USER_ENTERED',
-            resource: { values: [newMovimiento] }
-        });
-
-        res.json({ 
-            success: true,
-            id: newId,
-            message: 'Movimiento registrado correctamente'
-        });
-
-    } catch (error) {
-        console.error('Error en registrar movimiento:', error);
-        res.status(500).json({ 
-            success: false,
-            error: `Error interno: ${error.message || 'Consulte los logs para más detalles'}`
-        });
-    }
-});
-
-
-
-
 
 app.get('/obtener-productos-acopio', requireAuth, async (req, res) => {
     const { spreadsheetId } = req.user;
@@ -1766,22 +1762,22 @@ app.get('/obtener-productos-acopio', requireAuth, async (req, res) => {
         
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId: spreadsheetId,
-            range: 'Almacen acopio!A2:D' // Columns A to D for ID, PRODUCTO, BRUTO-PESO-LOTE, PRIMA-PESO-LOTE
+            range: 'Almacen acopio!A2:E'
         });
 
         const rows = response.data.values || [];
         
-        // Map the data to the specified format
-        const productosAcopio = rows.map(row => ({
+        const productos = rows.map(row => ({
             id: row[0] || '',
             producto: row[1] || '',
-            bruto_peso_lote: row[2] || '',
-            prima_peso_lote: row[3] || ''
+            bruto: row[2] || '0-1',  // Default value if empty
+            prima: row[3] || '0-1',   // Default value if empty
+            etiquetas: row[4] || ''
         }));
 
         res.json({
             success: true,
-            productosAcopio
+            productos
         });
 
     } catch (error) {
@@ -1792,6 +1788,38 @@ app.get('/obtener-productos-acopio', requireAuth, async (req, res) => {
         });
     }
 });
+app.get('/obtener-etiquetas-acopio', requireAuth, async (req, res) => {
+    const { spreadsheetId } = req.user;
+
+    try {
+        const sheets = google.sheets({ version: 'v4', auth });
+        
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId: spreadsheetId,
+            range: 'Etiquetas acopio!A2:B' // Columnas A y B para ID y ETIQUETA
+        });
+
+        const rows = response.data.values || [];
+        
+        const etiquetas = rows.map(row => ({
+            id: row[0] || '',
+            etiqueta: row[1] || ''
+        }));
+
+        res.json({
+            success: true,
+            etiquetas
+        });
+
+    } catch (error) {
+        console.error('Error al obtener etiquetas:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error al obtener las etiquetas'
+        });
+    }
+});
+
 
 
 
