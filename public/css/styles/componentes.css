@@ -1434,3 +1434,18 @@
     flex-direction: column;
     gap: 10px;
 }
+
+.seccion-grafico {
+    background: var(--color-background);
+    padding: 20px;
+    border-radius: 12px;
+    margin: 20px 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+#graficoVelas {
+    width: 100% !important;
+    height: 200px !important;
+    margin-top: 15px;
+    display: flex;
+}
