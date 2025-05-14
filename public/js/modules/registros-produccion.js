@@ -268,32 +268,32 @@ function eventosMisRegistros() {
             <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno">
-            <p class="normal"><i class='bx bx-chevron-right'></i> Información básica</p>
+            <p class="normal"><i class='bx bx-chevron-right'></i>Información básica</p>
             <div class="campo-vertical">
                 <span><strong><i class='bx bx-calendar'></i> Fecha:</strong> ${registro.fecha}</span>
                 <span><strong><i class='bx bx-id-card'></i> ID:</strong> ${registro.id}</span>
             </div>
 
-            <p class="normal"><i class='bx bx-chevron-right'></i> Información del producto</p>
+            <p class="normal"><i class='bx bx-chevron-right'></i>Información del producto</p>
             <div class="campo-vertical">
                 <span><strong><i class='bx bx-package'></i> Producto:</strong> ${registro.producto}</span>
                 <span><strong><i class='bx bx-cube'></i> Gramos:</strong> ${registro.gramos}gr.</span>
                 <span><strong><i class='bx bx-box'></i> Lote:</strong> ${registro.lote}</span>
             </div>
 
-            <p class="normal"><i class='bx bx-chevron-right'></i> Detalles de producción</p>
+            <p class="normal"><i class='bx bx-chevron-right'></i>Detalles de producción</p>
             <div class="campo-vertical">
                 <span><strong><i class='bx bx-package'></i> Seleccionado/cernido:</strong> ${registro.proceso}</span>
                 <span><strong><i class='bx bx-microchip'></i> Microondas:</strong> ${registro.microondas}</span>
                 <span><strong><i class='bx bx-package'></i> Envases terminados:</strong> ${registro.envases_terminados} Und.</span>
                 <span><strong><i class='bx bx-calendar'></i> Fecha de vencimiento:</strong> ${registro.fecha_vencimiento}</span>
             </div>
-            <p class="normal"><i class='bx bx-chevron-right'></i> Detalles de verificación</p>
+            <p class="normal"><i class='bx bx-chevron-right'></i>Detalles de verificación</p>
             <div class="campo-vertical">
                 <span><strong><i class='bx bx-transfer'></i> Verificado:</strong> ${registro.fecha_verificacion ? `${registro.c_real} Und.` : 'Pendiente'}</span>
                 ${registro.fecha_verificacion ? `<span><strong><i class='bx bx-calendar-check'></i> Fecha verificación:</strong> ${registro.fecha_verificacion}</span>` : ''}
             ${registro.observaciones ? `
-                    <span><strong><i class='bx bx-comment-detail'></i> Observaciones: </strong> ${registro.observaciones}</span>
+                    <span><strong><i class='bx bx-comment-detail'></i>Observaciones: </strong> ${registro.observaciones}</span>
                 </div>
             ` : ''}
         </div>

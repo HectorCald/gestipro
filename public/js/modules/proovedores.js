@@ -192,7 +192,7 @@ function eventosProovedores() {
                 <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
             </div>
             <div class="relleno verificar-registro">
-                <p class="normal"><i class='bx bx-chevron-right'></i> Información del proovedor</p>
+                <p class="normal"><i class='bx bx-chevron-right'></i>Información del proovedor</p>
                 <div class="campo-vertical">
                     <span class="nombre"><strong><i class='bx bx-id-card'></i> Id: </strong>${proovedor.id}</span>
                     <span class="nombre"><strong><i class='bx bx-user'></i> Nombre: </strong>${proovedor.nombre}</span>

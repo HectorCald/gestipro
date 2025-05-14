@@ -629,27 +629,27 @@ function eventosAlmacenGeneral() {
         </div>
         <div class="relleno verificar-registro">
         
-            <p class="normal"><i class='bx bx-chevron-right'></i> Información básica</p>
+            <p class="normal"><i class='bx bx-chevron-right'></i>Información básica</p>
             <div class="campo-vertical">
                 <span class="nombre"><strong><i class='bx bx-id-card'></i> Id: </strong>${producto.id}</span>
                 <span class="nombre"><strong><i class='bx bx-cube'></i> Producto: </strong>${producto.producto}</span>
             </div>
 
-            <p class="normal"><i class='bx bx-chevron-right'></i> Información del producto</p>
+            <p class="normal"><i class='bx bx-chevron-right'></i>Información del producto</p>
             <div class="campo-vertical">
                 <span class="valor"><strong><i class="ri-scales-line"></i> Gramaje: </strong>${producto.gramos}gr.</span>
                 <span class="valor"><strong><i class='bx bx-package'></i> Stock: </strong>${producto.stock} Und.</span>
                 <span class="valor"><strong><i class='bx bx-hash'></i> Codigo: </strong>${producto.codigo_barras} Und.</span>
             </div>
 
-            <p class="normal"><i class='bx bx-chevron-right'></i> Detalles adicionales</p>
+            <p class="normal"><i class='bx bx-chevron-right'></i>Detalles adicionales</p>
             <div class="campo-vertical">
                 <span class="valor"><strong><i class='bx bx-hash'></i> Cantidad por grupo: </strong>${producto.cantidadxgrupo}</span>
                 <span class="valor"><strong><i class='bx bx-list-ul'></i> Lista: </strong>${producto.lista}</span>
                 <span class="valor"><strong><i class='bx bx-package'></i> Alamcen Index: </strong>${producto.alm_acopio_producto}</span>
             </div>
 
-            <p class="normal"><i class='bx bx-chevron-right'></i> Precios</p>
+            <p class="normal"><i class='bx bx-chevron-right'></i>Precios</p>
             <div class="campo-vertical">
                 ${preciosFormateados}
             </div>
@@ -691,27 +691,27 @@ function eventosAlmacenGeneral() {
             <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno">
-            <p class="normal"><i class='bx bx-chevron-right'></i> Información básica</p>
+            <p class="normal"><i class='bx bx-chevron-right'></i>Información básica</p>
             <div class="campo-vertical">
                 <span class="nombre"><strong><i class='bx bx-id-card'></i> Id: </strong>${producto.id}</span>
                 <span class="nombre"><strong><i class='bx bx-cube'></i> Producto: </strong>${producto.producto}</span>
             </div>
 
-            <p class="normal"><i class='bx bx-chevron-right'></i> Información del producto</p>
+            <p class="normal"><i class='bx bx-chevron-right'></i>Información del producto</p>
             <div class="campo-vertical">
                 <span class="valor"><strong><i class="ri-scales-line"></i> Gramaje: </strong>${producto.gramos}gr.</span>
                 <span class="valor"><strong><i class='bx bx-package'></i> Stock: </strong>${producto.stock} Und.</span>
                 <span class="valor"><strong><i class='bx bx-hash'></i> Codigo: </strong>${producto.codigo_barras} Und.</span>
             </div>
 
-            <p class="normal"><i class='bx bx-chevron-right'></i> Detalles adicionales</p>
+            <p class="normal"><i class='bx bx-chevron-right'></i>Detalles adicionales</p>
             <div class="campo-vertical">
                 <span class="valor"><strong><i class='bx bx-hash'></i> Cantidad por grupo: </strong>${producto.cantidadxgrupo}</span>
                 <span class="valor"><strong><i class='bx bx-list-ul'></i> Lista: </strong>${producto.lista}</span>
                 <span class="valor"><strong><i class='bx bx-package'></i> Alamcen Index: </strong>${producto.alm_acopio_producto}</span>
             </div>
 
-            <p class="normal"><i class='bx bx-chevron-right'></i> Precios</p>
+            <p class="normal"><i class='bx bx-chevron-right'></i>Precios</p>
             <div class="campo-vertical">
                 ${preciosFormateados}
             </div>

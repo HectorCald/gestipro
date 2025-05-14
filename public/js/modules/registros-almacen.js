@@ -367,21 +367,21 @@ function eventosRegistrosAlmacen() {
             <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno verificar-registro">
-            <p class="normal"><i class='bx bx-chevron-right'></i> Información básica</p>
+            <p class="normal"><i class='bx bx-chevron-right'></i>Información básica</p>
             <div class="campo-vertical">
                 <span class="nombre"><strong><i class='bx bx-id-card'></i> ID: </strong>${registro.id}</span>
                 <span class="fecha"><strong><i class='bx bx-calendar'></i> Fecha - Hora: </strong>${registro.fecha_hora}</span>
                 <span class="valor ${registro.tipo.toLowerCase()}"><strong><i class='bx bx-transfer'></i> Tipo: </strong>${registro.tipo}</span>
             </div>
 
-            <p class="normal"><i class='bx bx-chevron-right'></i> Detalles del movimiento</p>
+            <p class="normal"><i class='bx bx-chevron-right'></i>Detalles del movimiento</p>
             <div class="campo-vertical">
                 <span class="valor"><strong><i class='bx bx-id-card'></i> Nombre movimiento: </strong>${registro.nombre_movimiento}</span>
                 <span class="valor"><strong><i class='bx bx-user'></i> Cliente/Proveedor: </strong>${registro.cliente_proovedor.split('(')[0].trim()}</span>
                 <span class="valor"><strong><i class='bx bx-user-circle'></i> Responsable: </strong>${registro.operario}</span>
             </div>
 
-            <p class="normal"><i class='bx bx-chevron-right'></i> Productos y cantidades</p>
+            <p class="normal"><i class='bx bx-chevron-right'></i>Productos y cantidades</p>
             <div class="campo-vertical">
                 ${registro.productos.split(';').map((producto, index) => {
             const cantidad = registro.cantidades.split(';')[index] || 'N/A';
@@ -390,7 +390,7 @@ function eventosRegistrosAlmacen() {
                     `;
         }).join('')}
             </div>
-            <p class="normal"><i class='bx bx-chevron-right'></i> Detalles financieros</p>
+            <p class="normal"><i class='bx bx-chevron-right'></i>Detalles financieros</p>
             <div class="campo-vertical">
                 <span class="valor"><strong><i class='bx bx-dollar-circle'></i> Subtotal: </strong>Bs. ${parseFloat(registro.subtotal).toFixed(2)}</span>
                 <span class="valor"><strong><i class='bx bx-tag'></i> Descuento: </strong>Bs. ${parseFloat(registro.descuento).toFixed(2)}</span>
@@ -398,7 +398,7 @@ function eventosRegistrosAlmacen() {
                 <span class="valor total"><strong><i class='bx bx-money'></i> Total: </strong>Bs. ${parseFloat(registro.total).toFixed(2)}</span>
             </div>
 
-            <p class="normal"><i class='bx bx-chevron-right'></i> Observaciones</p>
+            <p class="normal"><i class='bx bx-chevron-right'></i>Observaciones</p>
             <div class="campo-vertical">
                  <span class="valor"><strong><i class='bx bx-comment-detail'></i> Observaciones: </strong>${registro.observaciones || 'Ninguna'}</span>
             </div>
@@ -420,21 +420,21 @@ function eventosRegistrosAlmacen() {
             <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno">
-            <p class="normal"><i class='bx bx-chevron-right'></i> Información básica</p>
+            <p class="normal"><i class='bx bx-chevron-right'></i>Información básica</p>
             <div class="campo-vertical">
                 <span class="nombre"><strong><i class='bx bx-id-card'></i> ID: </strong>${registro.id}</span>
                 <span class="fecha"><strong><i class='bx bx-calendar'></i> Fecha - Hora: </strong>${registro.fecha_hora}</span>
                 <span class="valor ${registro.tipo.toLowerCase()}"><strong><i class='bx bx-transfer'></i> Tipo: </strong>${registro.tipo}</span>
             </div>
 
-            <p class="normal"><i class='bx bx-chevron-right'></i> Detalles del movimiento</p>
+            <p class="normal"><i class='bx bx-chevron-right'></i>Detalles del movimiento</p>
             <div class="campo-vertical">
                 <span class="valor"><strong><i class='bx bx-id-card'></i> Nombre movimiento: </strong>${registro.nombre_movimiento}</span>
                 <span class="valor"><strong><i class='bx bx-user'></i> Cliente/Proveedor: </strong>${registro.cliente_proovedor.split('(')[0].trim()}</span>
                 <span class="valor"><strong><i class='bx bx-user-circle'></i> Responsable: </strong>${registro.operario}</span>
             </div>
 
-            <p class="normal"><i class='bx bx-chevron-right'></i> Productos y cantidades</p>
+            <p class="normal"><i class='bx bx-chevron-right'></i>Productos y cantidades</p>
             <div class="campo-vertical">
                 ${registro.productos.split(';').map((producto, index) => {
             const cantidad = registro.cantidades.split(';')[index] || 'N/A';
@@ -443,7 +443,7 @@ function eventosRegistrosAlmacen() {
                     `;
         }).join('')}
             </div>
-            <p class="normal"><i class='bx bx-chevron-right'></i> Detalles financieros</p>
+            <p class="normal"><i class='bx bx-chevron-right'></i>Detalles financieros</p>
             <div class="campo-vertical">
                 <span class="valor"><strong><i class='bx bx-dollar-circle'></i> Subtotal: </strong>Bs. ${parseFloat(registro.subtotal).toFixed(2)}</span>
                 <span class="valor"><strong><i class='bx bx-tag'></i> Descuento: </strong>Bs. ${parseFloat(registro.descuento).toFixed(2)}</span>
@@ -451,7 +451,7 @@ function eventosRegistrosAlmacen() {
                 <span class="valor total"><strong><i class='bx bx-money'></i> Total: </strong>Bs. ${parseFloat(registro.total).toFixed(2)}</span>
             </div>
 
-            <p class="normal"><i class='bx bx-chevron-right'></i> Observaciones</p>
+            <p class="normal"><i class='bx bx-chevron-right'></i>Observaciones</p>
             <div class="campo-vertical">
                  <span class="valor"><strong><i class='bx bx-comment-detail'></i> Observaciones: </strong>${registro.observaciones || 'Ninguna'}</span>
             </div>
@@ -543,7 +543,7 @@ function eventosRegistrosAlmacen() {
             <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno editar-produccion">
-        <p class="normal"><i class='bx bx-chevron-right'></i> Información basica</p>
+        <p class="normal"><i class='bx bx-chevron-right'></i>Información basica</p>
             <div class="entrada">
                 <i class='bx bx-id-card'></i>
                 <div class="input">
@@ -571,7 +571,7 @@ function eventosRegistrosAlmacen() {
                     <input class="responsable" type="text" value="${registro.operario}" autocomplete="off" placeholder=" " required>
                 </div>
             </div>
-            <p class="normal"><i class='bx bx-chevron-right'></i> Productos y cantidades</p>
+            <p class="normal"><i class='bx bx-chevron-right'></i>Productos y cantidades</p>
             ${registro.productos.split(';').map((producto, index) => `
                 <div class="entrada">
                     <i class='bx bx-package'></i>
@@ -589,7 +589,7 @@ function eventosRegistrosAlmacen() {
                 </div>
             `).join('')}            
 
-            <p class="normal"><i class='bx bx-chevron-right'></i> Detalles financieros</p>
+            <p class="normal"><i class='bx bx-chevron-right'></i>Detalles financieros</p>
             <div class="entrada">
                 <i class='bx bx-dollar'></i>
                 <div class="input">

@@ -435,13 +435,13 @@ function eventosAlmacenAcopio() {
                 <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
             </div>
             <div class="relleno verificar-registro">
-                <p class="normal"><i class='bx bx-chevron-right'></i> Información básica</p>
+                <p class="normal"><i class='bx bx-chevron-right'></i>Información básica</p>
                 <div class="campo-vertical">
                     <span class="nombre"><strong><i class='bx bx-id-card'></i> Id: </strong>${producto.id}</span>
                     <span class="nombre"><strong><i class='bx bx-cube'></i> Producto: </strong>${producto.producto}</span>
                 </div>
     
-                <p class="normal"><i class='bx bx-chevron-right'></i> Peso Bruto</p>
+                <p class="normal"><i class='bx bx-chevron-right'></i>Peso Bruto</p>
                 <div class="campo-vertical">
                     ${lotesFormateadosBruto}
                     <span class="valor total">
@@ -449,7 +449,7 @@ function eventosAlmacenAcopio() {
                     </span>
                 </div>
     
-                <p class="normal"><i class='bx bx-chevron-right'></i> Peso Prima</p>
+                <p class="normal"><i class='bx bx-chevron-right'></i>Peso Prima</p>
                 <div class="campo-vertical">
                     ${lotesPrimaFormateados}
                     <span class="valor total">
@@ -457,7 +457,7 @@ function eventosAlmacenAcopio() {
                     </span>
                 </div>
     
-                <p class="normal"><i class='bx bx-chevron-right'></i> Etiquetas</p>
+                <p class="normal"><i class='bx bx-chevron-right'></i>Etiquetas</p>
                 <div class="campo-vertical">
                     ${etiquetasFormateadas}
                 </div>
@@ -512,29 +512,29 @@ function eventosAlmacenAcopio() {
                 <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
             </div>
             <div class="relleno verificar-registro">
-                <p class="normal"><i class='bx bx-chevron-right'></i> Información básica</p>
+                <p class="normal"><i class='bx bx-chevron-right'></i>Información básica</p>
                 <div class="campo-vertical">
                     <span class="nombre"><strong><i class='bx bx-id-card'></i> Id: </strong>${producto.id}</span>
                     <span class="nombre"><strong><i class='bx bx-cube'></i> Producto: </strong>${producto.producto}</span>
                 </div>
     
-                <p class="normal"><i class='bx bx-chevron-right'></i> Peso Bruto</p>
+                <p class="normal"><i class='bx bx-chevron-right'></i>Peso Bruto</p>
                 <div class="campo-vertical">
                     ${lotesFormateadosBruto}
                     <span class="valor total">
-                        <strong><i class='bx bx-calculator'></i> Total Bruto: </strong>${totalBruto.toFixed(2)} Kg.
+                        <strong><i class='bx bx-calculator'></i>Total Bruto: </strong>${totalBruto.toFixed(2)} Kg.
                     </span>
                 </div>
     
-                <p class="normal"><i class='bx bx-chevron-right'></i> Peso Prima</p>
+                <p class="normal"><i class='bx bx-chevron-right'></i>Peso Prima</p>
                 <div class="campo-vertical">
                     ${lotesPrimaFormateados}
                     <span class="valor total">
-                        <strong><i class='bx bx-calculator'></i> Total Prima: </strong>${totalPrima.toFixed(2)} Kg.
+                        <strong><i class='bx bx-calculator'></i>Total Prima: </strong>${totalPrima.toFixed(2)} Kg.
                     </span>
                 </div>
     
-                <p class="normal"><i class='bx bx-chevron-right'></i> Etiquetas</p>
+                <p class="normal"><i class='bx bx-chevron-right'></i>Etiquetas</p>
                 <div class="campo-vertical">
                     ${etiquetasFormateadas}
                 </div>

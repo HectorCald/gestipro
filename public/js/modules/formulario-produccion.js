@@ -37,7 +37,7 @@ export async function mostrarFormularioProduccion() {
             <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno">
-            <p class="normal"><i class='bx bx-chevron-right'></i> Registro</p>
+            <p class="normal"><i class='bx bx-chevron-right'></i>Registro</p>
             <div class="entrada">
                 <i class="ri-box-3-line"></i>
                 <div class="input">
