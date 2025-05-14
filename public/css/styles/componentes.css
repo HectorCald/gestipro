@@ -1361,7 +1361,6 @@
                     border-radius: 10px;
                     text-align: center;
                     background-color: var(--oct-color);
-                    font-family: 'Impact', sans-serif !important;
                 }
 
                 p.subtotal {
