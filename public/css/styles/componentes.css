@@ -971,6 +971,7 @@
         justify-content: center;
         align-items: center;
         gap: 10px;
+        font-size: 10px !important;
 
         .stock {
             color: rgb(0, 145, 255);
@@ -1003,56 +1004,31 @@
         background:none;
         border-radius: 10px;
         color: var(--success);
-        display: flex;
-        justify-content: center;
-        align-items: center;
         font-weight: 900!important;
+        font-size: 10px !important;
     }
     .Salida {
         background:none;
         border-radius: 10px;
         color: var(--error);
-        display: flex;
-        justify-content: center;
-        align-items: center;
         font-weight: 900!important;
-    }
-    .detalle {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-
-        .fecha {
-            color: var(--cuarto-color);
-            font-size: var(--text-detalle);
-            font-weight: 500;
-        }
-
-        span {
-            color: var(--cero-color);
-        }
+        font-size: 10px !important;
     }
 
-    .detalle .valor {
-        font-size: var(--text-subtitulo);
-        color: var(--text);
-        display: flex;
-        width: 100%;
-        justify-content: space-between;
-    }
-
-    .valor.verificado {
+    .verificado {
         color: var(--success);
         background:none;
         border-radius: 10px;
         font-weight: 900 !important;
+        font-size: 10px !important;
     }
 
-    .valor.pendiente {
+    .pendiente {
         color: var(--error);
         background:none;
         border-radius: 10px;
         font-weight: 900!important;
+        font-size: 10px !important;
     }
 
 
@@ -1087,15 +1063,6 @@
 
     .registro-item.activo .header {
         transform: translateY(-5px);
-    }
-
-    .nombre {
-        display: flex;
-        justify-content: space-between;
-        width: 100%;
-        align-items: center;
-        color:  var(--cero-color);
-        font-size: var(--text-detalle);
     }
 }
 
