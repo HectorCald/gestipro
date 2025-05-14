@@ -1,6 +1,5 @@
 let usuarioInfo = recuperarUsuarioLocal();
-let registrosProduccion = [];
-let registrosMovimientos = [];
+
 function recuperarUsuarioLocal() {
     const usuarioGuardado = localStorage.getItem('damabrava_usuario');
     if (usuarioGuardado) {
@@ -59,80 +58,12 @@ async function obtenerUsuario() {
         return false;
     }
 }
-async function obtenerMisRegistros() {
-    try {
-        const response = await fetch('/obtener-registros-produccion');
-        const data = await response.json();
-
-        if (data.success) {
-            // Filtrar registros por el email del usuario actual y ordenar de más reciente a más antiguo
-            registrosProduccion = data.registros
-                .filter(registro => registro.user === usuarioInfo.email)
-                .sort((a, b) => {
-                    const [dayA, monthA, yearA] = a.fecha.split('/').map(Number);
-                    const [dayB, monthB, yearB] = b.fecha.split('/').map(Number);
-                    const dateA = new Date(yearA + 2000, monthA - 1, dayA);
-                    const dateB = new Date(yearB + 2000, monthB - 1, dayB);
-                    return dateB - dateA; // Orden descendente (más reciente primero)
-                });
-            return true;
-        } else {
-            mostrarNotificacion({
-                message: 'Error al obtener registros de producción',
-                type: 'error',
-                duration: 3500
-            });
-            return false;
-        }
-    } catch (error) {
-        console.error('Error al obtener registros:', error);
-        mostrarNotificacion({
-            message: 'Error al obtener registros de producción',
-            type: 'error',
-            duration: 3500
-        });
-        return false;
-    }
-}
-async function obtenerMovimientosAlmacen() {
-    try {
-        const response = await fetch('/obtener-movimientos-almacen');
-        const data = await response.json();
-
-        if (data.success) {
-            // Store movements in global variable and sort by date (most recent first)
-            registrosMovimientos = data.movimientos.sort((a, b) => {
-                const idA = parseInt(a.id.split('-')[1]);
-                const idB = parseInt(b.id.split('-')[1]);
-                return idB - idA; // Orden descendente por número de ID
-            });
-            return true;
-        } else {
-            mostrarNotificacion({
-                message: 'Error al obtener movimientos de almacén',
-                type: 'error',
-                duration: 3500
-            });
-            return false;
-        }
-    } catch (error) {
-        console.error('Error al obtener movimientos:', error);
-        mostrarNotificacion({
-            message: 'Error al obtener movimientos de almacén',
-            type: 'error',
-            duration: 3500
-        });
-        return false;
-    }
-}
 
 
 export async function crearPerfil() {
     await verificarTemaInicial();
     const view = document.querySelector('.perfil-view');
     await obtenerUsuario();
-    await obtenerMisRegistros();
-    await obtenerMovimientosAlmacen();
     mostrarPerfil(view);
 }
 function mostrarPerfil(view) {

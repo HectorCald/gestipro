@@ -87,7 +87,7 @@ export async function mostrarMisRegistros() {
             `).join('')}
         </div>
         <div class="anuncio-botones">
-            <button id="exportar-excel" class="btn especial" style="margin-bottom:10px"><i class='bx bx-download'></i> Descargar registros</button>
+            <button id="exportar-excel" class="btn orange" style="margin-bottom:10px"><i class='bx bx-download'></i> Descargar registros</button>
         </div>
     `;
     contenido.innerHTML = registrationHTML;
