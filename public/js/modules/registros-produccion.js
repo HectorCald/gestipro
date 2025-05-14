@@ -383,6 +383,12 @@ function eventosMisRegistros() {
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, 'Registros');
         XLSX.writeFile(workbook, nombreArchivo);
+
+        mostrarNotificacion({
+            message: 'Descarga exitosa de los registros',
+            type: 'success',
+            duration: 3000
+        });
     });
 
     return { aplicarFiltros };

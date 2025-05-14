@@ -295,7 +295,7 @@ function evetosFormularioProduccion() {
                 mostrarNotificacion({
                     message: 'Producción registrada correctamente',
                     type: 'success',
-                    duration: 1000
+                    duration: 3000
                 });
             } else {
                 throw new Error(data.error || 'Error al registrar la producción');
