@@ -22,7 +22,6 @@ html,
 body {
     overflow: hidden;
     background-color: var(--fondo) !important;
-    font-family: 'Impact', sans-serif !important;
     display: flex;
     justify-content: center;
     align-items: center;
