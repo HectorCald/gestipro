@@ -1360,7 +1360,7 @@
                     padding: 5px 10px;
                     border-radius: 10px;
                     text-align: center;
-                    background-color: var(--fondo);
+                    background: none;
                 }
 
                 p.subtotal {
@@ -1373,7 +1373,7 @@
             }
 
             button {
-                background-color: #ff000031;
+                background: none;
                 border: none;
                 padding: 5px 10px;
                 border-radius: 10px;
