@@ -128,9 +128,9 @@ export async function mostrarAlmacenAcopio() {
                         <span class="fecha">${producto.etiquetas.split(';').join(' • ')}</span>
                     </div>
                     <div class="registro-acciones">
-                        <button class="btn-info btn-icon gray" data-id="${producto.id}"><i class='bx bx-info-circle'></i></button>
-                        <button class="btn-editar btn-icon blue" data-id="${producto.id}"><i class='bx bx-edit'></i></button>
-                        <button class="btn-eliminar btn-icon red" data-id="${producto.id}"><i class="bi bi-trash-fill"></i></button>
+                        <button class="btn-info btn-icon gray" data-id="${producto.id}"><i class='bx bx-info-circle'></i>Info</button>
+                        <button class="btn-editar btn-icon blue" data-id="${producto.id}"><i class='bx bx-edit'></i> Editar</button>
+                        <button class="btn-eliminar btn-icon red" data-id="${producto.id}"><i class="bx bx-trash"></i> Eliminar</button>
                     </div>
                 </div>
             `}).join('')}

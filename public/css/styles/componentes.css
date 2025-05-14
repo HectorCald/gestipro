@@ -169,6 +169,12 @@
         color: rgb(179, 179, 179) !important;
     }
 }
+.btn-icon.orange {
+    color: orange !important;
+    i {
+        color: orange!important;
+    }
+}
 
 .notification-container {
     position: fixed;

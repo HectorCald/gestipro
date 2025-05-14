@@ -58,10 +58,10 @@ export async function mostrarProovedores() {
                         <span class="fecha">${proovedor.telefono}-${proovedor.zona}</span>
                     </div>
                     <div class="registro-acciones">
-                        <button class="btn-info-proovedor btn-icon gray" data-id="${proovedor.id}"><i class='bx bx-info-circle'></i></button>
-                        <button class="btn-editar-proovedor btn-icon blue" data-id="${proovedor.id}"><i class='bx bx-edit'></i></button>
-                        <button class="btn-eliminar-proovedor btn-icon red" data-id="${proovedor.id}"><i class="bi bi-trash-fill"></i></button>
-                        <button class="btn-eliminar-proovedor btn-icon green" data-id="${proovedor.id}"><i class='bx bx-history'></i></button>
+                        <button class="btn-info-proovedor btn-icon gray" data-id="${proovedor.id}"><i class='bx bx-info-circle'></i>Info</button>
+                        <button class="btn-editar-proovedor btn-icon blue" data-id="${proovedor.id}"><i class='bx bx-edit'></i> Editar</button>
+                        <button class="btn-eliminar-proovedor btn-icon red" data-id="${proovedor.id}"><i class="bx bx-trash"></i> Eliminar</button>
+                        <button class="btn-historial-proovedor btn-icon orange" data-id="${proovedor.id}"><i class='bx bx-history'></i>Historial</button>
                     </div>
                 </div>
             `).join('')}

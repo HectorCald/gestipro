@@ -79,7 +79,7 @@ export async function mostrarMisRegistros() {
                         <span class="fecha">${registro.fecha}</span>
                     </div>
                     <div class="registro-acciones">
-                        <button class="btn-info btn-icon gray" data-id="${registro.id}"><i class='bx bx-info-circle'></i></button>
+                        <button class="btn-info btn-icon gray" data-id="${registro.id}"><i class='bx bx-info-circle'></i>Info</button>
                     </div>
                 </div>
             `).join('')}

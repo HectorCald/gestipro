@@ -58,10 +58,10 @@ export async function mostrarClientes() {
                         <span class="fecha">${cliente.telefono}-${cliente.zona}</span>
                     </div>
                     <div class="registro-acciones">
-                        <button class="btn-info-cliente btn-icon gray" data-id="${cliente.id}"><i class='bx bx-info-circle'></i></button>
-                        <button class="btn-editar-cliente btn-icon blue" data-id="${cliente.id}"><i class='bx bx-edit'></i></button>
-                        <button class="btn-eliminar-cliente btn-icon red" data-id="${cliente.id}"><i class="bi bi-trash-fill"></i></button>
-                        <button class="btn-eliminar-cliente btn-icon green" data-id="${cliente.id}"><i class='bx bx-history'></i></button>
+                        <button class="btn-info-cliente btn-icon gray" data-id="${cliente.id}"><i class='bx bx-info-circle'></i>Info</button>
+                        <button class="btn-editar-cliente btn-icon blue" data-id="${cliente.id}"><i class='bx bx-edit'></i> Editar</button>
+                        <button class="btn-eliminar-cliente btn-icon red" data-id="${cliente.id}"><i class="bx bx-trash"></i> Eliminar</button>
+                        <button class="btn-historial-cliente btn-icon orange" data-id="${cliente.id}"><i class='bx bx-history'></i>Historial</button>
                     </div>
                 </div>
             `).join('')}
