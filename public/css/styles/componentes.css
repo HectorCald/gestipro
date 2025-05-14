@@ -131,9 +131,14 @@
     flex-direction: column;
     font-size: 10px;
     background-color: var(--fondo4);
-    i {
-        margin-right: 5px;
+    i.bx {
         font-size: var(--text-2xl) !important;
+        padding: 0 !important;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 }
 
