@@ -181,11 +181,20 @@ function eventosMisRegistros() {
                 mostrarPorEstado = (filtroTipo === estadoRegistro);
             }
 
-            // Filtro por fecha
+            // Filtro por fecha mejorado
             if (fechasSeleccionadas.length === 2) {
-                const fechaRegistro = new Date(registroData.fecha.split('/').reverse().join('-'));
-                mostrarPorFecha = fechaRegistro >= fechasSeleccionadas[0] &&
-                    fechaRegistro <= fechasSeleccionadas[1];
+                // Convertir la fecha del registro a objeto Date
+                const [dia, mes, anio] = registroData.fecha.split('/');
+                const fechaRegistro = new Date(anio, mes - 1, dia);
+                fechaRegistro.setHours(0, 0, 0, 0);
+
+                // Normalizar las fechas seleccionadas
+                const fechaInicio = new Date(fechasSeleccionadas[0]);
+                fechaInicio.setHours(0, 0, 0, 0);
+                const fechaFin = new Date(fechasSeleccionadas[1]);
+                fechaFin.setHours(23, 59, 59, 999);
+
+                mostrarPorFecha = fechaRegistro >= fechaInicio && fechaRegistro <= fechaFin;
             }
 
             registro.style.display = (mostrarPorEstado && mostrarPorFecha) ? '' : 'none';
