@@ -1360,17 +1360,15 @@
                     padding: 5px 10px;
                     border-radius: 10px;
                     text-align: center;
-                    background: none;
+                    background-color: var(--fondo);
                 }
 
                 p.subtotal {
                     color: var(--success);
-                    border: 1px solid var(--success);
                 }
 
                 p.stock-disponible {
                     color: orange;
-                    border: 1px solid orange;
                 }
             }
 
