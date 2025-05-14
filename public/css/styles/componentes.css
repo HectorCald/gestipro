@@ -1378,7 +1378,8 @@
                 border: none;
                 padding: 5px 10px;
                 border-radius: 10px;
-                width: 50px;
+                width: auto;
+                height: 100%;
 
                 i {
                     color: var(--error) !important;
