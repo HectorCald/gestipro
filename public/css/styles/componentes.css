@@ -1403,7 +1403,7 @@
 
     50% {
         transform: scale(1.05);
-        background-color: rgb(64, 64, 64);
+        background-color: var(--oct-color);
     }
 
     100% {
