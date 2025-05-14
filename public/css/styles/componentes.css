@@ -924,7 +924,7 @@
 
             .stock {
                 color: rgb(0, 145, 255);
-                background-color: #4c87af2f;
+                background-color: #0099ff2f;
                 padding: 5px 10px;
                 border-radius: 10px;
                 font-weight: 600;
@@ -932,7 +932,7 @@
 
             .precio {
                 color: orange;
-                background-color: #af844c2f;
+                background-color: #ff98002f;
                 padding: 5px 10px;
                 border-radius: 10px;
                 font-weight: 600;
@@ -957,7 +957,7 @@
         }
 
         .Ingreso {
-            background-color: #4caf4f2f;
+            background-color: #00ff082f;
             border-radius: 10px;
             padding: 5px 10px;
             color: var(--success);
@@ -966,7 +966,7 @@
             align-items: center;
         }
         .Salida {
-            background-color: #af514c2f;
+            background-color: #ff0d002f;
             border-radius: 10px;
             padding: 5px 10px;
             color: var(--error);
@@ -1013,7 +1013,7 @@
 
     .valor.verificado {
         color: var(--success);
-        background-color: #4caf4f2f;
+        background-color: #00ff082f;
         padding: 5px 10px;
         border-radius: 10px;
         font-weight: 600;
@@ -1021,7 +1021,7 @@
 
     .valor.pendiente {
         color: var(--error);
-        background-color: #af514c2f;
+        background-color: #ff0d002f;
         padding: 5px 10px;
         border-radius: 10px;
         font-weight: 600;
@@ -1374,7 +1374,7 @@
             }
 
             button {
-                background-color: #a72f2f4d;
+                background-color: #ff000031;
                 border: none;
                 padding: 5px 10px;
                 border-radius: 10px;
