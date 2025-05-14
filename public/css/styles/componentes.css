@@ -1580,7 +1580,7 @@
     .flatpickr-months {
         .flatpickr-prev-month svg,
         .flatpickr-next-month svg {
-            fill: var(--text) !important;
+            fill: white !important;
         }
 
         .flatpickr-prev-month:hover svg,
