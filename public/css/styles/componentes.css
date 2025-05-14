@@ -509,6 +509,11 @@
         display: flex;
         width: 100%;
         justify-content: space-between;
+        align-items: center;
+
+        i {
+            font-size: var(--text-titulo) !important;
+        }
     }
 }
 
@@ -776,7 +781,7 @@
     gap: 5px;
 
     .item {
-        background-color: var(--fondo2);
+        background-color: var(--primary-color);
         padding: 15px 15px;
         border-radius: 10px;
         color: var(--text);
