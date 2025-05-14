@@ -1084,7 +1084,7 @@
         border: none;
         border-radius: 10px;
         font-size: var(--text-detalle);
-        background-color: var(--fondo2);
+        background-color: var(--oct-color);
         text-wrap: nowrap;
         color: var(--text);
         transition: all 0.5s ease;
@@ -1099,7 +1099,7 @@
     }
 
     .btn-filtro.activado {
-        background-color: #2a90d4;
+        background-color: var(--cuarto-color);
         color: white;
 
         i {
