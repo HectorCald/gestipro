@@ -930,7 +930,7 @@
                 background:none;
                 padding: 5px 10px;
                 border-radius: 10px;
-                font-weight: 900;
+                font-weight: 900 !important;
             }
 
             .precio {
@@ -938,7 +938,7 @@
                 background:none;
                 padding: 5px 10px;
                 border-radius: 10px;
-                font-weight: 900;
+                font-weight: 900 !important;
             }
 
             .carrito-cantidad {
@@ -967,6 +967,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            font-weight: 900!important;
         }
         .Salida {
             background:none;
@@ -976,6 +977,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            font-weight: 900!important;
         }
     }
 
@@ -1019,7 +1021,7 @@
         background:none;
         padding: 5px 10px;
         border-radius: 10px;
-        font-weight: 600;
+        font-weight: 900 !important;
     }
 
     .valor.pendiente {
@@ -1027,7 +1029,7 @@
         background:none;
         padding: 5px 10px;
         border-radius: 10px;
-        font-weight: 600;
+        font-weight: 900!important;
     }
 
 
