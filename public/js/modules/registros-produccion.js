@@ -124,7 +124,10 @@ function eventosMisRegistros() {
                 textoProducto.includes(busqueda) ||
                 normalizarTexto(producto.fecha_verificacion).includes(busqueda) ||
                 normalizarTexto(producto.producto).includes(busqueda) ||
-                normalizarTexto(producto.gramos).includes(busqueda)) {
+                normalizarTexto(producto.gramos).includes(busqueda) ||
+                normalizarTexto(producto.lote).includes(busqueda) || 
+                normalizarTexto(producto.fecha).includes(busqueda))
+                 {
                 registro.style.display = '';
             } else {
                 registro.style.display = 'none';

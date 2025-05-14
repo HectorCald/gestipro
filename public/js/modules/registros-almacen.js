@@ -182,14 +182,16 @@ function eventosRegistrosAlmacen() {
 
         const registros = document.querySelectorAll('.registro-item');
         registros.forEach(registro => {
-            const producto = registrosAlmacen.find(p => p.id === registro.dataset.id);
-            const textoProducto = normalizarTexto(producto.producto);
+            const registroMov = registrosAlmacen.find(p => p.id === registro.dataset.id);
+            const textoProducto = normalizarTexto(registroMov.nombre_movimiento);
 
             if (!busqueda ||
                 textoProducto.includes(busqueda) ||
-                normalizarTexto(producto.tipo).includes(busqueda) ||
-                normalizarTexto(producto.nombre_movimiento).includes(busqueda) ||
-                normalizarTexto(producto.cliente_proovedor).includes(busqueda)) {
+                normalizarTexto(registroMov.nombre_movimiento).includes(busqueda) || 
+                normalizarTexto(registroMov.fecha_hora).includes(busqueda)|| 
+                normalizarTexto(registroMov.tipo).includes(busqueda)|| 
+                normalizarTexto(registroMov.cliente_proovedor).includes(busqueda))
+                 {
                 registro.style.display = '';
             } else {
                 registro.style.display = 'none';
@@ -698,7 +700,7 @@ function eventosRegistrosAlmacen() {
                 if (!response.ok) throw new Error('Error en la respuesta del servidor');
 
                 const data = await response.json();
-                
+
                 if (data.success) {
                     await mostrarMovimientosAlmacen();
                     mostrarNotificacion({
