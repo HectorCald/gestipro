@@ -189,16 +189,18 @@ export async function mostrarIngresos(busquedaProducto = '') {
                 ${productos.map(producto => `
                 <div class="registro-item" data-id="${producto.id}">
                     <div class="header">
-                        <div class="nombre">
-                            <span class="id-producto">${producto.id}</span>
-                            <div class="precio-cantidad">
-                                <span class="valor stock">${producto.stock} Und.</span>
-                                <span class="valor precio">Bs/.${producto.precios.split(';')[0].split(',')[1]}</span>
-                                <span class="carrito-cantidad"></span>
-                            </div>
+                        <i class='bx bx-package'></i>
+                        <div class="info-header">
+                            <span class="id">${producto.id}
+                                <div class="precio-cantidad">
+                                    <span class="valor stock">${producto.stock} Und.</span>
+                                    <span class="valor precio">Bs/.${producto.precios.split(';')[0].split(',')[1]}</span>
+                                    <span class="carrito-cantidad"></span>
+                                </div>
+                            </span>
+                            <span class="nombre"><strong>${producto.producto} - ${producto.gramos}gr.</strong></span>
+                            <span class="etiquetas">${producto.etiquetas.split(';').join(' • ')}</span>
                         </div>
-                        <span class="valor producto-header" color var><strong>${producto.producto} - ${producto.gramos}gr.</strong></span>
-                        <span class="fecha">${producto.etiquetas.split(';').join(' • ')}</span>
                     </div>
                     <div class="registro-acciones">
                         <button class="btn-salida btn-icon blue" data-id="${producto.id}"><i class='bx bx-transfer-alt'></i></button>

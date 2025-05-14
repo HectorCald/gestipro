@@ -53,9 +53,12 @@ export async function mostrarProovedores() {
                 ${proovedores.map(proovedor => `
                 <div class="registro-item" data-id="${proovedor.id}">
                     <div class="header">
-                        <span class="nombre">${proovedor.id}<span class="valor">${proovedor.direccion}</span></span>
-                        <span class="valor"><strong>${proovedor.nombre}</strong></span>
-                        <span class="fecha">${proovedor.telefono}-${proovedor.zona}</span>
+                        <i class='bx bx-id-card'></i>
+                        <div class="info-header">
+                            <span class="id">${proovedor.id}<span class="valor">${proovedor.direccion}</span></span>
+                            <span class="nombre"><strong>${proovedor.nombre}</strong></span>
+                            <span class="fecha">${proovedor.telefono}-${proovedor.zona}</span>
+                        </div>
                     </div>
                     <div class="registro-acciones">
                         <button class="btn-info-proovedor btn-icon gray" data-id="${proovedor.id}"><i class='bx bx-info-circle'></i>Info</button>

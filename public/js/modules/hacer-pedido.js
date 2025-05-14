@@ -130,16 +130,19 @@ export async function mostrarHacerPedido(busquedaProducto = '') {
         return `
                     <div class="registro-item" data-id="${producto.id}">
                         <div class="header">
-                            <div class="nombre">
-                                <span class="id-producto">${producto.id}</span>
-                                <div class="precio-cantidad">
-                                    <span class="valor stock">${totalBruto.toFixed(2)} Kg.</span>
-                                    <span class="carrito-cantidad"></span>
-                                </div>
+                            <i class='bx bx-package'></i>
+                            <div class="info-header">
+                                <span class="id">${producto.id}
+                                    <div class="precio-cantidad">
+                                        <span class="valor stock">${totalBruto.toFixed(2)} Kg.</span>
+                                        <span class="carrito-cantidad"></span>
+                                    </div>
+                                </span>
+                                <span class="nombre"><strong>${producto.producto}</strong></span>
+                                <span class="fecha">${producto.etiquetas.split(';').join(' • ')}</span>
                             </div>
-                            <span class="valor producto-header"><strong>${producto.producto}</strong></span>
-                            <span class="fecha">${producto.etiquetas.split(';').join(' • ')}</span>
                         </div>
+                        
                         <div class="registro-acciones">
                             <button class="btn-pedido btn-icon green" data-id="${producto.id}">
                                 <i class='bx bx-cart-add'></i>

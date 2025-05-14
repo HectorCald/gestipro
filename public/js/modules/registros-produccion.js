@@ -74,9 +74,12 @@ export async function mostrarMisRegistros() {
                 ${registrosProduccion.map(registro => `
                 <div class="registro-item" data-id="${registro.id}">
                     <div class="header">
-                        <span class="nombre">${registro.id}<span class="valor ${registro.fecha_verificacion ? 'verificado' : 'pendiente'}">${registro.fecha_verificacion ? 'Verificado' : 'Pendiente'}</span></span>
-                        <span class="valor" color var><strong>${registro.producto} - ${registro.gramos}gr.</strong></span>
-                        <span class="fecha">${registro.fecha}</span>
+                        <i class='bx bx-file'></i>
+                        <div class="info-header">
+                            <span class="id">${registro.id}<span class="valor ${registro.fecha_verificacion ? 'verificado' : 'pendiente'}">${registro.fecha_verificacion ? 'Verificado' : 'Pendiente'}</span></span>
+                            <span class="nombre"><strong>${registro.producto} - ${registro.gramos}gr.</strong></span>
+                            <span class="fecha">${registro.fecha}</span>
+                        </div>
                     </div>
                     <div class="registro-acciones">
                         <button class="btn-info btn-icon gray" data-id="${registro.id}"><i class='bx bx-info-circle'></i>Info</button>

@@ -168,7 +168,7 @@ function obtenerOpcionesMenu() {
             {
                 clase: 'opcion-btn',
                 vista: 'almacen-view',
-                icono: 'fa-id-card',
+                icono: 'fa-user-circle',
                 texto: 'Clientes',
                 detalle: 'Gestiona tus clientes (agregar, editar, eliminar).',
                 onclick: 'onclick="mostrarClientes(); ocultarAnuncioSecond()"'

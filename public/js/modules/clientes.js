@@ -53,9 +53,12 @@ export async function mostrarClientes() {
                 ${clientes.map(cliente => `
                 <div class="registro-item" data-id="${cliente.id}">
                     <div class="header">
-                        <span class="nombre">${cliente.id}<span class="valor">${cliente.direccion}</span></span>
-                        <span class="valor"><strong>${cliente.nombre}</strong></span>
-                        <span class="fecha">${cliente.telefono}-${cliente.zona}</span>
+                        <i class='bx bx-id-card'></i>
+                        <div class="info-header">
+                            <span class="id">${cliente.id}<span class="valor">${cliente.direccion}</span></span>
+                            <span class="nombre"><strong>${cliente.nombre}</strong></span>
+                            <span class="fecha">${cliente.telefono}-${cliente.zona}</span>
+                        </div>
                     </div>
                     <div class="registro-acciones">
                         <button class="btn-info-cliente btn-icon gray" data-id="${cliente.id}"><i class='bx bx-info-circle'></i>Info</button>
