@@ -21,7 +21,7 @@ a {
 html,
 body {
     overflow: hidden;
-    background-color: var(--fondo) !important;
+    background-color: var(--fondo5) !important;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -37,6 +37,7 @@ body {
     --fondo5: #f3f3f3;
     --sep-color: #26a88e;
     --oct-color:rgb(234, 234, 234);
+    --nov-color: #ffffff;
     --primary-color: #ffffff;
     --second-color: #1a1a1a;
     --cero-color: rgb(141, 141, 141);
@@ -68,6 +69,7 @@ body {
     --fondo2: #323232;
     --primary-color: #2a2a2a;
     --second-color: #ffffff;
+    --nov-color: #202020;
     --cuarto-color: #3ca48f;
     --cero-color: #808080;
     --sep-color: #2f2f2f;
