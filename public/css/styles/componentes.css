@@ -1084,7 +1084,7 @@
         border: none;
         border-radius: 10px;
         font-size: var(--text-detalle);
-        background-color: rgb(224, 224, 224);
+        background-color: var(--oct-color);
         text-wrap: nowrap;
         color: var(--text);
         transition: all 0.5s ease;
@@ -1114,7 +1114,7 @@
         border: none;
         border-radius: 10px;
         font-size: var(--text-detalle);
-        background-color:rgb(224, 224, 224);
+        background-color:var(--oct-color);
         text-wrap: nowrap;
         color: var(--text);
         transition: all 0.5s ease;

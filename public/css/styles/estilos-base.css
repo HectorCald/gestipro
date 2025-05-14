@@ -37,6 +37,7 @@ body {
     --fondo4: #ffffff;
     --fondo5: #f3f3f3;
     --sep-color: #358a79;
+    --oct-color:rgb(224, 224, 224);
     --primary-color: #ffffff;
     --second-color: #1a1a1a;
     --cero-color: rgb(141, 141, 141);
@@ -72,4 +73,5 @@ body {
     --cuarto-color: #3ca48f;
     --cero-color: #808080;
     --sep-color: #2f2f2f;
+    --oct-color:rgb(34, 34, 34);
 }
