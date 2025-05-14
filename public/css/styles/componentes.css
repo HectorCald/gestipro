@@ -509,10 +509,16 @@
         display: flex;
         width: 100%;
         justify-content: space-between;
-        align-items: center;
+        align-items: center !important;
 
-        i {
-            font-size: var(--text-titulo) !important;
+        strong{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            i {
+                font-size: var(--text-titulo) !important;
+            }
         }
     }
 }
