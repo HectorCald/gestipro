@@ -776,8 +776,8 @@
 .contenido .opcion {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    padding: 1rem;
+    gap: 10px;
+    padding: 10px;
     cursor: pointer;
     border-radius: 0.5rem;
     transition: background 0.3s ease;
@@ -789,6 +789,11 @@
         background-color: var(--fondo2);
         padding: 10px;
         border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 
     .info {
@@ -917,16 +922,16 @@
             gap: 10px;
 
             .stock {
-                color: rgb(0, 145, 255);
-                background-color: rgba(55, 114, 151, 0.1);
+                color: white;
+                background-color: rgb(0, 145, 255);
                 padding: 5px 10px;
                 border-radius: 10px;
                 font-weight: 600;
             }
 
             .precio {
-                color: orange;
-                background-color: rgba(151, 118, 55, 0.1);
+                color: white;
+                background-color: rgb(216, 141, 0);
                 padding: 5px 10px;
                 border-radius: 10px;
                 font-weight: 600;
@@ -951,19 +956,19 @@
         }
 
         .Ingreso {
-            background-color: rgba(102, 196, 102, 0.085);
+            background-color: var(--success);
             border-radius: 10px;
             padding: 5px 10px;
-            color: var(--success);
+            color: white;
             display: flex;
             justify-content: center;
             align-items: center;
         }
         .Salida {
-            background-color: rgba(196, 102, 102, 0.077);
+            background-color: var(--error);
             border-radius: 10px;
             padding: 5px 10px;
-            color: var(--error);
+            color: white;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -1006,16 +1011,16 @@
     }
 
     .valor.verificado {
-        color: var(--success);
-        background-color: rgba(102, 196, 102, 0.068);
+        color: white;
+        background-color: var(--success);
         padding: 5px 10px;
         border-radius: 10px;
         font-weight: 600;
     }
 
     .valor.pendiente {
-        color: var(--error);
-        background-color: rgba(196, 102, 102, 0.077);
+        color: white;
+        background-color:var(--error);
         padding: 5px 10px;
         border-radius: 10px;
         font-weight: 600;
@@ -1079,7 +1084,7 @@
         border: none;
         border-radius: 10px;
         font-size: var(--text-detalle);
-        background-color: var(--fondo2);
+        background-color: rgb(224, 224, 224);
         text-wrap: nowrap;
         color: var(--text);
         transition: all 0.5s ease;
@@ -1094,7 +1099,7 @@
     }
 
     .btn-filtro.activado {
-        background-color: var(--cuarto-color);
+        background-color: #2874a6;
         color: white;
 
         i {
@@ -1109,7 +1114,7 @@
         border: none;
         border-radius: 10px;
         font-size: var(--text-detalle);
-        background-color: var(--fondo2);
+        background-color:rgb(224, 224, 224);
         text-wrap: nowrap;
         color: var(--text);
         transition: all 0.5s ease;
@@ -1435,13 +1440,6 @@
     gap: 10px;
 }
 
-.seccion-grafico {
-    background: var(--color-background);
-    padding: 20px;
-    border-radius: 12px;
-    margin: 20px 0;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
 
 #graficoVelas {
     width: 100% !important;
