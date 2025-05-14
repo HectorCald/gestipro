@@ -80,7 +80,7 @@
     background: none;
     color: var(--tercer-color);
     position: absolute;
-    right: 15px;
+    left: 15px;
     top: 10px;
     width: 45px;
     height: 45px;
@@ -89,6 +89,7 @@
     justify-content: center !important;
     align-items: center !important;
     padding: 0;
+    transform: rotate(180deg);
 
     i {
         margin: 0;
@@ -100,7 +101,7 @@
     background: none;
     color: var(--tercer-color);
     position: absolute;
-    left: 15px;
+    right: 15px;
     top: 10px;
     width: 45px;
     height: 45px;
