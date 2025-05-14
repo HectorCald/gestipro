@@ -33,7 +33,7 @@ body {
     --fondo: rgba(149, 149, 149, 0.064);
     --fondo2: #4fd0b617;
     --fondo3: #ffffff;
-    --fondo4: #ffffff;
+    --fondo4: rgba(149, 149, 149, 0.064);
     --fondo5: #f3f3f3;
     --sep-color: #26a88e;
     --oct-color:rgb(234, 234, 234);
@@ -61,11 +61,11 @@ body {
 
 [data-theme="dark"] {
     --text: #ffffff;
-    --fondo: #1a1a1a;
+    --fondo: #202020;
     --fondo3: #1a1a1a;
     --fondo4: #2d2d2d;
     --fondo5: #1a1a1a;
-    --fondo2: #282828;
+    --fondo2: #323232;
     --primary-color: #2a2a2a;
     --second-color: #ffffff;
     --cuarto-color: #3ca48f;
