@@ -517,6 +517,7 @@
             align-items: center;
 
             i {
+                margin-right: 5px;
                 font-size: var(--text-titulo) !important;
             }
         }
