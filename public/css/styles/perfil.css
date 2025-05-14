@@ -71,6 +71,14 @@
         margin-top: 50px;
         border: none;
     }
+    .soporte-tecnico {
+        font-size: var(--text-titulo);
+        background: none;
+        color: var(--success);
+        font-weight: 600;
+        margin-top: 10px;
+        border: none;
+    }
 
     .version {
         color: var(--cero-color);

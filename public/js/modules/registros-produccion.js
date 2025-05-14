@@ -86,15 +86,21 @@ export async function mostrarMisRegistros() {
             </div>
             `).join('')}
         </div>
+        <div class="anuncio-botones">
+            <button id="exportar-excel" class="btn especial" style="margin-bottom:10px"><i class='bx bxs-file-export'></i> Exportar a Excel</button>
+        </div>
     `;
     contenido.innerHTML = registrationHTML;
-    contenido.style.paddingBottom = '10px';
+
     mostrarAnuncio();
     const { aplicarFiltros } = eventosMisRegistros();
 
     aplicarFiltros('Todos');
 }
 function eventosMisRegistros() {
+    const btnExcel = document.getElementById('exportar-excel');
+    const registrosAExportar = usuarioInfo.rol === 'Almacen' ? registrosMovimientos : registrosProduccion;
+    let registrosFiltrados = [...registrosAExportar];
     const botonesEstado = document.querySelectorAll('.filtros-opciones.estado .btn-filtro');
     const botonesInfo = document.querySelectorAll('.btn-info');
     const items = document.querySelectorAll('.registro-item');
@@ -328,6 +334,56 @@ function eventosMisRegistros() {
         contenido.style.paddingBottom = '10px';
         mostrarAnuncioSecond();
     }
+
+
+    btnExcel.addEventListener('click', () => {
+        // Obtener solo los registros visibles
+        const registrosVisibles = Array.from(document.querySelectorAll('.registro-item'))
+            .filter(item => item.style.display !== 'none')
+            .map(item => {
+                const registro = registrosAExportar.find(r => r.id === item.dataset.id);
+                if (usuarioInfo.rol === 'Almacen') {
+                    return {
+                        'Fecha': registro.fecha_hora,
+                        'Producto': registro.producto,
+                        'Cantidad': registro.cantidad,
+                        'Tipo': registro.tipo,
+                        'ID': registro.id
+                    };
+                } else {
+                    return {
+                        'ID': registro.id,
+                        'Fecha': registro.fecha,
+                        'Producto': registro.producto,
+                        'Lote': registro.lote,
+                        'Gramos': registro.gramos,
+                        'Proceso': registro.proceso,
+                        'Microondas': registro.microondas,
+                        'Envases Terminados': registro.envases_terminados,
+                        'Fecha Vencimiento': registro.fecha_vencimiento,
+                        'Nombre': registro.nombre,
+                        'Cantidad Real': registro.c_real,
+                        'Fecha Verificación': registro.fecha_verificacion || 'Pendiente',
+                        'Observaciones': registro.observaciones || 'Sin observaciones',
+                    };
+                }
+            });
+
+        // Generar nombre del archivo con la fecha actual
+        const fecha = new Date().toLocaleDateString('es-ES').replace(/\//g, '-');
+        const nombreArchivo = `Registros_${fecha}.xlsx`;
+
+        // Crear y descargar el archivo Excel
+        const worksheet = XLSX.utils.json_to_sheet(registrosVisibles);
+
+        // Ajustar el ancho de las columnas
+        const wscols = Object.keys(registrosVisibles[0] || {}).map(() => ({ wch: 15 }));
+        worksheet['!cols'] = wscols;
+
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Registros');
+        XLSX.writeFile(workbook, nombreArchivo);
+    });
 
     return { aplicarFiltros };
 }
