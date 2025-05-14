@@ -1283,7 +1283,7 @@
                     background: none;
                     border-radius: 10px;
                     padding: 10px;
-                    border: 1px solid var(--fondo2);
+                    border: 1px solid var(--primary-color);
                     display: flex;
                     justify-content: center;
                     align-items: center;
