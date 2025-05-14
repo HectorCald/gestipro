@@ -64,7 +64,7 @@
         border-radius: 10px;
         padding: 10px 5px;
         padding-right: 10px;
-        background-color: var(--fondo2) !important;
+        background-color: var(--primary-color) !important;
 
         i {
             font-size: 25px;
