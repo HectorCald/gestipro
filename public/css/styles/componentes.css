@@ -502,6 +502,7 @@
     color: var(--text);
     background-color: var(--primary-color);
     border-radius: 10px;
+    gap: 5px;
 
     span {
         font-size: var(--text-detalle);
