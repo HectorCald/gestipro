@@ -167,6 +167,7 @@ function eventosMisRegistros() {
         const registros = document.querySelectorAll('.registro-item');
         const filtroTipo = filtroNombreActual;
         const fechasSeleccionadas = filtroFechaInstance?.selectedDates || [];
+        const busqueda = normalizarTexto(inputBusqueda.value);
 
         registros.forEach(registro => {
             const registroData = registrosProduccion.find(r => r.id === registro.dataset.id);
@@ -174,6 +175,7 @@ function eventosMisRegistros() {
 
             let mostrarPorEstado = true;
             let mostrarPorFecha = true;
+            let mostrarPorBusqueda = true;
 
             // Filtro por estado
             if (filtroTipo !== 'todos') {
@@ -181,14 +183,12 @@ function eventosMisRegistros() {
                 mostrarPorEstado = (filtroTipo === estadoRegistro);
             }
 
-            // Filtro por fecha mejorado
+            // Filtro por fecha
             if (fechasSeleccionadas.length === 2) {
-                // Convertir la fecha del registro a objeto Date
                 const [dia, mes, anio] = registroData.fecha.split('/');
                 const fechaRegistro = new Date(anio, mes - 1, dia);
                 fechaRegistro.setHours(0, 0, 0, 0);
 
-                // Normalizar las fechas seleccionadas
                 const fechaInicio = new Date(fechasSeleccionadas[0]);
                 fechaInicio.setHours(0, 0, 0, 0);
                 const fechaFin = new Date(fechasSeleccionadas[1]);
@@ -197,7 +197,17 @@ function eventosMisRegistros() {
                 mostrarPorFecha = fechaRegistro >= fechaInicio && fechaRegistro <= fechaFin;
             }
 
-            registro.style.display = (mostrarPorEstado && mostrarPorFecha) ? '' : 'none';
+            // Filtro por búsqueda
+            if (busqueda) {
+                mostrarPorBusqueda = 
+                    normalizarTexto(registroData.producto).includes(busqueda) ||
+                    normalizarTexto(registroData.fecha_verificacion || '').includes(busqueda) ||
+                    normalizarTexto(registroData.gramos).includes(busqueda) ||
+                    normalizarTexto(registroData.lote).includes(busqueda) ||
+                    normalizarTexto(registroData.fecha).includes(busqueda);
+            }
+
+            registro.style.display = (mostrarPorEstado && mostrarPorFecha && mostrarPorBusqueda) ? '' : 'none';
         });
     }
     function scrollToCenter(boton, contenedorPadre) {
@@ -211,45 +221,16 @@ function eventosMisRegistros() {
 
     inputBusqueda.addEventListener('input', (e) => {
         const busqueda = normalizarTexto(e.target.value);
-        iconoBusqueda.className = busqueda ? 'bx bx-x' : 'bx bx-search';
-
-        // Cambiar icono y clase según si hay texto
-        if (busqueda) {
-            iconoBusqueda.className = 'bx bx-x lupa';
-        } else {
-            iconoBusqueda.className = 'bx bx-search lupa';
-        }
-
-        const registros = document.querySelectorAll('.registro-item');
-        registros.forEach(registro => {
-            const producto = registrosProduccion.find(p => p.id === registro.dataset.id);
-            const textoProducto = normalizarTexto(producto.producto);
-
-            if (!busqueda ||
-                textoProducto.includes(busqueda) ||
-                normalizarTexto(producto.fecha_verificacion).includes(busqueda) ||
-                normalizarTexto(producto.producto).includes(busqueda) ||
-                normalizarTexto(producto.gramos).includes(busqueda) ||
-                normalizarTexto(producto.lote).includes(busqueda) ||
-                normalizarTexto(producto.fecha).includes(busqueda)) {
-                registro.style.display = '';
-            } else {
-                registro.style.display = 'none';
-            }
-        });
+        iconoBusqueda.className = busqueda ? 'bx bx-x lupa' : 'bx bx-search lupa';
+        aplicarFiltros();
     });
     iconoBusqueda.addEventListener('click', () => {
         if (inputBusqueda.value) {
             inputBusqueda.value = '';
             iconoBusqueda.className = 'bx bx-search lupa';
-            // Show all records when clearing search
-            document.querySelectorAll('.registro-item').forEach(registro => {
-                registro.style.display = '';
-            });
-            // Reactivate "Todos" filter
-            document.querySelector('.btn-filtro').classList.add('activado');
+            aplicarFiltros();
         }
-    })
+    });
     function normalizarTexto(texto) {
         return texto.toString()
             .toLowerCase()
