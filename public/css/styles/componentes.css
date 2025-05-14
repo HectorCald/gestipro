@@ -1382,6 +1382,7 @@
 
                 i {
                     color: var(--error) !important;
+                    font-size: var(--text-2xl)!important;
                 }
             }
         }
