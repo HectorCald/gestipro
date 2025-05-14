@@ -70,20 +70,20 @@ export async function mostrarMisRegistros() {
                 <button class="btn-filtro">Observados</button>
             </div>
             <p class="normal"><i class='bx bx-chevron-right'></i>Registros</p>
-                ${registrosProduccion.map(registro => `
-                <div class="registro-item" data-id="${registro.id}">
-                    <div class="header">
-                        <i class='bx bx-file'></i>
-                        <div class="info-header">
-                            <span class="id">${registro.id}<span class="valor ${registro.fecha_verificacion ? 'verificado' : 'pendiente'}">${registro.fecha_verificacion ? 'Verificado' : 'Pendiente'}</span></span>
-                            <span class="nombre"><strong>${registro.producto} - ${registro.gramos}gr.</strong></span>
-                            <span class="fecha">${registro.fecha}</span>
-                        </div>
-                    </div>
-                    <div class="registro-acciones">
-                        <button class="btn-info btn-icon gray" data-id="${registro.id}"><i class='bx bx-info-circle'></i>Info</button>
+            ${registrosProduccion.map(registro => `
+            <div class="registro-item" data-id="${registro.id}">
+                <div class="header">
+                    <i class='bx bx-file'></i>
+                    <div class="info-header">
+                        <span class="id">${registro.id}<span class="valor ${registro.fecha_verificacion ? 'verificado' : 'pendiente'}">${registro.fecha_verificacion ? 'Verificado' : 'Pendiente'}</span></span>
+                        <span class="nombre"><strong>${registro.producto} - ${registro.gramos}gr.</strong></span>
+                        <span class="fecha">${registro.fecha}</span>
                     </div>
                 </div>
+                <div class="registro-acciones">
+                    <button class="btn-info btn-icon gray" data-id="${registro.id}"><i class='bx bx-info-circle'></i>Info</button>
+                </div>
+            </div>
             `).join('')}
         </div>
     `;

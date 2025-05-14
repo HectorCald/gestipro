@@ -1,7 +1,7 @@
 let usuarioInfo = recuperarUsuarioLocal();
 let registrosProduccion = [];
 let registrosMovimientos = [];
-    function recuperarUsuarioLocal() {
+function recuperarUsuarioLocal() {
     const usuarioGuardado = localStorage.getItem('damabrava_usuario');
     if (usuarioGuardado) {
         return JSON.parse(usuarioGuardado);
@@ -441,7 +441,7 @@ function evetosCuenta() {
 function mostrarConfiguraciones() {
     const contenido = document.querySelector('.anuncio .contenido');
     const currentTheme = localStorage.getItem('theme') || 'system';
-    
+
     const registrationHTML = `
         <div class="encabezado">
             <h1 class="titulo">Tus configuraciones</h1>
@@ -469,10 +469,10 @@ function mostrarConfiguraciones() {
 }
 function eventosConfiguraciones() {
     const btnsTheme = document.querySelectorAll('.btn-tema');
-    
+
     // Detector de cambios en el tema del sistema
     const systemThemeQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    
+
     // Función para manejar cambios en el tema del sistema
     const handleSystemThemeChange = (e) => {
         const currentTheme = localStorage.getItem('theme');
@@ -485,12 +485,12 @@ function eventosConfiguraciones() {
     systemThemeQuery.removeEventListener('change', handleSystemThemeChange);
     // Agregar nuevo listener
     systemThemeQuery.addEventListener('change', handleSystemThemeChange);
-    
+
     btnsTheme.forEach(btn => {
         btn.addEventListener('click', () => {
             const theme = btn.dataset.theme;
             setTheme(theme);
-            
+
             // Update active state
             document.querySelectorAll('.btn-tema').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
@@ -502,7 +502,7 @@ function eventosConfiguraciones() {
 function setTheme(theme) {
     const root = document.documentElement;
     localStorage.setItem('theme', theme);
-    
+
     if (theme === 'system') {
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         root.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
@@ -533,53 +533,46 @@ document.addEventListener('DOMContentLoaded', () => {
 async function mostrarExportar() {
     const contenido = document.querySelector('.anuncio .contenido');
     const registrosAExportar = usuarioInfo.rol === 'Almacen' ? registrosMovimientos : registrosProduccion;
-    
+
     const exportHTML = `
             <div class="encabezado">
                 <h1 class="titulo">Exportar mis registros</h1>
                 <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
             </div>
-            <div class="relleno">
-                <p class="normal"><i class='bx bx-chevron-right'></i> Filtros de fecha:</p>
-                <div class="entrada">
-                    <i class='bx bx-calendar'></i>
-                    <div class="input">
-                        <p class="detalle">Desde</p>
-                        <input class="fecha-desde" type="date" placeholder=" " required>
-                    </div>
+            <div class="relleno exportar">
+                <div class="buscador">
+                    <input type="text" class="buscar-registro-produccion-exportar" placeholder="Buscar...">
+                    <i class='bx bx-search lupa'></i>
+                    <button class="btn-calendario"><i class='bx bx-calendar'></i></button>
                 </div>
-                <div class="entrada">
-                    <i class='bx bx-calendar'></i>
-                    <div class="input">
-                        <p class="detalle">Hasta</p>
-                        <input class="fecha-hasta" type="date" placeholder=" " required>
-                    </div>
-                </div>
+                <p class="normal"><i class='bx bx-chevron-right'></i> Tienes ${registrosAExportar.length} registros</p>
+                ${registrosAExportar.map(registro => {
+        if (usuarioInfo.rol === 'Almacen') {
+            return `
+                            <div class="registro-item">
+                                <div class="info-registro">
+                                    <p class="fecha"><strong>${registro.fecha_hora}</strong></p>
+                                    <p class="detalle">${registro.producto} - ${registro.cantidad} Und. (${registro.tipo})</p>
+                                </div>
+                            </div>
+                        `;
+        } else {
+            return `
+                        <div class="registro-item"data-id="${registro.id}">
+                            <div class="header">
+                                <i class='bx bx-file'></i>
+                                <div class="info-header">
+                                    <span class="id">${registro.id}</span>
+                                    <span class="nombre"><strong>${registro.producto} - ${registro.gramos}gr.</strong></span>
+                                    <span class="fecha">${registro.fecha}</span>
+                                </div>
+                            </div>
+                        </div>
+                            
+                        `;
+        }
+    }).join('')}
 
-                <div class="registros-lista">
-                    <p class="normal"><i class='bx bx-chevron-right'></i> Tienes ${registrosAExportar.length} registros</p>
-                    ${registrosAExportar.map(registro => {
-                        if (usuarioInfo.rol === 'Almacen') {
-                            return `
-                                <div class="registro-item">
-                                    <div class="info-registro">
-                                        <p class="fecha"><strong>${registro.fecha_hora}</strong></p>
-                                        <p class="detalle">${registro.producto} - ${registro.cantidad} Und. (${registro.tipo})</p>
-                                    </div>
-                                </div>
-                            `;
-                        } else {
-                            return `
-                                <div class="registro-item">
-                                    <div class="info-registro">
-                                        <p class="fecha"><strong>${registro.fecha}</strong></p>
-                                        <p class="detalle">${registro.producto} ${registro.gramos} - ${registro.envases_terminados} Und.</p>
-                                    </div>
-                                </div>
-                            `;
-                        }
-                    }).join('')}
-                </div>
             </div>
             <div class="anuncio-botones">
                 <button id="exportar-excel" class="btn orange" style="margin-bottom:10px"><i class='bx bxs-file-export'></i> Exportar a Excel</button>
@@ -593,82 +586,163 @@ async function mostrarExportar() {
 
 function eventosExportar() {
     const btnExcel = document.getElementById('exportar-excel');
-    const fechaDesde = document.querySelector('.fecha-desde');
-    const fechaHasta = document.querySelector('.fecha-hasta');
-    const registrosLista = document.querySelector('.registros-lista');
     const registrosAExportar = usuarioInfo.rol === 'Almacen' ? registrosMovimientos : registrosProduccion;
     let registrosFiltrados = [...registrosAExportar];
 
-    function actualizarLista() {
-        const desde = fechaDesde.value;
-        const hasta = fechaHasta.value;
+    const inputBusqueda = document.querySelector('.buscar-registro-produccion-exportar');
+    const iconoBusqueda = document.querySelector('.exportar .buscador .lupa');
+    const botonCalendario = document.querySelector('.btn-calendario');
 
-        registrosFiltrados = registrosAExportar.filter(registro => {
-            let mostrar = true;
+    let filtroFechaInstance = null;
 
-            // Filtro por fechas
-            if (desde || hasta) {
-                const fechaTexto = usuarioInfo.rol === 'Almacen' ? registro.fecha_hora : registro.fecha;
-                const [dia, mes] = fechaTexto.split('/');
-                const año = new Date().getFullYear();
-                const fechaRegistro = `${año}-${mes.padStart(2, '0')}-${dia.padStart(2, '0')}`;
 
-                if (desde) {
-                    mostrar = fechaRegistro >= desde;
+    botonCalendario.addEventListener('click', async () => {
+        if (!filtroFechaInstance) {
+            filtroFechaInstance = flatpickr(botonCalendario, {
+                mode: "range",
+                dateFormat: "d/m/Y",
+                locale: "es",
+                rangeSeparator: " hasta ",
+                onChange: function (selectedDates) {
+                    if (selectedDates.length === 2) {
+                        aplicarFiltros();
+                        botonCalendario.classList.add('con-fecha');
+                    } else if (selectedDates.length === 0) {
+                        // Show all records when dates are cleared
+                        document.querySelectorAll('.registro-item').forEach(registro => {
+                            registro.style.display = '';
+                        });
+                        botonCalendario.classList.remove('con-fecha');
+                    }
+                },
+                onClose: function (selectedDates) {
+                    if (selectedDates.length === 1) {
+                        // Show all records when calendar is closed without dates
+                        document.querySelectorAll('.registro-item').forEach(registro => {
+                            registro.style.display = '';
+                        });
+                        botonCalendario.classList.remove('con-fecha');
+                    }
                 }
+            });
+        }
+        filtroFechaInstance.open();
+    });
+    function aplicarFiltros() {
+        const registros = document.querySelectorAll('.registro-item');
+        const fechasSeleccionadas = filtroFechaInstance?.selectedDates || [];
 
-                if (mostrar && hasta) {
-                    mostrar = fechaRegistro <= hasta;
-                }
+        const busqueda = normalizarTexto(inputBusqueda.value);
+
+
+        registros.forEach(registro => {
+
+            const registroData = registrosProduccion.find(r => r.id === registro.dataset.id);
+
+            if (!registroData) return;
+
+            let mostrarPorFecha = true;
+            let mostrarPorBusqueda = true;
+
+
+            // Filtro por fecha
+            if (fechasSeleccionadas.length === 2) {
+                const [dia, mes, anio] = registroData.fecha.split('/');
+                const fechaRegistro = new Date(anio, mes - 1, dia);
+                fechaRegistro.setHours(0, 0, 0, 0);
+
+                const fechaInicio = new Date(fechasSeleccionadas[0]);
+                fechaInicio.setHours(0, 0, 0, 0);
+                const fechaFin = new Date(fechasSeleccionadas[1]);
+                fechaFin.setHours(23, 59, 59, 999);
+
+                mostrarPorFecha = fechaRegistro >= fechaInicio && fechaRegistro <= fechaFin;
             }
 
-            return mostrar;
-        });
+            // Filtro por búsqueda
+            if (busqueda) {
+                mostrarPorBusqueda =
+                    normalizarTexto(registroData.producto).includes(busqueda) ||
+                    normalizarTexto(registroData.gramos).includes(busqueda) ||
+                    normalizarTexto(registroData.lote).includes(busqueda) ||
+                    normalizarTexto(registroData.fecha).includes(busqueda);
+            }
 
-        registrosLista.innerHTML = `
-            <p class="subtitulo">Tienes ${registrosFiltrados.length} registros</p>
-            ${registrosFiltrados.map(registro => {
-                if (usuarioInfo.rol === 'Almacen') {
-                    return `
-                        <div class="registro-item">
-                            <div class="info-registro">
-                                <p class="fecha">${registro.fecha_hora}</p>
-                                <p class="detalle">${registro.producto} - ${registro.cantidad} Und. (${registro.tipo})</p>
-                            </div>
-                        </div>
-                    `;
-                } else {
-                    return `
-                        <div class="registro-item">
-                            <div class="info-registro">
-                                <p class="fecha">${registro.fecha}</p>
-                                <p class="detalle">${registro.producto} ${registro.gramos} - ${registro.envases_terminados} Und.</p>
-                            </div>
-                        </div>
-                    `;
-                }
-            }).join('')}
-        `;
+            registro.style.display = (mostrarPorFecha && mostrarPorBusqueda) ? '' : 'none';
+        });
     }
 
-    fechaDesde.addEventListener('change', actualizarLista);
-    fechaHasta.addEventListener('change', actualizarLista);
+    inputBusqueda.addEventListener('input', (e) => {
+        const busqueda = normalizarTexto(e.target.value);
+        iconoBusqueda.className = busqueda ? 'bx bx-x lupa' : 'bx bx-search lupa';
+
+        aplicarFiltros();
+    });
+    iconoBusqueda.addEventListener('click', () => {
+        if (inputBusqueda.value) {
+            inputBusqueda.value = '';
+            iconoBusqueda.className = 'bx bx-search lupa';
+            aplicarFiltros();
+        }
+    });
+    function normalizarTexto(texto) {
+        return texto.toString()
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '') // Eliminar acentos
+            .replace(/[-_\s]+/g, ''); // Eliminar guiones, guiones bajos y espacios
+    }
+
+
+
 
     btnExcel.addEventListener('click', () => {
-        exportarAExcel(registrosFiltrados);
-    });
-    function exportarAExcel(registros) {
-        const fechaDesde = document.querySelector('.fecha-desde').value;
-        const fechaHasta = document.querySelector('.fecha-hasta').value;
-    
-        // Determine the filename based on the date range
-        const nombreArchivo = (fechaDesde || fechaHasta)
-            ? `Registros ${fechaDesde} - ${fechaHasta}.xlsx`
-            : `Todos los registros.xlsx`;
-    
-        const worksheet = XLSX.utils.json_to_sheet(registros);
+        // Obtener solo los registros visibles
+        const registrosVisibles = Array.from(document.querySelectorAll('.registro-item'))
+            .filter(item => item.style.display !== 'none')
+            .map(item => {
+                const registro = registrosAExportar.find(r => r.id === item.dataset.id);
+                if (usuarioInfo.rol === 'Almacen') {
+                    return {
+                        'Fecha': registro.fecha_hora,
+                        'Producto': registro.producto,
+                        'Cantidad': registro.cantidad,
+                        'Tipo': registro.tipo,
+                        'ID': registro.id
+                    };
+                } else {
+                    return {
+                        'ID': registro.id,
+                        'Fecha': registro.fecha,
+                        'Producto': registro.producto,
+                        'Lote': registro.lote,
+                        'Gramos': registro.gramos,
+                        'Proceso': registro.proceso,
+                        'Microondas': registro.microondas,
+                        'Envases Terminados': registro.envases_terminados,
+                        'Fecha Vencimiento': registro.fecha_vencimiento,
+                        'Nombre': registro.nombre,
+                        'Cantidad Real': registro.c_real,
+                        'Fecha Verificación': registro.fecha_verificacion || 'Pendiente',
+                        'Observaciones': registro.observaciones || 'Sin observaciones',
+                    };
+                }
+            });
+
+        // Generar nombre del archivo con la fecha actual
+        const fecha = new Date().toLocaleDateString('es-ES').replace(/\//g, '-');
+        const nombreArchivo = `Registros_${fecha}.xlsx`;
+
+        // Crear y descargar el archivo Excel
+        const worksheet = XLSX.utils.json_to_sheet(registrosVisibles);
+
+        // Ajustar el ancho de las columnas
+        const wscols = Object.keys(registrosVisibles[0] || {}).map(() => ({ wch: 15 }));
+        worksheet['!cols'] = wscols;
+
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, 'Registros');
         XLSX.writeFile(workbook, nombreArchivo);
-    }
+    });
+
 }

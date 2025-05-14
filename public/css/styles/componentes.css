@@ -1479,6 +1479,15 @@
     }
 }
 
+.btn-calendario.con-fecha {
+    background-color: var(--cuarto-color);
+    color: white;
+
+    i {
+        color: white !important;
+    }
+}
+
 .flatpickr-calendar {
     background: var(--nov-color) !important;
     border: 1px solid var(--border-color) !important;
