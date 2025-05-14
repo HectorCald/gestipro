@@ -35,18 +35,17 @@ body {
     --fondo3: #ffffff;
     --fondo4: #ffffff;
     --fondo5: #f3f3f3;
-    --sep-color: #358a79;
+    --sep-color: #26a88e;
     --oct-color:rgb(234, 234, 234);
     --primary-color: #ffffff;
     --second-color: #1a1a1a;
     --cero-color: rgb(141, 141, 141);
 
     /* Colores de acento que se mantienen en ambos temas */
-    --cuarto-color: #358a79;
+    --cuarto-color: #26a88e;
     --tercer-color: #48c9b0;
     --error: #fc3737;
     --success: #4CAF50;
-    --success-claro: #4caf4f5d;
 
     /* Variables para tamaños de texto se mantienen igual */
     --text-detalle: 13px;
