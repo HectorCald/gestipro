@@ -42,7 +42,7 @@ async function obtenerMisRegistros() {
             duration: 3500
         });
         return false;
-    }finally {
+    } finally {
         ocultarCarga();
     }
 }
@@ -56,19 +56,18 @@ export async function mostrarMisRegistros() {
         <div class="encabezado">
             <h1 class="titulo">Mis registros</h1>
             <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
-            <button class="btn filtros"><i class='bx bx-filter'></i></button>
         </div>
         <div class="relleno">
             <div class="buscador">
                 <input type="text" class="buscar-registro-produccion" placeholder="Buscar...">
-                <i class='bx bx-search'></i>
+                <i class='bx bx-search lupa'></i>
+                <button class="btn-calendario"><i class='bx bx-calendar'></i></button>
             </div>
-            <p class="normal"><i class='bx bx-chevron-right'></i>Filtros</p>
             <div class="filtros-opciones estado">
                 <button class="btn-filtro activado">Todos</button>
                 <button class="btn-filtro">Pendientes</button>
                 <button class="btn-filtro">Verificados</button>
-                <button class="btn-filtro">Obeservados</button>
+                <button class="btn-filtro">Observados</button>
             </div>
             <p class="normal"><i class='bx bx-chevron-right'></i>Registros</p>
                 ${registrosProduccion.map(registro => `
@@ -98,10 +97,107 @@ export async function mostrarMisRegistros() {
 function eventosMisRegistros() {
     const botonesEstado = document.querySelectorAll('.filtros-opciones.estado .btn-filtro');
     const botonesInfo = document.querySelectorAll('.btn-info');
-    const filtros = document.querySelector('.filtros');
     const items = document.querySelectorAll('.registro-item');
     const inputBusqueda = document.querySelector('.buscar-registro-produccion');
-    const iconoBusqueda = document.querySelector('.relleno .buscador i');
+    const iconoBusqueda = document.querySelector('.buscador .lupa');
+    const botonCalendario = document.querySelector('.btn-calendario');
+
+
+    let filtroNombreActual = 'todos';
+    let filtroFechaInstance = null;
+
+
+    botonCalendario.addEventListener('click', async () => {
+        if (!filtroFechaInstance) {
+            filtroFechaInstance = flatpickr(botonCalendario, {
+                mode: "range",
+                dateFormat: "d/m/Y",
+                locale: "es",
+                rangeSeparator: " hasta ",
+                onChange: function (selectedDates) {
+                    if (selectedDates.length === 2) {
+                        aplicarFiltros();
+                        botonCalendario.classList.add('con-fecha');
+                    } else if (selectedDates.length === 0) {
+                        // Show all records when dates are cleared
+                        document.querySelectorAll('.registro-item').forEach(registro => {
+                            registro.style.display = '';
+                        });
+                        botonCalendario.classList.remove('con-fecha');
+                    }
+                },
+                onClose: function (selectedDates) {
+                    if (selectedDates.length === 1) {
+                        // Show all records when calendar is closed without dates
+                        document.querySelectorAll('.registro-item').forEach(registro => {
+                            registro.style.display = '';
+                        });
+                        botonCalendario.classList.remove('con-fecha');
+                    }
+                }
+            });
+        }
+        filtroFechaInstance.open();
+    });
+    botonesEstado.forEach(boton => {
+        boton.addEventListener('click', async () => {
+            botonesEstado.forEach(b => b.classList.remove('activado'));
+            boton.classList.add('activado');
+
+            const tipoFiltro = boton.textContent.trim().toLowerCase();
+
+            if (tipoFiltro === 'pendientes') {
+                filtroNombreActual = 'pendiente';
+            }
+            else if (tipoFiltro === 'verificados') {
+                filtroNombreActual = 'verificado';
+            }
+            else if (tipoFiltro === 'todos') {
+                filtroNombreActual = 'todos';
+            }
+            else if (tipoFiltro === 'observados') {
+                filtroNombreActual = 'observado';
+            }
+
+            aplicarFiltros();
+            await scrollToCenter(boton, boton.parentElement);
+        });
+    });
+    function aplicarFiltros() {
+        const registros = document.querySelectorAll('.registro-item');
+        const filtroTipo = filtroNombreActual;
+        const fechasSeleccionadas = filtroFechaInstance?.selectedDates || [];
+
+        registros.forEach(registro => {
+            const registroData = registrosProduccion.find(r => r.id === registro.dataset.id);
+            if (!registroData) return;
+
+            let mostrarPorEstado = true;
+            let mostrarPorFecha = true;
+
+            // Filtro por estado
+            if (filtroTipo !== 'todos') {
+                const estadoRegistro = registroData.fecha_verificacion ? 'verificado' : 'pendiente';
+                mostrarPorEstado = (filtroTipo === estadoRegistro);
+            }
+
+            // Filtro por fecha
+            if (fechasSeleccionadas.length === 2) {
+                const fechaRegistro = new Date(registroData.fecha.split('/').reverse().join('-'));
+                mostrarPorFecha = fechaRegistro >= fechasSeleccionadas[0] &&
+                    fechaRegistro <= fechasSeleccionadas[1];
+            }
+
+            registro.style.display = (mostrarPorEstado && mostrarPorFecha) ? '' : 'none';
+        });
+    }
+    function scrollToCenter(boton, contenedorPadre) {
+        const scrollLeft = boton.offsetLeft - (contenedorPadre.offsetWidth / 2) + (boton.offsetWidth / 2);
+        contenedorPadre.scrollTo({
+            left: scrollLeft,
+            behavior: 'smooth'
+        });
+    }
 
 
     inputBusqueda.addEventListener('input', (e) => {
@@ -110,9 +206,9 @@ function eventosMisRegistros() {
 
         // Cambiar icono y clase según si hay texto
         if (busqueda) {
-            iconoBusqueda.className = 'bx bx-x';
+            iconoBusqueda.className = 'bx bx-x lupa';
         } else {
-            iconoBusqueda.className = 'bx bx-search';
+            iconoBusqueda.className = 'bx bx-search lupa';
         }
 
         const registros = document.querySelectorAll('.registro-item');
@@ -125,9 +221,8 @@ function eventosMisRegistros() {
                 normalizarTexto(producto.fecha_verificacion).includes(busqueda) ||
                 normalizarTexto(producto.producto).includes(busqueda) ||
                 normalizarTexto(producto.gramos).includes(busqueda) ||
-                normalizarTexto(producto.lote).includes(busqueda) || 
-                normalizarTexto(producto.fecha).includes(busqueda))
-                 {
+                normalizarTexto(producto.lote).includes(busqueda) ||
+                normalizarTexto(producto.fecha).includes(busqueda)) {
                 registro.style.display = '';
             } else {
                 registro.style.display = 'none';
@@ -137,7 +232,7 @@ function eventosMisRegistros() {
     iconoBusqueda.addEventListener('click', () => {
         if (inputBusqueda.value) {
             inputBusqueda.value = '';
-            iconoBusqueda.className = 'bx bx-search';
+            iconoBusqueda.className = 'bx bx-search lupa';
             // Show all records when clearing search
             document.querySelectorAll('.registro-item').forEach(registro => {
                 registro.style.display = '';
@@ -195,74 +290,9 @@ function eventosMisRegistros() {
     });
 
 
-
     botonesInfo.forEach(btn => {
         btn.addEventListener('click', info);
     });
-    filtros.addEventListener('click', filtroAvanzado);
-
-    let filtroNombreActual = 'Todos';
-
-
-    function aplicarFiltros() {
-        const registros = document.querySelectorAll('.registro-item');
-        const filtroTipo = filtroNombreActual;
-
-        registros.forEach(registro => {
-            const registroData = registrosProduccion.find(r => r.id === registro.dataset.id);
-
-            if (!registroData) {
-                return;
-            }
-            let mostrar = true;
-            // Filtro por tipo modificado
-            if (filtroTipo !== 'todos') {
-                const estadoRegistro = registroData.fecha_verificacion ? 'verificado' : 'pendiente';
-                
-                if (filtroTipo === 'verificado' && estadoRegistro !== 'verificado') mostrar = false;
-                if (filtroTipo === 'pendiente' && estadoRegistro !== 'pendiente') mostrar = false;
-                if (filtroTipo === 'obeservados') mostrar = false; // Mantenemos la lógica original para observados
-            }
-
-            registro.style.display = mostrar ? '' : 'none';
-        });
-    }
-    function scrollToCenter(boton, contenedorPadre) {
-        const scrollLeft = boton.offsetLeft - (contenedorPadre.offsetWidth / 2) + (boton.offsetWidth / 2);
-        contenedorPadre.scrollTo({
-            left: scrollLeft,
-            behavior: 'smooth'
-        });
-    }
-
-
-    botonesEstado.forEach(boton => {
-        boton.addEventListener('click', async () => { // Agregar async aquí
-            botonesEstado.forEach(b => b.classList.remove('activado'));
-            boton.classList.add('activado');
-
-            const tipoFiltro = boton.textContent.trim().toLowerCase();
-
-
-            if (tipoFiltro === 'pendientes') {
-                filtroNombreActual = 'pendiente';
-            }
-            else if (tipoFiltro === 'verificados') {
-                filtroNombreActual = 'verificado';
-            }
-            else if (tipoFiltro === 'todos') {
-                filtroNombreActual = 'todos';
-            }
-            else if (tipoFiltro === 'Obeservados') {
-                filtroNombreActual = 'observado';
-            }
-
-            aplicarFiltros();
-            scrollToCenter(boton, boton.parentElement);
-        });
-    });
-
-
     function info(event) {
         const registroId = event.currentTarget.dataset.id;
         const registro = registrosProduccion.find(r => r.id === registroId);  // Changed from registrosProduccion
@@ -308,144 +338,6 @@ function eventosMisRegistros() {
         contenido.style.paddingBottom = '10px';
         mostrarAnuncioSecond();
     }
-    function filtroAvanzado() {
-        const contenido = document.querySelector('.anuncio-second .contenido');
-        const registrationHTML = `
-        <div class="encabezado">
-            <h1 class="titulo">Filtros avanzados</h1>
-            <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
-        </div>
-        <div class="relleno editar-produccion">
-            <p class="normal"><i class='bx bx-chevron-right'></i>Filtros por fecha</p>
-                <div class="entrada">
-                    <i class='bx bx-calendar-alt'></i>
-                    <div class="input">
-                        <p class="detalle">Desde</p>
-                        <input class="fecha-desde" type="date" autocomplete="off" placeholder=" ">
-                    </div>
-                </div>
-                <div class="entrada">
-                    <i class='bx bx-calendar-alt'></i>
-                    <div class="input">
-                        <p class="detalle">Hasta</p>
-                        <input class="fecha-hasta" type="date" autocomplete="off" placeholder=" ">
-                    </div>
-                </div>
-            <p class="normal"><i class='bx bx-chevron-right'></i>Filtros por operador</p>
-                <div class="entrada">
-                    <i class='bx bx-user'></i>
-                    <div class="input">
-                        <p class="detalle">Operador</p>
-                        <select class="select-operador">
-                            <option value="Todos">Todos</option>
-                            ${[...new Set(registrosProduccion.map(r => r.nombre))].map(nombre =>
-            `<option value="${nombre}">${nombre}</option>`
-        ).join('')}
-                        </select>
-                    </div>
-                </div>
-            <p class="normal"><i class='bx bx-chevron-right'></i>Filtros por estado</p>
-                <div class="entrada">
-                    <i class='bx bx-check-circle'></i>
-                    <div class="input">
-                        <p class="detalle">Estado</p>
-                        <select class="select-estado">
-                            <option value="Todos">Todos</option>
-                            <option value="pendiente">Pendientes</option>
-                            <option value="verificado">Verificados</option>
-                        </select>
-                    </div>
-                </div>
-            <p class="normal"><i class='bx bx-chevron-right'></i>Filtros por producto</p>
-                <div class="entrada">
-                    <i class='bx bx-cube'></i>
-                    <div class="input">
-                        <p class="detalle">Producto</p>
-                        <select class="select-producto">
-                            <option value="Todos">Todos</option>
-                            ${[...new Set(registrosProduccion.map(r => r.producto))].map(producto =>
-            `<option value="${producto}">${producto}</option>`
-        ).join('')}
-                        </select>
-                    </div>
-                </div>
-                <div class="entrada">
-                    <i class='bx bx-barcode'></i>
-                    <div class="input">
-                        <p class="detalle">Lote</p>
-                        <input class="lote" type="number" placeholder=" ">
-                    </div>
-                </div>
-        </div>
-        <div class="anuncio-botones">
-            <button class="btn-aplicar-filtros btn orange"><i class='bx bx-filter-alt'></i> Aplicar filtros</button>
-        </div>
-    `;
-        contenido.innerHTML = registrationHTML;
-        mostrarAnuncioSecond();
-
-        // Agregar evento al botón de aplicar filtros
-        const btnAplicar = contenido.querySelector('.btn-aplicar-filtros');
-        btnAplicar.addEventListener('click', aplicarFiltrosAvanzados);
-
-        function aplicarFiltrosAvanzados() {
-            const fechaDesde = document.querySelector('.anuncio-second .fecha-desde').value;
-            const fechaHasta = document.querySelector('.anuncio-second .fecha-hasta').value;
-            const operador = document.querySelector('.anuncio-second .select-operador').value === 'Todos' ? '' : document.querySelector('.anuncio-second .select-operador').value;
-            const estado = document.querySelector('.anuncio-second .select-estado').value === 'Todos' ? '' : document.querySelector('.anuncio-second .select-estado').value;
-            const producto = document.querySelector('.anuncio-second .select-producto').value === 'Todos' ? '' : document.querySelector('.anuncio-second .select-producto').value;
-            const lote = document.querySelector('.anuncio-second .lote').value;
-
-            const registros = document.querySelectorAll('.anuncio .registro-item');
-            registros.forEach(registro => {
-                const registroData = registrosProduccion.find(r => r.id === registro.dataset.id);
-                let mostrar = true;
-
-                // Filtro mejorado por fecha
-                if (fechaDesde || fechaHasta) {
-                    const [dia, mes, anioStr] = registroData.fecha.split('/');
-                    const anioCompleto = anioStr.length === 2 ? '20' + anioStr : anioStr;
-
-                    // Crear fecha del registro al inicio del día
-                    const fechaRegistro = new Date(anioCompleto, parseInt(mes) - 1, parseInt(dia));
-                    fechaRegistro.setHours(0, 0, 0, 0);
-
-                    if (fechaDesde) {
-                        const [anioDesde, mesDesde, diaDesde] = fechaDesde.split('-');
-                        const fechaDesdeObj = new Date(parseInt(anioDesde), parseInt(mesDesde) - 1, parseInt(diaDesde));
-                        fechaDesdeObj.setHours(0, 0, 0, 0);
-                        if (fechaRegistro < fechaDesdeObj) mostrar = false;
-                    }
-
-                    if (fechaHasta) {
-                        const [anioHasta, mesHasta, diaHasta] = fechaHasta.split('-');
-                        const fechaHastaObj = new Date(parseInt(anioHasta), parseInt(mesHasta) - 1, parseInt(diaHasta));
-                        // Establecer al final del día seleccionado (23:59:59.999)
-                        fechaHastaObj.setHours(23, 59, 59, 999);
-                        if (fechaRegistro > fechaHastaObj) mostrar = false;
-                    }
-                }
-
-                // Resto de los filtros sin cambios...
-                if (operador && registroData.nombre !== operador) mostrar = false;
-                if (estado) {
-                    if (estado === 'pendiente' && registroData.fecha_verificacion) mostrar = false;
-                    if (estado === 'verificado' && !registroData.fecha_verificacion) mostrar = false;
-                }
-                if (producto && registroData.producto !== producto) mostrar = false;
-                if (lote && registroData.lote !== lote) mostrar = false;
-
-                registro.style.display = mostrar ? '' : 'none';
-            });
-
-            // Desactivar botones de filtro
-            const botonesFiltro = document.querySelectorAll('.btn-filtro');
-            botonesFiltro.forEach(boton => boton.classList.remove('activado'));
-
-            ocultarAnuncioSecond();
-        }
-    }
-
 
     return { aplicarFiltros };
 }

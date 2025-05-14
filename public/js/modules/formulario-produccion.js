@@ -28,7 +28,6 @@ async function obtenerProductos() {
 }
 
 
-
 export async function mostrarFormularioProduccion() {
     const contenido = document.querySelector('.anuncio .contenido');
     const registrationHTML = `
@@ -170,6 +169,8 @@ function evetosFormularioProduccion() {
             sugerenciasList.style.display = 'none';
         }
     });
+
+
     registrar.addEventListener('click', async () => {
         // Get all form values
         const producto = productoInput.value.trim();
@@ -290,13 +291,12 @@ function evetosFormularioProduccion() {
             const data = await response.json();
 
             if (data.success) {
+                ocultarAnuncio();
                 mostrarNotificacion({
                     message: 'Producción registrada correctamente',
                     type: 'success',
-                    duration: 3500
+                    duration: 1000
                 });
-                
-                ocultarAnuncio();
             } else {
                 throw new Error(data.error || 'Error al registrar la producción');
             }
@@ -309,7 +309,6 @@ function evetosFormularioProduccion() {
             });
         }finally{
             ocultarCarga();
-            await crearHome();
         }
     });
 }
