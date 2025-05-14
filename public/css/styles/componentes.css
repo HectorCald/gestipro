@@ -1532,7 +1532,8 @@
     }
     
     .flatpickr-day:hover {
-        background: var(--oct-color) !important;
+        background: var(--tercer-color) !important;
+        color: white!important;
     }
     
     .flatpickr-day.today {
@@ -1552,6 +1553,7 @@
     .flatpickr-prev-month:hover,
     .flatpickr-next-month:hover {
         color: var(--cuarto-color) !important;
+        color: var(--text);
     }
     
     .numInputWrapper:hover {
