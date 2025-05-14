@@ -54,7 +54,7 @@ export async function mostrarClientes() {
                 <div class="registro-item" data-id="${cliente.id}">
                     <div class="header">
                         <span class="nombre">${cliente.id}<span class="valor">${cliente.direccion}</span></span>
-                        <span class="valor" color var><strong>${cliente.nombre}</strong></span>
+                        <span class="valor"><strong>${cliente.nombre}</strong></span>
                         <span class="fecha">${cliente.telefono}-${cliente.zona}</span>
                     </div>
                     <div class="registro-acciones">

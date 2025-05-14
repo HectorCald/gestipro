@@ -54,7 +54,7 @@ export async function mostrarProovedores() {
                 <div class="registro-item" data-id="${proovedor.id}">
                     <div class="header">
                         <span class="nombre">${proovedor.id}<span class="valor">${proovedor.direccion}</span></span>
-                        <span class="valor" color var><strong>${proovedor.nombre}</strong></span>
+                        <span class="valor"><strong>${proovedor.nombre}</strong></span>
                         <span class="fecha">${proovedor.telefono}-${proovedor.zona}</span>
                     </div>
                     <div class="registro-acciones">

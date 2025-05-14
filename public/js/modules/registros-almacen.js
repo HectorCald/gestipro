@@ -136,7 +136,7 @@ export async function mostrarMovimientosAlmacen() {
                 <div class="registro-item" data-id="${registro.id}">
                     <div class="header">
                         <span class="nombre">${registro.id}<span class="valor ${registro.tipo}">${registro.tipo}</span></span>
-                        <span class="valor" color var><strong>${registro.nombre_movimiento}</strong></span>
+                        <span class="valor"><strong>${registro.nombre_movimiento}</strong></span>
                         <span class="fecha">${registro.fecha_hora}</span>
                     </div>
                     <div class="registro-acciones">

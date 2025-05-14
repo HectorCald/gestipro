@@ -189,7 +189,7 @@ export async function mostrarAlmacenGeneral() {
                                 <span class="valor precio">Bs/.${producto.precios.split(';')[0].split(',')[1]}</span>
                             </div>
                         </div>
-                        <span class="valor producto-header" color var><strong>${producto.producto} - ${producto.gramos}gr.</strong></span>
+                        <span class="valor producto-header"><strong>${producto.producto} - ${producto.gramos}gr.</strong></span>
                         <span class="fecha">${producto.etiquetas.split(';').join(' • ')}</span>
                     </div>
                     <div class="registro-acciones">
