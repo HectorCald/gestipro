@@ -1360,16 +1360,16 @@
                     padding: 5px 10px;
                     border-radius: 10px;
                     text-align: center;
+                    background-color: var(--oct-color);
+                    font-family: 'Impact', sans-serif !important;
                 }
 
                 p.subtotal {
                     color: var(--success);
-                    background-color: #4caf4f2f;
                 }
 
                 p.stock-disponible {
                     color: orange;
-                    background-color: #ff98002f;
                 }
             }
 
