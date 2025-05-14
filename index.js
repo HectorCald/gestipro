@@ -982,6 +982,58 @@ app.put('/actualizar-producto/:id', requireAuth, async (req, res) => {
 });
 
 
+
+app.post('/actualizar-stock', requireAuth, async (req, res) => {
+    try {
+        const { spreadsheetId } = req.user;  // Obtener el ID del usuario autenticado
+        const { actualizaciones, tipo } = req.body;
+        const sheets = google.sheets({ version: 'v4', auth });
+        
+        // Obtener datos actuales de Almacen general
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId,  // Usar el spreadsheetId del usuario
+            range: 'Almacen general!A:D'
+        });
+
+        const rows = response.data.values || [];
+        const updates = [];
+
+        // Procesar cada actualización
+        for (const actualizacion of actualizaciones) {
+            const rowIndex = rows.findIndex(row => row[0] === actualizacion.id);
+            if (rowIndex !== -1) {
+                const stockActual = parseInt(rows[rowIndex][3]) || 0;
+                const nuevoStock = tipo === 'salida' 
+                    ? stockActual - actualizacion.cantidad 
+                    : stockActual + actualizacion.cantidad;
+
+                updates.push({
+                    range: `Almacen general!D${rowIndex + 1}`,
+                    values: [[nuevoStock.toString()]]
+                });
+            }
+        }
+
+        // Actualizar el stock en la hoja
+        if (updates.length > 0) {
+            await sheets.spreadsheets.values.batchUpdate({
+                spreadsheetId,  // Usar el spreadsheetId del usuario
+                resource: {
+                    valueInputOption: 'USER_ENTERED',
+                    data: updates
+                }
+            });
+        }
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error al actualizar stock:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+
+
 app.get('/obtener-movimientos-almacen', requireAuth, async (req, res) => {
     const { spreadsheetId } = req.user;
 

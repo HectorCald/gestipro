@@ -805,6 +805,8 @@ function eventosSalidas() {
 
         try {
             mostrarCarga();
+            
+            // Primero registramos el movimiento
             const response = await fetch('/registrar-movimiento', {
                 method: 'POST',
                 headers: {
@@ -813,41 +815,58 @@ function eventosSalidas() {
                 },
                 body: JSON.stringify(registroSalida)
             });
-
+    
             const data = await response.json();
-
+    
             if (!response.ok || !data.success) {
                 throw new Error(data.error || 'Error en la respuesta del servidor');
             }
-
-            // Limpiar después de éxito
-            carritoSalidas.clear();
-            localStorage.removeItem('damabrava_carrito');
-            productos.forEach(producto => {
-                const headerItem = document.querySelector(`.registro-item[data-id="${producto.id}"]`);
-                if (headerItem) {
-                    const cantidadSpan = headerItem.querySelector('.carrito-cantidad');
-                    const stockSpan = headerItem.querySelector('.stock');
-                    if (cantidadSpan) cantidadSpan.textContent = '';
-                    if (stockSpan) stockSpan.textContent = `${producto.stock} Und.`;
-                }
+    
+            // Actualizar el stock en Almacen general
+            const actualizacionesStock = Array.from(carritoSalidas.values()).map(item => ({
+                id: item.id,
+                cantidad: item.cantidad
+            }));
+    
+            const responseStock = await fetch('/actualizar-stock', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('damabrava_token')}`
+                },
+                body: JSON.stringify({
+                    actualizaciones: actualizacionesStock,
+                    tipo: 'salida'
+                })
             });
     
-            actualizarCarritoUI();
-            ocultarAnuncioSecond();
-
+            const dataStock = await responseStock.json();
+    
+            if (!responseStock.ok || !dataStock.success) {
+                throw new Error(dataStock.error || 'Error al actualizar el stock');
+            }
+    
+            // Limpiar carrito y actualizar UI
+            carritoSalidas.clear();
+            localStorage.removeItem('damabrava_carrito');
+            document.querySelector('.btn-flotante-salidas').style.display = 'none';
+            
+            
             mostrarNotificacion({
-                message: 'Salida registrada y cliente actualizado',
+                message: 'Salida registrada exitosamente',
                 type: 'success',
                 duration: 3000
             });
+    
+            await mostrarSalidas();
+            ocultarAnuncioSecond();
 
         } catch (error) {
-            console.error('Error en registrarSalida:', error);
+            console.error('Error al procesar la salida:', error);
             mostrarNotificacion({
-                message: error.message || 'Error al procesar la salida',
+                message: 'Error al procesar la salida: ' + error.message,
                 type: 'error',
-                duration: 4000
+                duration: 3500
             });
         } finally {
             ocultarCarga();

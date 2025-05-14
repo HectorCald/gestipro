@@ -149,7 +149,7 @@ async function obtenerAlmacenGeneral() {
 
 export async function mostrarIngresos(busquedaProducto = '') {
     await obtenerAlmacenGeneral();
-    
+
     const contenido = document.querySelector('.anuncio .contenido');
     const etiquetasUnicas = [...new Set(etiquetas.map(etiqueta => etiqueta.etiqueta))];
     const preciosOpciones = precios.map((precio, index) => {
@@ -246,7 +246,7 @@ function eventosIngresos() {
     const iconoBusqueda = document.querySelector('.almacen-general .buscador i');
     const botonFlotante = document.createElement('button');
 
-    
+
     botonFlotante.className = 'btn-flotante-ingresos';
     botonFlotante.innerHTML = '<i class="fas fa-arrow-down"></i>';
     document.body.appendChild(botonFlotante);
@@ -428,10 +428,6 @@ function eventosIngresos() {
     });
 
 
-
-
-
-
     function agregarAlCarrito(productoId) {
         const producto = productos.find(p => p.id === productoId);
         if (!producto) return;
@@ -452,15 +448,14 @@ function eventosIngresos() {
 
         if (carritoSalidas.has(productoId)) {
             const itemCarrito = carritoSalidas.get(productoId);
-            if (itemCarrito.cantidad < producto.stock) {
-                itemCarrito.cantidad += 1;
-                // Actualizar el contador y stock en el header
-                if (item) {
-                    const cantidadSpan = item.querySelector('.carrito-cantidad');
-                    const stockSpan = item.querySelector('.stock');
-                    if (cantidadSpan) cantidadSpan.textContent = itemCarrito.cantidad;
-                    if (stockSpan) stockSpan.textContent = `${producto.stock - itemCarrito.cantidad} Und.`;
-                }
+            itemCarrito.cantidad += 1;
+            // Actualizar el contador y stock en el header
+            if (item) {
+                const cantidadSpan = item.querySelector('.carrito-cantidad');
+                const stockSpan = item.querySelector('.stock');
+                if (cantidadSpan) cantidadSpan.textContent = itemCarrito.cantidad;
+                // Mostrar el stock actual + cantidad a ingresar
+                if (stockSpan) stockSpan.textContent = `${parseInt(producto.stock) + itemCarrito.cantidad} Und.`;
             }
         } else {
             carritoSalidas.set(productoId, {
@@ -473,7 +468,8 @@ function eventosIngresos() {
                 const cantidadSpan = item.querySelector('.carrito-cantidad');
                 const stockSpan = item.querySelector('.stock');
                 if (cantidadSpan) cantidadSpan.textContent = '1';
-                if (stockSpan) stockSpan.textContent = `${producto.stock - 1} Und.`;
+                // Mostrar el stock actual + 1
+                if (stockSpan) stockSpan.textContent = `${parseInt(producto.stock) + 1} Und.`;
             }
         }
         actualizarCarritoLocalIngresos();
@@ -571,29 +567,29 @@ function eventosIngresos() {
             </div>
             <div class="relleno">
                 <div class="carrito-items">
-                    ${Array.from(carritoSalidas.values()).map(item => `
-                        <div class="carrito-item" data-id="${item.id}">
-                            <div class="item-info">
-                                <h3>${item.producto} - ${item.gramos}gr</h3>
-                                <div class="cantidad-control">
-                                    <button class="btn-cantidad" style="color:var(--error)" onclick="ajustarCantidad('${item.id}', -1)">-</button>
-                                    <input type="number" value="${item.cantidad}" min="1" max="${item.stock}"
-                                        onfocus="this.select()"
-                                        onchange="actualizarCantidad('${item.id}', this.value)">
-                                    <button class="btn-cantidad"style="color:var(--success)" onclick="ajustarCantidad('${item.id}', 1)">+</button>
-                                </div>
-                            </div>
-                            <div class="subtotal-delete">
-                                <div class="info-valores">
-                                    <p class="stock-disponible">${item.stock - item.cantidad} Und.</p>
-                                    <p class="subtotal">Bs/.${(item.cantidad * item.subtotal).toFixed(2)}</p>
-                                </div>
-                                <button class="btn-eliminar" onclick="eliminarDelCarrito('${item.id}')">
-                                    <i class="bx bx-trash"></i>
-                                </button>
+                ${Array.from(carritoSalidas.values()).map(item => `
+                    <div class="carrito-item" data-id="${item.id}">
+                        <div class="item-info">
+                            <h3>${item.producto} - ${item.gramos}gr</h3>
+                            <div class="cantidad-control">
+                                <button class="btn-cantidad" style="color:var(--error)" onclick="ajustarCantidad('${item.id}', -1)">-</button>
+                                <input type="number" value="${item.cantidad}" min="1"
+                                    onfocus="this.select()"
+                                    onchange="actualizarCantidad('${item.id}', this.value)">
+                                <button class="btn-cantidad"style="color:var(--success)" onclick="ajustarCantidad('${item.id}', 1)">+</button>
                             </div>
                         </div>
-                    `).join('')}
+                        <div class="subtotal-delete">
+                            <div class="info-valores">
+                                <p class="stock-disponible">${parseInt(item.stock) + parseInt(item.cantidad)} Und.</p>
+                                <p class="subtotal">Bs/.${(item.cantidad * item.subtotal).toFixed(2)}</p>
+                            </div>
+                            <button class="btn-eliminar" onclick="eliminarDelCarrito('${item.id}')">
+                                <i class="bx bx-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `).join('')}
                     <div class="carrito-total">
                     <div class="campo-vertical">
                         <span><strong>Subtotal: </strong>Bs/.${subtotal.toFixed(2)}</span>
@@ -679,7 +675,7 @@ function eventosIngresos() {
             });
 
             carritoSalidas.clear();
-            document.querySelector('.btn-flotante-ingresos').style.display='none';
+            document.querySelector('.btn-flotante-ingresos').style.display = 'none';
             actualizarCarritoLocalIngresos();
             actualizarBotonFlotante();
             ocultarAnuncioSecond();
@@ -696,7 +692,7 @@ function eventosIngresos() {
         if (!item) return;
 
         const nuevaCantidad = item.cantidad + delta;
-        if (nuevaCantidad > 0 && nuevaCantidad <= item.stock) {
+        if (nuevaCantidad > 0) { // Removemos el límite superior ya que es un ingreso
             item.cantidad = nuevaCantidad;
             // Actualizar contador y stock en el header
             const headerItem = document.querySelector(`.registro-item[data-id="${id}"]`);
@@ -704,7 +700,7 @@ function eventosIngresos() {
                 const cantidadSpan = headerItem.querySelector('.carrito-cantidad');
                 const stockSpan = headerItem.querySelector('.stock');
                 if (cantidadSpan) cantidadSpan.textContent = nuevaCantidad;
-                if (stockSpan) stockSpan.textContent = `${item.stock - nuevaCantidad} Und.`;
+                if (stockSpan) stockSpan.textContent = `${parseInt(item.stock) + nuevaCantidad} Und.`;
             }
             actualizarCarritoLocalIngresos();
             actualizarCarritoUI();
@@ -729,11 +725,10 @@ function eventosIngresos() {
     function actualizarCarritoUI() {
         if (carritoSalidas.size === 0) {
             ocultarAnuncioSecond();
-            document.querySelector('.btn-flotante-ingresos').style.display='none';
+            document.querySelector('.btn-flotante-ingresos').style.display = 'none';
             return;
         }
 
-        // En lugar de recargar todo el carrito, actualizamos solo los valores necesarios
         const items = document.querySelectorAll('.carrito-item');
         items.forEach(item => {
             const id = item.dataset.id;
@@ -744,7 +739,8 @@ function eventosIngresos() {
                 const subtotalElement = item.querySelector('.subtotal');
 
                 cantidadInput.value = producto.cantidad;
-                stockDisponible.textContent = `${producto.stock - producto.cantidad} Und.`;
+                // Mostrar el stock final (actual + cantidad a ingresar)
+                stockDisponible.textContent = `${parseInt(producto.stock) + producto.cantidad} Und.`;
                 subtotalElement.textContent = `Bs/.${(producto.cantidad * producto.subtotal).toFixed(2)}`;
             }
         });
@@ -772,10 +768,9 @@ function eventosIngresos() {
     }
 
 
-
     async function registrarIngreso() {
         const proovedorSelect = document.querySelector('.select-proovedor');
-        const nombreMovimiento= document.querySelector('.nombre-movimiento');
+        const nombreMovimiento = document.querySelector('.nombre-movimiento');
         if (!proovedorSelect.value) {
             mostrarNotificacion({
                 message: 'Seleccione un prooveedor antes de continuar',
@@ -793,9 +788,9 @@ function eventosIngresos() {
             return;
         }
 
-        const registroSalida = {
+        const registroIngreso = {
             fechaHora: new Date().toLocaleString(),
-            tipo: 'Ingreso', 
+            tipo: 'Ingreso',
             productos: Array.from(carritoSalidas.values()).map(item => `${item.producto} - ${item.gramos}gr`).join(';'),
             cantidades: Array.from(carritoSalidas.values()).map(item => item.cantidad).join(';'),
             operario: `${usuarioInfo.nombre} ${usuarioInfo.apellido}`,
@@ -807,18 +802,20 @@ function eventosIngresos() {
             total: 0,
             observaciones: document.querySelector('.Observaciones').value || 'Ninguna'
         };
-
-        registroSalida.total = registroSalida.subtotal - registroSalida.descuento + registroSalida.aumento;
+    
+        registroIngreso.total = registroIngreso.subtotal - registroIngreso.descuento + registroIngreso.aumento;
 
         try {
             mostrarCarga();
+
+            // Primero registramos el movimiento
             const response = await fetch('/registrar-movimiento', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('damabrava_token')}`
                 },
-                body: JSON.stringify(registroSalida)
+                body: JSON.stringify(registroIngreso)
             });
 
             const data = await response.json();
@@ -827,34 +824,51 @@ function eventosIngresos() {
                 throw new Error(data.error || 'Error en la respuesta del servidor');
             }
 
-            // Limpiar después de éxito
-            carritoSalidas.clear();
-            localStorage.removeItem('damabrava_carrito');
-            productos.forEach(producto => {
-                const headerItem = document.querySelector(`.registro-item[data-id="${producto.id}"]`);
-                if (headerItem) {
-                    const cantidadSpan = headerItem.querySelector('.carrito-cantidad');
-                    const stockSpan = headerItem.querySelector('.stock');
-                    if (cantidadSpan) cantidadSpan.textContent = '';
-                    if (stockSpan) stockSpan.textContent = `${producto.stock} Und.`;
-                }
+            // Actualizar el stock en Almacen general
+            const actualizacionesStock = Array.from(carritoSalidas.values()).map(item => ({
+                id: item.id,
+                cantidad: item.cantidad
+            }));
+
+            const responseStock = await fetch('/actualizar-stock', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('damabrava_token')}`
+                },
+                body: JSON.stringify({
+                    actualizaciones: actualizacionesStock,
+                    tipo: 'ingreso'  // Especificamos que es un ingreso
+                })
             });
-    
-            actualizarCarritoUI();
-            ocultarAnuncioSecond();
+
+            const dataStock = await responseStock.json();
+
+            if (!responseStock.ok || !dataStock.success) {
+                throw new Error(dataStock.error || 'Error al actualizar el stock');
+            }
+
+            // Limpiar carrito y actualizar UI
+            carritoSalidas.clear();
+            localStorage.removeItem('damabrava_carrito_ingresos');
+            document.querySelector('.btn-flotante-ingresos').style.display = 'none';
+
 
             mostrarNotificacion({
-                message: 'Salida registrada y cliente actualizado',
+                message: 'Ingreso registrado exitosamente',
                 type: 'success',
                 duration: 3000
             });
 
+            await mostrarIngresos();
+            ocultarAnuncioSecond();
+
         } catch (error) {
-            console.error('Error en registrarSalida:', error);
+            console.error('Error al procesar el ingreso:', error);
             mostrarNotificacion({
-                message: error.message || 'Error al procesar la salida',
+                message: 'Error al procesar el ingreso: ' + error.message,
                 type: 'error',
-                duration: 4000
+                duration: 3500
             });
         } finally {
             ocultarCarga();
