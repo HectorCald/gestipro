@@ -309,7 +309,6 @@ app.post('/registrar-historial', requireAuth, async (req, res) => {
         });
     }
 });
-
 app.get('/obtener-historial', requireAuth, async (req, res) => {
     const { spreadsheetId } = req.user;
 
@@ -458,10 +457,48 @@ app.post('/actualizar-usuario', requireAuth, async (req, res) => {
         });
     }
 });
+app.get('/obtener-usuarios-produccion', requireAuth, async (req, res) => {
+    const { spreadsheetId } = req.user;
+
+    try {
+        const sheets = google.sheets({ version: 'v4', auth });
+        
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId: spreadsheetId,
+            range: 'Usuarios!A2:F' // Get all relevant user columns
+        });
+
+        const rows = response.data.values || [];
+        
+        // Filter users with "Producción" role and map to desired format
+        const usuarios = rows
+            .filter(row => row[2] === 'Producción') // Column C contains the role
+            .map(row => ({
+                id: row[0] || '',        // Password/ID
+                nombre: row[1] || '',     // Name
+                rol: row[2] || '',        // Role
+                estado: row[3] || '',     // Status
+                plugins: row[4] || '',    // Plugins
+                email: row[5] || ''       // Email
+            }));
+
+        res.json({
+            success: true,
+            usuarios
+        });
+
+    } catch (error) {
+        console.error('Error al obtener usuarios de producción:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error al obtener los usuarios de producción'
+        });
+    }
+});
 
 
 /* ==================== RUTAS DE PRODUCCIÓN ==================== */
-app.get('/obtener-registros-produccion', requireAuth, async (req, res) => {
+app.get('/obtener-registros-produccion', requireAuth, async (req, res) => { 
     const { spreadsheetId } = req.user;
 
     try {

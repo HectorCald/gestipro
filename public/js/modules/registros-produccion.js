@@ -69,7 +69,6 @@ export async function mostrarMisRegistros() {
                 <button class="btn-filtro">Verificados</button>
                 <button class="btn-filtro">Observados</button>
             </div>
-            <p class="normal"><i class='bx bx-chevron-right'></i>Registros</p>
             ${registrosProduccion.map(registro => `
             <div class="registro-item" data-id="${registro.id}">
                 <div class="header">
@@ -85,6 +84,10 @@ export async function mostrarMisRegistros() {
                 </div>
             </div>
             `).join('')}
+            <p class="no-encontrado" style="text-align: center; font-size: 15px; color: #777; width:100%; padding:15px; display:none">
+                <i class='bx bx-box' style="font-size: 2rem; display: block; margin-bottom: 8px;"></i>
+                ¡Ups! No encontramos registros que coincidan con tu búsqueda o filtrado.
+            </p>
         </div>
         <div class="anuncio-botones">
             <button id="exportar-excel" class="btn orange" style="margin-bottom:10px"><i class='bx bx-download'></i> Descargar registros</button>
@@ -99,8 +102,7 @@ export async function mostrarMisRegistros() {
 }
 function eventosMisRegistros() {
     const btnExcel = document.getElementById('exportar-excel');
-    const registrosAExportar = usuarioInfo.rol === 'Almacen' ? registrosMovimientos : registrosProduccion;
-    let registrosFiltrados = [...registrosAExportar];
+    const registrosAExportar = registrosProduccion;
     const botonesEstado = document.querySelectorAll('.filtros-opciones.estado .btn-filtro');
     const botonesInfo = document.querySelectorAll('.btn-info');
     const items = document.querySelectorAll('.registro-item');
@@ -170,59 +172,88 @@ function eventosMisRegistros() {
         });
     });
     function aplicarFiltros() {
-        const registros = document.querySelectorAll('.registro-item');
         const filtroTipo = filtroNombreActual;
         const fechasSeleccionadas = filtroFechaInstance?.selectedDates || [];
         const busqueda = normalizarTexto(inputBusqueda.value);
+        const items = document.querySelectorAll('.registro-item');
+        const mensajeNoEncontrado = document.querySelector('.no-encontrado');
+        let registrosVisibles = 0;
 
-        registros.forEach(registro => {
-            const registroData = registrosProduccion.find(r => r.id === registro.dataset.id);
-            if (!registroData) return;
-
-            let mostrarPorEstado = true;
-            let mostrarPorFecha = true;
-            let mostrarPorBusqueda = true;
-
-            // Filtro por estado
-            if (filtroTipo !== 'todos') {
-                const estadoRegistro = registroData.fecha_verificacion ? 'verificado' : 'pendiente';
-                mostrarPorEstado = (filtroTipo === estadoRegistro);
-            }
-
-            // Filtro por fecha
-            if (fechasSeleccionadas.length === 2) {
-                const [dia, mes, anio] = registroData.fecha.split('/');
-                const fechaRegistro = new Date(anio, mes - 1, dia);
-                fechaRegistro.setHours(0, 0, 0, 0);
-
-                const fechaInicio = new Date(fechasSeleccionadas[0]);
-                fechaInicio.setHours(0, 0, 0, 0);
-                const fechaFin = new Date(fechasSeleccionadas[1]);
-                fechaFin.setHours(23, 59, 59, 999);
-
-                mostrarPorFecha = fechaRegistro >= fechaInicio && fechaRegistro <= fechaFin;
-            }
-
-            // Filtro por búsqueda
-            if (busqueda) {
-                mostrarPorBusqueda = 
-                    normalizarTexto(registroData.producto).includes(busqueda) ||
-                    normalizarTexto(registroData.fecha_verificacion || '').includes(busqueda) ||
-                    normalizarTexto(registroData.gramos).includes(busqueda) ||
-                    normalizarTexto(registroData.lote).includes(busqueda) ||
-                    normalizarTexto(registroData.fecha).includes(busqueda);
-            }
-
-            registro.style.display = (mostrarPorEstado && mostrarPorFecha && mostrarPorBusqueda) ? '' : 'none';
+        // First hide all items with animation
+        items.forEach(registro => {
+            registro.classList.remove('show');
+            registro.classList.add('hide');
         });
+
+        setTimeout(() => {
+            items.forEach((registro, index) => {
+                const registroData = registrosProduccion.find(r => r.id === registro.dataset.id);
+                if (!registroData) return;
+
+                let mostrarRegistro = true;
+
+                // Filtro por estado
+                if (filtroTipo !== 'todos') {
+                    if (filtroTipo === 'observado') {
+                        mostrarRegistro = registroData.observaciones && registroData.observaciones !== 'Sin observaciones';
+                    } else {
+                        const estadoRegistro = registroData.fecha_verificacion ? 'verificado' : 'pendiente';
+                        mostrarRegistro = (filtroTipo === estadoRegistro);
+                    }
+                }
+
+                // Filtro por fecha
+                if (mostrarRegistro && fechasSeleccionadas.length === 2) {
+                    const [dia, mes, anio] = registroData.fecha.split('/');
+                    const fechaRegistro = new Date(anio, mes - 1, dia);
+                    fechaRegistro.setHours(0, 0, 0, 0);
+
+                    const fechaInicio = new Date(fechasSeleccionadas[0]);
+                    fechaInicio.setHours(0, 0, 0, 0);
+                    const fechaFin = new Date(fechasSeleccionadas[1]);
+                    fechaFin.setHours(23, 59, 59, 999);
+
+                    mostrarRegistro = fechaRegistro >= fechaInicio && fechaRegistro <= fechaFin;
+                }
+
+                // Filtro por búsqueda
+                if (mostrarRegistro && busqueda) {
+                    const textoRegistro = [
+                        registroData.id,
+                        registroData.producto,
+                        registroData.gramos?.toString(),
+                        registroData.lote?.toString(),
+                        registroData.fecha,
+                        registroData.nombre,
+                        registroData.proceso
+                    ].filter(Boolean).join(' ').toLowerCase();
+
+                    mostrarRegistro = normalizarTexto(textoRegistro).includes(busqueda);
+                }
+
+                // Mostrar u ocultar registro con animación
+                if (mostrarRegistro) {
+                    registro.style.display = 'flex';
+                    setTimeout(() => {
+                        registro.classList.remove('hide');
+                        registro.classList.add('show');
+                    }, index * 50);
+                    registrosVisibles++;
+                } else {
+                    registro.classList.add('hide');
+                    setTimeout(() => {
+                        registro.style.display = 'none';
+                    }, 200);
+                }
+            });
+
+            // Mostrar mensaje de no encontrado
+            if (mensajeNoEncontrado) {
+                mensajeNoEncontrado.style.display = registrosVisibles === 0 ? 'block' : 'none';
+            }
+        }, 200);
     }
-    function scrollToCenter(boton, contenedorPadre) {
-        const scrollLeft = boton.offsetLeft - (contenedorPadre.offsetWidth / 2) + (boton.offsetWidth / 2);
-        contenedorPadre.scrollTo({
-            left: scrollLeft,
-            behavior: 'smooth'
-        });
-    }
+
 
 
     inputBusqueda.addEventListener('input', (e) => {
@@ -286,6 +317,14 @@ function eventosMisRegistros() {
     });
 
 
+    function scrollToCenter(boton, contenedorPadre) {
+        const scrollLeft = boton.offsetLeft - (contenedorPadre.offsetWidth / 2) + (boton.offsetWidth / 2);
+        contenedorPadre.scrollTo({
+            left: scrollLeft,
+            behavior: 'smooth'
+        });
+    }
+
     botonesInfo.forEach(btn => {
         btn.addEventListener('click', info);
     });
@@ -336,60 +375,7 @@ function eventosMisRegistros() {
     }
 
 
-    btnExcel.addEventListener('click', () => {
-        // Obtener solo los registros visibles
-        const registrosVisibles = Array.from(document.querySelectorAll('.registro-item'))
-            .filter(item => item.style.display !== 'none')
-            .map(item => {
-                const registro = registrosAExportar.find(r => r.id === item.dataset.id);
-                if (usuarioInfo.rol === 'Almacen') {
-                    return {
-                        'Fecha': registro.fecha_hora,
-                        'Producto': registro.producto,
-                        'Cantidad': registro.cantidad,
-                        'Tipo': registro.tipo,
-                        'ID': registro.id
-                    };
-                } else {
-                    return {
-                        'ID': registro.id,
-                        'Fecha': registro.fecha,
-                        'Producto': registro.producto,
-                        'Lote': registro.lote,
-                        'Gramos': registro.gramos,
-                        'Proceso': registro.proceso,
-                        'Microondas': registro.microondas,
-                        'Envases Terminados': registro.envases_terminados,
-                        'Fecha Vencimiento': registro.fecha_vencimiento,
-                        'Nombre': registro.nombre,
-                        'Cantidad Real': registro.c_real,
-                        'Fecha Verificación': registro.fecha_verificacion || 'Pendiente',
-                        'Observaciones': registro.observaciones || 'Sin observaciones',
-                    };
-                }
-            });
-
-        // Generar nombre del archivo con la fecha actual
-        const fecha = new Date().toLocaleDateString('es-ES').replace(/\//g, '-');
-        const nombreArchivo = `Registros_${fecha}.xlsx`;
-
-        // Crear y descargar el archivo Excel
-        const worksheet = XLSX.utils.json_to_sheet(registrosVisibles);
-
-        // Ajustar el ancho de las columnas
-        const wscols = Object.keys(registrosVisibles[0] || {}).map(() => ({ wch: 15 }));
-        worksheet['!cols'] = wscols;
-
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, 'Registros');
-        XLSX.writeFile(workbook, nombreArchivo);
-
-        mostrarNotificacion({
-            message: 'Descarga exitosa de los registros',
-            type: 'success',
-            duration: 3000
-        });
-    });
+    btnExcel.addEventListener('click', () => exportarArchivos('produccion', registrosAExportar));
 
     return { aplicarFiltros };
 }

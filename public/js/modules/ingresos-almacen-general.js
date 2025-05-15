@@ -166,9 +166,8 @@ export async function mostrarIngresos(busquedaProducto = '') {
         <div class="relleno almacen-general">
             <div class="buscador">
                 <input type="text" class="buscar-producto" placeholder="Buscar..." value="${busquedaProducto}">
-                <i class='bx bx-search'></i>
+                <i class='bx bx-search lupa2' style="right:0"></i>
             </div>
-            <p class="normal"><i class='bx bx-chevron-right'></i>Filtros</p>
             <div class="filtros-opciones etiquetas-filter">
                 <button class="btn-filtro activado">Todos</button>
                 ${etiquetasUnicas.map(etiqueta => `
@@ -185,7 +184,6 @@ export async function mostrarIngresos(busquedaProducto = '') {
                 </select>
             </div>
 
-            <p class="normal"><i class='bx bx-chevron-right'></i>Productos</p>
                 ${productos.map(producto => `
                 <div class="registro-item" data-id="${producto.id}">
                     <div class="header">
@@ -207,6 +205,11 @@ export async function mostrarIngresos(busquedaProducto = '') {
                     </div>
                 </div>
             `).join('')}
+            <p class="no-encontrado" style="text-align: center; font-size: 15px; color: #777; width:100%; padding:15px; display:none">
+                <i class='bx bx-box' style="font-size: 2rem; display: block; margin-bottom: 8px;"></i>
+                ¡Ups! No encontramos productos que coincidan con tu búsqueda o filtrado.
+            </p>
+
         </div>
     `;
 
@@ -229,27 +232,23 @@ export async function mostrarIngresos(busquedaProducto = '') {
     aplicarFiltros('Todos', 'Todos');
 
     contenido.style.paddingBottom = '10px';
-
-    // Aplicar búsqueda automática si se proporcionó un nombre de producto
-    if (busquedaProducto) {
-        const inputBusqueda = document.querySelector('.buscar-producto');
-        const iconoBusqueda = document.querySelector('.almacen-general .buscador i');
-        inputBusqueda.dispatchEvent(new Event('input'));
-        iconoBusqueda.className = 'bx bx-x';
-    }
 }
 function eventosIngresos() {
     const botonesEtiquetas = document.querySelectorAll('.filtros-opciones.etiquetas-filter .btn-filtro');
     const botonesCantidad = document.querySelectorAll('.filtros-opciones.cantidad-filter .btn-filtro');
     const selectPrecios = document.querySelector('.precios-select');
     const inputBusqueda = document.querySelector('.buscar-producto');
-    const iconoBusqueda = document.querySelector('.almacen-general .buscador i');
+    const iconoBusqueda = document.querySelector('.almacen-general .buscador .lupa2');
     const botonFlotante = document.createElement('button');
+    const items = document.querySelectorAll('.registro-item');
 
+
+    let filtroNombreActual = 'Todos';
 
     botonFlotante.className = 'btn-flotante-ingresos';
     botonFlotante.innerHTML = '<i class="fas fa-arrow-down"></i>';
     document.body.appendChild(botonFlotante);
+
     selectPrecios.addEventListener('change', () => {
         const ciudadSeleccionada = selectPrecios.options[selectPrecios.selectedIndex].text;
 
@@ -279,57 +278,13 @@ function eventosIngresos() {
     });
     actualizarBotonFlotante();
     botonFlotante.addEventListener('click', mostrarCarritoIngresos);
-    const items = document.querySelectorAll('.registro-item');
+
+
     items.forEach(item => {
         item.addEventListener('click', () => agregarAlCarrito(item.dataset.id));
     });
 
 
-    inputBusqueda.addEventListener('input', (e) => {
-        const busqueda = normalizarTexto(e.target.value);
-        iconoBusqueda.className = busqueda ? 'bx bx-x' : 'bx bx-search';
-
-        // Cambiar icono y clase según si hay texto
-        if (busqueda) {
-            iconoBusqueda.className = 'bx bx-x';
-            botonesEtiquetas.forEach(btn => {
-                btn.classList.remove('activado');
-            });
-        } else {
-            iconoBusqueda.className = 'bx bx-search';
-            // Reactivar el filtro "Todos" cuando se limpia la búsqueda
-            document.querySelector('.btn-filtro').classList.add('activado');
-        }
-
-        const registros = document.querySelectorAll('.registro-item');
-        registros.forEach(registro => {
-            const producto = productos.find(p => p.id === registro.dataset.id);
-            const textoProducto = normalizarTexto(producto.producto);
-            const codigoBarras = normalizarTexto(producto.codigo_barras);
-            const etiquetas = normalizarTexto(producto.etiquetas);
-
-            if (!busqueda ||
-                textoProducto.includes(busqueda) ||
-                codigoBarras.includes(busqueda) ||
-                etiquetas.includes(busqueda)) {
-                registro.style.display = '';
-            } else {
-                registro.style.display = 'none';
-            }
-        });
-    });
-    iconoBusqueda.addEventListener('click', () => {
-        if (inputBusqueda.value) {
-            inputBusqueda.value = '';
-            iconoBusqueda.className = 'bx bx-search';
-            // Show all records when clearing search
-            document.querySelectorAll('.registro-item').forEach(registro => {
-                registro.style.display = '';
-            });
-            // Reactivate "Todos" filter
-            document.querySelector('.btn-filtro').classList.add('activado');
-        }
-    })
     function normalizarTexto(texto) {
         return texto.toString()
             .toLowerCase()
@@ -337,72 +292,142 @@ function eventosIngresos() {
             .replace(/[\u0300-\u036f]/g, '') // Eliminar acentos
             .replace(/[-_\s]+/g, ''); // Eliminar guiones, guiones bajos y espacios
     }
-    botonesCantidad.forEach((boton, index) => {
-        boton.addEventListener('click', () => {
-            // Remover clase 'activado' de todos los botones de cantidad
-            botonesCantidad.forEach(b => b.classList.remove('activado'));
-            // Agregar clase 'activado' al botón clickeado
-            boton.classList.add('activado');
+    iconoBusqueda.addEventListener('click', () => {
+        if (inputBusqueda.value) {
+            inputBusqueda.value = '';
+            const mensajeNoEncontrado = document.querySelector('.no-encontrado');
+            mensajeNoEncontrado.style.display = 'none';
+            iconoBusqueda.className = 'bx bx-search lupa2';
+            // Show all records when clearing search
+            document.querySelectorAll('.registro-item').forEach(registro => {
+                registro.style.display = '';
+            });        }
+    })
+    inputBusqueda.addEventListener('input', (e) => {
+        const busqueda = normalizarTexto(e.target.value);
+        iconoBusqueda.className = busqueda ? 'bx bx-x lupa2' : 'bx bx-search lupa2';
+        aplicarFiltros();
+    });
 
-            const registros = Array.from(document.querySelectorAll('.registro-item'));
 
+    function aplicarFiltros() {
+        const registros = document.querySelectorAll('.registro-item');
+        const busqueda = normalizarTexto(inputBusqueda.value);
+        const precioSeleccionado = selectPrecios.options[selectPrecios.selectedIndex].text;
+        const botonCantidadActivo = document.querySelector('.filtros-opciones.cantidad-filter .btn-filtro.activado');
+
+        // Obtener los productos filtrados
+        const productosFiltrados = Array.from(registros).filter(registro => {
+            const producto = productos.find(p => p.id === registro.dataset.id);
+            const etiquetasProducto = producto.etiquetas.split(';').map(e => e.trim());
+            let mostrar = true;
+
+            // Filtro por etiquetas
+            if (filtroNombreActual !== 'Todos') {
+                mostrar = mostrar && etiquetasProducto.includes(filtroNombreActual);
+            }
+
+            // Filtro por búsqueda
+            if (busqueda) {
+                mostrar = mostrar && (
+                    normalizarTexto(producto.producto).includes(busqueda) ||
+                    normalizarTexto(producto.gramos.toString()).includes(busqueda) ||
+                    normalizarTexto(producto.codigo_barras).includes(busqueda) ||
+                    normalizarTexto(producto.etiquetas).includes(busqueda)
+                );
+            }
+
+            return mostrar;
+        });
+
+        // Ordenar los productos filtrados
+        if (botonCantidadActivo) {
+            const index = Array.from(botonesCantidad).indexOf(botonCantidadActivo);
             switch (index) {
-                case 0: // Mayor a menor cantidad
-                    registros.sort((a, b) => {
+                case 0: // Mayor a menor
+                    productosFiltrados.sort((a, b) => {
                         const stockA = parseInt(a.querySelector('.stock').textContent);
                         const stockB = parseInt(b.querySelector('.stock').textContent);
                         return stockB - stockA;
                     });
                     break;
-                case 1: // Menor a mayor cantidad
-                    registros.sort((a, b) => {
+                case 1: // Menor a mayor
+                    productosFiltrados.sort((a, b) => {
                         const stockA = parseInt(a.querySelector('.stock').textContent);
                         const stockB = parseInt(b.querySelector('.stock').textContent);
                         return stockA - stockB;
                     });
                     break;
                 case 2: // A-Z
-                    registros.sort((a, b) => {
-                        const nombreA = a.querySelector('.producto-header').textContent.toLowerCase();
-                        const nombreB = b.querySelector('.producto-header').textContent.toLowerCase();
+                    productosFiltrados.sort((a, b) => {
+                        const nombreA = a.querySelector('.nombre strong').textContent.toLowerCase();
+                        const nombreB = b.querySelector('.nombre strong').textContent.toLowerCase();
                         return nombreA.localeCompare(nombreB);
                     });
                     break;
                 case 3: // Z-A
-                    registros.sort((a, b) => {
-                        const nombreA = a.querySelector('.producto-header').textContent.toLowerCase();
-                        const nombreB = b.querySelector('.producto-header').textContent.toLowerCase();
+                    productosFiltrados.sort((a, b) => {
+                        const nombreA = a.querySelector('.nombre strong').textContent.toLowerCase();
+                        const nombreB = b.querySelector('.nombre strong').textContent.toLowerCase();
                         return nombreB.localeCompare(nombreA);
                     });
                     break;
             }
+        }
 
-            // Reordenar los elementos en el DOM
-            const contenedor = document.querySelector('.relleno.almacen-general');
-            registros.forEach(registro => {
-                contenedor.appendChild(registro);
-            });
+        // Mostrar/ocultar registros y actualizar precios
+        registros.forEach(registro => {
+            const mostrar = productosFiltrados.includes(registro);
+            registro.style.display = mostrar ? '' : 'none';
+
+            // Actualizar precio si es necesario
+            if (mostrar && precioSeleccionado) {
+                const producto = productos.find(p => p.id === registro.dataset.id);
+                const preciosProducto = producto.precios.split(';');
+                const precioFiltrado = preciosProducto.find(p => p.split(',')[0] === precioSeleccionado);
+                if (precioFiltrado) {
+                    const precio = parseFloat(precioFiltrado.split(',')[1]);
+                    const precioSpan = registro.querySelector('.precio');
+                    if (precioSpan) {
+                        precioSpan.textContent = `Bs/.${precio.toFixed(2)}`;
+                    }
+                }
+            }
+        });
+
+        // Reordenar en el DOM
+        const contenedor = document.querySelector('.relleno.almacen-general');
+        productosFiltrados.forEach(registro => {
+            contenedor.appendChild(registro);
+        });
+
+        // Mostrar mensaje si no hay productos filtrados
+        const mensajeNoEncontrado = document.querySelector('.no-encontrado');
+
+        if (productosFiltrados.length === 0) {
+            mensajeNoEncontrado.style.display = 'block';
+        } else {
+            mensajeNoEncontrado.style.display = 'none';
+        }
+
+    }
+    botonesEtiquetas.forEach(boton => {
+        boton.addEventListener('click', () => {
+            botonesEtiquetas.forEach(b => b.classList.remove('activado'));
+            boton.classList.add('activado');
+            filtroNombreActual = boton.textContent.trim();
+            aplicarFiltros();
+            scrollToCenter(boton, boton.parentElement);
         });
     });
-    let filtroNombreActual = 'Todos';
-    function aplicarFiltros() {
-        const registros = document.querySelectorAll('.registro-item');
-
-        registros.forEach(registro => {
-            const registroId = registro.dataset.id;
-            const producto = productos.find(p => p.id === registroId);
-            const etiquetasProducto = producto.etiquetas.split(';').map(e => e.trim());
-
-            let mostrar = true;
-
-            // Si hay un filtro activo que no sea 'Todos'
-            if (filtroNombreActual !== 'Todos') {
-                mostrar = etiquetasProducto.includes(filtroNombreActual);
-            }
-
-            registro.style.display = mostrar ? '' : 'none';
+    botonesCantidad.forEach(boton => {
+        boton.addEventListener('click', () => {
+            botonesCantidad.forEach(b => b.classList.remove('activado'));
+            boton.classList.add('activado');
+            aplicarFiltros();
         });
-    }
+    });
+    selectPrecios.addEventListener('change', aplicarFiltros);
     function scrollToCenter(boton, contenedorPadre) {
         const scrollLeft = boton.offsetLeft - (contenedorPadre.offsetWidth / 2) + (boton.offsetWidth / 2);
         contenedorPadre.scrollTo({
@@ -410,22 +435,7 @@ function eventosIngresos() {
             behavior: 'smooth'
         });
     }
-    botonesEtiquetas.forEach(boton => {
-        boton.addEventListener('click', () => {
-            // Limpiar input de búsqueda
-            inputBusqueda.value = '';
-            iconoBusqueda.className = 'bx bx-search';
 
-            // Remover clase 'activado' de todos los botones
-            botonesEtiquetas.forEach(b => b.classList.remove('activado'));
-            // Agregar clase 'activado' al botón clickeado
-            boton.classList.add('activado');
-
-            filtroNombreActual = boton.textContent.trim();
-            aplicarFiltros();
-            scrollToCenter(boton, boton.parentElement);
-        });
-    });
 
 
     function agregarAlCarrito(productoId) {
@@ -802,7 +812,7 @@ function eventosIngresos() {
             total: 0,
             observaciones: document.querySelector('.Observaciones').value || 'Ninguna'
         };
-    
+
         registroIngreso.total = registroIngreso.subtotal - registroIngreso.descuento + registroIngreso.aumento;
 
         try {
@@ -874,7 +884,6 @@ function eventosIngresos() {
             ocultarCarga();
         }
     }
-
     window.registrarIngreso = registrarIngreso;
 
     return { aplicarFiltros };

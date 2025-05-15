@@ -922,11 +922,15 @@
 
 .registro-item {
     background-color: var(--primary-color);
-    border-radius: 8px;
+    border-radius: 10px;
     padding: 10px;
     transition: transform 0.2s ease;
     position: relative;
     height: auto;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+
 
     .header {
         display: flex;
@@ -934,6 +938,7 @@
         align-items: flex-start;
         gap: 10px;
         height: 100%;
+        width: 100%;
 
         i {
             width: 80px;
@@ -1078,6 +1083,16 @@
         transform: translateY(-5px);
     }
 }
+.registro-item.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.registro-item.hide {
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
 
 .relleno .filtros-opciones {
     display: flex;
@@ -1163,6 +1178,18 @@
         transform: translateY(-50%);
         right: 50px !important;
     }
+    .lupa2{
+        color: var(--cuarto-color);
+        padding: 10px;
+        font-size: var(--text-3xl) !important;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        right: 0px !important;
+    }
+}
+.no-encontrado {
+    transition: opacity 0.3s ease;
 }
 
 .btn-flotante-salidas {

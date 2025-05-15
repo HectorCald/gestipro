@@ -115,14 +115,12 @@ export async function mostrarMovimientosAlmacen() {
         <div class="encabezado">
             <h1 class="titulo">Registros de movimientos</h1>
             <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
-            <button class="btn filtros"><i class='bx bx-filter'></i></button>
         </div>
         <div class="relleno">
             <div class="buscador">
                 <input type="text" class="buscar-registro-almacen" placeholder="Buscar...">
-                <i class='bx bx-search'></i>
+                <i class='bx bx-search lupa2'></i>
             </div>
-            <p class="normal"><i class='bx bx-chevron-right'></i>Filtros</p>
             <div class="filtros-opciones tipo">
                 <button class="btn-filtro activado">Todos</button>
                 <button class="btn-filtro">Ingresos</button>
@@ -131,7 +129,6 @@ export async function mostrarMovimientosAlmacen() {
                     <option value="Todos">Todos</option>
                 </select>
             </div>
-            <p class="normal"><i class='bx bx-chevron-right'></i>Registros</p>
                 ${registrosAlmacen.map(registro => `
                 <div class="registro-item" data-id="${registro.id}">
                     <div class="header">
@@ -149,6 +146,10 @@ export async function mostrarMovimientosAlmacen() {
                     </div>
                 </div>
             `).join('')}
+            <p class="no-encontrado" style="text-align: center; font-size: 15px; color: #777; width:100%; padding:15px; display:none">
+                <i class='bx bx-box' style="font-size: 2rem; display: block; margin-bottom: 8px;"></i>
+                ¡Ups! No encontramos registros que coincidan con tu búsqueda o filtrado.
+            </p>
         </div>
     `;
     contenido.innerHTML = registrationHTML;
@@ -166,50 +167,21 @@ function eventosRegistrosAlmacen() {
     const filtros = document.querySelector('.filtros');
     const items = document.querySelectorAll('.registro-item');
     const inputBusqueda = document.querySelector('.buscar-registro-almacen');
-    const iconoBusqueda = document.querySelector('.relleno .buscador i');
+    const iconoBusqueda = document.querySelector('.relleno .buscador .lupa2');
 
 
     inputBusqueda.addEventListener('input', (e) => {
         const busqueda = normalizarTexto(e.target.value);
-        iconoBusqueda.className = busqueda ? 'bx bx-x' : 'bx bx-search';
-
-        // Cambiar icono y clase según si hay texto
-        if (busqueda) {
-            iconoBusqueda.className = 'bx bx-x';
-        } else {
-            iconoBusqueda.className = 'bx bx-search';
-        }
-
-        const registros = document.querySelectorAll('.registro-item');
-        registros.forEach(registro => {
-            const registroMov = registrosAlmacen.find(p => p.id === registro.dataset.id);
-            const textoProducto = normalizarTexto(registroMov.nombre_movimiento);
-
-            if (!busqueda ||
-                textoProducto.includes(busqueda) ||
-                normalizarTexto(registroMov.nombre_movimiento).includes(busqueda) || 
-                normalizarTexto(registroMov.fecha_hora).includes(busqueda)|| 
-                normalizarTexto(registroMov.tipo).includes(busqueda)|| 
-                normalizarTexto(registroMov.cliente_proovedor).includes(busqueda))
-                 {
-                registro.style.display = '';
-            } else {
-                registro.style.display = 'none';
-            }
-        });
+        iconoBusqueda.className = busqueda ? 'bx bx-x lupa2' : 'bx bx-search lupa2';
+        aplicarFiltros();
     });
     iconoBusqueda.addEventListener('click', () => {
         if (inputBusqueda.value) {
             inputBusqueda.value = '';
-            iconoBusqueda.className = 'bx bx-search';
-            // Show all records when clearing search
-            document.querySelectorAll('.registro-item').forEach(registro => {
-                registro.style.display = '';
-            });
-            // Reactivate "Todos" filter
-            document.querySelector('.btn-filtro').classList.add('activado');
+            iconoBusqueda.className = 'bx bx-search lupa2';
+            aplicarFiltros();
         }
-    })
+    });
     function normalizarTexto(texto) {
         return texto.toString()
             .toLowerCase()
@@ -303,39 +275,73 @@ function eventosRegistrosAlmacen() {
         const registros = document.querySelectorAll('.registro-item');
         const filtroTipo = filtroNombreActual;
         const filtroProovedorCliente = document.querySelector('.proovedor-cliente').value;
+        const busqueda = normalizarTexto(inputBusqueda.value);
+
+        // Primero ocultamos todos los registros
+        registros.forEach(registro => {
+            registro.style.display = 'none';
+            registro.style.opacity = '0';
+            registro.style.transform = 'translateY(-20px)';
+        });
+
+        let registrosVisibles = [];
 
         registros.forEach(registro => {
             const registroData = registrosAlmacen.find(r => r.id === registro.dataset.id);
+            if (!registroData) return;
 
-            if (!registroData) {
-                return;
-            }
+            let mostrarPorTipo = true;
+            let mostrarPorProovedorCliente = true;
+            let mostrarPorBusqueda = true;
 
-            let mostrar = true;
-
-            // Filtro por tipo modificado
+            // Filtro por tipo
             if (filtroTipo !== 'Todos') {
                 const tipoLimpio = registroData.tipo.trim().toLowerCase().replace('s', '');
                 const filtroLimpio = filtroTipo.trim().toLowerCase().replace('s', '');
-
-                if (tipoLimpio !== filtroLimpio) {
-                    mostrar = false;
-                }
+                mostrarPorTipo = tipoLimpio === filtroLimpio;
             }
 
             // Filtro por proveedor/cliente
-            if (mostrar && filtroProovedorCliente !== 'Todos') {
-                const campo = filtroTipo === 'Ingresos' ? 'proovedor' : 'cliente';
+            if (filtroProovedorCliente !== 'Todos') {
                 const valorRegistro = registroData.cliente_proovedor.trim().split('(')[0].trim();
-                const valorFiltro = filtroProovedorCliente.trim();
-
-                if (valorRegistro !== valorFiltro) {
-                    mostrar = false;
-                }
+                mostrarPorProovedorCliente = valorRegistro === filtroProovedorCliente.trim();
             }
 
-            registro.style.display = mostrar ? '' : 'none';
+            // Filtro por búsqueda
+            if (busqueda) {
+                mostrarPorBusqueda =
+                    normalizarTexto(registroData.nombre_movimiento).includes(busqueda) ||
+                    normalizarTexto(registroData.cliente_proovedor).includes(busqueda) ||
+                    normalizarTexto(registroData.fecha_hora).includes(busqueda) ||
+                    normalizarTexto(registroData.tipo).includes(busqueda) ||
+                    normalizarTexto(registroData.id).includes(busqueda);
+            }
+
+            if (mostrarPorTipo && mostrarPorProovedorCliente && mostrarPorBusqueda) {
+                registrosVisibles.push(registro);
+            }
         });
+
+        // Mostrar registros con animación
+        registrosVisibles.forEach((registro, index) => {
+            setTimeout(() => {
+                registro.style.display = 'flex';
+                requestAnimationFrame(() => {
+                    registro.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                    registro.style.opacity = '1';
+                    registro.style.transform = 'translateY(0)';
+                });
+            }, index * 50);
+        });
+
+        // Actualizar mensaje de no encontrado
+        const mensajeNoEncontrado = document.querySelector('.no-encontrado');
+        if (registrosVisibles.length === 0) {
+            mensajeNoEncontrado.style.display = 'block';
+            mensajeNoEncontrado.style.opacity = '1';
+        } else {
+            mensajeNoEncontrado.style.display = 'none';
+        }
     }
     function scrollToCenter(boton, contenedorPadre) {
         const scrollLeft = boton.offsetLeft - (contenedorPadre.offsetWidth / 2) + (boton.offsetWidth / 2);

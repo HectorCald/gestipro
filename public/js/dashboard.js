@@ -1,4 +1,4 @@
-import { crearNotificacion, mostrarNotificacion, mostrarAnuncio, ocultarAnuncio, mostrarCarga, ocultarCarga, configuracionesEntrada, mostrarAnuncioSecond, ocultarAnuncioSecond, registrarHistorial} from './modules/componentes.js'
+import { crearNotificacion, mostrarNotificacion, mostrarAnuncio, ocultarAnuncio, mostrarCarga, ocultarCarga, configuracionesEntrada, mostrarAnuncioSecond, ocultarAnuncioSecond, registrarHistorial, exportarArchivos} from './modules/componentes.js'
 import { crearNav} from './modules/nav.js'
 import { crearHome, mostrarHome } from './modules/home.js';
 import { crearPerfil } from './modules/perfil.js';
@@ -36,6 +36,7 @@ window.ocultarCarga = ocultarCarga
 window.configuracionesEntrada = configuracionesEntrada
 window.registrarHistorial = registrarHistorial
 window.crearNotificaciones = crearNotificaciones
+window.exportarArchivos = exportarArchivos
 
 
 window.mostrarFormularioProduccion = mostrarFormularioProduccion

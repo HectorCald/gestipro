@@ -367,3 +367,64 @@ export async function registrarHistorial(origen, suceso, detalle) {
     }
 }
 
+export function exportarArchivos(rExp, registrosAExportar){
+    const registrosVisibles = Array.from(document.querySelectorAll('.registro-item'))
+        .filter(item => item.style.display !== 'none')
+        .map(item => {
+            const registro = registrosAExportar.find(r => r.id === item.dataset.id);
+            if (rExp === 'produccion') {
+                return {
+                    'ID': registro.id,
+                    'Fecha': registro.fecha,
+                    'Producto': registro.producto,
+                    'Lote': registro.lote,
+                    'Gramos': registro.gramos,
+                    'Proceso': registro.proceso,
+                    'Microondas': registro.microondas,
+                    'Envases Terminados': registro.envases_terminados,
+                    'Fecha Vencimiento': registro.fecha_vencimiento,
+                    'Nombre': registro.nombre,
+                    'Cantidad Real': registro.c_real,
+                    'Fecha Verificación': registro.fecha_verificacion || 'Pendiente',
+                    'Observaciones': registro.observaciones || 'Sin observaciones',
+                };
+            } else {
+                return {
+                    'ID': registro.id,
+                    'Fecha': registro.fecha,
+                    'Producto': registro.producto,
+                    'Lote': registro.lote,
+                    'Gramos': registro.gramos,
+                    'Proceso': registro.proceso,
+                    'Microondas': registro.microondas,
+                    'Envases Terminados': registro.envases_terminados,
+                    'Fecha Vencimiento': registro.fecha_vencimiento,
+                    'Nombre': registro.nombre,
+                    'Cantidad Real': registro.c_real,
+                    'Fecha Verificación': registro.fecha_verificacion || 'Pendiente',
+                    'Observaciones': registro.observaciones || 'Sin observaciones',
+                };
+            }
+        });
+
+    // Generar nombre del archivo con la fecha actual
+    const fecha = new Date().toLocaleDateString('es-ES').replace(/\//g, '-');
+    const nombreArchivo = `Registros_${fecha}.xlsx`;
+
+    // Crear y descargar el archivo Excel
+    const worksheet = XLSX.utils.json_to_sheet(registrosVisibles);
+
+    // Ajustar el ancho de las columnas
+    const wscols = Object.keys(registrosVisibles[0] || {}).map(() => ({ wch: 15 }));
+    worksheet['!cols'] = wscols;
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Registros');
+    XLSX.writeFile(workbook, nombreArchivo);
+
+    mostrarNotificacion({
+        message: 'Descarga exitosa de los registros',
+        type: 'success',
+        duration: 3000
+    });
+}
