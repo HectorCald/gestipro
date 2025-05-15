@@ -104,9 +104,10 @@ export async function mostrarVerificacion() {
         </div>
     `;
     contenido.innerHTML = registrationHTML;
-    await mostrarAnuncio();
-    const { aplicarFiltros } = eventosVerificacion();
+    mostrarAnuncio();
 
+
+    const { aplicarFiltros } = eventosVerificacion();
     aplicarFiltros('Todos', 'Todos');
 }
 function eventosVerificacion() {

@@ -111,6 +111,46 @@ function eventosMisRegistros() {
     const botonCalendario = document.querySelector('.btn-calendario');
 
 
+    items.forEach(item => {
+        const accionesDiv = item.querySelector('.registro-acciones');
+        if (accionesDiv && !item.querySelector('.fecha_verificacion')) {
+            item.addEventListener('click', (e) => {
+                e.stopPropagation();
+                // Ocultar todos los demás menús
+                document.querySelectorAll('.registro-item').forEach(otroItem => {
+                    if (otroItem !== item) {
+                        otroItem.classList.remove('activo');
+                        otroItem.querySelector('.registro-acciones')?.classList.remove('mostrar');
+                    }
+                });
+
+                // Alternar estado actual
+                item.classList.toggle('activo');
+                accionesDiv.classList.toggle('mostrar');
+            });
+        }
+    });
+    document.addEventListener('click', () => {
+        document.querySelectorAll('.registro-item').forEach(item => {
+            item.classList.remove('activo');
+            item.querySelector('.registro-acciones')?.classList.remove('mostrar');
+        });
+    });
+    document.querySelector('.contenido').addEventListener('click', () => {
+        document.querySelectorAll('.registro-item').forEach(item => {
+            item.classList.remove('activo');
+            item.querySelector('.registro-acciones')?.classList.remove('mostrar');
+        });
+    });
+    document.querySelector('.relleno').addEventListener('scroll', () => {
+        document.querySelectorAll('.registro-item').forEach(item => {
+            item.classList.remove('activo');
+            item.querySelector('.registro-acciones')?.classList.remove('mostrar');
+        });
+    });
+
+
+
     let filtroNombreActual = 'todos';
     let filtroFechaInstance = null;
 
@@ -270,44 +310,7 @@ function eventosMisRegistros() {
 
 
 
-    items.forEach(item => {
-        const accionesDiv = item.querySelector('.registro-acciones');
-        if (accionesDiv && !item.querySelector('.fecha_verificacion')) {
-            item.addEventListener('click', (e) => {
-                e.stopPropagation();
-                // Ocultar todos los demás menús
-                document.querySelectorAll('.registro-item').forEach(otroItem => {
-                    if (otroItem !== item) {
-                        otroItem.classList.remove('activo');
-                        otroItem.querySelector('.registro-acciones')?.classList.remove('mostrar');
-                    }
-                });
-
-                // Alternar estado actual
-                item.classList.toggle('activo');
-                accionesDiv.classList.toggle('mostrar');
-            });
-        }
-    });
-    document.addEventListener('click', () => {
-        document.querySelectorAll('.registro-item').forEach(item => {
-            item.classList.remove('activo');
-            item.querySelector('.registro-acciones')?.classList.remove('mostrar');
-        });
-    });
-    document.querySelector('.contenido').addEventListener('click', () => {
-        document.querySelectorAll('.registro-item').forEach(item => {
-            item.classList.remove('activo');
-            item.querySelector('.registro-acciones')?.classList.remove('mostrar');
-        });
-    });
-    document.querySelector('.relleno').addEventListener('scroll', () => {
-        document.querySelectorAll('.registro-item').forEach(item => {
-            item.classList.remove('activo');
-            item.querySelector('.registro-acciones')?.classList.remove('mostrar');
-        });
-    });
-
+    
 
     function scrollToCenter(boton, contenedorPadre) {
         const scrollLeft = boton.offsetLeft - (contenedorPadre.offsetWidth / 2) + (boton.offsetWidth / 2);
@@ -368,6 +371,5 @@ function eventosMisRegistros() {
 
 
     btnExcel.addEventListener('click', () => exportarArchivos('produccion', registrosAExportar));
-
     return { aplicarFiltros };
 }
