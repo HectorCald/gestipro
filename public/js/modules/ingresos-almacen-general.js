@@ -4,7 +4,6 @@ let precios = [];
 let proovedores = [];
 let usuarioInfo = recuperarUsuarioLocal();
 let carritoSalidas = new Map(JSON.parse(localStorage.getItem('damabrava_carrito_ingresos') || '[]'));
-
 function recuperarUsuarioLocal() {
     const usuarioGuardado = localStorage.getItem('damabrava_usuario');
     if (usuarioGuardado) {
@@ -104,9 +103,6 @@ async function obtenerProovedores() {
         return false;
     }
 }
-
-
-
 async function obtenerAlmacenGeneral() {
     try {
         mostrarCarga();
@@ -145,8 +141,6 @@ async function obtenerAlmacenGeneral() {
 }
 
 
-
-
 export async function mostrarIngresos(busquedaProducto = '') {
     await obtenerAlmacenGeneral();
 
@@ -156,7 +150,6 @@ export async function mostrarIngresos(busquedaProducto = '') {
         const primerPrecio = precio.precio.split(';')[0].split(',')[0];
         return `<option value="${precio.id}" ${index === 1 ? 'selected' : ''}>${primerPrecio}</option>`;
     }).join('');
-    const precioInicial = precios[1]?.precio.split(';')[0].split(',')[0];
 
     const registrationHTML = `  
         <div class="encabezado">
@@ -228,17 +221,19 @@ export async function mostrarIngresos(busquedaProducto = '') {
         selectPrecios.dispatchEvent(new Event('change'));
     }
 
+
     const { aplicarFiltros } = eventosIngresos();
     aplicarFiltros('Todos', 'Todos');
-
     contenido.style.paddingBottom = '10px';
 }
 function eventosIngresos() {
     const botonesEtiquetas = document.querySelectorAll('.filtros-opciones.etiquetas-filter .btn-filtro');
     const botonesCantidad = document.querySelectorAll('.filtros-opciones.cantidad-filter .btn-filtro');
     const selectPrecios = document.querySelector('.precios-select');
+
     const inputBusqueda = document.querySelector('.buscar-producto');
     const iconoBusqueda = document.querySelector('.almacen-general .buscador .lupa2');
+
     const botonFlotante = document.createElement('button');
     const items = document.querySelectorAll('.registro-item');
 
@@ -278,8 +273,6 @@ function eventosIngresos() {
     });
     actualizarBotonFlotante();
     botonFlotante.addEventListener('click', mostrarCarritoIngresos);
-
-
     items.forEach(item => {
         item.addEventListener('click', () => agregarAlCarrito(item.dataset.id));
     });
@@ -292,125 +285,109 @@ function eventosIngresos() {
             .replace(/[\u0300-\u036f]/g, '') // Eliminar acentos
             .replace(/[-_\s]+/g, ''); // Eliminar guiones, guiones bajos y espacios
     }
-    iconoBusqueda.addEventListener('click', () => {
-        if (inputBusqueda.value) {
-            inputBusqueda.value = '';
-            const mensajeNoEncontrado = document.querySelector('.no-encontrado');
-            mensajeNoEncontrado.style.display = 'none';
-            iconoBusqueda.className = 'bx bx-search lupa2';
-            // Show all records when clearing search
-            document.querySelectorAll('.registro-item').forEach(registro => {
-                registro.style.display = '';
-            });        }
-    })
-    inputBusqueda.addEventListener('input', (e) => {
-        const busqueda = normalizarTexto(e.target.value);
-        iconoBusqueda.className = busqueda ? 'bx bx-x lupa2' : 'bx bx-search lupa2';
-        aplicarFiltros();
-    });
-
-
+    function scrollToCenter(boton, contenedorPadre) {
+        const scrollLeft = boton.offsetLeft - (contenedorPadre.offsetWidth / 2) + (boton.offsetWidth / 2);
+        contenedorPadre.scrollTo({
+            left: scrollLeft,
+            behavior: 'smooth'
+        });
+    }
     function aplicarFiltros() {
         const registros = document.querySelectorAll('.registro-item');
         const busqueda = normalizarTexto(inputBusqueda.value);
         const precioSeleccionado = selectPrecios.options[selectPrecios.selectedIndex].text;
         const botonCantidadActivo = document.querySelector('.filtros-opciones.cantidad-filter .btn-filtro.activado');
 
-        // Obtener los productos filtrados
-        const productosFiltrados = Array.from(registros).filter(registro => {
-            const producto = productos.find(p => p.id === registro.dataset.id);
-            const etiquetasProducto = producto.etiquetas.split(';').map(e => e.trim());
-            let mostrar = true;
-
-            // Filtro por etiquetas
-            if (filtroNombreActual !== 'Todos') {
-                mostrar = mostrar && etiquetasProducto.includes(filtroNombreActual);
-            }
-
-            // Filtro por búsqueda
-            if (busqueda) {
-                mostrar = mostrar && (
-                    normalizarTexto(producto.producto).includes(busqueda) ||
-                    normalizarTexto(producto.gramos.toString()).includes(busqueda) ||
-                    normalizarTexto(producto.codigo_barras).includes(busqueda) ||
-                    normalizarTexto(producto.etiquetas).includes(busqueda)
-                );
-            }
-
-            return mostrar;
+        // Ocultar todos con animación
+        registros.forEach(registro => {
+            registro.style.opacity = '0';
+            registro.style.transform = 'translateY(-20px)';
         });
 
-        // Ordenar los productos filtrados
-        if (botonCantidadActivo) {
-            const index = Array.from(botonesCantidad).indexOf(botonCantidadActivo);
-            switch (index) {
-                case 0: // Mayor a menor
-                    productosFiltrados.sort((a, b) => {
-                        const stockA = parseInt(a.querySelector('.stock').textContent);
-                        const stockB = parseInt(b.querySelector('.stock').textContent);
-                        return stockB - stockA;
-                    });
-                    break;
-                case 1: // Menor a mayor
-                    productosFiltrados.sort((a, b) => {
-                        const stockA = parseInt(a.querySelector('.stock').textContent);
-                        const stockB = parseInt(b.querySelector('.stock').textContent);
-                        return stockA - stockB;
-                    });
-                    break;
-                case 2: // A-Z
-                    productosFiltrados.sort((a, b) => {
-                        const nombreA = a.querySelector('.nombre strong').textContent.toLowerCase();
-                        const nombreB = b.querySelector('.nombre strong').textContent.toLowerCase();
-                        return nombreA.localeCompare(nombreB);
-                    });
-                    break;
-                case 3: // Z-A
-                    productosFiltrados.sort((a, b) => {
-                        const nombreA = a.querySelector('.nombre strong').textContent.toLowerCase();
-                        const nombreB = b.querySelector('.nombre strong').textContent.toLowerCase();
-                        return nombreB.localeCompare(nombreA);
-                    });
-                    break;
-            }
-        }
+        setTimeout(() => {
+            // Ocultar elementos y procesar filtros
+            registros.forEach(registro => registro.style.display = 'none');
 
-        // Mostrar/ocultar registros y actualizar precios
-        registros.forEach(registro => {
-            const mostrar = productosFiltrados.includes(registro);
-            registro.style.display = mostrar ? '' : 'none';
-
-            // Actualizar precio si es necesario
-            if (mostrar && precioSeleccionado) {
+            // Filtrar y ordenar
+            const productosFiltrados = Array.from(registros).filter(registro => {
                 const producto = productos.find(p => p.id === registro.dataset.id);
-                const preciosProducto = producto.precios.split(';');
-                const precioFiltrado = preciosProducto.find(p => p.split(',')[0] === precioSeleccionado);
-                if (precioFiltrado) {
-                    const precio = parseFloat(precioFiltrado.split(',')[1]);
-                    const precioSpan = registro.querySelector('.precio');
-                    if (precioSpan) {
-                        precioSpan.textContent = `Bs/.${precio.toFixed(2)}`;
-                    }
+                const etiquetasProducto = producto.etiquetas.split(';').map(e => e.trim());
+                let mostrar = true;
+
+                if (filtroNombreActual !== 'Todos') {
+                    mostrar = mostrar && etiquetasProducto.includes(filtroNombreActual);
+                }
+
+                if (busqueda) {
+                    mostrar = mostrar && (
+                        normalizarTexto(producto.producto).includes(busqueda) ||
+                        normalizarTexto(producto.gramos.toString()).includes(busqueda) ||
+                        normalizarTexto(producto.codigo_barras).includes(busqueda) ||
+                        normalizarTexto(producto.etiquetas).includes(busqueda)
+                    );
+                }
+
+                return mostrar;
+            });
+
+            // Ordenamiento
+            if (botonCantidadActivo) {
+                const index = Array.from(botonesCantidad).indexOf(botonCantidadActivo);
+                switch (index) {
+                    case 0: productosFiltrados.sort((a, b) => parseInt(b.querySelector('.stock').textContent) - parseInt(a.querySelector('.stock').textContent)); break;
+                    case 1: productosFiltrados.sort((a, b) => parseInt(a.querySelector('.stock').textContent) - parseInt(b.querySelector('.stock').textContent)); break;
+                    case 2: productosFiltrados.sort((a, b) => a.querySelector('.nombre strong').textContent.localeCompare(b.querySelector('.nombre strong').textContent)); break;
+                    case 3: productosFiltrados.sort((a, b) => b.querySelector('.nombre strong').textContent.localeCompare(a.querySelector('.nombre strong').textContent)); break;
                 }
             }
-        });
 
-        // Reordenar en el DOM
-        const contenedor = document.querySelector('.relleno.almacen-general');
-        productosFiltrados.forEach(registro => {
-            contenedor.appendChild(registro);
-        });
+            // Mostrar elementos filtrados con animación
+            productosFiltrados.forEach((registro, index) => {
+                registro.style.display = 'flex';
+                registro.style.opacity = '0';
+                registro.style.transform = 'translateY(20px)';
 
-        // Mostrar mensaje si no hay productos filtrados
-        const mensajeNoEncontrado = document.querySelector('.no-encontrado');
+                setTimeout(() => {
+                    registro.style.opacity = '1';
+                    registro.style.transform = 'translateY(0)';
+                }, 0); // Animación simultánea
+            });
 
-        if (productosFiltrados.length === 0) {
-            mensajeNoEncontrado.style.display = 'block';
-        } else {
-            mensajeNoEncontrado.style.display = 'none';
-        }
+            // Reordenar en el DOM y actualizar precios
+            const contenedor = document.querySelector('.relleno.almacen-general');
+            productosFiltrados.forEach(registro => {
+                const producto = productos.find(p => p.id === registro.dataset.id);
+                if (precioSeleccionado) {
+                    const preciosProducto = producto.precios.split(';');
+                    const precioFiltrado = preciosProducto.find(p => p.split(',')[0] === precioSeleccionado);
+                    if (precioFiltrado) {
+                        const precio = parseFloat(precioFiltrado.split(',')[1]);
+                        registro.querySelector('.precio').textContent = `Bs/.${precio.toFixed(2)}`;
+                    }
+                }
+                contenedor.appendChild(registro);
+            });
 
+            // Mensaje vacío
+            const mensajeNoEncontrado = document.querySelector('.no-encontrado');
+            mensajeNoEncontrado.style.display = productosFiltrados.length === 0 ? 'block' : 'none';
+
+        }, 200); // Tiempo de espera para la animación de ocultamiento
     }
+    iconoBusqueda.addEventListener('click', () => {
+        if (inputBusqueda.value) {
+            inputBusqueda.value = '';
+            const mensajeNoEncontrado = document.querySelector('.no-encontrado');
+            mensajeNoEncontrado.style.display = 'none';
+            iconoBusqueda.className = 'bx bx-search lupa2';
+            aplicarFiltros();
+        }
+    })
+    inputBusqueda.addEventListener('input', (e) => {
+        const busqueda = normalizarTexto(e.target.value);
+        iconoBusqueda.className = busqueda ? 'bx bx-x lupa2' : 'bx bx-search lupa2';
+        aplicarFiltros();
+    });
     botonesEtiquetas.forEach(boton => {
         boton.addEventListener('click', () => {
             botonesEtiquetas.forEach(b => b.classList.remove('activado'));
@@ -428,15 +405,7 @@ function eventosIngresos() {
         });
     });
     selectPrecios.addEventListener('change', aplicarFiltros);
-    function scrollToCenter(boton, contenedorPadre) {
-        const scrollLeft = boton.offsetLeft - (contenedorPadre.offsetWidth / 2) + (boton.offsetWidth / 2);
-        contenedorPadre.scrollTo({
-            left: scrollLeft,
-            behavior: 'smooth'
-        });
-    }
-
-
+    
 
     function agregarAlCarrito(productoId) {
         const producto = productos.find(p => p.id === productoId);
@@ -810,7 +779,10 @@ function eventosIngresos() {
             descuento: parseFloat(document.querySelector('.descuento').value) || 0,
             aumento: parseFloat(document.querySelector('.aumento').value) || 0,
             total: 0,
-            observaciones: document.querySelector('.Observaciones').value || 'Ninguna'
+            observaciones: document.querySelector('.Observaciones').value || 'Ninguna',
+            precios_unitarios: Array.from(carritoSalidas.values())
+            .map(item => parseFloat(item.subtotal).toFixed(2))
+            .join(';')
         };
 
         registroIngreso.total = registroIngreso.subtotal - registroIngreso.descuento + registroIngreso.aumento;
@@ -885,6 +857,5 @@ function eventosIngresos() {
         }
     }
     window.registrarIngreso = registrarIngreso;
-
     return { aplicarFiltros };
 }

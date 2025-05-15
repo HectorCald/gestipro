@@ -1088,8 +1088,6 @@
     opacity: 0;
     transform: translateY(-20px);
 }
-
-
 .relleno .filtros-opciones {
     display: flex;
     width: 100%;

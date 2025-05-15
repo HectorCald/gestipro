@@ -1079,7 +1079,7 @@ app.get('/obtener-movimientos-almacen', requireAuth, async (req, res) => {
         
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId: spreadsheetId,
-            range: 'Movimientos alm-gral!A2:M' // Columns A through H
+            range: 'Movimientos alm-gral!A2:N' // Columns A through H
         });
 
         const rows = response.data.values || [];
@@ -1098,7 +1098,8 @@ app.get('/obtener-movimientos-almacen', requireAuth, async (req, res) => {
             descuento: row[9] || '',
             aumento: row[10] || '',
             total: row[11] || '',
-            observaciones: row[12] || ''
+            observaciones: row[12] || '',
+            precios_unitarios: row[13] || ''
         }));
 
         res.json({
@@ -1116,7 +1117,7 @@ app.get('/obtener-movimientos-almacen', requireAuth, async (req, res) => {
 });
 app.post('/registrar-movimiento', requireAuth, async (req, res) => {
     const { spreadsheetId } = req.user;
-    const { fechaHora, tipo, productos, cantidades, operario, clienteId, nombre_movimiento, subtotal, descuento, aumento, total, observaciones } = req.body;
+    const { fechaHora, tipo, productos, cantidades, operario, clienteId, nombre_movimiento, subtotal, descuento, aumento, total, observaciones, precios_unitarios } = req.body;
 
     try {
         const sheets = google.sheets({ version: 'v4', auth });
@@ -1145,7 +1146,8 @@ app.post('/registrar-movimiento', requireAuth, async (req, res) => {
             descuento, 
             aumento, 
             total, 
-            observaciones
+            observaciones,
+            precios_unitarios
         ];
 
         await sheets.spreadsheets.values.append({

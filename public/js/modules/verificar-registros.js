@@ -99,23 +99,31 @@ export async function mostrarVerificacion() {
                 ¡Ups! No encontramos registros que coincidan con tu búsqueda o filtrado.
             </p>
         </div>
+        <div class="anuncio-botones">
+            <button id="exportar-excel" class="btn orange" style="margin-bottom:10px"><i class='bx bx-download'></i> Descargar registros</button>
+        </div>
     `;
     contenido.innerHTML = registrationHTML;
-    contenido.style.paddingBottom = '10px';
     mostrarAnuncio();
     const { aplicarFiltros } = eventosVerificacion();
 
     aplicarFiltros('Todos', 'Todos');
 }
 function eventosVerificacion() {
+    const btnExcel = document.getElementById('exportar-excel');
+    const registrosAExportar = registrosProduccion;
+
     const botonesNombre = document.querySelectorAll('.filtros-opciones.nombre .btn-filtro');
     const botonesEstado = document.querySelectorAll('.filtros-opciones.estado .btn-filtro');
+
+
     const botonesVerificar = document.querySelectorAll('.btn-verificar');
     const botonesEliminar = document.querySelectorAll('.btn-eliminar');
     const botonesEditar = document.querySelectorAll('.btn-editar');
     const botonesInfo = document.querySelectorAll('.btn-info');
-    const items = document.querySelectorAll('.registro-item');
 
+
+    const items = document.querySelectorAll('.registro-item');
     const inputBusqueda = document.querySelector('.buscar-registro-verificacion');
     const iconoBusqueda = document.querySelector('.buscador .lupa');
     const botonCalendario = document.querySelector('.btn-calendario');
@@ -125,7 +133,20 @@ function eventosVerificacion() {
     let filtroNombreActual = 'Todos';
     let filtroEstadoActual = 'Todos';
 
-
+    function normalizarTexto(texto) {
+        return texto.toString()
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '') // Eliminar acentos
+            .replace(/[-_\s]+/g, ''); // Eliminar guiones, guiones bajos y espacios
+    }
+    function scrollToCenter(boton, contenedorPadre) {
+        const scrollLeft = boton.offsetLeft - (contenedorPadre.offsetWidth / 2) + (boton.offsetWidth / 2);
+        contenedorPadre.scrollTo({
+            left: scrollLeft,
+            behavior: 'smooth'
+        });
+    }
     function aplicarFiltros() {
         const fechasSeleccionadas = filtroFechaInstance?.selectedDates || [];
         const busqueda = normalizarTexto(inputBusqueda.value);
@@ -218,8 +239,6 @@ function eventosVerificacion() {
             }
         }, 100);
     }
-
-
     botonesNombre.forEach(boton => {
         boton.addEventListener('click', () => {
             botonesNombre.forEach(b => b.classList.remove('activado'));
@@ -229,7 +248,6 @@ function eventosVerificacion() {
             aplicarFiltros();
         });
     });
-
     botonesEstado.forEach(boton => {
         boton.addEventListener('click', () => {
             botonesEstado.forEach(b => b.classList.remove('activado'));
@@ -239,22 +257,35 @@ function eventosVerificacion() {
             aplicarFiltros();
         });
     });
+    botonCalendario.addEventListener('click', async () => {
+        if (!filtroFechaInstance) {
+            filtroFechaInstance = flatpickr(botonCalendario, {
+                mode: "range",
+                dateFormat: "d/m/Y",
+                locale: "es",
+                rangeSeparator: " hasta ",
+                onChange: function (selectedDates) {
+                    if (selectedDates.length === 2) {
+                        aplicarFiltros();
+                        botonCalendario.classList.add('con-fecha');
+                    } else if (selectedDates.length <= 1) {
+                        botonCalendario.classList.remove('con-fecha');
+                    }
+                },
+                onClose: function (selectedDates) {
+                    if (selectedDates.length <= 1) {
+                        aplicarFiltros();
+                        botonCalendario.classList.remove('con-fecha');
+                    }
+                }
+            });
+        }
+        filtroFechaInstance.open();
+    });
     inputBusqueda.addEventListener('input', () => {
         aplicarFiltros();
         iconoBusqueda.className = inputBusqueda.value ? 'bx bx-x lupa' : 'bx bx-search lupa';
     });
-
-
-    function normalizarTexto(texto) {
-        return texto.toString()
-            .toLowerCase()
-            .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, '') // Eliminar acentos
-            .replace(/[-_\s]+/g, ''); // Eliminar guiones, guiones bajos y espacios
-    }
-
-
-
     iconoBusqueda.addEventListener('click', () => {
         if (inputBusqueda.value) {
             inputBusqueda.value = '';
@@ -303,31 +334,6 @@ function eventosVerificacion() {
     });
 
 
-    botonCalendario.addEventListener('click', async () => {
-        if (!filtroFechaInstance) {
-            filtroFechaInstance = flatpickr(botonCalendario, {
-                mode: "range",
-                dateFormat: "d/m/Y",
-                locale: "es",
-                rangeSeparator: " hasta ",
-                onChange: function (selectedDates) {
-                    if (selectedDates.length === 2) {
-                        aplicarFiltros();
-                        botonCalendario.classList.add('con-fecha');
-                    } else if (selectedDates.length <= 1) {
-                        botonCalendario.classList.remove('con-fecha');
-                    }
-                },
-                onClose: function (selectedDates) {
-                    if (selectedDates.length <= 1) {
-                        aplicarFiltros();
-                        botonCalendario.classList.remove('con-fecha');
-                    }
-                }
-            });
-        }
-        filtroFechaInstance.open();
-    });
     botonesInfo.forEach(btn => {
         btn.addEventListener('click', info);
     });
@@ -340,15 +346,6 @@ function eventosVerificacion() {
     botonesEditar.forEach(btn => {
         btn.addEventListener('click', editar);
     });
-
-
-    function scrollToCenter(boton, contenedorPadre) {
-        const scrollLeft = boton.offsetLeft - (contenedorPadre.offsetWidth / 2) + (boton.offsetWidth / 2);
-        contenedorPadre.scrollTo({
-            left: scrollLeft,
-            behavior: 'smooth'
-        });
-    }
 
 
     function verificar(event) {
@@ -829,5 +826,7 @@ function eventosVerificacion() {
         }
     }
 
+
+    btnExcel.addEventListener('click', () => exportarArchivos('produccion', registrosAExportar));
     return { aplicarFiltros };
 }

@@ -101,9 +101,6 @@ async function obtenerAlmacenAcopio() {
         return false;
     }
 }
-
-
-
 async function obtenerAlmacenGeneral() {
     try {
         mostrarCarga();
@@ -141,6 +138,8 @@ async function obtenerAlmacenGeneral() {
         ocultarCarga();
     }
 }
+
+
 export async function mostrarAlmacenGeneral() {
     await obtenerAlmacenGeneral();
     const contenido = document.querySelector('.anuncio .contenido');

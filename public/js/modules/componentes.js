@@ -12,7 +12,7 @@ export async function mostrarAnuncio() {
         const state = event.state || {};
         const anuncioSecondVisible = document.querySelector('.anuncio-second')?.style.display === 'flex';
         const anuncioVisible = document.querySelector('.anuncio')?.style.display === 'flex';
-        
+
         if (anuncioSecondVisible) {
             await ocultarAnuncioSecond();
         } else if (anuncioVisible) {
@@ -102,7 +102,7 @@ export async function ocultarAnuncio() {
     if (btnp) btnp.style.display = 'none';
 
     if (!anuncio || anuncio.style.display === 'none') return;
-    
+
     anuncio.classList.add('slide-out');
     await new Promise(resolve => setTimeout(resolve, 300));
     anuncio.style.display = 'none';
@@ -114,7 +114,7 @@ export async function ocultarAnuncioSecond() {
     const contenido = document.querySelector('.anuncio-second .contenido');
 
     if (!anuncio || anuncio.style.display === 'none') return;
-    
+
     anuncio.classList.add('slide-out');
     await new Promise(resolve => setTimeout(resolve, 300));
     anuncio.style.display = 'none';
@@ -236,7 +236,7 @@ export function configuracionesEntrada() {
 
     inputs.forEach(input => {
         const label = input.previousElementSibling;
-        
+
         // Verificar el estado inicial
         if (input.value.trim() !== '') {
             label.style.transform = 'translateY(-100%) scale(0.85)';
@@ -367,7 +367,7 @@ export async function registrarHistorial(origen, suceso, detalle) {
     }
 }
 
-export function exportarArchivos(rExp, registrosAExportar){
+export function exportarArchivos(rExp, registrosAExportar) {
     const registrosVisibles = Array.from(document.querySelectorAll('.registro-item'))
         .filter(item => item.style.display !== 'none')
         .map(item => {
@@ -388,22 +388,88 @@ export function exportarArchivos(rExp, registrosAExportar){
                     'Fecha Verificación': registro.fecha_verificacion || 'Pendiente',
                     'Observaciones': registro.observaciones || 'Sin observaciones',
                 };
-            } else {
-                return {
-                    'ID': registro.id,
-                    'Fecha': registro.fecha,
-                    'Producto': registro.producto,
-                    'Lote': registro.lote,
-                    'Gramos': registro.gramos,
-                    'Proceso': registro.proceso,
-                    'Microondas': registro.microondas,
-                    'Envases Terminados': registro.envases_terminados,
-                    'Fecha Vencimiento': registro.fecha_vencimiento,
-                    'Nombre': registro.nombre,
-                    'Cantidad Real': registro.c_real,
-                    'Fecha Verificación': registro.fecha_verificacion || 'Pendiente',
-                    'Observaciones': registro.observaciones || 'Sin observaciones',
-                };
+            } else if (rExp === 'almacen') {
+                const registrosVisibles = Array.from(document.querySelectorAll('.registro-item'))
+                    .filter(item => item.style.display !== 'none')
+                    .map(item => registrosAExportar.find(r => r.id === item.dataset.id));
+
+                // Procesar cada registro visible individualmente
+                registrosVisibles.forEach(registro => {
+                    const productos = registro.productos.split(';');
+                    const cantidades = registro.cantidades.split(';');
+                    const preciosUnitarios = registro.precios_unitarios.split(';');
+
+                    const subtitulos = [
+                        { 'Productos': 'Producto', 'Cantidad': 'Cantidad', 'Precio Unitario': 'Precio Unitario', 'Subtotal': 'Subtotal' }
+                    ];
+
+                    const datosExportar = productos.map((producto, index) => ({
+                        'Productos': producto.trim(),
+                        'Cantidad': cantidades[index] ? cantidades[index].trim() : 'N/A',
+                        'Precio Unitario': preciosUnitarios[index] ? preciosUnitarios[index].trim() : 'N/A',
+                        'Subtotal': parseFloat(cantidades[index] || 0) * parseFloat(preciosUnitarios[index] || 0),
+                    }));
+
+                    const fecha = new Date().toLocaleDateString('es-ES').replace(/\//g, '-');
+                    const nombreArchivo = `Registro_${registro.id}_${fecha}.xlsx`;
+
+                    const worksheet = XLSX.utils.json_to_sheet([...subtitulos, ...datosExportar], { header: ['Productos', 'Cantidad', 'Precio Unitario', 'Subtotal'] });
+
+                    const maxLengths = {};
+                    [...subtitulos, ...datosExportar].forEach(row => {
+                        Object.keys(row).forEach(key => {
+                            const valueLength = row[key].toString().length;
+                            if (!maxLengths[key] || valueLength > maxLengths[key]) {
+                                maxLengths[key] = valueLength;
+                            }
+                        });
+                    });
+
+                    worksheet['!cols'] = Object.keys(maxLengths).map(key => ({ wch: maxLengths[key] + 2 }));
+
+                    const range = XLSX.utils.decode_range(worksheet['!ref']);
+                    for (let C = range.s.c; C <= range.e.c; ++C) {
+                        const address = XLSX.utils.encode_cell({ c: C, r: 2 });
+                        if (!worksheet[address]) continue;
+                        worksheet[address].s = {
+                            fill: { fgColor: { rgb: "D9D9D9" } },
+                            font: { color: { rgb: "000000" }, bold: true }
+                        };
+                    }
+
+                    XLSX.utils.sheet_add_aoa(worksheet, [
+                        [`${registro.fecha_hora}`, `ID: ${registro.id}`, `Cliente/Proovedor:`, `${registro.cliente_proovedor}`, `${registro.nombre_movimiento}`]
+                    ], { origin: 'A1' });
+
+                    const headerRow = [
+                        `${registro.fecha_hora}`,
+                        `ID: ${registro.id}`,
+                        `Operario: ${registro.operario}`,
+                        `Cliente/Proveedor:`,
+                        `${registro.nombre_movimiento}`
+                    ];
+
+                    headerRow.forEach((value, index) => {
+                        const length = value.length;
+                        if (!worksheet['!cols'][index] || worksheet['!cols'][index].wch < length) {
+                            worksheet['!cols'][index] = { wch: length };
+                        }
+                    });
+
+                    XLSX.utils.sheet_add_aoa(worksheet, [
+                        [`Obs: ${registro.observaciones || 'Ninguna'}`, ``, `Total: ${registro.total}`, `Descuento: ${registro.descuento}`, `Aumento: ${registro.aumento}`]
+                    ], { origin: `A${productos.length + 4}` });
+
+                    const workbook = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(workbook, worksheet, 'Registro');
+                    XLSX.writeFile(workbook, nombreArchivo);
+                });
+
+                mostrarNotificacion({
+                    message: `Se descargaron ${registrosVisibles.length} registros en archivos separados`,
+                    type: 'success',
+                    duration: 3000
+                });
             }
         });
 

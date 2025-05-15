@@ -5,7 +5,6 @@ let precios = [];
 let clientes = [];
 let usuarioInfo = recuperarUsuarioLocal();
 let carritoSalidas = new Map(JSON.parse(localStorage.getItem('damabrava_carrito') || '[]'));
-
 function recuperarUsuarioLocal() {
     const usuarioGuardado = localStorage.getItem('damabrava_usuario');
     if (usuarioGuardado) {
@@ -105,8 +104,6 @@ async function obtenerClientes() {
         return false;
     }
 }
-
-
 async function obtenerAlmacenGeneral() {
     try {
         mostrarCarga();
@@ -145,8 +142,6 @@ async function obtenerAlmacenGeneral() {
 }
 
 
-
-
 export async function mostrarSalidas() {
     await obtenerAlmacenGeneral();
 
@@ -156,8 +151,6 @@ export async function mostrarSalidas() {
         const primerPrecio = precio.precio.split(';')[0].split(',')[0];
         return `<option value="${precio.id}" ${index === 1 ? 'selected' : ''}>${primerPrecio}</option>`;
     }).join('');
-    const precioInicial = precios[1]?.precio.split(';')[0].split(',')[0];
-
 
     const registrationHTML = `  
         <div class="encabezado">
@@ -169,7 +162,6 @@ export async function mostrarSalidas() {
                 <input type="text" class="buscar-producto" placeholder="Buscar...">
                 <i class='bx bx-search'></i>
             </div>
-            <p class="normal"><i class='bx bx-chevron-right'></i>Filtros</p>
             <div class="filtros-opciones etiquetas-filter">
                 <button class="btn-filtro activado">Todos</button>
                 ${etiquetasUnicas.map(etiqueta => `
@@ -186,7 +178,6 @@ export async function mostrarSalidas() {
                 </select>
             </div>
 
-            <p class="normal"><i class='bx bx-chevron-right'></i>Productos</p>
                 ${productos.map(producto => `
                 <div class="registro-item" data-id="${producto.id}">
                     <div class="header">
@@ -208,6 +199,10 @@ export async function mostrarSalidas() {
                     </div>
                 </div>
             `).join('')}
+            <p class="no-encontrado" style="text-align: center; font-size: 15px; color: #777; width:100%; padding:15px; display:none">
+                <i class='bx bx-box' style="font-size: 2rem; display: block; margin-bottom: 8px;"></i>
+                ¡Ups! No encontramos productos que coincidan con tu búsqueda o filtrado.
+            </p>
         </div>
     `;
 
@@ -236,9 +231,13 @@ function eventosSalidas() {
     const botonesEtiquetas = document.querySelectorAll('.filtros-opciones.etiquetas-filter .btn-filtro');
     const botonesCantidad = document.querySelectorAll('.filtros-opciones.cantidad-filter .btn-filtro');
     const selectPrecios = document.querySelector('.precios-select');
+
     const inputBusqueda = document.querySelector('.buscar-producto');
     const iconoBusqueda = document.querySelector('.almacen-general .buscador i');
+    
     const botonFlotante = document.createElement('button');
+
+    let filtroNombreActual = 'Todos';
 
 
     botonFlotante.className = 'btn-flotante-salidas';
@@ -279,123 +278,95 @@ function eventosSalidas() {
     });
 
 
-    inputBusqueda.addEventListener('input', (e) => {
-        const busqueda = normalizarTexto(e.target.value);
-        iconoBusqueda.className = busqueda ? 'bx bx-x' : 'bx bx-search';
-
-        // Cambiar icono y clase según si hay texto
-        if (busqueda) {
-            iconoBusqueda.className = 'bx bx-x';
-            botonesEtiquetas.forEach(btn => {
-                btn.classList.remove('activado');
-            });
-        } else {
-            iconoBusqueda.className = 'bx bx-search';
-            // Reactivar el filtro "Todos" cuando se limpia la búsqueda
-            document.querySelector('.btn-filtro').classList.add('activado');
-        }
-
+    function aplicarFiltros() {
         const registros = document.querySelectorAll('.registro-item');
-        registros.forEach(registro => {
-            const producto = productos.find(p => p.id === registro.dataset.id);
-            const textoProducto = normalizarTexto(producto.producto);
-            const codigoBarras = normalizarTexto(producto.codigo_barras);
-            const etiquetas = normalizarTexto(producto.etiquetas);
+        const busqueda = normalizarTexto(inputBusqueda.value);
+        const precioSeleccionado = selectPrecios.options[selectPrecios.selectedIndex].text;
+        const botonCantidadActivo = document.querySelector('.filtros-opciones.cantidad-filter .btn-filtro.activado');
+        const mensajeNoEncontrado = document.querySelector('.no-encontrado');
 
-            if (!busqueda ||
-                textoProducto.includes(busqueda) ||
-                codigoBarras.includes(busqueda) ||
-                etiquetas.includes(busqueda)) {
-                registro.style.display = '';
-            } else {
-                registro.style.display = 'none';
-            }
+        // Animación de ocultamiento
+        registros.forEach(registro => {
+            registro.style.opacity = '0';
+            registro.style.transform = 'translateY(-20px)';
         });
-    });
-    iconoBusqueda.addEventListener('click', () => {
-        if (inputBusqueda.value) {
-            inputBusqueda.value = '';
-            iconoBusqueda.className = 'bx bx-search';
-            // Show all records when clearing search
-            document.querySelectorAll('.registro-item').forEach(registro => {
-                registro.style.display = '';
+
+        setTimeout(() => {
+            // Ocultar elementos y procesar filtros
+            registros.forEach(registro => registro.style.display = 'none');
+
+            // Filtrar y ordenar
+            const productosFiltrados = Array.from(registros).filter(registro => {
+                const producto = productos.find(p => p.id === registro.dataset.id);
+                const etiquetasProducto = producto.etiquetas.split(';').map(e => e.trim());
+                let mostrar = true;
+
+                // Filtro de etiquetas
+                if (filtroNombreActual !== 'Todos') {
+                    mostrar = mostrar && etiquetasProducto.includes(filtroNombreActual);
+                }
+
+                // Filtro de búsqueda
+                if (mostrar && busqueda) {
+                    mostrar = mostrar && (
+                        normalizarTexto(producto.producto).includes(busqueda) ||
+                        normalizarTexto(producto.gramos.toString()).includes(busqueda) ||
+                        normalizarTexto(producto.codigo_barras).includes(busqueda)
+                    );
+                }
+
+                return mostrar;
             });
-            // Reactivate "Todos" filter
-            document.querySelector('.btn-filtro').classList.add('activado');
-        }
-    })
+
+            // Ordenamiento
+            if (botonCantidadActivo) {
+                const index = Array.from(botonesCantidad).indexOf(botonCantidadActivo);
+                switch (index) {
+                    case 0: productosFiltrados.sort((a, b) => parseInt(b.querySelector('.stock').textContent) - parseInt(a.querySelector('.stock').textContent)); break;
+                    case 1: productosFiltrados.sort((a, b) => parseInt(a.querySelector('.stock').textContent) - parseInt(b.querySelector('.stock').textContent)); break;
+                    case 2: productosFiltrados.sort((a, b) => a.querySelector('.nombre strong').textContent.localeCompare(b.querySelector('.nombre strong').textContent)); break;
+                    case 3: productosFiltrados.sort((a, b) => b.querySelector('.nombre strong').textContent.localeCompare(a.querySelector('.nombre strong').textContent)); break;
+                }
+            }
+
+            // Mostrar elementos filtrados con animación
+            productosFiltrados.forEach((registro, index) => {
+                registro.style.display = 'flex';
+                registro.style.opacity = '0';
+                registro.style.transform = 'translateY(20px)';
+
+                setTimeout(() => {
+                    registro.style.opacity = '1';
+                    registro.style.transform = 'translateY(0)';
+                }, 0);
+            });
+
+            // Actualizar precios y reordenar DOM
+            const contenedor = document.querySelector('.relleno.almacen-general');
+            productosFiltrados.forEach(registro => {
+                const producto = productos.find(p => p.id === registro.dataset.id);
+                if (precioSeleccionado) {
+                    const preciosProducto = producto.precios.split(';');
+                    const precioFiltrado = preciosProducto.find(p => p.split(',')[0] === precioSeleccionado);
+                    if (precioFiltrado) {
+                        const precio = parseFloat(precioFiltrado.split(',')[1]);
+                        registro.querySelector('.precio').textContent = `Bs/.${precio.toFixed(2)}`;
+                    }
+                }
+                contenedor.appendChild(registro);
+            });
+
+            // Mensaje vacío
+            mensajeNoEncontrado.style.display = productosFiltrados.length === 0 ? 'block' : 'none';
+
+        }, 200);
+    }
     function normalizarTexto(texto) {
         return texto.toString()
             .toLowerCase()
             .normalize('NFD')
             .replace(/[\u0300-\u036f]/g, '') // Eliminar acentos
             .replace(/[-_\s]+/g, ''); // Eliminar guiones, guiones bajos y espacios
-    }
-    botonesCantidad.forEach((boton, index) => {
-        boton.addEventListener('click', () => {
-            // Remover clase 'activado' de todos los botones de cantidad
-            botonesCantidad.forEach(b => b.classList.remove('activado'));
-            // Agregar clase 'activado' al botón clickeado
-            boton.classList.add('activado');
-
-            const registros = Array.from(document.querySelectorAll('.registro-item'));
-
-            switch (index) {
-                case 0: // Mayor a menor cantidad
-                    registros.sort((a, b) => {
-                        const stockA = parseInt(a.querySelector('.stock').textContent);
-                        const stockB = parseInt(b.querySelector('.stock').textContent);
-                        return stockB - stockA;
-                    });
-                    break;
-                case 1: // Menor a mayor cantidad
-                    registros.sort((a, b) => {
-                        const stockA = parseInt(a.querySelector('.stock').textContent);
-                        const stockB = parseInt(b.querySelector('.stock').textContent);
-                        return stockA - stockB;
-                    });
-                    break;
-                case 2: // A-Z
-                    registros.sort((a, b) => {
-                        const nombreA = a.querySelector('.producto-header').textContent.toLowerCase();
-                        const nombreB = b.querySelector('.producto-header').textContent.toLowerCase();
-                        return nombreA.localeCompare(nombreB);
-                    });
-                    break;
-                case 3: // Z-A
-                    registros.sort((a, b) => {
-                        const nombreA = a.querySelector('.producto-header').textContent.toLowerCase();
-                        const nombreB = b.querySelector('.producto-header').textContent.toLowerCase();
-                        return nombreB.localeCompare(nombreA);
-                    });
-                    break;
-            }
-
-            // Reordenar los elementos en el DOM
-            const contenedor = document.querySelector('.relleno.almacen-general');
-            registros.forEach(registro => {
-                contenedor.appendChild(registro);
-            });
-        });
-    });
-    let filtroNombreActual = 'Todos';
-    function aplicarFiltros() {
-        const registros = document.querySelectorAll('.registro-item');
-
-        registros.forEach(registro => {
-            const registroId = registro.dataset.id;
-            const producto = productos.find(p => p.id === registroId);
-            const etiquetasProducto = producto.etiquetas.split(';').map(e => e.trim());
-
-            let mostrar = true;
-
-            // Si hay un filtro activo que no sea 'Todos'
-            if (filtroNombreActual !== 'Todos') {
-                mostrar = etiquetasProducto.includes(filtroNombreActual);
-            }
-
-            registro.style.display = mostrar ? '' : 'none';
-        });
     }
     function scrollToCenter(boton, contenedorPadre) {
         const scrollLeft = boton.offsetLeft - (contenedorPadre.offsetWidth / 2) + (boton.offsetWidth / 2);
@@ -404,26 +375,37 @@ function eventosSalidas() {
             behavior: 'smooth'
         });
     }
+    iconoBusqueda.addEventListener('click', () => {
+        if (inputBusqueda.value) {
+            inputBusqueda.value = '';
+            const mensajeNoEncontrado = document.querySelector('.no-encontrado');
+            mensajeNoEncontrado.style.display = 'none';
+            iconoBusqueda.className = 'bx bx-search lupa2';
+            aplicarFiltros();
+        }
+    })
+    inputBusqueda.addEventListener('input', (e) => {
+        const busqueda = normalizarTexto(e.target.value);
+        iconoBusqueda.className = busqueda ? 'bx bx-x lupa2' : 'bx bx-search lupa2';
+        aplicarFiltros();
+    });
     botonesEtiquetas.forEach(boton => {
         boton.addEventListener('click', () => {
-            // Limpiar input de búsqueda
-            inputBusqueda.value = '';
-            iconoBusqueda.className = 'bx bx-search';
-
-            // Remover clase 'activado' de todos los botones
             botonesEtiquetas.forEach(b => b.classList.remove('activado'));
-            // Agregar clase 'activado' al botón clickeado
             boton.classList.add('activado');
-
             filtroNombreActual = boton.textContent.trim();
             aplicarFiltros();
             scrollToCenter(boton, boton.parentElement);
         });
     });
-
-
-
-
+    botonesCantidad.forEach(boton => {
+        boton.addEventListener('click', () => {
+            botonesCantidad.forEach(b => b.classList.remove('activado'));
+            boton.classList.add('activado');
+            aplicarFiltros();
+        });
+    });
+    selectPrecios.addEventListener('change', aplicarFiltros);
 
 
     function agregarAlCarrito(productoId) {
@@ -769,7 +751,7 @@ function eventosSalidas() {
 
     async function registrarSalida() {
         const clienteSelect = document.querySelector('.select-cliente');
-        const nombreMovimiento= document.querySelector('.nombre-movimiento');
+        const nombreMovimiento = document.querySelector('.nombre-movimiento');
         if (!clienteSelect.value) {
             mostrarNotificacion({
                 message: 'Seleccione un cliente antes de continuar',
@@ -777,7 +759,7 @@ function eventosSalidas() {
                 duration: 3000
             });
             return;
-        }else if(!nombreMovimiento.value){
+        } else if (!nombreMovimiento.value) {
             mostrarNotificacion({
                 message: 'Ingrese un nombre para el movimiento',
                 type: 'error',
@@ -788,7 +770,7 @@ function eventosSalidas() {
 
         const registroSalida = {
             fechaHora: new Date().toLocaleString(),
-            tipo: 'Salida', 
+            tipo: 'Salida',
             productos: Array.from(carritoSalidas.values()).map(item => `${item.producto} - ${item.gramos}gr`).join(';'),
             cantidades: Array.from(carritoSalidas.values()).map(item => item.cantidad).join(';'),
             operario: `${usuarioInfo.nombre} ${usuarioInfo.apellido}`,
@@ -799,13 +781,16 @@ function eventosSalidas() {
             aumento: parseFloat(document.querySelector('.aumento').value) || 0,
             total: 0,
             observaciones: document.querySelector('.observaciones').value || 'Ninguna',
+            precios_unitarios: Array.from(carritoSalidas.values())
+            .map(item => parseFloat(item.subtotal).toFixed(2))
+            .join(';')
         };
 
         registroSalida.total = registroSalida.subtotal - registroSalida.descuento + registroSalida.aumento;
 
         try {
             mostrarCarga();
-            
+
             // Primero registramos el movimiento
             const response = await fetch('/registrar-movimiento', {
                 method: 'POST',
@@ -815,19 +800,19 @@ function eventosSalidas() {
                 },
                 body: JSON.stringify(registroSalida)
             });
-    
+
             const data = await response.json();
-    
+
             if (!response.ok || !data.success) {
                 throw new Error(data.error || 'Error en la respuesta del servidor');
             }
-    
+
             // Actualizar el stock en Almacen general
             const actualizacionesStock = Array.from(carritoSalidas.values()).map(item => ({
                 id: item.id,
                 cantidad: item.cantidad
             }));
-    
+
             const responseStock = await fetch('/actualizar-stock', {
                 method: 'POST',
                 headers: {
@@ -839,25 +824,25 @@ function eventosSalidas() {
                     tipo: 'salida'
                 })
             });
-    
+
             const dataStock = await responseStock.json();
-    
+
             if (!responseStock.ok || !dataStock.success) {
                 throw new Error(dataStock.error || 'Error al actualizar el stock');
             }
-    
+
             // Limpiar carrito y actualizar UI
             carritoSalidas.clear();
             localStorage.removeItem('damabrava_carrito');
             document.querySelector('.btn-flotante-salidas').style.display = 'none';
-            
-            
+
+
             mostrarNotificacion({
                 message: 'Salida registrada exitosamente',
                 type: 'success',
                 duration: 3000
             });
-    
+
             await mostrarSalidas();
             ocultarAnuncioSecond();
 
