@@ -154,14 +154,12 @@ export async function mostrarAlmacenGeneral() {
         <div class="encabezado">
             <h1 class="titulo">Almacén General</h1>
             <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
-            <button class="btn filtros"><i class='bx bx-filter'></i></button>
         </div>
         <div class="relleno almacen-general">
             <div class="buscador">
                 <input type="text" class="buscar-producto" placeholder="Buscar...">
-                <i class='bx bx-search'></i>
+                <i class='bx bx-search lupa2'></i>
             </div>
-            <p class="normal"><i class='bx bx-chevron-right'></i>Filtros</p>
             <div class="filtros-opciones etiquetas-filter">
                 <button class="btn-filtro activado">Todos</button>
                 ${etiquetasUnicas.map(etiqueta => `
@@ -177,8 +175,6 @@ export async function mostrarAlmacenGeneral() {
                     ${preciosOpciones}
                 </select>
             </div>
-
-            <p class="normal"><i class='bx bx-chevron-right'></i>Productos</p>
                 ${productos.map(producto => `
                 <div class="registro-item" data-id="${producto.id}">
                     <div class="header">
@@ -201,6 +197,10 @@ export async function mostrarAlmacenGeneral() {
                     </div>
                 </div>
             `).join('')}
+            <p class="no-encontrado" style="text-align: center; font-size: 15px; color: #777; width:100%; padding:15px; display:none">
+                <i class='bx bx-box' style="font-size: 2rem; display: block; margin-bottom: 8px;"></i>
+                ¡Ups! No encontramos productos que coincidan con tu búsqueda o filtrado.
+            </p>
         </div>
         <div class="anuncio-botones">
             <button class="btn-crear-producto btn orange"> <i class='bx bx-plus'></i> Crear</button>
@@ -229,8 +229,6 @@ function eventosAlmacenGeneral() {
     const botonesEditar = document.querySelectorAll('.btn-editar');
     const botonesInfo = document.querySelectorAll('.btn-info');
 
-    const filtros = document.querySelector('.filtros');
-
     const btnCrearProducto = document.querySelector('.btn-crear-producto');
     const btnEtiquetas = document.querySelector('.btn-etiquetas');
     const btnPrecios = document.querySelector('.btn-precios');
@@ -238,54 +236,16 @@ function eventosAlmacenGeneral() {
     const items = document.querySelectorAll('.registro-item');
 
     const inputBusqueda = document.querySelector('.buscar-producto');
-    const iconoBusqueda = document.querySelector('.almacen-general .buscador i');
+    const iconoBusqueda = document.querySelector('.almacen-general .buscador .lupa2');
 
-
-    inputBusqueda.addEventListener('input', (e) => {
-        const busqueda = normalizarTexto(e.target.value);
-        iconoBusqueda.className = busqueda ? 'bx bx-x' : 'bx bx-search';
-
-        // Cambiar icono y clase según si hay texto
-        if (busqueda) {
-            iconoBusqueda.className = 'bx bx-x';
-            botonesEtiquetas.forEach(btn => {
-                btn.classList.remove('activado');
-            });
-        } else {
-            iconoBusqueda.className = 'bx bx-search';
-            // Reactivar el filtro "Todos" cuando se limpia la búsqueda
-            document.querySelector('.btn-filtro').classList.add('activado');
-        }
-
-        const registros = document.querySelectorAll('.registro-item');
-        registros.forEach(registro => {
-            const producto = productos.find(p => p.id === registro.dataset.id);
-            const textoProducto = normalizarTexto(producto.producto);
-            const codigoBarras = normalizarTexto(producto.codigo_barras);
-            const etiquetas = normalizarTexto(producto.etiquetas);
-
-            if (!busqueda ||
-                textoProducto.includes(busqueda) ||
-                codigoBarras.includes(busqueda) ||
-                etiquetas.includes(busqueda)) {
-                registro.style.display = '';
-            } else {
-                registro.style.display = 'none';
-            }
+    let filtroNombreActual = 'Todos';
+    function scrollToCenter(boton, contenedorPadre) {
+        const scrollLeft = boton.offsetLeft - (contenedorPadre.offsetWidth / 2) + (boton.offsetWidth / 2);
+        contenedorPadre.scrollTo({
+            left: scrollLeft,
+            behavior: 'smooth'
         });
-    });
-    iconoBusqueda.addEventListener('click', () => {
-        if (inputBusqueda.value) {
-            inputBusqueda.value = '';
-            iconoBusqueda.className = 'bx bx-search';
-            // Show all records when clearing search
-            document.querySelectorAll('.registro-item').forEach(registro => {
-                registro.style.display = '';
-            });
-            // Reactivate "Todos" filter
-            document.querySelector('.btn-filtro').classList.add('activado');
-        }
-    })
+    }
     function normalizarTexto(texto) {
         return texto.toString()
             .toLowerCase()
@@ -293,6 +253,121 @@ function eventosAlmacenGeneral() {
             .replace(/[\u0300-\u036f]/g, '') // Eliminar acentos
             .replace(/[-_\s]+/g, ''); // Eliminar guiones, guiones bajos y espacios
     }
+    function aplicarFiltros() {
+        const registros = document.querySelectorAll('.registro-item');
+        const busqueda = normalizarTexto(inputBusqueda.value);
+        const precioSeleccionado = selectPrecios.options[selectPrecios.selectedIndex].text;
+        const botonCantidadActivo = document.querySelector('.filtros-opciones.cantidad-filter .btn-filtro.activado');
+        const mensajeNoEncontrado = document.querySelector('.no-encontrado');
+
+        // Animación de ocultamiento
+        registros.forEach(registro => {
+            registro.style.opacity = '0';
+            registro.style.transform = 'translateY(-20px)';
+        });
+
+        setTimeout(() => {
+            // Ocultar elementos y procesar filtros
+            registros.forEach(registro => registro.style.display = 'none');
+
+            // Filtrar y ordenar
+            const productosFiltrados = Array.from(registros).filter(registro => {
+                const producto = productos.find(p => p.id === registro.dataset.id);
+                const etiquetasProducto = producto.etiquetas.split(';').map(e => e.trim());
+                let mostrar = true;
+
+                // Filtro de etiquetas
+                if (filtroNombreActual !== 'Todos') {
+                    mostrar = mostrar && etiquetasProducto.includes(filtroNombreActual);
+                }
+
+                // Filtro de búsqueda
+                if (mostrar && busqueda) {
+                    mostrar = mostrar && (
+                        normalizarTexto(producto.producto).includes(busqueda) ||
+                        normalizarTexto(producto.gramos.toString()).includes(busqueda) ||
+                        normalizarTexto(producto.codigo_barras).includes(busqueda)
+                    );
+                }
+
+                return mostrar;
+            });
+
+            // Ordenamiento
+            if (botonCantidadActivo) {
+                const index = Array.from(botonesCantidad).indexOf(botonCantidadActivo);
+                switch (index) {
+                    case 0: productosFiltrados.sort((a, b) => parseInt(b.querySelector('.stock').textContent) - parseInt(a.querySelector('.stock').textContent)); break;
+                    case 1: productosFiltrados.sort((a, b) => parseInt(a.querySelector('.stock').textContent) - parseInt(b.querySelector('.stock').textContent)); break;
+                    case 2: productosFiltrados.sort((a, b) => a.querySelector('.nombre strong').textContent.localeCompare(b.querySelector('.nombre strong').textContent)); break;
+                    case 3: productosFiltrados.sort((a, b) => b.querySelector('.nombre strong').textContent.localeCompare(a.querySelector('.nombre strong').textContent)); break;
+                }
+            }
+
+            // Mostrar elementos filtrados con animación
+            productosFiltrados.forEach((registro, index) => {
+                registro.style.display = 'flex';
+                registro.style.opacity = '0';
+                registro.style.transform = 'translateY(20px)';
+
+                setTimeout(() => {
+                    registro.style.opacity = '1';
+                    registro.style.transform = 'translateY(0)';
+                }, 0);
+            });
+
+            // Actualizar precios y reordenar DOM
+            const contenedor = document.querySelector('.relleno.almacen-general');
+            productosFiltrados.forEach(registro => {
+                const producto = productos.find(p => p.id === registro.dataset.id);
+                if (precioSeleccionado) {
+                    const preciosProducto = producto.precios.split(';');
+                    const precioFiltrado = preciosProducto.find(p => p.split(',')[0] === precioSeleccionado);
+                    if (precioFiltrado) {
+                        const precio = parseFloat(precioFiltrado.split(',')[1]);
+                        registro.querySelector('.precio').textContent = `Bs/.${precio.toFixed(2)}`;
+                    }
+                }
+                contenedor.appendChild(registro);
+            });
+
+            // Mensaje vacío
+            mensajeNoEncontrado.style.display = productosFiltrados.length === 0 ? 'block' : 'none';
+
+        }, 200);
+    }
+    iconoBusqueda.addEventListener('click', () => {
+        if (inputBusqueda.value) {
+            inputBusqueda.value = '';
+            const mensajeNoEncontrado = document.querySelector('.no-encontrado');
+            mensajeNoEncontrado.style.display = 'none';
+            iconoBusqueda.className = 'bx bx-search lupa2';
+            aplicarFiltros();
+        }
+    })
+    inputBusqueda.addEventListener('input', (e) => {
+        const busqueda = normalizarTexto(e.target.value);
+        iconoBusqueda.className = busqueda ? 'bx bx-x lupa2' : 'bx bx-search lupa2';
+        aplicarFiltros();
+    });
+    botonesEtiquetas.forEach(boton => {
+        boton.addEventListener('click', () => {
+            botonesEtiquetas.forEach(b => b.classList.remove('activado'));
+            boton.classList.add('activado');
+            filtroNombreActual = boton.textContent.trim();
+            aplicarFiltros();
+            scrollToCenter(boton, boton.parentElement);
+        });
+    });
+    botonesCantidad.forEach(boton => {
+        boton.addEventListener('click', () => {
+            botonesCantidad.forEach(b => b.classList.remove('activado'));
+            boton.classList.add('activado');
+            aplicarFiltros();
+        });
+    });
+    selectPrecios.addEventListener('change', aplicarFiltros);
+    
 
 
     items.forEach(item => {
@@ -334,6 +409,11 @@ function eventosAlmacenGeneral() {
     });
 
 
+    btnCrearProducto.addEventListener('click', crearProducto);
+    btnEtiquetas.addEventListener('click', gestionarEtiquetas);
+    btnPrecios.addEventListener('click', gestionarPrecios);
+    
+
     botonesInfo.forEach(btn => {
         btn.addEventListener('click', info);
     });
@@ -343,265 +423,7 @@ function eventosAlmacenGeneral() {
     botonesEditar.forEach(btn => {
         btn.addEventListener('click', editar);
     });
-    filtros.addEventListener('click', filtroAvanzado);
-    btnCrearProducto.addEventListener('click', crearProducto);
-    btnEtiquetas.addEventListener('click', gestionarEtiquetas);
-    btnPrecios.addEventListener('click', gestionarPrecios);
 
-
-    botonesCantidad.forEach((boton, index) => {
-        boton.addEventListener('click', () => {
-            // Remover clase 'activado' de todos los botones de cantidad
-            botonesCantidad.forEach(b => b.classList.remove('activado'));
-            // Agregar clase 'activado' al botón clickeado
-            boton.classList.add('activado');
-
-            const registros = Array.from(document.querySelectorAll('.registro-item'));
-            
-            switch(index) {
-                case 0: // Mayor a menor cantidad
-                    registros.sort((a, b) => {
-                        const stockA = parseInt(a.querySelector('.stock').textContent);
-                        const stockB = parseInt(b.querySelector('.stock').textContent);
-                        return stockB - stockA;
-                    });
-                    break;
-                case 1: // Menor a mayor cantidad
-                    registros.sort((a, b) => {
-                        const stockA = parseInt(a.querySelector('.stock').textContent);
-                        const stockB = parseInt(b.querySelector('.stock').textContent);
-                        return stockA - stockB;
-                    });
-                    break;
-                case 2: // A-Z
-                    registros.sort((a, b) => {
-                        const nombreA = a.querySelector('.producto-header').textContent.toLowerCase();
-                        const nombreB = b.querySelector('.producto-header').textContent.toLowerCase();
-                        return nombreA.localeCompare(nombreB);
-                    });
-                    break;
-                case 3: // Z-A
-                    registros.sort((a, b) => {
-                        const nombreA = a.querySelector('.producto-header').textContent.toLowerCase();
-                        const nombreB = b.querySelector('.producto-header').textContent.toLowerCase();
-                        return nombreB.localeCompare(nombreA);
-                    });
-                    break;
-            }
-
-            // Reordenar los elementos en el DOM
-            const contenedor = document.querySelector('.relleno.almacen-general');
-            registros.forEach(registro => {
-                contenedor.appendChild(registro);
-            });
-        });
-    });
-    selectPrecios.addEventListener('change', () => {
-        const ciudadSeleccionada = selectPrecios.options[selectPrecios.selectedIndex].text;
-        const registros = document.querySelectorAll('.registro-item');
-
-        registros.forEach(registro => {
-            const registroId = registro.dataset.id;
-            const producto = productos.find(p => p.id === registroId);
-            const preciosProducto = producto.precios.split(';');
-            
-            const precioSeleccionado = preciosProducto
-                .find(precio => precio.split(',')[0] === ciudadSeleccionada);
-
-            const valorPrecio = precioSeleccionado ? 
-                precioSeleccionado.split(',')[1] : 
-                '0';
-
-            const spanPrecio = registro.querySelector('.precio-cantidad .precio');
-            spanPrecio.textContent = `Bs/.${valorPrecio}`;
-        });
-    });
-
-    
-
-
-    let filtroNombreActual = 'Todos';
-
-
-    function aplicarFiltros() {
-        const registros = document.querySelectorAll('.registro-item');
-
-        registros.forEach(registro => {
-            const registroId = registro.dataset.id;
-            const producto = productos.find(p => p.id === registroId);
-            const etiquetasProducto = producto.etiquetas.split(';').map(e => e.trim());
-
-            let mostrar = true;
-
-            // Si hay un filtro activo que no sea 'Todos'
-            if (filtroNombreActual !== 'Todos') {
-                mostrar = etiquetasProducto.includes(filtroNombreActual);
-            }
-
-            registro.style.display = mostrar ? '' : 'none';
-        });
-    }
-    function scrollToCenter(boton, contenedorPadre) {
-        const scrollLeft = boton.offsetLeft - (contenedorPadre.offsetWidth / 2) + (boton.offsetWidth / 2);
-        contenedorPadre.scrollTo({
-            left: scrollLeft,
-            behavior: 'smooth'
-        });
-    }
-    botonesEtiquetas.forEach(boton => {
-        boton.addEventListener('click', () => {
-            // Limpiar input de búsqueda
-            inputBusqueda.value = '';
-            iconoBusqueda.className = 'bx bx-search';
-
-            // Remover clase 'activado' de todos los botones
-            botonesEtiquetas.forEach(b => b.classList.remove('activado'));
-            // Agregar clase 'activado' al botón clickeado
-            boton.classList.add('activado');
-
-            filtroNombreActual = boton.textContent.trim();
-            aplicarFiltros();
-            scrollToCenter(boton, boton.parentElement);
-        });
-    });
-
-    function filtroAvanzado() {
-        const contenido = document.querySelector('.anuncio-second .contenido');
-        const registrationHTML = `
-        <div class="encabezado">
-            <h1 class="titulo">Filtros avanzados</h1>
-            <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
-        </div>
-        <div class="relleno editar-produccion">
-            <p class="normal"><i class='bx bx-chevron-right'></i>Filtros por fecha</p>
-                <div class="entrada">
-                    <i class='bx bx-calendar-alt'></i>
-                    <div class="input">
-                        <p class="detalle">Desde</p>
-                        <input class="fecha-desde" type="date" autocomplete="off" placeholder=" ">
-                    </div>
-                </div>
-                <div class="entrada">
-                    <i class='bx bx-calendar-alt'></i>
-                    <div class="input">
-                        <p class="detalle">Hasta</p>
-                        <input class="fecha-hasta" type="date" autocomplete="off" placeholder=" ">
-                    </div>
-                </div>
-            <p class="normal"><i class='bx bx-chevron-right'></i>Filtros por operador</p>
-                <div class="entrada">
-                    <i class='bx bx-user'></i>
-                    <div class="input">
-                        <p class="detalle">Operador</p>
-                        <select class="select-operador">
-                            <option value="Todos">Todos</option>
-                            ${[...new Set(registrosProduccion.map(r => r.nombre))].map(nombre =>
-            `<option value="${nombre}">${nombre}</option>`
-        ).join('')}
-                        </select>
-                    </div>
-                </div>
-            <p class="normal"><i class='bx bx-chevron-right'></i>Filtros por estado</p>
-                <div class="entrada">
-                    <i class='bx bx-check-circle'></i>
-                    <div class="input">
-                        <p class="detalle">Estado</p>
-                        <select class="select-estado">
-                            <option value="Todos">Todos</option>
-                            <option value="pendiente">Pendientes</option>
-                            <option value="verificado">Verificados</option>
-                        </select>
-                    </div>
-                </div>
-            <p class="normal"><i class='bx bx-chevron-right'></i>Filtros por producto</p>
-                <div class="entrada">
-                    <i class='bx bx-cube'></i>
-                    <div class="input">
-                        <p class="detalle">Producto</p>
-                        <select class="select-producto">
-                            <option value="Todos">Todos</option>
-                            ${[...new Set(registrosProduccion.map(r => r.producto))].map(producto =>
-            `<option value="${producto}">${producto}</option>`
-        ).join('')}
-                        </select>
-                    </div>
-                </div>
-                <div class="entrada">
-                    <i class='bx bx-barcode'></i>
-                    <div class="input">
-                        <p class="detalle">Lote</p>
-                        <input class="lote" type="number" placeholder=" ">
-                    </div>
-                </div>
-        </div>
-        <div class="anuncio-botones">
-            <button class="btn-aplicar-filtros btn orange"><i class='bx bx-filter-alt'></i> Aplicar filtros</button>
-        </div>
-    `;
-        contenido.innerHTML = registrationHTML;
-        mostrarAnuncioSecond();
-
-        // Agregar evento al botón de aplicar filtros
-        const btnAplicar = contenido.querySelector('.btn-aplicar-filtros');
-        btnAplicar.addEventListener('click', aplicarFiltrosAvanzados);
-
-        function aplicarFiltrosAvanzados() {
-            const fechaDesde = document.querySelector('.anuncio-second .fecha-desde').value;
-            const fechaHasta = document.querySelector('.anuncio-second .fecha-hasta').value;
-            const operador = document.querySelector('.anuncio-second .select-operador').value === 'Todos' ? '' : document.querySelector('.anuncio-second .select-operador').value;
-            const estado = document.querySelector('.anuncio-second .select-estado').value === 'Todos' ? '' : document.querySelector('.anuncio-second .select-estado').value;
-            const producto = document.querySelector('.anuncio-second .select-producto').value === 'Todos' ? '' : document.querySelector('.anuncio-second .select-producto').value;
-            const lote = document.querySelector('.anuncio-second .lote').value;
-
-            const registros = document.querySelectorAll('.anuncio .registro-item');
-            registros.forEach(registro => {
-                const registroData = registrosProduccion.find(r => r.id === registro.dataset.id);
-                let mostrar = true;
-
-                // Filtro mejorado por fecha
-                if (fechaDesde || fechaHasta) {
-                    const [dia, mes, anioStr] = registroData.fecha.split('/');
-                    const anioCompleto = anioStr.length === 2 ? '20' + anioStr : anioStr;
-
-                    // Crear fecha del registro al inicio del día
-                    const fechaRegistro = new Date(anioCompleto, parseInt(mes) - 1, parseInt(dia));
-                    fechaRegistro.setHours(0, 0, 0, 0);
-
-                    if (fechaDesde) {
-                        const [anioDesde, mesDesde, diaDesde] = fechaDesde.split('-');
-                        const fechaDesdeObj = new Date(parseInt(anioDesde), parseInt(mesDesde) - 1, parseInt(diaDesde));
-                        fechaDesdeObj.setHours(0, 0, 0, 0);
-                        if (fechaRegistro < fechaDesdeObj) mostrar = false;
-                    }
-
-                    if (fechaHasta) {
-                        const [anioHasta, mesHasta, diaHasta] = fechaHasta.split('-');
-                        const fechaHastaObj = new Date(parseInt(anioHasta), parseInt(mesHasta) - 1, parseInt(diaHasta));
-                        // Establecer al final del día seleccionado (23:59:59.999)
-                        fechaHastaObj.setHours(23, 59, 59, 999);
-                        if (fechaRegistro > fechaHastaObj) mostrar = false;
-                    }
-                }
-
-                // Resto de los filtros sin cambios...
-                if (operador && registroData.nombre !== operador) mostrar = false;
-                if (estado) {
-                    if (estado === 'pendiente' && registroData.fecha_verificacion) mostrar = false;
-                    if (estado === 'verificado' && !registroData.fecha_verificacion) mostrar = false;
-                }
-                if (producto && registroData.producto !== producto) mostrar = false;
-                if (lote && registroData.lote !== lote) mostrar = false;
-
-                registro.style.display = mostrar ? '' : 'none';
-            });
-
-            // Desactivar botones de filtro
-            const botonesFiltro = document.querySelectorAll('.btn-filtro');
-            botonesFiltro.forEach(boton => boton.classList.remove('activado'));
-
-            ocultarAnuncioSecond();
-        }
-    }
 
 
     function info(event) {

@@ -47,9 +47,8 @@ export async function mostrarClientes() {
         <div class="relleno">
             <div class="buscador">
                 <input type="text" class="buscar-cliente" placeholder="Buscar...">
-                <i class='bx bx-search'></i>
+                <i class='bx bx-search lupa2'></i>
             </div>
-            <p class="normal"><i class='bx bx-chevron-right'></i>Lista de clientes</p>
                 ${clientes.map(cliente => `
                 <div class="registro-item" data-id="${cliente.id}">
                     <div class="header">
@@ -68,6 +67,10 @@ export async function mostrarClientes() {
                     </div>
                 </div>
             `).join('')}
+            <p class="no-encontrado" style="text-align: center; font-size: 15px; color: #777; width:100%; padding:15px; display:none">
+                <i class='bx bx-box' style="font-size: 2rem; display: block; margin-bottom: 8px;"></i>
+                ¡Ups! No encontramos clientes que coincidan con tu búsqueda.
+            </p>
         </div>
         <div class="anuncio-botones">
             <button class="btn-crear-cliente btn orange"> <i class='bx bx-plus'></i> Crear nuevo cliente</button>
@@ -108,21 +111,18 @@ function eventosClientes() {
             });
         }
     });
-
     document.addEventListener('click', () => {
         document.querySelectorAll('.registro-item').forEach(item => {
             item.classList.remove('activo');
             item.querySelector('.registro-acciones')?.classList.remove('mostrar');
         });
     });
-
     document.querySelector('.contenido').addEventListener('click', () => {
         document.querySelectorAll('.registro-item').forEach(item => {
             item.classList.remove('activo');
             item.querySelector('.registro-acciones')?.classList.remove('mostrar');
         });
     });
-
     document.querySelector('.relleno').addEventListener('scroll', () => {
         document.querySelectorAll('.registro-item').forEach(item => {
             item.classList.remove('activo');
@@ -130,40 +130,60 @@ function eventosClientes() {
         });
     });
 
+
     inputBusqueda.addEventListener('input', (e) => {
         const busqueda = normalizarTexto(e.target.value);
-        iconoBusqueda.className = busqueda ? 'bx bx-x' : 'bx bx-search-alt-2';
-
-        const filas = document.querySelectorAll('.registro-item'); // Cambiado de '.fila' a '.registro-item'
-        filas.forEach(fila => {
-            const cliente = clientes.find(c => c.id === fila.dataset.id);
-            const textoNombre = normalizarTexto(cliente.nombre);
-            const textoTelefono = normalizarTexto(cliente.telefono);
-            const textoDireccion = normalizarTexto(cliente.direccion);
-            const textoZona = normalizarTexto(cliente.zona);
-
-            if (!busqueda ||
-                textoNombre.includes(busqueda) ||
-                textoTelefono.includes(busqueda) ||
-                textoDireccion.includes(busqueda) ||
-                textoZona.includes(busqueda)) {
-                fila.style.display = '';
-            } else {
-                fila.style.display = 'none';
-            }
-        });
+        iconoBusqueda.className = busqueda ? 'bx bx-x lupa2' : 'bx bx-search-alt-2 lupa2';
+        aplicarFiltros();
     });
 
+    function aplicarFiltros() {
+        const busqueda = normalizarTexto(inputBusqueda.value);
+        const items = document.querySelectorAll('.registro-item');
+        const mensajeNoEncontrado = document.querySelector('.no-encontrado');
+
+        // Animación de ocultar todos
+        items.forEach(item => {
+            item.style.opacity = '0';
+            item.style.transform = 'translateY(-20px)';
+            item.style.transition = 'all 0.3s ease';
+        });
+
+        setTimeout(() => {
+            let hayResultados = false;
+
+            items.forEach(item => {
+                const cliente = clientes.find(c => c.id === item.dataset.id);
+                const coincide = cliente && (
+                    normalizarTexto(cliente.nombre).includes(busqueda) ||
+                    normalizarTexto(cliente.telefono).includes(busqueda) ||
+                    normalizarTexto(cliente.direccion).includes(busqueda) ||
+                    normalizarTexto(cliente.zona).includes(busqueda)
+                );
+
+                item.style.display = coincide ? 'flex' : 'none';
+                if (coincide) hayResultados = true;
+            });
+
+            // Animación escalonada para los resultados
+            document.querySelectorAll('.registro-item[style*="display: flex"]').forEach((item, index) => {
+                setTimeout(() => {
+                    item.style.opacity = '1';
+                    item.style.transform = 'translateY(0)';
+                }, index * 50);
+            });
+
+            // Control del mensaje "no encontrado"
+            mensajeNoEncontrado.style.display = hayResultados ? 'none' : 'block';
+        }, 300);
+    }
     iconoBusqueda.addEventListener('click', () => {
         if (inputBusqueda.value) {
             inputBusqueda.value = '';
-            iconoBusqueda.className = 'bx bx-search-alt-2';
-            document.querySelectorAll('.fila').forEach(fila => {
-                fila.style.display = '';
-            });
+            iconoBusqueda.className = 'bx bx-search-alt-2 lupa2';
+            aplicarFiltros();
         }
     });
-
     function normalizarTexto(texto) {
         return (texto || '').toString()
             .toLowerCase()
@@ -171,19 +191,17 @@ function eventosClientes() {
             .replace(/[\u0300-\u036f]/g, '')
             .replace(/[-_\s]+/g, '');
     }
-
     botonesInfo.forEach(btn => {
         btn.addEventListener('click', info);
     });
-
     botonesEliminar.forEach(btn => {
         btn.addEventListener('click', eliminar);
     });
-
     botonesEditar.forEach(btn => {
         btn.addEventListener('click', editar);
     });
 
+    
     async function info(event) {
         const clienteId = event.currentTarget.dataset.id;
         const cliente = clientes.find(c => c.id === clienteId);
@@ -208,7 +226,6 @@ function eventosClientes() {
         contenido.innerHTML = registrationHTML;
         mostrarAnuncioSecond();
     }
-
     async function eliminar(event) {
         const clienteId = event.currentTarget.dataset.id;
         const cliente = clientes.find(c => c.id === clienteId);
@@ -286,7 +303,6 @@ function eventosClientes() {
             }
         });
     }
-
     async function editar(event) {
         const clienteId = event.currentTarget.dataset.id;
         const cliente = clientes.find(c => c.id === clienteId);
@@ -393,7 +409,6 @@ function eventosClientes() {
             }
         });
     }
-
     async function crearCliente() {
         const contenido = document.querySelector('.anuncio-second .contenido');
         const registrationHTML = `

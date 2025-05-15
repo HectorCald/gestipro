@@ -47,9 +47,8 @@ export async function mostrarProovedores() {
         <div class="relleno">
             <div class="buscador">
                 <input type="text" class="buscar-proovedor" placeholder="Buscar...">
-                <i class='bx bx-search'></i>
+                <i class='bx bx-search lupa2'></i>
             </div>
-            <p class="normal"><i class='bx bx-chevron-right'></i>Lista de proovedores</p>
                 ${proovedores.map(proovedor => `
                 <div class="registro-item" data-id="${proovedor.id}">
                     <div class="header">
@@ -68,6 +67,10 @@ export async function mostrarProovedores() {
                     </div>
                 </div>
             `).join('')}
+            <p class="no-encontrado" style="text-align: center; font-size: 15px; color: #777; width:100%; padding:15px; display:none">
+                <i class='bx bx-box' style="font-size: 2rem; display: block; margin-bottom: 8px;"></i>
+                ¡Ups! No encontramos proovedores que coincidan con tu búsqueda.
+            </p>
         </div>
         <div class="anuncio-botones">
             <button class="btn-crear-proovedor btn orange"> <i class='bx bx-plus'></i> Crear nuevo proovedor</button>
@@ -82,7 +85,7 @@ function eventosProovedores() {
     const botonesEditar = document.querySelectorAll('.btn-editar-proovedor');
     const botonesInfo = document.querySelectorAll('.btn-info-proovedor');
     const inputBusqueda = document.querySelector('.buscar-proovedor');
-    const iconoBusqueda = document.querySelector('.buscador i');
+    const iconoBusqueda = document.querySelector('.buscador .lupa2');
     const btnNuevoCliente = document.querySelector('.btn-crear-proovedor');
 
     btnNuevoCliente.addEventListener('click', crearCliente);
@@ -132,35 +135,54 @@ function eventosProovedores() {
 
     inputBusqueda.addEventListener('input', (e) => {
         const busqueda = normalizarTexto(e.target.value);
-        iconoBusqueda.className = busqueda ? 'bx bx-x' : 'bx bx-search-alt-2';
-
-        const filas = document.querySelectorAll('.registro-item'); // Cambiado de '.fila' a '.registro-item'
-        filas.forEach(fila => {
-            const proovedor = proovedores.find(c => c.id === fila.dataset.id);
-            const textoNombre = normalizarTexto(proovedor.nombre);
-            const textoTelefono = normalizarTexto(proovedor.telefono);
-            const textoDireccion = normalizarTexto(proovedor.direccion);
-            const textoZona = normalizarTexto(proovedor.zona);
-
-            if (!busqueda ||
-                textoNombre.includes(busqueda) ||
-                textoTelefono.includes(busqueda) ||
-                textoDireccion.includes(busqueda) ||
-                textoZona.includes(busqueda)) {
-                fila.style.display = '';
-            } else {
-                fila.style.display = 'none';
-            }
-        });
+        iconoBusqueda.className = busqueda ? 'bx bx-x lupa2' : 'bx bx-search-alt-2 lupa2';
+        aplicarFiltros();
     });
+    function aplicarFiltros() {
+        const busqueda = normalizarTexto(inputBusqueda.value);
+        const items = document.querySelectorAll('.registro-item');
+        const mensajeNoEncontrado = document.querySelector('.no-encontrado');
 
+        // Animación de ocultar todos
+        items.forEach(item => {
+            item.style.opacity = '0';
+            item.style.transform = 'translateY(-20px)';
+            item.style.transition = 'all 0.3s ease';
+        });
+
+        setTimeout(() => {
+            let hayResultados = false;
+
+            items.forEach(item => {
+                const proovedor = proovedores.find(c => c.id === item.dataset.id);
+                const coincide = proovedor && (
+                    normalizarTexto(proovedor.nombre).includes(busqueda) ||
+                    normalizarTexto(proovedor.telefono).includes(busqueda) ||
+                    normalizarTexto(proovedor.direccion).includes(busqueda) ||
+                    normalizarTexto(proovedor.zona).includes(busqueda)
+                );
+
+                item.style.display = coincide ? 'flex' : 'none';
+                if (coincide) hayResultados = true;
+            });
+
+            // Animación escalonada para los resultados
+            document.querySelectorAll('.registro-item[style*="display: flex"]').forEach((item, index) => {
+                setTimeout(() => {
+                    item.style.opacity = '1';
+                    item.style.transform = 'translateY(0)';
+                }, index * 50);
+            });
+
+            // Control del mensaje "no encontrado"
+            mensajeNoEncontrado.style.display = hayResultados ? 'none' : 'block';
+        }, 300);
+    }
     iconoBusqueda.addEventListener('click', () => {
         if (inputBusqueda.value) {
             inputBusqueda.value = '';
-            iconoBusqueda.className = 'bx bx-search-alt-2';
-            document.querySelectorAll('.fila').forEach(fila => {
-                fila.style.display = '';
-            });
+            iconoBusqueda.className = 'bx bx-search-alt-2 lupa2';
+            aplicarFiltros();
         }
     });
 

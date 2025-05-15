@@ -181,6 +181,14 @@ function obtenerOpcionesMenu() {
                 detalle: 'Gestiona tus proovedores (agregar, editar, eliminar).',
                 onclick: 'onclick="mostrarProovedores(); ocultarAnuncioSecond()"'
             },
+            {
+                clase: 'opcion-btn',
+                vista: 'almacen-view',
+                icono: 'fa-clipboard-list',
+                texto: 'Conteo',
+                detalle: 'Haz tu conteo fisico del almacen (imprime y archiva).',
+                onclick: 'onclick="mostrarConteo(); ocultarAnuncioSecond()"'
+            },
         ],
         'Administración': [
             {
