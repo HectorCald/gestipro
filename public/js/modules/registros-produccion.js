@@ -126,20 +126,13 @@ function eventosMisRegistros() {
                     if (selectedDates.length === 2) {
                         aplicarFiltros();
                         botonCalendario.classList.add('con-fecha');
-                    } else if (selectedDates.length === 0) {
-                        // Show all records when dates are cleared
-                        document.querySelectorAll('.registro-item').forEach(registro => {
-                            registro.style.display = '';
-                        });
+                    } else if (selectedDates.length <= 1) {
                         botonCalendario.classList.remove('con-fecha');
                     }
                 },
                 onClose: function (selectedDates) {
-                    if (selectedDates.length === 1) {
-                        // Show all records when calendar is closed without dates
-                        document.querySelectorAll('.registro-item').forEach(registro => {
-                            registro.style.display = '';
-                        });
+                    if (selectedDates.length <= 1) {
+                        aplicarFiltros();
                         botonCalendario.classList.remove('con-fecha');
                     }
                 }
@@ -172,85 +165,86 @@ function eventosMisRegistros() {
         });
     });
     function aplicarFiltros() {
-    const filtroTipo = filtroNombreActual;
-    const fechasSeleccionadas = filtroFechaInstance?.selectedDates || [];
-    const busqueda = normalizarTexto(inputBusqueda.value);
-    const items = document.querySelectorAll('.registro-item');
-    const mensajeNoEncontrado = document.querySelector('.no-encontrado');
+        const filtroTipo = filtroNombreActual;
+        const fechasSeleccionadas = filtroFechaInstance?.selectedDates || [];
+        const busqueda = normalizarTexto(inputBusqueda.value);
+        const items = document.querySelectorAll('.registro-item');
+        const mensajeNoEncontrado = document.querySelector('.no-encontrado');
 
-    // Primero, filtrar todos los registros
-    const registrosFiltrados = Array.from(items).map(registro => {
-        const registroData = registrosProduccion.find(r => r.id === registro.dataset.id);
-        if (!registroData) return { elemento: registro, mostrar: false };
+        // Primero, filtrar todos los registros
+        const registrosFiltrados = Array.from(items).map(registro => {
+            const registroData = registrosProduccion.find(r => r.id === registro.dataset.id);
+            if (!registroData) return { elemento: registro, mostrar: false };
 
-        let mostrar = true;
+            let mostrar = true;
 
-        // Aplicar todos los filtros
-        if (filtroTipo !== 'todos') {
-            if (filtroTipo === 'observado') {
-                mostrar = registroData.observaciones && registroData.observaciones !== 'Sin observaciones';
-            } else {
-                const estadoRegistro = registroData.fecha_verificacion ? 'verificado' : 'pendiente';
-                mostrar = (filtroTipo === estadoRegistro);
+            // Aplicar todos los filtros
+            if (filtroTipo !== 'todos') {
+                if (filtroTipo === 'observado') {
+                    mostrar = registroData.observaciones && registroData.observaciones !== 'Sin observaciones';
+                } else {
+                    const estadoRegistro = registroData.fecha_verificacion ? 'verificado' : 'pendiente';
+                    mostrar = (filtroTipo === estadoRegistro);
+                }
             }
-        }
 
-        if (mostrar && fechasSeleccionadas.length === 2) {
-            const [dia, mes, anio] = registroData.fecha.split('/');
-            const fechaRegistro = new Date(anio, mes - 1, dia);
-            const fechaInicio = fechasSeleccionadas[0];
-            const fechaFin = fechasSeleccionadas[1];
-            mostrar = fechaRegistro >= fechaInicio && fechaRegistro <= fechaFin;
-        }
+            if (mostrar && fechasSeleccionadas.length === 2) {
+                const [dia, mes, anio] = registroData.fecha.split('/');
+                const fechaRegistro = new Date(anio, mes - 1, dia);
+                const fechaInicio = fechasSeleccionadas[0];
+                const fechaFin = fechasSeleccionadas[1];
+                mostrar = fechaRegistro >= fechaInicio && fechaRegistro <= fechaFin;
+            }
 
-        if (mostrar && busqueda) {
-            const textoRegistro = [
-                registroData.id,
-                registroData.producto,
-                registroData.gramos?.toString(),
-                registroData.lote?.toString(),
-                registroData.fecha
-            ].filter(Boolean).join(' ').toLowerCase();
-            mostrar = normalizarTexto(textoRegistro).includes(busqueda);
-        }
 
-        return { elemento: registro, mostrar };
-    });
+            if (mostrar && busqueda) {
+                const textoRegistro = [
+                    registroData.id,
+                    registroData.producto,
+                    registroData.gramos?.toString(),
+                    registroData.lote?.toString(),
+                    registroData.fecha
+                ].filter(Boolean).join(' ').toLowerCase();
+                mostrar = normalizarTexto(textoRegistro).includes(busqueda);
+            }
 
-    const registrosVisibles = registrosFiltrados.filter(r => r.mostrar).length;
+            return { elemento: registro, mostrar };
+        });
 
-    // Ocultar todos con una transición suave
-    items.forEach(registro => {
-        registro.style.opacity = '0';
-        registro.style.transform = 'translateY(-20px)';
-    });
+        const registrosVisibles = registrosFiltrados.filter(r => r.mostrar).length;
 
-    // Esperar a que termine la animación de ocultamiento
-    setTimeout(() => {
+        // Ocultar todos con una transición suave
         items.forEach(registro => {
-            registro.style.display = 'none';
+            registro.style.opacity = '0';
+            registro.style.transform = 'translateY(-20px)';
         });
 
-        // Mostrar los filtrados con animación escalonada
-        registrosFiltrados.forEach(({ elemento, mostrar }, index) => {
-            if (mostrar) {
-                elemento.style.display = 'flex';
-                elemento.style.opacity = '0';
-                elemento.style.transform = 'translateY(20px)';
-                
-                setTimeout(() => {
-                    elemento.style.opacity = '1';
-                    elemento.style.transform = 'translateY(0)';
-                }, 20); // Efecto cascada suave
+        // Esperar a que termine la animación de ocultamiento
+        setTimeout(() => {
+            items.forEach(registro => {
+                registro.style.display = 'none';
+            });
+
+            // Mostrar los filtrados con animación escalonada
+            registrosFiltrados.forEach(({ elemento, mostrar }, index) => {
+                if (mostrar) {
+                    elemento.style.display = 'flex';
+                    elemento.style.opacity = '0';
+                    elemento.style.transform = 'translateY(20px)';
+
+                    setTimeout(() => {
+                        elemento.style.opacity = '1';
+                        elemento.style.transform = 'translateY(0)';
+                    }, 20); // Efecto cascada suave
+                }
+            });
+
+            // Actualizar mensaje de no encontrado
+            if (mensajeNoEncontrado) {
+                mensajeNoEncontrado.style.display = registrosVisibles === 0 ? 'block' : 'none';
             }
-        });
-
-        // Actualizar mensaje de no encontrado
-        if (mensajeNoEncontrado) {
-            mensajeNoEncontrado.style.display = registrosVisibles === 0 ? 'block' : 'none';
-        }
-    }, 200);
-}
+        }, 200);
+    }
 
 
 

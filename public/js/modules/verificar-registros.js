@@ -314,20 +314,13 @@ function eventosVerificacion() {
                     if (selectedDates.length === 2) {
                         aplicarFiltros();
                         botonCalendario.classList.add('con-fecha');
-                    } else if (selectedDates.length === 0) {
-                        // Show all records when dates are cleared
-                        document.querySelectorAll('.registro-item').forEach(registro => {
-                            registro.style.display = '';
-                        });
+                    } else if (selectedDates.length <= 1) {
                         botonCalendario.classList.remove('con-fecha');
                     }
                 },
                 onClose: function (selectedDates) {
-                    if (selectedDates.length === 1) {
-                        // Show all records when calendar is closed without dates
-                        document.querySelectorAll('.registro-item').forEach(registro => {
-                            registro.style.display = '';
-                        });
+                    if (selectedDates.length <= 1) {
+                        aplicarFiltros();
                         botonCalendario.classList.remove('con-fecha');
                     }
                 }
@@ -356,8 +349,6 @@ function eventosVerificacion() {
             behavior: 'smooth'
         });
     }
-
-
 
 
     function verificar(event) {
