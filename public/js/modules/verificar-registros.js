@@ -131,80 +131,92 @@ function eventosVerificacion() {
         const busqueda = normalizarTexto(inputBusqueda.value);
         const items = document.querySelectorAll('.registro-item');
         const mensajeNoEncontrado = document.querySelector('.no-encontrado');
-        let registrosVisibles = 0;
 
-        // First hide all items with animation
-        items.forEach(registro => {
-            registro.classList.remove('show');
-            registro.classList.add('hide');
+        // Primero, filtrar todos los registros
+        const registrosFiltrados = Array.from(items).map(registro => {
+            const registroData = registrosProduccion.find(r => r.id === registro.dataset.id);
+            if (!registroData) return { elemento: registro, mostrar: false };
+
+            let mostrar = true;
+
+            // Lógica de filtrado existente
+            if (filtroEstadoActual && filtroEstadoActual !== 'Todos') {
+                if (filtroEstadoActual === 'Pendientes') {
+                    mostrar = !registroData.fecha_verificacion;
+                } else if (filtroEstadoActual === 'Verificados') {
+                    mostrar = !!registroData.fecha_verificacion;
+                } else if (filtroEstadoActual === 'Observados') {
+                    mostrar = registroData.observaciones && registroData.observaciones !== 'Sin observaciones';
+                }
+            }
+
+            if (mostrar && filtroNombreActual && filtroNombreActual !== 'Todos') {
+                mostrar = registroData.nombre === filtroNombreActual;
+            }
+
+            if (mostrar && fechasSeleccionadas.length === 2) {
+                const [dia, mes, anio] = registroData.fecha.split('/');
+                const fechaRegistro = new Date(anio, mes - 1, dia);
+                const fechaInicio = fechasSeleccionadas[0];
+                const fechaFin = fechasSeleccionadas[1];
+
+                fechaRegistro.setHours(0, 0, 0, 0);
+                fechaInicio.setHours(0, 0, 0, 0);
+                fechaFin.setHours(23, 59, 59, 999);
+
+                mostrar = fechaRegistro >= fechaInicio && fechaRegistro <= fechaFin;
+            }
+
+            if (mostrar && busqueda) {
+                const textoRegistro = [
+                    registroData.id,
+                    registroData.producto,
+                    registroData.gramos?.toString(),
+                    registroData.lote?.toString(),
+                    registroData.fecha,
+                    registroData.nombre,
+                    registroData.proceso
+                ].filter(Boolean).join(' ').toLowerCase();
+
+                mostrar = normalizarTexto(textoRegistro).includes(busqueda);
+            }
+
+            return { elemento: registro, mostrar };
         });
 
-        // Wait for hide animation
+        const registrosVisibles = registrosFiltrados.filter(r => r.mostrar).length;
+
+        // Animación de ocultamiento
+        items.forEach(registro => {
+            registro.style.opacity = '0';
+            registro.style.transform = 'translateY(-20px)';
+        });
+
+        // Esperar a que termine la animación de ocultamiento
         setTimeout(() => {
-            items.forEach((registro, index) => {
-                const registroData = registrosProduccion.find(r => r.id === registro.dataset.id);
-                if (!registroData) return;
+            items.forEach(registro => {
+                registro.style.display = 'none';
+            });
 
-                let mostrarRegistro = true;
+            // Mostrar los filtrados con animación escalonada
+            registrosFiltrados.forEach(({ elemento, mostrar }, index) => {
+                if (mostrar) {
+                    elemento.style.display = 'flex';
+                    elemento.style.opacity = '0';
+                    elemento.style.transform = 'translateY(20px)';
 
-                // Existing filter logic
-                if (filtroEstadoActual && filtroEstadoActual !== 'Todos') {
-                    if (filtroEstadoActual === 'Pendientes') {
-                        mostrarRegistro = !registroData.fecha_verificacion;
-                    } else if (filtroEstadoActual === 'Verificados') {
-                        mostrarRegistro = !!registroData.fecha_verificacion;
-                    } else if (filtroEstadoActual === 'Observados') {
-                        mostrarRegistro = registroData.observaciones && registroData.observaciones !== 'Sin observaciones';
-                    }
-                }
-
-                if (mostrarRegistro && filtroNombreActual && filtroNombreActual !== 'Todos') {
-                    mostrarRegistro = registroData.nombre === filtroNombreActual;
-                }
-
-                if (mostrarRegistro && fechasSeleccionadas.length === 2) {
-                    const [dia, mes, anio] = registroData.fecha.split('/');
-                    const fechaRegistro = new Date(anio, mes - 1, dia);
-                    const fechaInicio = fechasSeleccionadas[0];
-                    const fechaFin = fechasSeleccionadas[1];
-                    
-                    fechaRegistro.setHours(0, 0, 0, 0);
-                    fechaInicio.setHours(0, 0, 0, 0);
-                    fechaFin.setHours(23, 59, 59, 999);
-
-                    mostrarRegistro = fechaRegistro >= fechaInicio && fechaRegistro <= fechaFin;
-                }
-
-                if (mostrarRegistro && busqueda) {
-                    const textoRegistro = [
-                        registroData.id,
-                        registroData.producto,
-                        registroData.gramos?.toString(),
-                        registroData.lote?.toString(),
-                        registroData.fecha,
-                        registroData.nombre,
-                        registroData.proceso
-                    ].filter(Boolean).join(' ').toLowerCase();
-
-                    mostrarRegistro = normalizarTexto(textoRegistro).includes(busqueda);
-                }
-
-                if (mostrarRegistro) {
-                    registro.style.display = 'flex';
                     setTimeout(() => {
-                        registro.classList.remove('hide');
-                        registro.classList.add('show');
-                    }, index * 50); // Cascade effect
-                    registrosVisibles++;
-                } else {
-                    setTimeout(() => {
-                        registro.style.display = 'none';
-                    }, 300);
+                        elemento.style.opacity = '1';
+                        elemento.style.transform = 'translateY(0)';
+                    }, 20); // Efecto cascada suave
                 }
             });
 
-            mensajeNoEncontrado.style.display = registrosVisibles === 0 ? 'block' : 'none';
-        }, 200);
+            // Actualizar mensaje de no encontrado
+            if (mensajeNoEncontrado) {
+                mensajeNoEncontrado.style.display = registrosVisibles === 0 ? 'block' : 'none';
+            }
+        }, 100);
     }
 
 
