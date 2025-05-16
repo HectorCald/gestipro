@@ -137,28 +137,21 @@ function iniciarSesion() {
                 const data = await response.json();
 
                 if (data.success) {
-                    // Guardar sesión en localStorage
-                    const sessionData = {
-                        token: data.token,
-                        redirect: data.redirect,
-                        user: data.user
-                    };
-                    localStorage.setItem('damabrava_session', JSON.stringify(sessionData));
-                    
-                    // Si "recordar" está activo, guardar credenciales
-                    if (document.querySelector('.checkbox input').checked) {
-                        localStorage.setItem('damabrava_credentials', JSON.stringify({
+                    if (rememberMe) {
+                        localStorage.setItem('credentials', JSON.stringify({
                             email: cleanEmail,
                             password
                         }));
+                    } else {
+                        localStorage.removeItem('credentials');
                     }
-        
+
                     mostrarNotificacion({
                         message: '¡Inicio de sesión exitoso!',
                         type: 'success',
                         duration: 2000
                     });
-        
+
                     setTimeout(() => {
                         window.location.href = data.redirect;
                     }, 1000);
@@ -232,35 +225,6 @@ function inicializarApp() {
     iniciarSesion();
     configuracionesEntrada();
     crearNotificacion();
-}
-async function verificarSesionActiva() {
-    const sesion = localStorage.getItem('damabrava_session');
-    if (sesion) {
-        try {
-            mostrarCarga();
-            const sessionData = JSON.parse(sesion);
-            
-            const response = await fetch('/verificar-sesion', {
-                headers: {
-                    'Authorization': `Bearer ${sessionData.token}`
-                }
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                if (data.valid) {
-                    window.location.href = sessionData.redirect;
-                    return;
-                }
-            }
-            // Si la sesión no es válida, limpiar localStorage
-            localStorage.removeItem('damabrava_session');
-        } catch (error) {
-            console.error('Error al verificar sesión:', error);
-        } finally {
-            ocultarCarga();
-        }
-    }
 }
 
 /* ==================== FORMULARIO DE REGISTRO ==================== */
@@ -745,116 +709,7 @@ function crearFormularioInfo() {
 
 
 
-// Agregar después de las importaciones
-document.addEventListener('DOMContentLoaded', async () => {
-    try {
-        mostrarCarga();
-        const sessionData = localStorage.getItem('damabrava_session');
-        
-        if (sessionData) {
-            const { token } = JSON.parse(sessionData);
-            const response = await fetch('/verificar-sesion', {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
+document.addEventListener('DOMContentLoaded', () => {
 
-            if (response.ok) {
-                const data = await response.json();
-                if (data.valid) {
-                    window.location.href = data.redirect;
-                    return;
-                }
-            }
-            // Si la sesión no es válida, limpiar localStorage
-            localStorage.removeItem('damabrava_session');
-        }
-
-        // Cargar credenciales guardadas si existen
-        const savedCredentials = localStorage.getItem('damabrava_credentials');
-        if (savedCredentials) {
-            const { email, password } = JSON.parse(savedCredentials);
-            document.querySelector('.email').value = email;
-            document.querySelector('.password').value = password;
-            document.querySelector('.checkbox input').checked = true;
-            
-            // Actualizar los labels
-            document.querySelectorAll('.entrada .input input').forEach(input => {
-                if (input.value) {
-                    const label = input.previousElementSibling;
-                    label.style.transform = 'translateY(-100%) scale(0.85)';
-                    label.style.color = 'var(--cuarto-color)';
-                    label.style.fontWeight = '600';
-                }
-            });
-        }
-    } catch (error) {
-        console.error('Error en auto-login:', error);
-    } finally {
-        ocultarCarga();
-        inicializarApp();
-    }
+    inicializarApp();
 });
-
-// Modificar la función de inicio de sesión existente
-async function iniciarSesion(e) {
-    e.preventDefault();
-    mostrarCarga();
-    
-    try {
-        const email = document.querySelector('.email').value.trim();
-        const password = document.querySelector('.password').value;
-        const rememberMe = document.querySelector('.checkbox input').checked;
-
-        const response = await fetch('/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ email, password })
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-            // Guardar sesión
-            localStorage.setItem('damabrava_session', JSON.stringify({
-                token: data.token,
-                redirect: data.redirect,
-                user: data.user
-            }));
-
-            // Guardar credenciales si "recordar" está activo
-            if (rememberMe) {
-                localStorage.setItem('damabrava_credentials', JSON.stringify({
-                    email,
-                    password
-                }));
-            } else {
-                localStorage.removeItem('damabrava_credentials');
-            }
-
-            mostrarNotificacion({
-                message: '¡Bienvenido!',
-                type: 'success'
-            });
-
-            setTimeout(() => {
-                window.location.href = data.redirect;
-            }, 1000);
-        } else {
-            mostrarNotificacion({
-                message: data.error,
-                type: 'error'
-            });
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        mostrarNotificacion({
-            message: 'Error en el servidor',
-            type: 'error'
-        });
-    } finally {
-        ocultarCarga();
-    }
-}
