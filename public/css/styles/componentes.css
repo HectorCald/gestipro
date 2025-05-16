@@ -1010,7 +1010,7 @@
         input {
             width: 70px;
             height: 30px;
-            border: 1px solid var(--oct-color);
+            border: 1px solid var(--fondo2);
             outline: none;
             background: none;
             font-size: var(--text-subtitulo);
