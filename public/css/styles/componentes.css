@@ -1008,14 +1008,14 @@
         }
 
         input {
-            width: 70px;
-            height: 30px;
+            max-width: 50px;
+            height: 25px;
             border: 1px solid var(--fondo2);
             outline: none;
             background: none;
-            font-size: var(--text-subtitulo);
+            font-size: var(--text-detalle);
             color: var(--text);
-            padding: 10px;
+            padding: 2px;
             border-radius: 10px;
             background-color: var(--fondo2);
             transition: all 0.5s ease;
