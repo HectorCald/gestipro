@@ -291,6 +291,7 @@ function evetosFormularioProduccion() {
             const data = await response.json();
 
             if (data.success) {
+                await obtenerMisRegistros();
                 ocultarAnuncio();
                 mostrarNotificacion({
                     message: 'Producción registrada correctamente',

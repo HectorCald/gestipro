@@ -159,7 +159,7 @@ export async function mostrarSalidas() {
         <div class="relleno almacen-general">
             <div class="buscador">
                 <input type="text" class="buscar-producto" placeholder="Buscar...">
-                <i class='bx bx-search'></i>
+                <i class='bx bx-search lupa2'></i>
             </div>
             <div class="filtros-opciones etiquetas-filter">
                 <button class="btn-filtro activado">Todos</button>

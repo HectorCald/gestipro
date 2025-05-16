@@ -1,12 +1,140 @@
-let usuarioInfo = {
-    nombre: '',
-    apellido: '',
-    email: '',
-    foto: '',
-    rol: '',
-    estado: '',
-    plugins: ''
-};
+let usuarioInfo = recuperarUsuarioLocal();
+let registrosProduccion = [];
+
+async function obtenerRegistrosProduccion() {
+    try {
+        const response = await fetch('/obtener-registros-produccion');
+        const data = await response.json();
+
+        if (data.success) {
+            registrosProduccion = data.registros
+                .sort((a, b) => {
+                    const idA = parseInt(a.id.split('-')[1]);
+                    const idB = parseInt(b.id.split('-')[1]);
+                    return idB - idA;
+                });
+            
+            // Guardar en localStorage
+            localStorage.setItem('damabrava_registros_produccion', JSON.stringify(registrosProduccion));
+            return true;
+        } else {
+            // Intentar recuperar del localStorage si falla el servidor
+            const registrosGuardados = localStorage.getItem('damabrava_registros_produccion');
+            if (registrosGuardados) {
+                registrosProduccion = JSON.parse(registrosGuardados);
+                return true;
+            }
+            
+            mostrarNotificacion({
+                message: 'Error al obtener registros de producción',
+                type: 'error',
+                duration: 3500
+            });
+            return false;
+        }
+    } catch (error) {
+        console.error('Error al obtener registros:', error);
+        const registrosGuardados = localStorage.getItem('damabrava_registros_produccion');
+        if (registrosGuardados) {
+            registrosProduccion = JSON.parse(registrosGuardados);
+            return true;
+        }
+        mostrarNotificacion({
+            message: 'Error al obtener registros de producción',
+            type: 'error',
+            duration: 3500
+        });
+        return false;
+    }
+}
+export function recuperarRegistrosProduccionLocal() {
+    const registrosGuardados = localStorage.getItem('damabrava_registros_produccion');
+    if (registrosGuardados) {
+        return JSON.parse(registrosGuardados);
+    }
+    return [];
+}
+function limpiarRegistrosProduccionLocal() {
+    localStorage.removeItem('damabrava_registros_produccion');
+    registrosProduccion = [];
+}
+
+
+
+async function obtenerMisRegistros() {
+    // Verificar si el usuario tiene el rol correcto
+    if (usuarioInfo.rol !== 'Producción') {
+        console.log('No autorizado para obtener registros de producción personal');
+        return false;
+    }
+
+    try {
+        mostrarCarga();
+        const response = await fetch('/obtener-registros-produccion');
+        const data = await response.json();
+
+        if (data.success) {
+            // Filtrar registros por el email del usuario actual y ordenar
+            const misRegistros = data.registros
+                .filter(registro => registro.user === usuarioInfo.email)
+                .sort((a, b) => {
+                    const idA = parseInt(a.id.split('-')[1]);
+                    const idB = parseInt(b.id.split('-')[1]);
+                    return idB - idA;
+                });
+            
+            // Guardar en localStorage
+            localStorage.setItem('damabrava_mis_registros', JSON.stringify(misRegistros));
+            registrosProduccion = misRegistros;
+            return true;
+        } else {
+            // Intentar recuperar del localStorage si falla el servidor
+            const registrosGuardados = localStorage.getItem('damabrava_mis_registros');
+            if (registrosGuardados) {
+                registrosProduccion = JSON.parse(registrosGuardados);
+                return true;
+            }
+            
+            mostrarNotificacion({
+                message: 'Error al obtener registros de producción',
+                type: 'error',
+                duration: 3500
+            });
+            return false;
+        }
+    } catch (error) {
+        console.error('Error al obtener registros:', error);
+        // Intentar recuperar del localStorage en caso de error
+        const registrosGuardados = localStorage.getItem('damabrava_mis_registros');
+        if (registrosGuardados) {
+            registrosProduccion = JSON.parse(registrosGuardados);
+            return true;
+        }
+        mostrarNotificacion({
+            message: 'Error al obtener registros de producción',
+            type: 'error',
+            duration: 3500
+        });
+        return false;
+    } finally {
+        ocultarCarga();
+    }
+}
+export function recuperarMisRegistrosLocal() {
+    const registrosGuardados = localStorage.getItem('damabrava_mis_registros');
+    if (registrosGuardados) {
+        return JSON.parse(registrosGuardados);
+    }
+    return [];
+}
+export function limpiarMisRegistrosLocal() {
+    localStorage.removeItem('damabrava_mis_registros');
+    if (usuarioInfo.rol === 'Producción') {
+        registrosProduccion = [];
+    }
+}
+
+
 
 async function obtenerUsuario() {
     try {
@@ -92,6 +220,9 @@ export function limpiarUsuarioLocal() {
         plugins: ''
     };
 }
+
+
+
 
 
 function obtenerOpcionesMenu() {
@@ -229,13 +360,19 @@ function obtenerOpcionesMenu() {
     return atajosUsuario.slice(0, 5);
 }
 export async function crearNav() {
-    // Solo ejecutar si estamos en el dashboard
     if (window.location.pathname === '/dashboard') {
         const view = document.querySelector('.nav');
-        obtenerUsuario().then(() => mostrarNav(view));
+        await obtenerUsuario();
+        
+        if (usuarioInfo.rol === 'Almacen' || usuarioInfo.rol === 'Administración') {
+            await obtenerRegistrosProduccion();
+        } else if (usuarioInfo.rol === 'Producción') {
+            await obtenerMisRegistros();
+        }
+        
+        mostrarNav(view);
     }
 }
-
 
 function mostrarNav() {
     const view = document.querySelector('.nav');

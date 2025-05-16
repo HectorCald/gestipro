@@ -14,7 +14,7 @@ import { mostrarProovedores } from './modules/proovedores.js';
 import { mostrarHacerPedido } from './modules/hacer-pedido.js';
 import { mostrarAlmacenAcopio } from './modules/almacen-acopio.js';
 import { mostrarMovimientosAlmacen } from './modules/registros-almacen.js';
-import { mostrarMisRegistros } from './modules/registros-produccion.js';
+import { mostrarMisRegistros, obtenerMisRegistros } from './modules/registros-produccion.js';
 import { mostrarConteo } from './modules/conteo-almacen.js';
 
 
@@ -45,6 +45,7 @@ window.exportarArchivos = exportarArchivos
 window.mostrarFormularioProduccion = mostrarFormularioProduccion
 window.mostrarVerificacion = mostrarVerificacion
 window.mostrarMisRegistros = mostrarMisRegistros
+window.obtenerMisRegistros = obtenerMisRegistros
 
 
 window.mostrarAlmacenGeneral = mostrarAlmacenGeneral

@@ -1,4 +1,4 @@
-let registrosProduccion = [];
+let registrosProduccion = recuperarRegistrosProduccionLocal();
 let usuarioInfo = recuperarUsuarioLocal();
 function recuperarUsuarioLocal() {
     const usuarioGuardado = localStorage.getItem('damabrava_usuario');
@@ -7,6 +7,16 @@ function recuperarUsuarioLocal() {
     }
     return null;
 }
+function recuperarRegistrosProduccionLocal() {
+    const registrosGuardados = localStorage.getItem('damabrava_registros_produccion');
+    if (registrosGuardados) {
+        return JSON.parse(registrosGuardados);
+    }
+    return [];
+}
+
+
+
 async function obtenerRegistrosProduccion() {
     try {
         mostrarCarga();
@@ -14,16 +24,24 @@ async function obtenerRegistrosProduccion() {
         const data = await response.json();
 
         if (data.success) {
-            // Filtrar registros por el email del usuario actual y ordenar de más reciente a más antiguo
             registrosProduccion = data.registros
                 .sort((a, b) => {
                     const idA = parseInt(a.id.split('-')[1]);
                     const idB = parseInt(b.id.split('-')[1]);
-                    return idB - idA; // Orden descendente por número de ID
+                    return idB - idA;
                 });
+            
+            // Guardar en localStorage
+            localStorage.setItem('damabrava_registros_produccion', JSON.stringify(registrosProduccion));
             return true;
-
         } else {
+            // Intentar recuperar del localStorage si falla el servidor
+            const registrosGuardados = localStorage.getItem('damabrava_registros_produccion');
+            if (registrosGuardados) {
+                registrosProduccion = JSON.parse(registrosGuardados);
+                return true;
+            }
+            
             mostrarNotificacion({
                 message: 'Error al obtener registros de producción',
                 type: 'error',
@@ -33,22 +51,24 @@ async function obtenerRegistrosProduccion() {
         }
     } catch (error) {
         console.error('Error al obtener registros:', error);
+        const registrosGuardados = localStorage.getItem('damabrava_registros_produccion');
+        if (registrosGuardados) {
+            registrosProduccion = JSON.parse(registrosGuardados);
+            return true;
+        }
         mostrarNotificacion({
             message: 'Error al obtener registros de producción',
             type: 'error',
             duration: 3500
         });
         return false;
-    }
-    finally {
+    } finally {
         ocultarCarga();
     }
 }
 
 
 export async function mostrarVerificacion() {
-    await obtenerRegistrosProduccion();
-
     const contenido = document.querySelector('.anuncio .contenido');
     const nombresUnicos = [...new Set(registrosProduccion.map(registro => registro.nombre))];
     const registrationHTML = `
