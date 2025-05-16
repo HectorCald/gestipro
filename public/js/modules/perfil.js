@@ -457,8 +457,3 @@ function verificarTemaInicial() {
     setTheme(savedTheme || 'system');
 }
 
-verificarTemaInicial();
-
-document.addEventListener('DOMContentLoaded', () => {
-    verificarTemaInicial();
-});

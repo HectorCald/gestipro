@@ -76,6 +76,7 @@ async function obtenerMovimientosAlmacen() {
     }
 }
 function obtenerFunciones() {
+
     const atajosPorRol = {
         'Producción': [
             {
@@ -196,6 +197,12 @@ function obtenerFunciones() {
 
 
 export function crearHome() {
+
+    const usuario = recuperarUsuarioLocal();
+    if (!usuario) {
+        setTimeout(() => window.location.reload(), 1000);
+        return;
+    }
     const view = document.querySelector('.home-view');
     view.style.opacity = '0';  // Start with opacity 0
 

@@ -63,7 +63,7 @@ window.mostrarAlmacenAcopio = mostrarAlmacenAcopio
 
 document.addEventListener('DOMContentLoaded', async () => {
     flotante();
-    await crearNav();
+    crearNav();
     crearHome();
     crearPerfil();
     crearNotificaciones();
