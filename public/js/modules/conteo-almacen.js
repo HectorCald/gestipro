@@ -649,9 +649,9 @@ function eventosConteo() {
                             <div class="campo-vertical">
                                 <span><strong><i class='bx bx-package'></i> Producto:</strong> ${producto}</span>
                                 <div style="display: flex; justify-content: space-between; margin-top: 5px; gap:5px">
-                                    <span><strong><i class='bx bx-box'></i> Sistema:</strong> ${sistema[index]}</span>
-                                    <span><strong><i class='bx bx-calculator'></i> Físico:</strong> ${fisico[index]}</span>
-                                    <span style="color: ${colorDiferencia}"><strong><i class='bx bx-transfer'></i> Diferencia:</strong> ${diferencia > 0 ? '+' : ''}${diferencia}</span>
+                                    <span><strong><i class='bx bx-box'></i> Sistema: ${sistema[index]}</strong></span>
+                                    <span><strong><i class='bx bx-calculator'></i> Físico:  ${fisico[index]}</strong></span>
+                                    <span style="color: ${colorDiferencia}"><strong><i class='bx bx-transfer'></i> Diferencia: ${diferencia > 0 ? '+' : ''}${diferencia}</strong></span>
                                 </div>
                             </div>
                             `;
