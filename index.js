@@ -137,11 +137,11 @@ app.post('/login', async (req, res) => {
                             { expiresIn: '744h' }
                         );
 
-                        res.cookie('token', token, { 
-                            httpOnly: true,
-                            secure: process.env.NODE_ENV === 'production',
-                            sameSite: 'strict'
-                        });
+                            res.cookie('token', token, { 
+                                httpOnly: true,
+                                secure: process.env.NODE_ENV === 'production',
+                                maxAge: 24 * 60 * 60 * 1000 // 1 día en milisegundos
+                            });
 
                         // Determine dashboard URL based on spreadsheet ID
                         const dashboardUrl = spreadsheetId === process.env.SPREADSHEET_ID_1 ? '/dashboard' : '/dashboard_otro';

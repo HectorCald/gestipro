@@ -1,5 +1,5 @@
 import { crearNotificacion, mostrarNotificacion, mostrarAnuncio, ocultarAnuncio, mostrarCarga, ocultarCarga, configuracionesEntrada, mostrarAnuncioSecond, ocultarAnuncioSecond, registrarHistorial, exportarArchivos} from './modules/componentes.js'
-import { crearNav, recuperarUsuarioLocal} from './modules/nav.js'
+import { crearNav} from './modules/nav.js'
 import { crearHome, mostrarHome } from './modules/home.js';
 import { crearPerfil } from './modules/perfil.js';
 import { crearNotificaciones }from './modules/notificaciones.js'
@@ -16,10 +16,6 @@ import { mostrarAlmacenAcopio } from './modules/almacen-acopio.js';
 import { mostrarMovimientosAlmacen } from './modules/registros-almacen.js';
 import { mostrarMisRegistros} from './modules/registros-produccion.js';
 import { mostrarConteo } from './modules/conteo-almacen.js';
-
-
-window.recuperarUsuarioLocal = recuperarUsuarioLocal
-
 
 window.crearHome = crearHome
 window.mostrarHome = mostrarHome
@@ -63,8 +59,7 @@ window.mostrarAlmacenAcopio = mostrarAlmacenAcopio
 
 document.addEventListener('DOMContentLoaded', async () => {
     flotante();
-    crearNav();
-    crearHome();
+    await crearNav();
     crearPerfil();
     crearNotificaciones();
 });

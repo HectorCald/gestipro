@@ -233,10 +233,12 @@ export async function crearNav() {
         const view = document.querySelector('.nav');
         obtenerUsuario().then(() => mostrarNav(view));
     }
+    crearHome();
 }
 
 
-function mostrarNav() {
+async function mostrarNav() {
+    
     const view = document.querySelector('.nav');
     const nav = `
             <div class="nav-container">
