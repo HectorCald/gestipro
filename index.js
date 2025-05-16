@@ -70,8 +70,20 @@ function requireAuth(req, res, next) {
     }
 }
 /* ==================== RUTAS DE VISTAS ==================== */
-app.get('/', (req, res) => {
-    res.render('login')
+
+app.get('/', async (req, res) => {
+    const token = req.cookies.token || req.headers.authorization?.split(' ')[1];
+    
+    if (token) {
+        try {
+            const decoded = jwt.verify(token, JWT_SECRET);
+            const dashboardUrl = decoded.spreadsheetId === process.env.SPREADSHEET_ID_1 ? '/dashboard' : '/dashboard_otro';
+            return res.redirect(dashboardUrl);
+        } catch (error) {
+            res.clearCookie('token');
+        }
+    }
+    res.render('login');
 });
 app.get('/dashboard', requireAuth, (req, res) => {
     res.render('dashboard')
@@ -134,6 +146,7 @@ app.post('/login', async (req, res) => {
                         return res.json({ 
                             success: true, 
                             redirect: dashboardUrl,
+                            token: token, // Agregamos el token en la respuesta
                             user: {
                                 nombre: usuario[1],
                                 email: usuario[5]
@@ -258,6 +271,44 @@ app.post('/cerrar-sesion', (req, res) => {
     res.clearCookie('token');
     res.json({ mensaje: 'Sesión cerrada correctamente' });
 });
+app.get('/verificar-sesion', async (req, res) => {
+    const token = req.headers.authorization?.split(' ')[1];
+    
+    if (!token) {
+        return res.status(401).json({ valid: false });
+    }
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        
+        // Verificar si el usuario sigue existiendo y activo
+        const sheets = google.sheets({ version: 'v4', auth });
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId: decoded.spreadsheetId,
+            range: 'Usuarios!A2:F'
+        });
+
+        const rows = response.data.values || [];
+        const usuario = rows.find(row => row[5] === decoded.email);
+
+        if (usuario && usuario[3] === 'Activo') {
+            return res.json({ 
+                valid: true,
+                user: {
+                    nombre: usuario[1],
+                    email: usuario[5]
+                }
+            });
+        }
+
+        res.json({ valid: false });
+    } catch (error) {
+        console.error('Error al verificar sesión:', error);
+        res.status(401).json({ valid: false });
+    }
+});
+
+
 
 /* ==================== RUTAS DE HISTORIAL ==================== */
 app.post('/registrar-historial', requireAuth, async (req, res) => {

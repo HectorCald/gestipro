@@ -1,6 +1,13 @@
-let usuarioInfo = recuperarUsuarioLocal();
-let productosGlobal = [];
-let registrosProduccion = [];
+let usuarioInfo = {
+    nombre: '',
+    apellido: '',
+    email: '',
+    foto: '',
+    rol: '',
+    estado: '',
+    plugins: ''
+};
+
 
 async function obtenerUsuario() {
     try {
@@ -67,110 +74,6 @@ async function obtenerUsuario() {
         ocultarCarga();
     }
 }
-async function obtenerProductos() {
-    try {
-        const response = await fetch('/obtener-productos');
-        const data = await response.json();
-
-        if (data.success) {
-            productosGlobal = data.productos;
-            // Guardar en localStorage
-            localStorage.setItem('damabrava_productos', JSON.stringify(productosGlobal));
-            return true;
-        } else {
-            // Intentar recuperar del localStorage si falla el servidor
-            const productosGuardados = localStorage.getItem('damabrava_productos');
-            if (productosGuardados) {
-                productosGlobal = JSON.parse(productosGuardados);
-                return true;
-            }
-            
-            mostrarNotificacion({
-                message: 'Error al obtener productos',
-                type: 'error',
-                duration: 3500
-            });
-            return false;
-        }
-    } catch (error) {
-        console.error('Error al obtener productos:', error);
-        // Intentar recuperar del localStorage en caso de error
-        const productosGuardados = localStorage.getItem('damabrava_productos');
-        if (productosGuardados) {
-            productosGlobal = JSON.parse(productosGuardados);
-            return true;
-        }
-        mostrarNotificacion({
-            message: 'Error al obtener productos',
-            type: 'error',
-            duration: 3500
-        });
-        return false;
-    }
-}
-export async function obtenerMisRegistros() {
-    // Verificar si el usuario tiene el rol correcto
-    if (usuarioInfo.rol !== 'Producción') {
-        console.log('No autorizado para obtener registros de producción personal');
-        return false;
-    }
-
-    try {
-        mostrarCarga();
-        const response = await fetch('/obtener-registros-produccion');
-        const data = await response.json();
-
-        if (data.success) {
-            // Filtrar registros por el email del usuario actual y ordenar
-            const misRegistros = data.registros
-                .filter(registro => registro.user === usuarioInfo.email)
-                .sort((a, b) => {
-                    const idA = parseInt(a.id.split('-')[1]);
-                    const idB = parseInt(b.id.split('-')[1]);
-                    return idB - idA;
-                });
-            
-            // Guardar en localStorage
-            localStorage.setItem('damabrava_mis_registros', JSON.stringify(misRegistros));
-            registrosProduccion = misRegistros;
-            return true;
-        } else {
-            // Intentar recuperar del localStorage si falla el servidor
-            const registrosGuardados = localStorage.getItem('damabrava_mis_registros');
-            if (registrosGuardados) {
-                registrosProduccion = JSON.parse(registrosGuardados);
-                return true;
-            }
-            
-            mostrarNotificacion({
-                message: 'Error al obtener registros de producción',
-                type: 'error',
-                duration: 3500
-            });
-            return false;
-        }
-    } catch (error) {
-        console.error('Error al obtener registros:', error);
-        // Intentar recuperar del localStorage en caso de error
-        const registrosGuardados = localStorage.getItem('damabrava_mis_registros');
-        if (registrosGuardados) {
-            registrosProduccion = JSON.parse(registrosGuardados);
-            return true;
-        }
-        mostrarNotificacion({
-            message: 'Error al obtener registros de producción',
-            type: 'error',
-            duration: 3500
-        });
-        return false;
-    } finally {
-        ocultarCarga();
-    }
-}
-
-
-
-
 export function recuperarUsuarioLocal() {
     const usuarioGuardado = localStorage.getItem('damabrava_usuario');
     if (usuarioGuardado) {
@@ -178,7 +81,7 @@ export function recuperarUsuarioLocal() {
     }
     return null;
 }
-function limpiarUsuarioLocal() {
+export function limpiarUsuarioLocal() {
     localStorage.removeItem('damabrava_usuario');
     usuarioInfo = {
         nombre: '',
@@ -190,7 +93,6 @@ function limpiarUsuarioLocal() {
         plugins: ''
     };
 }
-
 
 
 function obtenerOpcionesMenu() {
@@ -328,19 +230,13 @@ function obtenerOpcionesMenu() {
     return atajosUsuario.slice(0, 5);
 }
 export async function crearNav() {
+    // Solo ejecutar si estamos en el dashboard
     if (window.location.pathname === '/dashboard') {
         const view = document.querySelector('.nav');
-        await obtenerUsuario();
-        
-        if (usuarioInfo.rol === 'Almacen' || usuarioInfo.rol === 'Administración') {
-            await obtenerRegistrosProduccion();
-        } else if (usuarioInfo.rol === 'Producción') {
-            await obtenerMisRegistros();
-            await obtenerProductos()
-        }
-        mostrarNav(view);
+        obtenerUsuario().then(() => mostrarNav(view));
     }
 }
+
 
 function mostrarNav() {
     const view = document.querySelector('.nav');

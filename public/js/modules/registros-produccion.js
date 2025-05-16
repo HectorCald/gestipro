@@ -1,13 +1,7 @@
-let registrosProduccion = recuperarMisRegistrosLocal();
+let registrosProduccion = [];
 let usuarioInfo = recuperarUsuarioLocal();
 
-export function recuperarMisRegistrosLocal() {
-    const registrosGuardados = localStorage.getItem('damabrava_mis_registros');
-    if (registrosGuardados) {
-        return JSON.parse(registrosGuardados);
-    }
-    return [];
-}
+
 function recuperarUsuarioLocal() {
     const usuarioGuardado = localStorage.getItem('damabrava_usuario');
     if (usuarioGuardado) {
@@ -15,48 +9,24 @@ function recuperarUsuarioLocal() {
     }
     return null;
 }
-function limpiarMisRegistrosLocal() {
-    localStorage.removeItem('damabrava_mis_registros');
-    if (usuarioInfo.rol === 'Producción') {
-        registrosProduccion = [];
-    }
-}
-
-
-export async function obtenerMisRegistros() {
-    // Verificar si el usuario tiene el rol correcto
-    if (usuarioInfo.rol !== 'Producción') {
-        console.log('No autorizado para obtener registros de producción personal');
-        return false;
-    }
-
+async function obtenerMisRegistros() {
     try {
         mostrarCarga();
         const response = await fetch('/obtener-registros-produccion');
         const data = await response.json();
 
         if (data.success) {
-            // Filtrar registros por el email del usuario actual y ordenar
-            const misRegistros = data.registros
+            // Filtrar registros por el email del usuario actual y ordenar de más reciente a más antiguo
+            registrosProduccion = data.registros
                 .filter(registro => registro.user === usuarioInfo.email)
                 .sort((a, b) => {
                     const idA = parseInt(a.id.split('-')[1]);
                     const idB = parseInt(b.id.split('-')[1]);
-                    return idB - idA;
+                    return idB - idA; // Orden descendente por número de ID
                 });
-            
-            // Guardar en localStorage
-            localStorage.setItem('damabrava_mis_registros', JSON.stringify(misRegistros));
-            registrosProduccion = misRegistros;
             return true;
+
         } else {
-            // Intentar recuperar del localStorage si falla el servidor
-            const registrosGuardados = localStorage.getItem('damabrava_mis_registros');
-            if (registrosGuardados) {
-                registrosProduccion = JSON.parse(registrosGuardados);
-                return true;
-            }
-            
             mostrarNotificacion({
                 message: 'Error al obtener registros de producción',
                 type: 'error',
@@ -66,12 +36,6 @@ export async function obtenerMisRegistros() {
         }
     } catch (error) {
         console.error('Error al obtener registros:', error);
-        // Intentar recuperar del localStorage en caso de error
-        const registrosGuardados = localStorage.getItem('damabrava_mis_registros');
-        if (registrosGuardados) {
-            registrosProduccion = JSON.parse(registrosGuardados);
-            return true;
-        }
         mostrarNotificacion({
             message: 'Error al obtener registros de producción',
             type: 'error',
@@ -85,6 +49,8 @@ export async function obtenerMisRegistros() {
 
 
 export async function mostrarMisRegistros() {
+    await obtenerMisRegistros();
+
     const contenido = document.querySelector('.anuncio .contenido');
     const registrationHTML = `
         <div class="encabezado">
