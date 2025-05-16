@@ -707,17 +707,7 @@ function crearFormularioInfo() {
     mostrarAnuncio();
 }
 
-function setTheme(theme) {
-    const root = document.documentElement;
-    localStorage.setItem('theme', theme);
 
-    if (theme === 'system') {
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        root.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
-    } else {
-        root.setAttribute('data-theme', theme);
-    }
-}
 function verificarTemaInicial() {
     const savedTheme = localStorage.getItem('theme');
     if (!savedTheme) {
@@ -725,7 +715,7 @@ function verificarTemaInicial() {
     }
     setTheme(savedTheme || 'system');
 }
-document.addEventListener('DOMContentLoaded', async() => {
-    await verificarTemaInicial();
+document.addEventListener('DOMContentLoaded', () => {
+    verificarTemaInicial();
     inicializarApp();
 });
