@@ -17,21 +17,6 @@ window.ocultarCarga = ocultarCarga
 /* ==================== FUNCION DE LOS LABELS ==================== */
 function configuracionesEntrada() {
     const inputs = document.querySelectorAll('.entrada .input input');
-    const loginButton = document.getElementById('loginButton');
-
-    // Auto-login con credenciales guardadas
-    const savedCredentials = JSON.parse(localStorage.getItem('credentials'));
-    if (savedCredentials) {
-        document.querySelector('.email').value = savedCredentials.email;
-        document.querySelector('.password').value = savedCredentials.password;
-
-        // Intentar auto-login después de 500ms (tiempo para cargar la página)
-        setTimeout(() => {
-            if (savedCredentials.email && savedCredentials.password && loginButton) {
-                loginButton.click();
-            }
-        }, 500);
-    }
 
     // Limpiar input de email
     const clearInputButton = document.querySelector('.clear-input');
@@ -76,6 +61,12 @@ function configuracionesEntrada() {
             }
         });
     });
+
+    const savedCredentials = JSON.parse(localStorage.getItem('credentials'));
+    if (savedCredentials) {
+        document.querySelector('.email').value = savedCredentials.email;
+        document.querySelector('.password').value = savedCredentials.password;
+    }
 
     inputs.forEach(input => {
         const label = input.previousElementSibling;
@@ -734,7 +725,7 @@ function verificarTemaInicial() {
     }
     setTheme(savedTheme || 'system');
 }
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', async() => {
     await verificarTemaInicial();
     inicializarApp();
 });

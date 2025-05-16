@@ -75,16 +75,19 @@ app.get('/', (req, res) => {
     
     if (token) {
         try {
-            jwt.verify(token, JWT_SECRET);
-            return res.redirect('/dashboard');
+            const decoded = jwt.verify(token, JWT_SECRET);
+            // Determine dashboard URL based on spreadsheet ID from token
+            const dashboardUrl = decoded.spreadsheetId === process.env.SPREADSHEET_ID_1 
+                ? '/dashboard' 
+                : '/dashboard_otro';
+            return res.redirect(dashboardUrl);
         } catch (error) {
             // Token inválido, continuar al login
         }
     }
     
-    // Verificar credenciales en localStorage sería del lado del cliente
     res.render('login');
-});
+}); 
 app.get('/dashboard', requireAuth, (req, res) => {
     res.render('dashboard')
 });
@@ -131,7 +134,7 @@ app.post('/login', async (req, res) => {
                                 spreadsheetId
                             },
                             JWT_SECRET,
-                            { expiresIn: '24h' }
+                            { expiresIn: '120h' }
                         );
 
                         res.cookie('token', token, { 
