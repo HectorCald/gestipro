@@ -102,7 +102,6 @@ async function obtenerAlmacenGeneral() {
 }
 
 
-
 export async function mostrarConteo() {
     await obtenerAlmacenGeneral();
 
@@ -117,7 +116,7 @@ export async function mostrarConteo() {
         <div class="relleno almacen-general">
             <div class="buscador">
                 <input type="text" class="buscar-producto" placeholder="Buscar...">
-                <i class='bx bx-search'></i>
+                <i class='bx bx-search lupa2'></i>
             </div>
             <div class="filtros-opciones etiquetas-filter">
                 <button class="btn-filtro activado">Todos</button>
@@ -179,7 +178,7 @@ function eventosConteo() {
     const botonesCantidad = document.querySelectorAll('.filtros-opciones.cantidad-filter .btn-filtro');
 
     const inputBusqueda = document.querySelector('.buscar-producto');
-    const iconoBusqueda = document.querySelector('.almacen-general .buscador i');
+    const iconoBusqueda = document.querySelector('.almacen-general .buscador .lupa2');
 
     const vistaPrevia = document.getElementById('vista-previa');
     const registrosConteo = document.getElementById('registros-conteo');
