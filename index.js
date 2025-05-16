@@ -71,7 +71,19 @@ function requireAuth(req, res, next) {
 }
 /* ==================== RUTAS DE VISTAS ==================== */
 app.get('/', (req, res) => {
-    res.render('login')
+    const token = req.cookies.token;
+    
+    if (token) {
+        try {
+            jwt.verify(token, JWT_SECRET);
+            return res.redirect('/dashboard');
+        } catch (error) {
+            // Token inválido, continuar al login
+        }
+    }
+    
+    // Verificar credenciales en localStorage sería del lado del cliente
+    res.render('login');
 });
 app.get('/dashboard', requireAuth, (req, res) => {
     res.render('dashboard')
