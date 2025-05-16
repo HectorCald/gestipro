@@ -409,7 +409,9 @@
 }
 
 @media screen and (min-width: 768px) {
-    .anuncio, .anuncio-second {
+
+    .anuncio,
+    .anuncio-second {
         background-color: rgba(0, 0, 0, 0.352);
 
         .contenido {
@@ -1103,7 +1105,7 @@
 .relleno .filtros-opciones {
     display: flex;
     width: 100%;
-    min-height: 45px;
+    min-height:45px;
     gap: 5px;
     overflow-x: auto;
     overflow-y: hidden;
@@ -1150,6 +1152,19 @@
         color: var(--text);
         transition: all 0.5s ease;
     }
+}
+
+@media screen and (min-width: 768px) {
+    .relleno .filtros-opciones {
+        display: flex;
+        width: 100%;
+        min-height: 55px;
+        gap: 5px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding-bottom: 10px;
+    }
+
 }
 
 .buscador {
