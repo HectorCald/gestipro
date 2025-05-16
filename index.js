@@ -14,7 +14,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const app = express();
 const port = process.env.PORT || 3000;
-const JWT_SECRET = 'una_clave_secreta_muy_larga_y_segura_2024';
+const JWT_SECRET = 'secret-totalprod-hcco';
 
 /* ==================== CONFIGURACIÓN DE GOOGLE SHEETS ==================== */
 const auth = new google.auth.GoogleAuth({
