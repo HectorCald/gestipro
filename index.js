@@ -73,16 +73,17 @@ function requireAuth(req, res, next) {
 app.get('/', (req, res) => {
     const token = req.cookies.token;
     
+    
     if (token) {
         try {
-            const decoded = jwt.verify(token, JWT_SECRET);
-            // Determine dashboard URL based on spreadsheet ID from token
-            const dashboardUrl = decoded.spreadsheetId === process.env.SPREADSHEET_ID_1 
-                ? '/dashboard' 
-                : '/dashboard_otro';
-            return res.redirect(dashboardUrl);
+            // Verificar el token
+            jwt.verify(token, JWT_SECRET);
+
+            // Si el token es válido, redirigir a dashboard_db
+            return res.redirect('/dashboard');
         } catch (error) {
-            // Token inválido, continuar al login
+            // Si el token no es válido, limpiar la cookie y mostrar login
+            res.clearCookie('token');
         }
     }
     
