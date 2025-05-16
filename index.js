@@ -59,7 +59,7 @@ app.set('views', join(__dirname, 'views'));
 function requireAuth(req, res, next) {
     const token = req.cookies.token || req.headers.authorization?.split(' ')[1];
     if (!token) {
-        return res.status(401).json({ error: 'No autorizado' });
+        return res.redirect('/');
     }
     try {
         const decoded = jwt.verify(token, JWT_SECRET);

@@ -17,8 +17,11 @@ import { mostrarMovimientosAlmacen } from './modules/registros-almacen.js';
 import { mostrarMisRegistros} from './modules/registros-produccion.js';
 import { mostrarConteo } from './modules/conteo-almacen.js';
 
+
 window.crearHome = crearHome
 window.mostrarHome = mostrarHome
+
+window.crearNav = crearNav
 
 
 window.crearNotificacion = crearNotificacion
@@ -59,7 +62,7 @@ window.mostrarAlmacenAcopio = mostrarAlmacenAcopio
 
 document.addEventListener('DOMContentLoaded', async () => {
     flotante();
-    await crearNav();
+    await crearHome();
     crearPerfil();
     crearNotificaciones();
 });

@@ -1,4 +1,76 @@
-let usuarioInfo = recuperarUsuarioLocal();
+let usuarioInfo = {
+    nombre: '',
+    apellido: '',
+    email: '',
+    foto: '',
+    rol: '',
+    estado: '',
+    plugins: ''
+};
+
+async function obtenerUsuario() {
+    try {
+        mostrarCarga();
+        // Primero intentamos obtener del servidor
+        const response = await fetch('/obtener-usuario-actual');
+        const data = await response.json();
+        
+        if (data.success) {
+            const nombreCompleto = data.usuario.nombre.split(' ');
+            usuarioInfo = {
+                nombre: nombreCompleto[0] || '',
+                apellido: nombreCompleto[1] || '',
+                email: data.usuario.email,
+                rol: data.usuario.rol,
+                estado: data.usuario.estado,
+                plugins: data.usuario.plugins
+            };
+
+            // Procesar la foto
+            if (!data.usuario.foto || data.usuario.foto === './icons/icon.png') {
+                usuarioInfo.foto = './icons/icon.png';
+            } else if (data.usuario.foto.startsWith('data:image')) {
+                usuarioInfo.foto = data.usuario.foto;
+            } else {
+                try {
+                    const imgResponse = await fetch(data.usuario.foto);
+                    if (!imgResponse.ok) throw new Error('Error al cargar la imagen');
+                    const blob = await imgResponse.blob();
+                    usuarioInfo.foto = URL.createObjectURL(blob);
+                } catch (error) {
+                    console.error('Error al cargar imagen:', error);
+                    usuarioInfo.foto = './icons/icon.png';
+                }
+            }
+
+            // Guardar en localStorage después de obtener del servidor
+            localStorage.setItem('damabrava_usuario', JSON.stringify(usuarioInfo));
+            return true;
+        } else {
+            // Si falla el servidor, intentar recuperar del localStorage
+            const usuarioGuardado = localStorage.getItem('damabrava_usuario');
+            if (usuarioGuardado) {
+                usuarioInfo = JSON.parse(usuarioGuardado);
+                return true;
+            }
+            
+            mostrarNotificacion({
+                message: 'Error al obtener datos del usuario',
+                type: 'error',
+                duration: 3500
+            });
+            return false;
+        }
+    } catch (error) {
+        console.error('Error al obtener datos del usuario:', error);
+        mostrarNotificacion({
+            message: 'Error al obtener datos del usuario',
+            type: 'error',
+            duration: 3500
+        });
+        return false;
+    }
+}
 let registrosProduccion = [];
 let registrosMovimientos = [];
 
@@ -75,8 +147,8 @@ async function obtenerMovimientosAlmacen() {
         return false;
     }
 }
-function obtenerFunciones() {
 
+function obtenerFunciones() {
     const atajosPorRol = {
         'Producción': [
             {
@@ -196,12 +268,13 @@ function obtenerFunciones() {
 }
 
 
-export function crearHome() {
+export async function crearHome() {
 
     const view = document.querySelector('.home-view');
     view.style.opacity = '0';  // Start with opacity 0
 
-
+    await obtenerUsuario();
+    crearNav(usuarioInfo.rol);
     const promesas = [
         usuarioInfo.rol === 'Producción' ? obtenerMisRegistros() : null,
         usuarioInfo.rol === 'Almacen' ? obtenerMovimientosAlmacen() : null
@@ -313,6 +386,7 @@ export function mostrarHome(view) {
     } else if (usuarioInfo.rol === 'Almacen') {
         crearGraficoAlmacen();
     }
+    ocultarCarga();
 }
 function crearGraficoVelas() {
     if (!registrosProduccion || registrosProduccion.length === 0) {
@@ -492,6 +566,7 @@ function crearGraficoVelas() {
     }
 }
 function crearGraficoAlmacen() {
+   
     if (!registrosMovimientos || registrosMovimientos.length === 0) {
         console.warn('No hay registros de movimientos para mostrar en el gráfico');
         return;
