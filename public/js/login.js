@@ -726,7 +726,7 @@ function setTheme(theme) {
         root.setAttribute('data-theme', theme);
     }
 }
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     await verificarTemaInicial();
     inicializarApp();
 });
