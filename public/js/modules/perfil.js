@@ -13,7 +13,7 @@ async function obtenerUsuario() {
         // Primero intentamos obtener del servidor
         const response = await fetch('/obtener-usuario-actual');
         const data = await response.json();
-
+        
         if (data.success) {
             const nombreCompleto = data.usuario.nombre.split(' ');
             usuarioInfo = {
@@ -52,7 +52,7 @@ async function obtenerUsuario() {
                 usuarioInfo = JSON.parse(usuarioGuardado);
                 return true;
             }
-
+            
             mostrarNotificacion({
                 message: 'Error al obtener datos del usuario',
                 type: 'error',
@@ -117,9 +117,6 @@ function mostrarPerfil(view) {
             mostrarCarga();
             const response = await fetch('/cerrar-sesion', { method: 'POST' });
             if (response.ok) {
-                // Nuevas líneas añadidas
-                localStorage.removeItem('credentials');
-                localStorage.removeItem('damabrava_usuario');
                 window.location.href = '/';
             }
         } catch (error) {
@@ -131,8 +128,6 @@ function mostrarPerfil(view) {
             });
         }
     });
-
-
 }
 
 
