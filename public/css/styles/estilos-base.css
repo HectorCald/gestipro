@@ -59,6 +59,31 @@ body {
     --text-4xl: 26px;
     --text-5xl: 28px;
 }
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--fondo4);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--cero-color);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--cero-color);
+}
+
+/* For Firefox */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--cero-color) var(--fondo4);
+}
+
 
 [data-theme="dark"] {
     --text: #ffffff;

@@ -5,6 +5,7 @@
     position: fixed;
     top: 0;
     background-color: var(--sep-color);
+    
 
     .menu{
         width: 50px;
@@ -65,4 +66,10 @@
         margin: 0;
         line-height: 1;
     }
+}
+@media screen and (min-width: 768px) {
+    .nav-container {
+        max-width: 450px;
+    }
+
 }

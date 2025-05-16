@@ -636,6 +636,7 @@ function eventosConteo() {
                         <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
                     </div>
                     <div class="relleno">
+                    <p class="normal" style="margin-top: 15px;"><i class='bx bx-chevron-right'></i>Información basica/p>
                         <div class="campo-vertical">
                             <span><strong><i class='bx bx-hash'></i> ID:</strong> ${registro.id}</span>
                             <span><strong><i class='bx bx-label'></i> Nombre:</strong> ${registro.nombre || 'Sin nombre'}</span>
@@ -680,13 +681,14 @@ function eventosConteo() {
                     <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
                 </div>
                 <div class="relleno">
-                    <p class="normal"><i class='bx bx-info-circle'></i> Detalles del conteo a eliminar</p>
+                    <p class="normal"><i class='bx bx-chevron-right'></i>Información del conteo a eliminar</p>
                     <div class="campo-vertical">
                         <span><strong><i class='bx bx-hash'></i> ID:</strong> ${registro.id}</span>
                         <span><strong><i class='bx bx-label'></i> Nombre:</strong> ${registro.nombre || 'Sin nombre'}</span>
                         <span><strong><i class='bx bx-calendar'></i> Fecha:</strong> ${registro.fecha}</span>
                         <span><strong><i class='bx bx-comment-detail'></i> Observaciones:</strong> ${registro.observaciones || 'Sin observaciones'}</span>
                     </div>
+                    <p class="normal"><i class='bx bx-chevron-right'></i>Ingresa el motivo de la eliminación</p>
                     <div class="entrada">
                         <i class='bx bx-message-square-detail'></i>
                         <div class="input">
@@ -765,6 +767,7 @@ function eventosConteo() {
                     <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
                 </div>
                 <div class="relleno">
+                    <p class="normal"><i class='bx bx-chevron-right'></i>Información basica</p>
                     <div class="campo-vertical">
                         <span><strong><i class='bx bx-hash'></i> ID:</strong> ${registro.id}</span>
                         <span><strong><i class='bx bx-calendar'></i> Fecha:</strong> ${registro.fecha}</span>
@@ -783,6 +786,7 @@ function eventosConteo() {
                             <input class="observaciones" type="text" value="${registro.observaciones || ''}" required>
                         </div>
                     </div>
+                    <p class="normal"><i class='bx bx-chevron-right'></i>Igresa el motivo de la edición</p>
                     <div class="entrada">
                         <i class='bx bx-message-square-detail'></i>
                         <div class="input">
