@@ -82,11 +82,11 @@ app.get('/', (req, res) => {
                 : '/dashboard_otro';
             return res.redirect(dashboardUrl);
         } catch (error) {
-            // Token inválido, continuar al login
+            res.render('login');
         }
     }
     
-    res.render('login');
+    
 }); 
 app.get('/dashboard', requireAuth, (req, res) => {
     res.render('dashboard')
