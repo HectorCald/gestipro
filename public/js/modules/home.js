@@ -1,7 +1,6 @@
 let usuarioInfo = recuperarUsuarioLocal();
 let registrosProduccion = [];
 let registrosMovimientos = [];
-let registrosFiltrados = [];
 
 
 export function recuperarUsuarioLocal() {
@@ -76,7 +75,6 @@ async function obtenerMovimientosAlmacen() {
         return false;
     }
 }
-
 function obtenerFunciones() {
     const atajosPorRol = {
         'Producción': [
@@ -315,10 +313,6 @@ export function mostrarHome(view) {
     }
 }
 function crearGraficoVelas() {
-    console.log('Iniciando creación de gráfico de velas...');
-
-    // Verificar si hay registros de producción
-    console.log('Registros de producción:', registrosProduccion);
     if (!registrosProduccion || registrosProduccion.length === 0) {
         console.warn('No hay registros de producción para mostrar en el gráfico');
         return;
@@ -330,7 +324,6 @@ function crearGraficoVelas() {
         fecha.setDate(fecha.getDate() - i);
         return fecha.toLocaleDateString('es-ES'); // Formato DD/MM/YYYY
     }).reverse();
-    console.log('Últimos 7 días:', ultimos7Dias);
 
     // Contar registros por día
     const datosPorDia = ultimos7Dias.map(fecha => {
@@ -341,10 +334,9 @@ function crearGraficoVelas() {
             }
             return registro.fecha === fecha;
         });
-        console.log(`Registros para ${fecha}:`, registrosDia.length);
+      
         return registrosDia.length;
     });
-    console.log('Datos por día:', datosPorDia);
 
     // Determinar colores según comparación con día anterior
     const colores = datosPorDia.map((cantidad, index) => {
@@ -493,17 +485,11 @@ function crearGraficoVelas() {
         canvas.style.background = estilos.colorFondo;
         canvas.style.borderRadius = '12px';
         canvas.style.boxShadow = '0 2px 10px rgba(0,0,0,0.05)';
-
-        console.log('Gráfico creado con estilo moderno');
     } catch (error) {
         console.error('Error al crear el gráfico:', error);
     }
 }
 function crearGraficoAlmacen() {
-    console.log('Iniciando creación de gráfico de almacén...');
-
-    // Verificar si hay registros de movimientos
-    console.log('Registros de movimientos:', registrosMovimientos);
     if (!registrosMovimientos || registrosMovimientos.length === 0) {
         console.warn('No hay registros de movimientos para mostrar en el gráfico');
         return;
@@ -662,7 +648,6 @@ function crearGraficoAlmacen() {
         canvas.style.borderRadius = '12px';
         canvas.style.boxShadow = '0 2px 10px rgba(0,0,0,0.05)';
 
-        console.log('Gráfico de almacén creado con éxito');
     } catch (error) {
         console.error('Error al crear el gráfico de almacén:', error);
     }

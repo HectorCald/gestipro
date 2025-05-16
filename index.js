@@ -132,14 +132,13 @@ app.post('/login', async (req, res) => {
                         const dashboardUrl = spreadsheetId === process.env.SPREADSHEET_ID_1 ? '/dashboard' : '/dashboard_otro';
                         
                         return res.json({ 
-                    success: true, 
-                    redirect: dashboardUrl,
-                    token: token, // Agregamos el token en la respuesta
-                    user: {
-                        nombre: usuario[1],
-                        email: usuario[5]
-                    }
-                });
+                            success: true, 
+                            redirect: dashboardUrl,
+                            user: {
+                                nombre: usuario[1],
+                                email: usuario[5]
+                            }
+                        });
                     } else {
                         return res.json({ 
                             success: false,
@@ -259,7 +258,6 @@ app.post('/cerrar-sesion', (req, res) => {
     res.clearCookie('token');
     res.json({ mensaje: 'Sesión cerrada correctamente' });
 });
-
 
 /* ==================== RUTAS DE HISTORIAL ==================== */
 app.post('/registrar-historial', requireAuth, async (req, res) => {

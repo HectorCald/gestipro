@@ -8,11 +8,9 @@ let usuarioInfo = {
     plugins: ''
 };
 
-
 async function obtenerUsuario() {
     try {
         mostrarCarga();
-        // Primero intentamos obtener del servidor
         const response = await fetch('/obtener-usuario-actual');
         const data = await response.json();
         
