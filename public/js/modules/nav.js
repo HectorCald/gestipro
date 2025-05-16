@@ -126,7 +126,7 @@ function obtenerOpcionesMenu() {
     };
 
     // Collect all shortcuts for user's roles
-    const rol = usuarioInfo.rol;
+    const rol = usuarioInfo;
     let atajosUsuario = [];
 
     const atajosRol = atajosPorRol[rol];
