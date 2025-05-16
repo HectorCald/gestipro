@@ -1,7 +1,6 @@
-// Agregar al inicio del archivo junto a las otras variables globales
 let productos = [];
 let etiquetas = [];
-let registrosConteos = []; // Nueva variable global
+let registrosConteos = [];
 
 
 async function obtenerRegistrosConteo() {
@@ -140,6 +139,7 @@ export async function mostrarConteo() {
                         <div class="info-header">
                             <span class="id">${producto.id}
                                 <div class="precio-cantidad">
+                                    <span class="valor stock" style="display:none">${producto.stock} Und.</span>
                                     <input type="number" class="stock-fisico" value="${producto.stock}" min="0">
                                 </div>
                             </span>
