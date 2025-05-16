@@ -727,6 +727,6 @@ function setTheme(theme) {
     }
 }
 document.addEventListener('DOMContentLoaded', () => {
-    verificarTemaInicial();
+    await verificarTemaInicial();
     inicializarApp();
 });
