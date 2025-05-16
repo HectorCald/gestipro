@@ -1,39 +1,6 @@
 let usuarioInfo = recuperarUsuarioLocal();
 let historialNotificaciones = [];
-async function obtenerHistorial() {
-    try {
-        const response = await fetch('/obtener-historial');
-        const data = await response.json();
 
-        if (data.success) {
-            historialNotificaciones = data.historial
-                .filter(notif => notif.destino === usuarioInfo.email)
-                .sort((a, b) => {
-                    const [diaA, mesA, anioA] = a.fecha.split('/');
-                    const [diaB, mesB, anioB] = b.fecha.split('/');
-                    const fechaA = new Date(anioA, mesA - 1, diaA);
-                    const fechaB = new Date(anioB, mesB - 1, diaB);
-                    return fechaB - fechaA;
-                });
-            return true;
-        } else {
-            mostrarNotificacion({
-                message: 'Error al obtener historial',
-                type: 'error',
-                duration: 3500
-            });
-            return false;
-        }
-    } catch (error) {
-        console.error('Error al obtener historial:', error);
-        mostrarNotificacion({
-            message: 'Error al obtener historial',
-            type: 'error',
-            duration: 3500
-        });
-        return false;
-    }
-}
 function recuperarUsuarioLocal() {
     const usuarioGuardado = localStorage.getItem('damabrava_usuario');
     if (usuarioGuardado) {
@@ -45,7 +12,7 @@ function recuperarUsuarioLocal() {
 
 export async function crearNotificaciones() {
     const view = document.querySelector('.notificacion-view');
-    await obtenerHistorial();
+
     mostrarNotificaciones(view);
 }
 function obtenerIcono(suceso) {

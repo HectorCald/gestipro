@@ -1,31 +1,17 @@
-let productosGlobal = [];
+let productosGlobal = recuperarProductosLocal();
 
-async function obtenerProductos() {
-    try {
-        const response = await fetch('/obtener-productos');
-        const data = await response.json();
-
-        if (data.success) {
-            productosGlobal = data.productos;
-            return true;
-        } else {
-            mostrarNotificacion({
-                message: 'Error al obtener productos',
-                type: 'error',
-                duration: 3500
-            });
-            return false;
-        }
-    } catch (error) {
-        console.error('Error al obtener productos:', error);
-        mostrarNotificacion({
-            message: 'Error al obtener productos',
-            type: 'error',
-            duration: 3500
-        });
-        return false;
+function recuperarProductosLocal() {
+    const productosGuardados = localStorage.getItem('damabrava_productos');
+    if (productosGuardados) {
+        return JSON.parse(productosGuardados);
     }
+    return [];
 }
+function limpiarProductosLocal() {
+    localStorage.removeItem('damabrava_productos');
+    productosGlobal = [];
+}
+
 
 
 export async function mostrarFormularioProduccion() {
@@ -111,7 +97,6 @@ export async function mostrarFormularioProduccion() {
 
     contenido.innerHTML = registrationHTML;
     mostrarAnuncio();
-    await obtenerProductos();
     evetosFormularioProduccion();
 }
 function evetosFormularioProduccion() {

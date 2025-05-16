@@ -1,4 +1,4 @@
-let registrosProduccion = recuperarMisRegistrosLocal(); ;
+let registrosProduccion = recuperarMisRegistrosLocal();
 let usuarioInfo = recuperarUsuarioLocal();
 
 export function recuperarMisRegistrosLocal() {
@@ -15,6 +15,14 @@ function recuperarUsuarioLocal() {
     }
     return null;
 }
+function limpiarMisRegistrosLocal() {
+    localStorage.removeItem('damabrava_mis_registros');
+    if (usuarioInfo.rol === 'Producción') {
+        registrosProduccion = [];
+    }
+}
+
+
 export async function obtenerMisRegistros() {
     // Verificar si el usuario tiene el rol correcto
     if (usuarioInfo.rol !== 'Producción') {

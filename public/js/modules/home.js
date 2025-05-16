@@ -1,70 +1,15 @@
-let usuarioInfo = {
-    nombre: '',
-    apellido: '',
-    email: '',
-    foto: '',
-    rol: '',
-    estado: '',
-    plugins: ''
-};
+let usuarioInfo = recuperarUsuarioLocal();
 let registrosProduccion = [];
 let registrosMovimientos = [];
 let registrosFiltrados = [];
 
-async function obtenerUsuario() {
-    try {
-        mostrarCarga();
-        const response = await fetch('/obtener-usuario-actual');
-        const data = await response.json();
 
-        if (data.success) {
-            const nombreCompleto = data.usuario.nombre.split(' ');
-            usuarioInfo = {
-                nombre: nombreCompleto[0] || '',
-                apellido: nombreCompleto[1] || '',
-                email: data.usuario.email,
-                rol: data.usuario.rol,
-                estado: data.usuario.estado,
-                plugins: data.usuario.plugins
-            };
-
-            // Procesar la foto
-            if (!data.usuario.foto || data.usuario.foto === './icons/icon.png') {
-                usuarioInfo.foto = './icons/icon.png';
-            } else if (data.usuario.foto.startsWith('data:image')) {
-                usuarioInfo.foto = data.usuario.foto;
-            } else {
-                try {
-                    const imgResponse = await fetch(data.usuario.foto);
-                    if (!imgResponse.ok) throw new Error('Error al cargar la imagen');
-                    const blob = await imgResponse.blob();
-                    usuarioInfo.foto = URL.createObjectURL(blob);
-                } catch (error) {
-                    console.error('Error loading image:', error);
-                    usuarioInfo.foto = './icons/icon.png';
-                }
-            }
-            return true;
-        } else {
-            mostrarNotificacion({
-                message: 'Error al obtener datos del usuario',
-                type: 'error',
-                duration: 3500
-            });
-            return false;
-        }
-    } catch (error) {
-        console.error('Error al obtener datos del usuario:', error);
-        mostrarNotificacion({
-            message: 'Error al obtener datos del usuario',
-            type: 'error',
-            duration: 3500
-        });
-        return false;
+export function recuperarUsuarioLocal() {
+    const usuarioGuardado = localStorage.getItem('damabrava_usuario');
+    if (usuarioGuardado) {
+        return JSON.parse(usuarioGuardado);
     }
-    finally {
-        ocultarCarga();
-    }
+    return null;
 }
 async function obtenerMisRegistros() {
     try {
@@ -251,27 +196,25 @@ function obtenerFunciones() {
     return atajosUsuario.slice(0, 3);
 }
 
+
 export function crearHome() {
     const view = document.querySelector('.home-view');
     view.style.opacity = '0';  // Start with opacity 0
 
-    // Primero obtenemos el usuario
-    obtenerUsuario().then(() => {
-        // Después, según el rol, obtenemos los registros correspondientes
-        const promesas = [
-            usuarioInfo.rol === 'Producción' ? obtenerMisRegistros() : null,
-            usuarioInfo.rol === 'Almacen' ? obtenerMovimientosAlmacen() : null
-        ].filter(Boolean); // Filtramos los null
 
-        Promise.all(promesas).then(() => {
-            mostrarHome(view);
-            requestAnimationFrame(() => {
-                view.style.opacity = '1';
-            });
+    const promesas = [
+        usuarioInfo.rol === 'Producción' ? obtenerMisRegistros() : null,
+        usuarioInfo.rol === 'Almacen' ? obtenerMovimientosAlmacen() : null
+    ].filter(Boolean); // Filtramos los null
+
+    Promise.all(promesas).then(() => {
+        mostrarHome(view);
+        requestAnimationFrame(() => {
+            view.style.opacity = '1';
         });
     });
-}
 
+}
 export function mostrarHome(view) {
     const funcionesUsuario = obtenerFunciones();
     const funcionesHTML = funcionesUsuario.map(funcion => `
@@ -371,10 +314,9 @@ export function mostrarHome(view) {
         crearGraficoAlmacen();
     }
 }
-
 function crearGraficoVelas() {
     console.log('Iniciando creación de gráfico de velas...');
-    
+
     // Verificar si hay registros de producción
     console.log('Registros de producción:', registrosProduccion);
     if (!registrosProduccion || registrosProduccion.length === 0) {
@@ -407,7 +349,7 @@ function crearGraficoVelas() {
     // Determinar colores según comparación con día anterior
     const colores = datosPorDia.map((cantidad, index) => {
         if (index === 0) return 'rgba(54, 162, 235, 0.5)'; // Azul para el primer día
-        
+
         const cantidadAyer = datosPorDia[index - 1];
         if (cantidad > cantidadAyer) {
             return 'rgba(40, 167, 69, 0.5)'; // Verde si hay más registros
@@ -426,7 +368,7 @@ function crearGraficoVelas() {
 
     try {
         const ctx = canvas.getContext('2d');
-        
+
         // Configuración de estilos modernos
         const estilos = {
             fuente: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
@@ -504,10 +446,10 @@ function crearGraficoVelas() {
                             weight: 'bold'
                         },
                         callbacks: {
-                            label: function(context) {
+                            label: function (context) {
                                 return `${context.raw} registros`;
                             },
-                            title: function(context) {
+                            title: function (context) {
                                 return `Día ${context[0].label}`;
                             }
                         }
@@ -546,12 +488,12 @@ function crearGraficoVelas() {
                 }
             }
         });
-        
+
         // Aplicar estilo al canvas
         canvas.style.background = estilos.colorFondo;
         canvas.style.borderRadius = '12px';
         canvas.style.boxShadow = '0 2px 10px rgba(0,0,0,0.05)';
-        
+
         console.log('Gráfico creado con estilo moderno');
     } catch (error) {
         console.error('Error al crear el gráfico:', error);
@@ -559,7 +501,7 @@ function crearGraficoVelas() {
 }
 function crearGraficoAlmacen() {
     console.log('Iniciando creación de gráfico de almacén...');
-    
+
     // Verificar si hay registros de movimientos
     console.log('Registros de movimientos:', registrosMovimientos);
     if (!registrosMovimientos || registrosMovimientos.length === 0) {
@@ -584,19 +526,19 @@ function crearGraficoAlmacen() {
             const registroFecha = registro.fecha_hora.split(',')[0].trim();
             return registroFecha === fecha;
         });
-        
+
         // Sumar los totales de todos los registros del día
         const totalDia = registrosDia.reduce((sum, registro) => {
             return sum + (parseFloat(registro.total) || 0);
         }, 0);
-        
+
         return totalDia;
     });
 
     // Determinar colores según comparación con día anterior
     const colores = datosPorDia.map((total, index) => {
         if (index === 0) return '#2196F3'; // Azul para el primer día
-        
+
         const totalAyer = datosPorDia[index - 1];
         if (total > totalAyer) {
             return '#4CAF50'; // Verde si hay más ingresos
@@ -669,10 +611,10 @@ function crearGraficoAlmacen() {
                             weight: 'bold'
                         },
                         callbacks: {
-                            label: function(context) {
+                            label: function (context) {
                                 return `Total: $${context.raw.toFixed(2)}`;
                             },
-                            title: function(context) {
+                            title: function (context) {
                                 return `Día ${context[0].label}`;
                             }
                         }
@@ -693,7 +635,7 @@ function crearGraficoAlmacen() {
                                 size: 12
                             },
                             padding: 8,
-                            callback: function(value) {
+                            callback: function (value) {
                                 return '$' + value.toFixed(2);
                             }
                         }
@@ -714,12 +656,12 @@ function crearGraficoAlmacen() {
                 }
             }
         });
-        
+
         // Aplicar estilo al canvas
         canvas.style.background = 'none';
         canvas.style.borderRadius = '12px';
         canvas.style.boxShadow = '0 2px 10px rgba(0,0,0,0.05)';
-        
+
         console.log('Gráfico de almacén creado con éxito');
     } catch (error) {
         console.error('Error al crear el gráfico de almacén:', error);

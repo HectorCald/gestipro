@@ -9,9 +9,11 @@ function recuperarUsuarioLocal() {
 }
 async function obtenerUsuario() {
     try {
+        mostrarCarga();
+        // Primero intentamos obtener del servidor
         const response = await fetch('/obtener-usuario-actual');
         const data = await response.json();
-
+        
         if (data.success) {
             const nombreCompleto = data.usuario.nombre.split(' ');
             usuarioInfo = {
@@ -35,12 +37,22 @@ async function obtenerUsuario() {
                     const blob = await imgResponse.blob();
                     usuarioInfo.foto = URL.createObjectURL(blob);
                 } catch (error) {
-                    console.error('Error loading image:', error);
+                    console.error('Error al cargar imagen:', error);
                     usuarioInfo.foto = './icons/icon.png';
                 }
             }
+
+            // Guardar en localStorage después de obtener del servidor
+            localStorage.setItem('damabrava_usuario', JSON.stringify(usuarioInfo));
             return true;
         } else {
+            // Si falla el servidor, intentar recuperar del localStorage
+            const usuarioGuardado = localStorage.getItem('damabrava_usuario');
+            if (usuarioGuardado) {
+                usuarioInfo = JSON.parse(usuarioGuardado);
+                return true;
+            }
+            
             mostrarNotificacion({
                 message: 'Error al obtener datos del usuario',
                 type: 'error',
@@ -56,6 +68,8 @@ async function obtenerUsuario() {
             duration: 3500
         });
         return false;
+    } finally {
+        ocultarCarga();
     }
 }
 
@@ -63,7 +77,6 @@ async function obtenerUsuario() {
 export async function crearPerfil() {
     await verificarTemaInicial();
     const view = document.querySelector('.perfil-view');
-    await obtenerUsuario();
     mostrarPerfil(view);
 }
 function mostrarPerfil(view) {
@@ -436,7 +449,6 @@ function setTheme(theme) {
         root.setAttribute('data-theme', theme);
     }
 }
-
 function verificarTemaInicial() {
     const savedTheme = localStorage.getItem('theme');
     if (!savedTheme) {

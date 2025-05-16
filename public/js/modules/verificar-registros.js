@@ -14,7 +14,10 @@ function recuperarRegistrosProduccionLocal() {
     }
     return [];
 }
-
+function limpiarRegistrosProduccionLocal() {
+    localStorage.removeItem('damabrava_registros_produccion');
+    registrosProduccion = [];
+}
 
 
 async function obtenerRegistrosProduccion() {

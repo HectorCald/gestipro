@@ -20,6 +20,7 @@ import { mostrarConteo } from './modules/conteo-almacen.js';
 
 window.recuperarUsuarioLocal = recuperarUsuarioLocal
 
+
 window.crearHome = crearHome
 window.mostrarHome = mostrarHome
 
@@ -64,7 +65,7 @@ window.mostrarAlmacenAcopio = mostrarAlmacenAcopio
 document.addEventListener('DOMContentLoaded', async () => {
     flotante();
     await crearNav();
-    await crearHome();
-    await crearPerfil();
-    await crearNotificaciones();
+    crearHome();
+    crearPerfil();
+    crearNotificaciones();
 });
