@@ -84,13 +84,17 @@ function eventosProovedores() {
     const botonesEliminar = document.querySelectorAll('.btn-eliminar-proovedor');
     const botonesEditar = document.querySelectorAll('.btn-editar-proovedor');
     const botonesInfo = document.querySelectorAll('.btn-info-proovedor');
+    const botonesHistorial = document.querySelectorAll('.btn-historial-proovedor');
+
     const inputBusqueda = document.querySelector('.buscar-proovedor');
     const iconoBusqueda = document.querySelector('.buscador .lupa2');
+
     const btnNuevoCliente = document.querySelector('.btn-crear-proovedor');
+    const items = document.querySelectorAll('.registro-item');
 
     btnNuevoCliente.addEventListener('click', crearCliente);
 
-    const items = document.querySelectorAll('.registro-item');
+    
 
     items.forEach(item => {
         const accionesDiv = item.querySelector('.registro-acciones');
@@ -111,21 +115,18 @@ function eventosProovedores() {
             });
         }
     });
-
     document.addEventListener('click', () => {
         document.querySelectorAll('.registro-item').forEach(item => {
             item.classList.remove('activo');
             item.querySelector('.registro-acciones')?.classList.remove('mostrar');
         });
     });
-
     document.querySelector('.contenido').addEventListener('click', () => {
         document.querySelectorAll('.registro-item').forEach(item => {
             item.classList.remove('activo');
             item.querySelector('.registro-acciones')?.classList.remove('mostrar');
         });
     });
-
     document.querySelector('.relleno').addEventListener('scroll', () => {
         document.querySelectorAll('.registro-item').forEach(item => {
             item.classList.remove('activo');
@@ -137,6 +138,13 @@ function eventosProovedores() {
         const busqueda = normalizarTexto(e.target.value);
         iconoBusqueda.className = busqueda ? 'bx bx-x lupa2' : 'bx bx-search-alt-2 lupa2';
         aplicarFiltros();
+    });
+    iconoBusqueda.addEventListener('click', () => {
+        if (inputBusqueda.value) {
+            inputBusqueda.value = '';
+            iconoBusqueda.className = 'bx bx-search-alt-2 lupa2';
+            aplicarFiltros();
+        }
     });
     function aplicarFiltros() {
         const busqueda = normalizarTexto(inputBusqueda.value);
@@ -178,14 +186,6 @@ function eventosProovedores() {
             mensajeNoEncontrado.style.display = hayResultados ? 'none' : 'block';
         }, 300);
     }
-    iconoBusqueda.addEventListener('click', () => {
-        if (inputBusqueda.value) {
-            inputBusqueda.value = '';
-            iconoBusqueda.className = 'bx bx-search-alt-2 lupa2';
-            aplicarFiltros();
-        }
-    });
-
     function normalizarTexto(texto) {
         return (texto || '').toString()
             .toLowerCase()
@@ -193,18 +193,21 @@ function eventosProovedores() {
             .replace(/[\u0300-\u036f]/g, '')
             .replace(/[-_\s]+/g, '');
     }
+    
 
     botonesInfo.forEach(btn => {
         btn.addEventListener('click', info);
     });
-
     botonesEliminar.forEach(btn => {
         btn.addEventListener('click', eliminar);
     });
-
     botonesEditar.forEach(btn => {
         btn.addEventListener('click', editar);
     });
+    botonesHistorial.forEach(btn => {
+        btn.addEventListener('click', verHistorial);
+    });
+
 
     async function info(event) {
         const proovedorId = event.currentTarget.dataset.id;
@@ -230,7 +233,6 @@ function eventosProovedores() {
         contenido.innerHTML = registrationHTML;
         mostrarAnuncioSecond();
     }
-
     async function eliminar(event) {
         const proovedorId = event.currentTarget.dataset.id;
         const proovedor = proovedores.find(p => p.id === proovedorId);
@@ -308,7 +310,6 @@ function eventosProovedores() {
             }
         });
     }
-
     async function editar(event) {
         const proovedorId = event.currentTarget.dataset.id;
         const proovedor = proovedores.find(p => p.id === proovedorId);
@@ -415,7 +416,6 @@ function eventosProovedores() {
             }
         });
     }
-
     async function crearCliente() {
         const contenido = document.querySelector('.anuncio-second .contenido');
         const registrationHTML = `
@@ -509,5 +509,10 @@ function eventosProovedores() {
                 ocultarCarga();
             }
         });
+    }
+    async function verHistorial() {
+        const proovedorId = event.currentTarget.dataset.id;
+        const proovedor = proovedores.find(p => p.id === proovedorId);
+        mostrarMovimientosAlmacen(proovedor.nombre);
     }
 }

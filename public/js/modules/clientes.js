@@ -84,8 +84,11 @@ function eventosClientes() {
     const botonesEliminar = document.querySelectorAll('.btn-eliminar-cliente');
     const botonesEditar = document.querySelectorAll('.btn-editar-cliente');
     const botonesInfo = document.querySelectorAll('.btn-info-cliente');
+    const botonesHistorial = document.querySelectorAll('.btn-historial-cliente');
+
     const inputBusqueda = document.querySelector('.buscar-cliente');
     const iconoBusqueda = document.querySelector('.buscador i');
+
     const btnNuevoCliente = document.querySelector('.btn-crear-cliente');
 
     btnNuevoCliente.addEventListener('click', crearCliente);
@@ -199,6 +202,9 @@ function eventosClientes() {
     });
     botonesEditar.forEach(btn => {
         btn.addEventListener('click', editar);
+    });
+    botonesHistorial.forEach(btn => {
+        btn.addEventListener('click', verHistorial);
     });
 
     
@@ -502,5 +508,10 @@ function eventosClientes() {
                 ocultarCarga();
             }
         });
+    }
+    async function verHistorial() {
+        const clienteId = event.currentTarget.dataset.id;
+        const cliente = clientes.find(c => c.id === clienteId);
+        mostrarMovimientosAlmacen(cliente.nombre);
     }
 }

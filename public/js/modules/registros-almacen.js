@@ -107,7 +107,7 @@ async function obtenerRegistrosAlmacen() {
 }
 
 
-export async function mostrarMovimientosAlmacen() {
+export async function mostrarMovimientosAlmacen(nombre = '') {
     await obtenerRegistrosAlmacen();
 
     const contenido = document.querySelector('.anuncio .contenido');
@@ -118,7 +118,7 @@ export async function mostrarMovimientosAlmacen() {
         </div>
         <div class="relleno">
             <div class="buscador">
-                <input type="text" class="buscar-registro-almacen" placeholder="Buscar...">
+                <input type="text" class="buscar-registro-almacen" value="${nombre}" placeholder="Buscar...">
                 <i class='bx bx-search lupa'></i>
                 <button class="btn-calendario"><i class='bx bx-calendar'></i></button>
             </div>
@@ -290,7 +290,8 @@ function eventosRegistrosAlmacen() {
 
             // Filtro de fechas
             if (mostrar && fechasSeleccionadas.length === 2) {
-                const [dia, mes, anio] = registroData.fecha_hora.split(' ')[0].split('/');
+                const [fechaPart] = registroData.fecha_hora.split(','); // Dividir por coma primero
+                const [dia, mes, anio] = fechaPart.trim().split('/'); // Quitar espacios y dividir
                 const fechaRegistro = new Date(anio, mes - 1, dia);
                 const fechaInicio = fechasSeleccionadas[0];
                 const fechaFin = fechasSeleccionadas[1];

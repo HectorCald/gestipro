@@ -8,7 +8,6 @@ import { google } from 'googleapis';
 import jwt from 'jsonwebtoken';
 import cookieParser from 'cookie-parser';
 
-
 /* ==================== CONFIGURACIÓN INICIAL ==================== */
 dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
@@ -207,7 +206,6 @@ app.post('/check-email', async (req, res) => {
         });
     }
 });
-
 app.post('/register', async (req, res) => {
     const { nombre, email, password, empresa } = req.body;
 
@@ -261,7 +259,7 @@ app.post('/cerrar-sesion', (req, res) => {
     res.json({ mensaje: 'Sesión cerrada correctamente' });
 });
 
-
+/* ==================== RUTAS DE HISTORIAL ==================== */
 app.post('/registrar-historial', requireAuth, async (req, res) => {
     const { spreadsheetId } = req.user;
     const { origen, suceso, detalle } = req.body;
@@ -344,7 +342,6 @@ app.get('/obtener-historial', requireAuth, async (req, res) => {
         });
     }
 });
-
 
 /* ==================== OBTENER USARIO ACTUAL Y ACTULIZAR USARIO ACTUAL ==================== */
 app.get('/obtener-usuario-actual', requireAuth, async (req, res) => {
@@ -496,7 +493,6 @@ app.get('/obtener-usuarios-produccion', requireAuth, async (req, res) => {
     }
 });
 
-
 /* ==================== RUTAS DE PRODUCCIÓN ==================== */
 app.get('/obtener-registros-produccion', requireAuth, async (req, res) => { 
     const { spreadsheetId } = req.user;
@@ -604,7 +600,6 @@ app.post('/registrar-produccion', requireAuth, async (req, res) => {
         });
     }
 });
-
 
 /* ==================== RUTAS DE AlMACEN ==================== */
 app.delete('/eliminar-registro-produccion/:id', requireAuth, async (req, res) => {
@@ -1017,9 +1012,6 @@ app.put('/actualizar-producto/:id', requireAuth, async (req, res) => {
         res.status(500).json({ success: false, error: 'Error al actualizar el producto' });
     }
 });
-
-
-
 app.post('/actualizar-stock', requireAuth, async (req, res) => {
     try {
         const { spreadsheetId } = req.user;  // Obtener el ID del usuario autenticado
@@ -1069,8 +1061,7 @@ app.post('/actualizar-stock', requireAuth, async (req, res) => {
     }
 });
 
-
-
+/* ==================== RUTAS DE MOVIMIENTOS DE AlMACEN ==================== */
 app.get('/obtener-movimientos-almacen', requireAuth, async (req, res) => {
     const { spreadsheetId } = req.user;
 
@@ -1317,7 +1308,7 @@ app.put('/editar-registro-almacen/:id', requireAuth, async (req, res) => {
     }
 });
 
-
+/* ==================== RUTAS ETIQUETAS DE AlMACEN ==================== */
 app.get('/obtener-etiquetas', requireAuth, async (req, res) => {
     const { spreadsheetId } = req.user;
 
@@ -1430,7 +1421,7 @@ app.delete('/eliminar-etiqueta/:id', requireAuth, async (req, res) => {
     }
 });
 
-
+/* ==================== RUTAS PRECIOS DE AlMACEN ==================== */
 app.get('/obtener-precios', requireAuth, async (req, res) => {
     const { spreadsheetId } = req.user;
 
@@ -1583,7 +1574,7 @@ app.delete('/eliminar-precio/:id', requireAuth, async (req, res) => {
     }
 });
 
-
+/* ==================== RUTAS CLIENTES DE AlMACEN ==================== */
 app.get('/obtener-clientes', requireAuth, async (req, res) => {
     const { spreadsheetId } = req.user;
 
@@ -1787,7 +1778,7 @@ app.put('/editar-cliente/:id', requireAuth, async (req, res) => {
     }
 });
 
-
+/* ==================== RUTAS PROOVEDORES DE AlMACEN ==================== */
 app.get('/obtener-proovedores', requireAuth, async (req, res) => {
     const { spreadsheetId } = req.user;
 
@@ -1990,8 +1981,7 @@ app.put('/editar-proovedor/:id', requireAuth, async (req, res) => {
     }
 });
 
-
-
+/* ==================== RUTAS DE ACOPIO ==================== */
 app.get('/obtener-productos-acopio', requireAuth, async (req, res) => {
     const { spreadsheetId } = req.user;
 
@@ -2181,8 +2171,7 @@ app.put('/editar-producto-acopio/:id', requireAuth, async (req, res) => {
     }
 });
 
-
-
+/* ==================== RUTAS DE ACOPIO ==================== */
 app.get('/obtener-etiquetas-acopio', requireAuth, async (req, res) => {
     const { spreadsheetId } = req.user;
 
@@ -2297,13 +2286,10 @@ app.delete('/eliminar-etiqueta-acopio/:id', requireAuth, async (req, res) => {
 
 
 
-
-
-
 /* ==================== INICIALIZACIÓN DEL SERVIDOR ==================== */
 if (process.env.NODE_ENV !== 'production') {
   app.listen(port, () => {
-    console.log(`Servidor corriendo en el puerto ${port}`);
+    console.log(`Server running in port: ${port}`);
   });
 }
 
