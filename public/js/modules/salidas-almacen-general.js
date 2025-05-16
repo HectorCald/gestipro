@@ -1,4 +1,3 @@
-
 let productos = [];
 let etiquetas = [];
 let precios = [];

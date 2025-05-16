@@ -470,6 +470,81 @@ export function exportarArchivos(rExp, registrosAExportar) {
                     type: 'success',
                     duration: 3000
                 });
+            } else if (rExp === 'conteo') {
+                const registrosVisibles = Array.from(document.querySelectorAll('.registro-item'))
+                    .filter(item => item.style.display !== 'none')
+                    .map(item => registrosAExportar.find(r => r.id === item.dataset.id));
+        
+                // Procesar cada registro visible individualmente
+                registrosVisibles.forEach(registro => {
+                    const productos = registro.productos.split(';');
+                    const sistema = registro.sistema.split(';');
+                    const fisico = registro.fisico.split(';');
+                    const diferencias = sistema.map((s, i) => parseInt(fisico[i]) - parseInt(s));
+        
+                    const subtitulos = [
+                        { 'Productos': 'Producto', 'Sistema': 'Cantidad Sistema', 'Físico': 'Cantidad Física', 'Diferencia': 'Diferencia' }
+                    ];
+        
+                    const datosExportar = productos.map((producto, index) => ({
+                        'Productos': producto.trim(),
+                        'Sistema': sistema[index] ? sistema[index].trim() : '0',
+                        'Físico': fisico[index] ? fisico[index].trim() : '0',
+                        'Diferencia': diferencias[index],
+                    }));
+        
+                    const fecha = new Date().toLocaleDateString('es-ES').replace(/\//g, '-');
+                    const nombreArchivo = `Conteo_${registro.id}_${fecha}.xlsx`;
+        
+                    const worksheet = XLSX.utils.json_to_sheet([...subtitulos, ...datosExportar], 
+                        { header: ['Productos', 'Sistema', 'Físico', 'Diferencia'] });
+        
+                    // Ajustar anchos de columna
+                    const maxLengths = {};
+                    [...subtitulos, ...datosExportar].forEach(row => {
+                        Object.keys(row).forEach(key => {
+                            const valueLength = row[key].toString().length;
+                            if (!maxLengths[key] || valueLength > maxLengths[key]) {
+                                maxLengths[key] = valueLength;
+                            }
+                        });
+                    });
+        
+                    worksheet['!cols'] = Object.keys(maxLengths).map(key => ({ wch: maxLengths[key] + 2 }));
+        
+                    // Dar formato al encabezado
+                    const range = XLSX.utils.decode_range(worksheet['!ref']);
+                    for (let C = range.s.c; C <= range.e.c; ++C) {
+                        const address = XLSX.utils.encode_cell({ c: C, r: 0 });
+                        if (!worksheet[address]) continue;
+                        worksheet[address].s = {
+                            fill: { fgColor: { rgb: "D9D9D9" } },
+                            font: { color: { rgb: "000000" }, bold: true }
+                        };
+                    }
+        
+                    // Agregar información del conteo
+                    XLSX.utils.sheet_add_aoa(worksheet, [
+                        [`Fecha: ${registro.fecha}`, `ID: ${registro.id}`, `Nombre: ${registro.nombre || 'Sin nombre'}`]
+                    ], { origin: 'A1' });
+        
+                    // Agregar observaciones al final
+                    const ultimaFila = productos.length + 3;
+                    XLSX.utils.sheet_add_aoa(worksheet, [
+                        [`Observaciones: ${registro.observaciones || 'Ninguna'}`]
+                    ], { origin: `A${ultimaFila}` });
+        
+                    const workbook = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(workbook, worksheet, 'Conteo');
+                    XLSX.writeFile(workbook, nombreArchivo);
+                });
+        
+                mostrarNotificacion({
+                    message: `Se descargaron ${registrosVisibles.length} registros en archivos separados`,
+                    type: 'success',
+                    duration: 3000
+                });
+                return;
             }
         });
 

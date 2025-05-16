@@ -1061,6 +1061,187 @@ app.post('/actualizar-stock', requireAuth, async (req, res) => {
     }
 });
 
+/* ==================== RUTAS DE CONTEOS DE AlMACEN ==================== */
+app.post('/registrar-conteo', requireAuth, async (req, res) => {
+    try {
+        const sheets = google.sheets({ version: 'v4', auth });
+        const spreadsheetId = req.user.spreadsheetId;
+        
+        // Obtener el último ID
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: 'Conteo!A2:A'
+        });
+        
+        const rows = response.data.values || [];
+        let lastId = 0;
+        
+        if (rows.length > 0) {
+            const lastRow = rows[rows.length - 1][0];
+            lastId = parseInt(lastRow.split('-')[1]) || 0;
+        }
+        
+        const newId = `CONT-${lastId + 1}`;
+        const fecha = new Date().toLocaleString('es-ES');
+        const { nombre, productos, sistema, fisico, diferencia, observaciones } = req.body;
+
+        const values = [[
+            newId,
+            fecha,
+            nombre,
+            productos,
+            sistema,
+            fisico,
+            diferencia,
+            observaciones || ''
+        ]];
+
+        await sheets.spreadsheets.values.append({
+            spreadsheetId,
+            range: 'Conteo!A2:G',
+            valueInputOption: 'USER_ENTERED',
+            resource: { values }
+        });
+
+        res.json({ success: true, message: 'Conteo registrado correctamente' });
+    } catch (error) {
+        console.error('Error al registrar conteo:', error);
+        res.status(500).json({ success: false, error: 'Error al registrar el conteo' });
+    }
+});
+app.get('/obtener-registros-conteo', requireAuth, async (req, res) => {
+    const { spreadsheetId } = req.user;
+
+    try {
+        const sheets = google.sheets({ version: 'v4', auth });
+        
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId: spreadsheetId,
+            range: 'Conteo!A2:H' // Columnas A hasta G
+        });
+
+        const rows = response.data.values || [];
+        
+        // Mapear los datos a un formato más legible
+        const registros = rows.map(row => ({
+            id: row[0] || '',
+            fecha: row[1] || '',
+            nombre: row[2] || '',
+            productos: row[3] || '',
+            sistema: row[4] || '',
+            fisico: row[5] || '',
+            diferencia: row[6] || '',
+            observaciones: row[7] || ''
+        }));
+
+        res.json({
+            success: true,
+            registros
+        });
+
+    } catch (error) {
+        console.error('Error al obtener registros de conteo:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error al obtener los registros de conteo'
+        });
+    }
+});
+app.delete('/eliminar-conteo/:id', requireAuth, async (req, res) => {
+    try {
+        const { spreadsheetId } = req.user;
+        const { id } = req.params;
+        const { motivo } = req.body;
+        const sheets = google.sheets({ version: 'v4', auth });
+
+        // Obtener datos actuales
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: 'Conteo!A2:A'
+        });
+
+        const rows = response.data.values || [];
+        const rowIndex = rows.findIndex(row => row[0] === id);
+
+        if (rowIndex === -1) {
+            return res.status(404).json({ success: false, error: 'Conteo no encontrado' });
+        }
+
+        // Obtener información del sheet
+        const almacenSheet = await sheets.spreadsheets.get({
+            spreadsheetId,
+            ranges: ['Conteo']
+        });
+
+        // Eliminar la fila
+        await sheets.spreadsheets.batchUpdate({
+            spreadsheetId,
+            resource: {
+                requests: [{
+                    deleteDimension: {
+                        range: {
+                            sheetId: almacenSheet.data.sheets[0].properties.sheetId,
+                            dimension: 'ROWS',
+                            startIndex: rowIndex + 1, // +1 por el encabezado
+                            endIndex: rowIndex + 2
+                        }
+                    }
+                }]
+            }
+        });
+
+        res.json({ success: true, message: 'Conteo eliminado correctamente' });
+    } catch (error) {
+        console.error('Error al eliminar conteo:', error);
+        res.status(500).json({ success: false, error: 'Error al eliminar el conteo' });
+    }
+});
+app.put('/editar-conteo/:id', requireAuth, async (req, res) => {
+    try {
+        const { spreadsheetId } = req.user;
+        const { id } = req.params;
+        const { nombre, observaciones, motivo } = req.body;
+        const sheets = google.sheets({ version: 'v4', auth });
+
+        // Obtener datos actuales
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: 'Conteo!A2:H'
+        });
+
+        const rows = response.data.values || [];
+        const rowIndex = rows.findIndex(row => row[0] === id);
+
+        if (rowIndex === -1) {
+            return res.status(404).json({ success: false, error: 'Conteo no encontrado' });
+        }
+
+        // Actualizar solo el nombre y observaciones
+        const updatedRow = [
+            id,                     // ID
+            rows[rowIndex][1],      // Fecha (mantener)
+            nombre,                 // Nombre actualizado
+            rows[rowIndex][3],      // Productos (mantener)
+            rows[rowIndex][4],      // Sistema (mantener)
+            rows[rowIndex][5],      // Físico (mantener)
+            rows[rowIndex][6],      // Diferencia (mantener)
+            observaciones           // Observaciones actualizadas
+        ];
+
+        await sheets.spreadsheets.values.update({
+            spreadsheetId,
+            range: `Conteo!A${rowIndex + 2}:H${rowIndex + 2}`,
+            valueInputOption: 'USER_ENTERED',
+            resource: { values: [updatedRow] }
+        });
+
+        res.json({ success: true, message: 'Conteo actualizado correctamente' });
+    } catch (error) {
+        console.error('Error al editar conteo:', error);
+        res.status(500).json({ success: false, error: 'Error al editar el conteo' });
+    }
+});
+
 /* ==================== RUTAS DE MOVIMIENTOS DE AlMACEN ==================== */
 app.get('/obtener-movimientos-almacen', requireAuth, async (req, res) => {
     const { spreadsheetId } = req.user;
