@@ -72,22 +72,22 @@ function requireAuth(req, res, next) {
 /* ==================== RUTAS DE VISTAS ==================== */
 app.get('/', (req, res) => {
     const token = req.cookies.token;
-    
+
     if (token) {
         try {
             const decoded = jwt.verify(token, JWT_SECRET);
             // Determine dashboard URL based on spreadsheet ID from token
-            const dashboardUrl = decoded.spreadsheetId === process.env.SPREADSHEET_ID_1 
-                ? '/dashboard' 
+            const dashboardUrl = decoded.spreadsheetId === process.env.SPREADSHEET_ID_1
+                ? '/dashboard'
                 : '/dashboard_otro';
             return res.redirect(dashboardUrl);
         } catch (error) {
             // Token inválido, continuar al login
         }
     }
-    
+
     res.render('login');
-}); 
+});
 app.get('/dashboard', requireAuth, (req, res) => {
     res.render('dashboard')
 });
@@ -117,7 +117,7 @@ app.post('/login', async (req, res) => {
                 });
 
                 const rows = response.data.values || [];
-                
+
                 const usuario = rows.find(row => {
                     if (row && row.length >= 6) {
                         return row[0] === password && row[5] === email;
@@ -128,8 +128,8 @@ app.post('/login', async (req, res) => {
                 if (usuario) {
                     if (usuario[3] === 'Activo') {
                         const token = jwt.sign(
-                            { 
-                                email: usuario[5], 
+                            {
+                                email: usuario[5],
                                 nombre: usuario[1],
                                 spreadsheetId
                             },
@@ -137,17 +137,18 @@ app.post('/login', async (req, res) => {
                             { expiresIn: '744h' }
                         );
 
-                            res.cookie('token', token, { 
-                                httpOnly: true,
-                                secure: process.env.NODE_ENV === 'production',
-                                maxAge: 24 * 60 * 60 * 1000 // 1 día en milisegundos
-                            });
+                        res.cookie('token', token, {
+                            httpOnly: true,
+                            secure: process.env.NODE_ENV === 'production',
+                            maxAge: 30 * 24 * 60 * 60 * 1000 // 30 días en milisegundos
+                        });
+
 
                         // Determine dashboard URL based on spreadsheet ID
                         const dashboardUrl = spreadsheetId === process.env.SPREADSHEET_ID_1 ? '/dashboard' : '/dashboard_otro';
-                        
-                        return res.json({ 
-                            success: true, 
+
+                        return res.json({
+                            success: true,
                             redirect: dashboardUrl,
                             user: {
                                 nombre: usuario[1],
@@ -155,7 +156,7 @@ app.post('/login', async (req, res) => {
                             }
                         });
                     } else {
-                        return res.json({ 
+                        return res.json({
                             success: false,
                             error: 'Su cuenta está siendo procesada.',
                             status: 'pending'
@@ -167,16 +168,16 @@ app.post('/login', async (req, res) => {
             }
         }
 
-        return res.json({ 
-            success: false, 
-            error: 'Contraseña o usuario incorrectos' 
+        return res.json({
+            success: false,
+            error: 'Contraseña o usuario incorrectos'
         });
 
     } catch (error) {
         console.error('Error en el login:', error);
-        return res.status(500).json({ 
-            success: false, 
-            error: 'Error en el servidor' 
+        return res.status(500).json({
+            success: false,
+            error: 'Error en el servidor'
         });
     }
 });
@@ -215,9 +216,9 @@ app.post('/check-email', async (req, res) => {
 
     } catch (error) {
         console.error('Error al verificar email:', error);
-        return res.status(500).json({ 
+        return res.status(500).json({
             error: 'Error al verificar el email',
-            exists: false 
+            exists: false
         });
     }
 });
@@ -233,9 +234,9 @@ app.post('/register', async (req, res) => {
     // Validate if the company exists
     const spreadsheetId = companies[empresa];
     if (!spreadsheetId) {
-        return res.json({ 
-            success: false, 
-            error: 'El ID de la empresa es incorrecto o no existe' 
+        return res.json({
+            success: false,
+            error: 'El ID de la empresa es incorrecto o no existe'
         });
     }
 
@@ -281,14 +282,14 @@ app.post('/registrar-historial', requireAuth, async (req, res) => {
 
     try {
         const sheets = google.sheets({ version: 'v4', auth });
-        
+
         // Get last ID to generate new one
         const lastIdResponse = await sheets.spreadsheets.values.get({
             spreadsheetId: spreadsheetId,
             range: 'Historial!A2:A'
         });
 
-        const lastId = lastIdResponse.data.values ? 
+        const lastId = lastIdResponse.data.values ?
             Math.max(...lastIdResponse.data.values.map(row => parseInt(row[0].split('-')[1]) || 0)) : 0;
         const newId = `HI-${(lastId + 1).toString().padStart(3, '0')}`;
 
@@ -327,14 +328,14 @@ app.get('/obtener-historial', requireAuth, async (req, res) => {
 
     try {
         const sheets = google.sheets({ version: 'v4', auth });
-        
+
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId: spreadsheetId,
             range: 'Historial!A2:E' // Columns A through E
         });
 
         const rows = response.data.values || [];
-        
+
         // Map the data to the specified format
         const historial = rows.map(row => ({
             id: row[0] || '',
@@ -364,7 +365,7 @@ app.get('/obtener-usuario-actual', requireAuth, async (req, res) => {
 
     try {
         const sheets = google.sheets({ version: 'v4', auth });
-        
+
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId: spreadsheetId,
             range: 'Usuarios!A2:G'  // Make sure we're getting all columns including the photo
@@ -383,22 +384,22 @@ app.get('/obtener-usuario-actual', requireAuth, async (req, res) => {
                 email: usuario[5] || '',
                 foto: usuario[6] || './icons/icon.png'  // Default photo if none exists
             };
-            
-            res.json({ 
-                success: true, 
-                usuario: userInfo 
+
+            res.json({
+                success: true,
+                usuario: userInfo
             });
         } else {
-            res.status(404).json({ 
-                success: false, 
-                error: 'Usuario no encontrado' 
+            res.status(404).json({
+                success: false,
+                error: 'Usuario no encontrado'
             });
         }
     } catch (error) {
         console.error('Error al obtener información del usuario:', error);
-        res.status(500).json({ 
-            success: false, 
-            error: 'Error al obtener datos del usuario' 
+        res.status(500).json({
+            success: false,
+            error: 'Error al obtener datos del usuario'
         });
     }
 });
@@ -408,7 +409,7 @@ app.post('/actualizar-usuario', requireAuth, async (req, res) => {
 
     try {
         const sheets = google.sheets({ version: 'v4', auth });
-        
+
         // Obtener fila actual
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId,
@@ -417,7 +418,7 @@ app.post('/actualizar-usuario', requireAuth, async (req, res) => {
 
         const rows = response.data.values || [];
         const userRow = rows.find(row => row[5] === email); // Email está en columna F (índice 5)
-        
+
         if (!userRow) {
             return res.status(404).json({ success: false, error: 'Usuario no encontrado' });
         }
@@ -425,12 +426,12 @@ app.post('/actualizar-usuario', requireAuth, async (req, res) => {
         // Validar contraseña actual si se está cambiando
         if (passwordNueva) {
             if (passwordActual !== userRow[0]) {
-                return res.status(400).json({ 
-                    success: false, 
-                    error: 'Contraseña actual incorrecta' 
+                return res.status(400).json({
+                    success: false,
+                    error: 'Contraseña actual incorrecta'
                 });
             }
-            
+
             if (passwordNueva.length < 8) {
                 return res.status(400).json({
                     success: false,
@@ -463,9 +464,9 @@ app.post('/actualizar-usuario', requireAuth, async (req, res) => {
 
     } catch (error) {
         console.error('Error al actualizar usuario:', error);
-        res.status(500).json({ 
-            success: false, 
-            error: 'Error interno del servidor' 
+        res.status(500).json({
+            success: false,
+            error: 'Error interno del servidor'
         });
     }
 });
@@ -474,14 +475,14 @@ app.get('/obtener-usuarios-produccion', requireAuth, async (req, res) => {
 
     try {
         const sheets = google.sheets({ version: 'v4', auth });
-        
+
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId: spreadsheetId,
             range: 'Usuarios!A2:F' // Get all relevant user columns
         });
 
         const rows = response.data.values || [];
-        
+
         // Filter users with "Producción" role and map to desired format
         const usuarios = rows
             .filter(row => row[2] === 'Producción') // Column C contains the role
@@ -509,19 +510,19 @@ app.get('/obtener-usuarios-produccion', requireAuth, async (req, res) => {
 });
 
 /* ==================== RUTAS DE PRODUCCIÓN ==================== */
-app.get('/obtener-registros-produccion', requireAuth, async (req, res) => { 
+app.get('/obtener-registros-produccion', requireAuth, async (req, res) => {
     const { spreadsheetId } = req.user;
 
     try {
         const sheets = google.sheets({ version: 'v4', auth });
-        
+
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId: spreadsheetId,
             range: 'Produccion!A2:O' // Columnas desde A hasta N (14 columnas)
         });
 
         const rows = response.data.values || [];
-        
+
         // Mapear los datos a un formato más legible
         const registros = rows.map(row => ({
             id: row[0] || '',
@@ -560,17 +561,17 @@ app.post('/registrar-produccion', requireAuth, async (req, res) => {
 
     try {
         const sheets = google.sheets({ version: 'v4', auth });
-        
+
         // Get last ID to generate new one
         const lastIdResponse = await sheets.spreadsheets.values.get({
             spreadsheetId: spreadsheetId,
             range: 'Produccion!A2:A'
         });
 
-        const lastId = lastIdResponse.data.values ? 
+        const lastId = lastIdResponse.data.values ?
             Math.max(...lastIdResponse.data.values.map(row => parseInt(row[0].split('-')[1]) || 0)) : 0;
         const newId = `RP-${(lastId + 1).toString().padStart(3, '0')}`;
-        
+
         const currentDate = new Date().toLocaleDateString('es-ES');
         const microondasValue = microondas === 'Si' ? tiempo : 'No';
 
@@ -623,7 +624,7 @@ app.delete('/eliminar-registro-produccion/:id', requireAuth, async (req, res) =>
 
     try {
         const sheets = google.sheets({ version: 'v4', auth });
-        
+
         // Obtener todos los registros
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId,
@@ -645,7 +646,7 @@ app.delete('/eliminar-registro-produccion/:id', requireAuth, async (req, res) =>
         const spreadsheet = await sheets.spreadsheets.get({
             spreadsheetId
         });
-        
+
         const produccionSheet = spreadsheet.data.sheets.find(
             sheet => sheet.properties.title === 'Produccion'
         );
@@ -690,11 +691,11 @@ app.delete('/eliminar-registro-produccion/:id', requireAuth, async (req, res) =>
 app.put('/editar-registro-produccion/:id', requireAuth, async (req, res) => {
     const { spreadsheetId } = req.user;
     const { id } = req.params;
-    const { producto, gramos,lote, proceso, microondas, envases_terminados, fecha_vencimiento, verificado, observaciones } = req.body;
+    const { producto, gramos, lote, proceso, microondas, envases_terminados, fecha_vencimiento, verificado, observaciones } = req.body;
 
     try {
         const sheets = google.sheets({ version: 'v4', auth });
-        
+
         // Obtener todos los registros
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId,
@@ -761,7 +762,7 @@ app.put('/verificar-registro-produccion/:id', requireAuth, async (req, res) => {
 
     try {
         const sheets = google.sheets({ version: 'v4', auth });
-        
+
         // Obtener registros actuales
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId,
@@ -781,7 +782,7 @@ app.put('/verificar-registro-produccion/:id', requireAuth, async (req, res) => {
         // Mantener valores existentes y actualizar solo los campos de verificación
         const existingRow = rows[rowIndex];
         const currentDate = new Date().toLocaleDateString('es-ES');
-        
+
         const updatedRow = [
             ...existingRow.slice(0, 10),    // Mantener datos hasta la columna 10
             cantidad_real,                   // Cantidad real verificada
@@ -818,14 +819,14 @@ app.get('/obtener-productos', requireAuth, async (req, res) => {
 
     try {
         const sheets = google.sheets({ version: 'v4', auth });
-        
+
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId: spreadsheetId,
             range: 'Almacen general!A2:L' // Ahora incluye la columna L para la imagen
         });
 
         const rows = response.data.values || [];
-        
+
         // Mapear los datos al formato especificado
         const productos = rows.map(row => ({
             id: row[0] || '',
@@ -861,7 +862,7 @@ app.post('/crear-producto', requireAuth, async (req, res) => {
 
     try {
         const sheets = google.sheets({ version: 'v4', auth });
-        
+
         // Validar campos requeridos
         if (!producto || !gramos || !stock || !cantidadxgrupo || !lista) {
             return res.status(400).json({
@@ -877,7 +878,7 @@ app.post('/crear-producto', requireAuth, async (req, res) => {
         });
 
         const rows = response.data.values || [];
-        const lastId = rows.length > 0 ? 
+        const lastId = rows.length > 0 ?
             Math.max(...rows.map(row => parseInt(row[0].split('-')[1]) || 0)) : 0;
         const newId = `PG-${(lastId + 1).toString().padStart(3, '0')}`;
 
@@ -928,7 +929,7 @@ app.delete('/eliminar-producto/:id', requireAuth, async (req, res) => {
         const spreadsheet = await sheets.spreadsheets.get({
             spreadsheetId
         });
-        
+
         const almacenSheet = spreadsheet.data.sheets.find(
             sheet => sheet.properties.title === 'Almacen general'
         );
@@ -1016,8 +1017,8 @@ app.put('/actualizar-producto/:id', requireAuth, async (req, res) => {
             resource: { values: [updatedRow] }
         });
 
-        res.json({ 
-            success: true, 
+        res.json({
+            success: true,
             message: 'Producto actualizado correctamente',
             producto: updatedRow
         });
@@ -1032,7 +1033,7 @@ app.post('/actualizar-stock', requireAuth, async (req, res) => {
         const { spreadsheetId } = req.user;  // Obtener el ID del usuario autenticado
         const { actualizaciones, tipo } = req.body;
         const sheets = google.sheets({ version: 'v4', auth });
-        
+
         // Obtener datos actuales de Almacen general
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId,  // Usar el spreadsheetId del usuario
@@ -1047,8 +1048,8 @@ app.post('/actualizar-stock', requireAuth, async (req, res) => {
             const rowIndex = rows.findIndex(row => row[0] === actualizacion.id);
             if (rowIndex !== -1) {
                 const stockActual = parseInt(rows[rowIndex][3]) || 0;
-                const nuevoStock = tipo === 'salida' 
-                    ? stockActual - actualizacion.cantidad 
+                const nuevoStock = tipo === 'salida'
+                    ? stockActual - actualizacion.cantidad
                     : stockActual + actualizacion.cantidad;
 
                 updates.push({
@@ -1081,21 +1082,21 @@ app.post('/registrar-conteo', requireAuth, async (req, res) => {
     try {
         const sheets = google.sheets({ version: 'v4', auth });
         const spreadsheetId = req.user.spreadsheetId;
-        
+
         // Obtener el último ID
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId,
             range: 'Conteo!A2:A'
         });
-        
+
         const rows = response.data.values || [];
         let lastId = 0;
-        
+
         if (rows.length > 0) {
             const lastRow = rows[rows.length - 1][0];
             lastId = parseInt(lastRow.split('-')[1]) || 0;
         }
-        
+
         const newId = `CONT-${lastId + 1}`;
         const fecha = new Date().toLocaleString('es-ES');
         const { nombre, productos, sistema, fisico, diferencia, observaciones } = req.body;
@@ -1129,14 +1130,14 @@ app.get('/obtener-registros-conteo', requireAuth, async (req, res) => {
 
     try {
         const sheets = google.sheets({ version: 'v4', auth });
-        
+
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId: spreadsheetId,
             range: 'Conteo!A2:H' // Columnas A hasta G
         });
 
         const rows = response.data.values || [];
-        
+
         // Mapear los datos a un formato más legible
         const registros = rows.map(row => ({
             id: row[0] || '',
@@ -1263,14 +1264,14 @@ app.get('/obtener-movimientos-almacen', requireAuth, async (req, res) => {
 
     try {
         const sheets = google.sheets({ version: 'v4', auth });
-        
+
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId: spreadsheetId,
             range: 'Movimientos alm-gral!A2:N' // Columns A through H
         });
 
         const rows = response.data.values || [];
-        
+
         // Map the data to a more readable format
         const movimientos = rows.map(row => ({
             id: row[0] || '',
@@ -1315,24 +1316,24 @@ app.post('/registrar-movimiento', requireAuth, async (req, res) => {
             range: 'Movimientos alm-gral!A2:A'
         });
 
-        const lastId = lastIdResponse.data.values ? 
+        const lastId = lastIdResponse.data.values ?
             Math.max(...lastIdResponse.data.values.map(row => parseInt(row[0]?.split('-')[1]) || 0)) : 0;
         const newId = `MAG-${lastId + 1}`;
 
         // Registrar movimiento
         const newMovimiento = [
-            newId, 
-            fechaHora, 
-            tipo, 
-            productos, 
-            cantidades, 
-            operario, 
-            clienteId, 
-            nombre_movimiento, 
-            subtotal, 
-            descuento, 
-            aumento, 
-            total, 
+            newId,
+            fechaHora,
+            tipo,
+            productos,
+            cantidades,
+            operario,
+            clienteId,
+            nombre_movimiento,
+            subtotal,
+            descuento,
+            aumento,
+            total,
             observaciones,
             precios_unitarios
         ];
@@ -1344,7 +1345,7 @@ app.post('/registrar-movimiento', requireAuth, async (req, res) => {
             resource: { values: [newMovimiento] }
         });
 
-        res.json({ 
+        res.json({
             success: true,
             id: newId,
             message: 'Movimiento registrado correctamente'
@@ -1352,7 +1353,7 @@ app.post('/registrar-movimiento', requireAuth, async (req, res) => {
 
     } catch (error) {
         console.error('Error en registrar movimiento:', error);
-        res.status(500).json({ 
+        res.status(500).json({
             success: false,
             error: `Error interno: ${error.message || 'Consulte los logs para más detalles'}`
         });
@@ -1364,7 +1365,7 @@ app.delete('/eliminar-registro-almacen/:id', requireAuth, async (req, res) => {
 
     try {
         const sheets = google.sheets({ version: 'v4', auth });
-        
+
         // Obtener todos los registros
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId,
@@ -1386,7 +1387,7 @@ app.delete('/eliminar-registro-almacen/:id', requireAuth, async (req, res) => {
         const spreadsheet = await sheets.spreadsheets.get({
             spreadsheetId
         });
-        
+
         const produccionSheet = spreadsheet.data.sheets.find(
             sheet => sheet.properties.title === 'Movimientos alm-gral'
         );
@@ -1431,7 +1432,7 @@ app.delete('/eliminar-registro-almacen/:id', requireAuth, async (req, res) => {
 app.put('/editar-registro-almacen/:id', requireAuth, async (req, res) => {
     const { spreadsheetId } = req.user;
     const { id } = req.params;
-    const { 
+    const {
         nombre_movimiento,
         cliente_proovedor,
         operario,
@@ -1446,7 +1447,7 @@ app.put('/editar-registro-almacen/:id', requireAuth, async (req, res) => {
 
     try {
         const sheets = google.sheets({ version: 'v4', auth });
-        
+
         // Get current almacen records
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId,
@@ -1510,14 +1511,14 @@ app.get('/obtener-etiquetas', requireAuth, async (req, res) => {
 
     try {
         const sheets = google.sheets({ version: 'v4', auth });
-        
+
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId: spreadsheetId,
             range: 'Etiquetas!A2:B' // Columnas A y B para ID y ETIQUETA
         });
 
         const rows = response.data.values || [];
-        
+
         const etiquetas = rows.map(row => ({
             id: row[0] || '',
             etiqueta: row[1] || ''
@@ -1549,7 +1550,7 @@ app.post('/agregar-etiqueta', requireAuth, async (req, res) => {
         });
 
         const rows = response.data.values || [];
-        const nextId = rows.length > 0 ? 
+        const nextId = rows.length > 0 ?
             parseInt(rows[rows.length - 1][0].split('-')[1]) + 1 : 1;
 
         const newTag = [`ET-${nextId.toString().padStart(3, '0')}`, etiqueta];
@@ -1623,14 +1624,14 @@ app.get('/obtener-precios', requireAuth, async (req, res) => {
 
     try {
         const sheets = google.sheets({ version: 'v4', auth });
-        
+
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId: spreadsheetId,
             range: 'Precios!A2:B' // Columnas A y B para ID y PRECIO
         });
 
         const rows = response.data.values || [];
-        
+
         const precios = rows.map(row => ({
             id: row[0] || '',
             precio: row[1] || ''
@@ -1662,7 +1663,7 @@ app.post('/agregar-precio', requireAuth, async (req, res) => {
         });
 
         const rows = response.data.values || [];
-        const nextId = rows.length > 0 ? 
+        const nextId = rows.length > 0 ?
             parseInt(rows[rows.length - 1][0].split('-')[1]) + 1 : 1;
 
         const newPrice = [`PR-${nextId.toString().padStart(3, '0')}`, precio];
@@ -1684,8 +1685,8 @@ app.post('/agregar-precio', requireAuth, async (req, res) => {
         const productos = productosResponse.data.values || [];
         const actualizaciones = productos.map((producto, index) => {
             const preciosActuales = producto[7] || '';
-            const nuevosPrecios = preciosActuales ? 
-                `${preciosActuales};${precio},0` : 
+            const nuevosPrecios = preciosActuales ?
+                `${preciosActuales};${precio},0` :
                 `${precio},0`;
 
             return {
@@ -1817,7 +1818,7 @@ app.post('/agregar-cliente', requireAuth, async (req, res) => {
         });
 
         const rows = response.data.values || [];
-        const nextId = rows.length > 0 ? 
+        const nextId = rows.length > 0 ?
             parseInt(rows[rows.length - 1][0].split('-')[1]) + 1 : 1;
 
         const newClient = [
@@ -1837,8 +1838,8 @@ app.post('/agregar-cliente', requireAuth, async (req, res) => {
             resource: { values: [newClient] }
         });
 
-        res.json({ 
-            success: true, 
+        res.json({
+            success: true,
             cliente: {
                 id: newClient[0],
                 nombre,
@@ -1862,15 +1863,15 @@ app.delete('/eliminar-cliente/:id', requireAuth, async (req, res) => {
         const spreadsheet = await sheets.spreadsheets.get({
             spreadsheetId
         });
-        
+
         const clientesSheet = spreadsheet.data.sheets.find(
             sheet => sheet.properties.title === 'Clientes'
         );
 
         if (!clientesSheet) {
-            return res.status(404).json({ 
-                success: false, 
-                error: 'Hoja de Clientes no encontrada' 
+            return res.status(404).json({
+                success: false,
+                error: 'Hoja de Clientes no encontrada'
             });
         }
 
@@ -1884,9 +1885,9 @@ app.delete('/eliminar-cliente/:id', requireAuth, async (req, res) => {
         const rowIndex = rows.findIndex(row => row[0] === id);
 
         if (rowIndex === -1) {
-            return res.status(404).json({ 
-                success: false, 
-                error: 'Cliente no encontrado' 
+            return res.status(404).json({
+                success: false,
+                error: 'Cliente no encontrado'
             });
         }
 
@@ -1910,9 +1911,9 @@ app.delete('/eliminar-cliente/:id', requireAuth, async (req, res) => {
         res.json({ success: true });
     } catch (error) {
         console.error('Error al eliminar cliente:', error);
-        res.status(500).json({ 
-            success: false, 
-            error: 'Error al eliminar cliente' 
+        res.status(500).json({
+            success: false,
+            error: 'Error al eliminar cliente'
         });
     }
 });
@@ -2020,7 +2021,7 @@ app.post('/agregar-proovedor', requireAuth, async (req, res) => {
         });
 
         const rows = response.data.values || [];
-        const nextId = rows.length > 0 ? 
+        const nextId = rows.length > 0 ?
             parseInt(rows[rows.length - 1][0].split('-')[1]) + 1 : 1;
 
         const newProv = [
@@ -2040,8 +2041,8 @@ app.post('/agregar-proovedor', requireAuth, async (req, res) => {
             resource: { values: [newProv] }
         });
 
-        res.json({ 
-            success: true, 
+        res.json({
+            success: true,
             cliente: {
                 id: newProv[0],
                 nombre,
@@ -2065,15 +2066,15 @@ app.delete('/eliminar-proovedor/:id', requireAuth, async (req, res) => {
         const spreadsheet = await sheets.spreadsheets.get({
             spreadsheetId
         });
-        
+
         const clientesSheet = spreadsheet.data.sheets.find(
             sheet => sheet.properties.title === 'Proovedores'
         );
 
         if (!clientesSheet) {
-            return res.status(404).json({ 
-                success: false, 
-                error: 'Hoja de Clientes no encontrada' 
+            return res.status(404).json({
+                success: false,
+                error: 'Hoja de Clientes no encontrada'
             });
         }
 
@@ -2087,9 +2088,9 @@ app.delete('/eliminar-proovedor/:id', requireAuth, async (req, res) => {
         const rowIndex = rows.findIndex(row => row[0] === id);
 
         if (rowIndex === -1) {
-            return res.status(404).json({ 
-                success: false, 
-                error: 'Proovedor no encontrado' 
+            return res.status(404).json({
+                success: false,
+                error: 'Proovedor no encontrado'
             });
         }
 
@@ -2113,9 +2114,9 @@ app.delete('/eliminar-proovedor/:id', requireAuth, async (req, res) => {
         res.json({ success: true });
     } catch (error) {
         console.error('Error al eliminar proovedor:', error);
-        res.status(500).json({ 
-            success: false, 
-            error: 'Error al eliminar proovedor' 
+        res.status(500).json({
+            success: false,
+            error: 'Error al eliminar proovedor'
         });
     }
 });
@@ -2183,14 +2184,14 @@ app.get('/obtener-productos-acopio', requireAuth, async (req, res) => {
 
     try {
         const sheets = google.sheets({ version: 'v4', auth });
-        
+
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId: spreadsheetId,
             range: 'Almacen acopio!A2:E'
         });
 
         const rows = response.data.values || [];
-        
+
         const productos = rows.map(row => ({
             id: row[0] || '',
             producto: row[1] || '',
@@ -2225,7 +2226,7 @@ app.post('/crear-producto-acopio', requireAuth, async (req, res) => {
         });
 
         const values = response.data.values || [];
-        const lastId = values.length > 0 ? 
+        const lastId = values.length > 0 ?
             Math.max(...values.map(row => parseInt(row[0].split('-')[1]))) : 0;
         const newId = `PB-${(lastId + 1).toString().padStart(3, '0')}`;
 
@@ -2260,15 +2261,15 @@ app.delete('/eliminar-producto-acopio/:id', requireAuth, async (req, res) => {
         const spreadsheet = await sheets.spreadsheets.get({
             spreadsheetId
         });
-        
+
         const almacenSheet = spreadsheet.data.sheets.find(
             sheet => sheet.properties.title === 'Almacen acopio'
         );
 
         if (!almacenSheet) {
-            return res.status(404).json({ 
-                success: false, 
-                error: 'Hoja de Almacén acopio no encontrada' 
+            return res.status(404).json({
+                success: false,
+                error: 'Hoja de Almacén acopio no encontrada'
             });
         }
 
@@ -2282,9 +2283,9 @@ app.delete('/eliminar-producto-acopio/:id', requireAuth, async (req, res) => {
         const rowIndex = rows.findIndex(row => row[0] === id);
 
         if (rowIndex === -1) {
-            return res.status(404).json({ 
-                success: false, 
-                error: 'Producto no encontrado' 
+            return res.status(404).json({
+                success: false,
+                error: 'Producto no encontrado'
             });
         }
 
@@ -2305,15 +2306,15 @@ app.delete('/eliminar-producto-acopio/:id', requireAuth, async (req, res) => {
             }
         });
 
-        res.json({ 
+        res.json({
             success: true,
             message: 'Producto eliminado correctamente'
         });
     } catch (error) {
         console.error('Error al eliminar producto:', error);
-        res.status(500).json({ 
-            success: false, 
-            error: 'Error al eliminar el producto' 
+        res.status(500).json({
+            success: false,
+            error: 'Error al eliminar el producto'
         });
     }
 });
@@ -2352,7 +2353,7 @@ app.put('/editar-producto-acopio/:id', requireAuth, async (req, res) => {
         });
 
         console.log(`Producto ${id} actualizado con motivo: ${motivo}`);
-        
+
         res.json({
             success: true,
             message: 'Producto actualizado correctamente'
@@ -2373,14 +2374,14 @@ app.get('/obtener-etiquetas-acopio', requireAuth, async (req, res) => {
 
     try {
         const sheets = google.sheets({ version: 'v4', auth });
-        
+
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId: spreadsheetId,
             range: 'Etiquetas acopio!A2:B' // Columnas A y B para ID y ETIQUETA
         });
 
         const rows = response.data.values || [];
-        
+
         const etiquetas = rows.map(row => ({
             id: row[0] || '',
             etiqueta: row[1] || ''
@@ -2412,7 +2413,7 @@ app.post('/agregar-etiqueta-acopio', requireAuth, async (req, res) => {
         });
 
         const rows = response.data.values || [];
-        const nextId = rows.length > 0 ? 
+        const nextId = rows.length > 0 ?
             parseInt(rows[rows.length - 1][0].split('-')[1]) + 1 : 1;
 
         const newTag = [`ETA-${nextId.toString().padStart(3, '0')}`, etiqueta];
@@ -2484,9 +2485,9 @@ app.delete('/eliminar-etiqueta-acopio/:id', requireAuth, async (req, res) => {
 
 /* ==================== INICIALIZACIÓN DEL SERVIDOR ==================== */
 if (process.env.NODE_ENV !== 'production') {
-  app.listen(port, () => {
-    console.log(`Server running in port: ${port}`);
-  });
+    app.listen(port, () => {
+        console.log(`Server running in port: ${port}`);
+    });
 }
 
 export default app;
