@@ -75,7 +75,6 @@ async function obtenerUsuario() {
 
 
 export async function crearPerfil() {
-    await verificarTemaInicial();
     const view = document.querySelector('.perfil-view');
     mostrarPerfil(view);
 }
@@ -449,11 +448,3 @@ function setTheme(theme) {
         root.setAttribute('data-theme', theme);
     }
 }
-function verificarTemaInicial() {
-    const savedTheme = localStorage.getItem('theme');
-    if (!savedTheme) {
-        localStorage.setItem('theme', 'system');
-    }
-    setTheme(savedTheme || 'system');
-}
-
