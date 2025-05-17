@@ -30,7 +30,7 @@ export async function mostrarAnuncio() {
         window.removeEventListener('popstate', handlePopState);
         window.addEventListener('popstate', handlePopState);
 
-        configuracionesEntrada();
+
     });
 }
 export async function mostrarAnuncioSecond() {

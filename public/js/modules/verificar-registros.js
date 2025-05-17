@@ -57,9 +57,12 @@ export async function mostrarVerificacion() {
             <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno">
-            <div class="buscador">
-                <input type="text" class="buscar-registro-verificacion" placeholder="Buscar...">
-                <i class='bx bx-search lupa'></i>
+            <div class="entrada">
+                <i class='bx bx-search'></i>
+                <div class="input">
+                    <p class="detalle">Buscar</p>
+                    <input type="text" class="buscar-registro-verificacion" placeholder="">
+                </div>
                 <button class="btn-calendario"><i class='bx bx-calendar'></i></button>
             </div>
             <div class="filtros-opciones nombre">
@@ -108,6 +111,7 @@ export async function mostrarVerificacion() {
     
     
     eventosVerificacion();
+    configuracionesEntrada();
 }
 function eventosVerificacion() {
     const btnExcel = document.getElementById('exportar-excel');
@@ -125,7 +129,6 @@ function eventosVerificacion() {
 
     const items = document.querySelectorAll('.registro-item');
     const inputBusqueda = document.querySelector('.buscar-registro-verificacion');
-    const iconoBusqueda = document.querySelector('.buscador .lupa');
     const botonCalendario = document.querySelector('.btn-calendario');
 
 
@@ -284,14 +287,6 @@ function eventosVerificacion() {
     });
     inputBusqueda.addEventListener('input', () => {
         aplicarFiltros();
-        iconoBusqueda.className = inputBusqueda.value ? 'bx bx-x lupa' : 'bx bx-search lupa';
-    });
-    iconoBusqueda.addEventListener('click', () => {
-        if (inputBusqueda.value) {
-            inputBusqueda.value = '';
-            iconoBusqueda.className = 'bx bx-search lupa';
-            aplicarFiltros();
-        }
     });
 
 

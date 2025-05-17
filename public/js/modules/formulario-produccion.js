@@ -117,6 +117,7 @@ export async function mostrarFormularioProduccion() {
     contenido.innerHTML = registrationHTML;
     
     evetosFormularioProduccion();
+    configuracionesEntrada();
 }
 function evetosFormularioProduccion() {
     const selectMicroondas = document.querySelector('.select');
