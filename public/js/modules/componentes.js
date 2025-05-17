@@ -82,7 +82,9 @@ export async function ocultarAnuncio() {
     anuncio.style.display = 'none';
     anuncio.classList.remove('slide-out', 'slide-in');
     contenido.style.paddingBottom = '75px';
+    contenido.innerHTML = ''; // Limpiar el contenido
 }
+
 export async function ocultarAnuncioSecond() {
     const anuncio = document.querySelector('.anuncio-second');
     const contenido = document.querySelector('.anuncio-second .contenido');
@@ -94,6 +96,7 @@ export async function ocultarAnuncioSecond() {
     anuncio.style.display = 'none';
     anuncio.classList.remove('slide-out', 'slide-in');
     contenido.style.paddingBottom = '75px';
+    contenido.innerHTML = ''; // Limpiar el contenido
 }
 
 export function mostrarCarga() {

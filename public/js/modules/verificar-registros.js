@@ -47,8 +47,8 @@ async function obtenerRegistrosProduccion() {
 
 
 export async function mostrarVerificacion() {
+    mostrarAnuncio();
     await obtenerRegistrosProduccion();
-
     const contenido = document.querySelector('.anuncio .contenido');
     const nombresUnicos = [...new Set(registrosProduccion.map(registro => registro.nombre))];
     const registrationHTML = `
@@ -827,5 +827,5 @@ function eventosVerificacion() {
 
 
     btnExcel.addEventListener('click', () => exportarArchivos('produccion', registrosAExportar));
-
+    aplicarFiltros();
 }

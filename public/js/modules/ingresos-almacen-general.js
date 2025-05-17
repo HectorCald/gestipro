@@ -142,6 +142,7 @@ async function obtenerAlmacenGeneral() {
 
 
 export async function mostrarIngresos(busquedaProducto = '') {
+    mostrarAnuncio();
     await obtenerAlmacenGeneral();
 
     const contenido = document.querySelector('.anuncio .contenido');
@@ -207,7 +208,7 @@ export async function mostrarIngresos(busquedaProducto = '') {
     `;
 
     contenido.innerHTML = registrationHTML;
-    mostrarAnuncio();
+    
 
     carritoSalidas.forEach((item, id) => {
         const headerCounter = document.querySelector(`.registro-item[data-id="${id}"] .carrito-cantidad`);
@@ -855,5 +856,5 @@ function eventosIngresos() {
         }
     }
     window.registrarIngreso = registrarIngreso;
-
+    aplicarFiltros()
 }
