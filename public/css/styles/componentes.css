@@ -609,10 +609,10 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 70px;
+    max-height: 60px;
     width: 100%;
     border-radius: 10px;
-    padding: 10px 5px !important;
+    padding: 6px 5px !important;
     padding-right: 10px !important;
     background-color: var(--primary-color);
 
@@ -654,8 +654,8 @@
         }
 
         input {
-            border-radius: 5px;
-            min-height: 40px;
+            border-radius: none;
+            min-height: auto;
             max-height: 40px;
             border: none;
             background-color: transparent;
@@ -693,11 +693,6 @@
             font-weight: 600;
             z-index: 5;
         }
-
-        input:focus {
-            padding: 5px;
-        }
-
         .input input:not(:placeholder-shown)~.detalle {
             transform: translateY(0) scale(0.75);
             top: 0;
@@ -1522,13 +1517,13 @@
 
 .btn-calendario {
     width: fit-content;
-    min-width: 40px;
-    height: 100%;
+    max-width: 40px;
+    max-height: 40px;
     padding: 5px 15px;
     border: none;
     border-radius: 10px;
     font-size: var(--text-detalle);
-    background-color: var(--oct-color);
+    background-color: var(--fondo2);
     text-wrap: nowrap;
     color: var(--text);
     transition: all 0.5s ease;

@@ -158,9 +158,12 @@ export async function mostrarIngresos(busquedaProducto = '') {
             <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno almacen-general">
-            <div class="buscador">
-                <input type="text" class="buscar-producto" placeholder="Buscar..." value="${busquedaProducto}">
-                <i class='bx bx-search lupa2' style="right:0"></i>
+            <div class="entrada">
+                <i class='bx bx-search'></i>
+                <div class="input">
+                    <p class="detalle">Buscar</p>
+                    <input type="text" class="buscar-producto" placeholder="">
+                </div>
             </div>
             <div class="filtros-opciones etiquetas-filter">
                 <button class="btn-filtro activado">Todos</button>
@@ -224,6 +227,7 @@ export async function mostrarIngresos(busquedaProducto = '') {
 
     contenido.style.paddingBottom = '10px';
     eventosIngresos();
+    configuracionesEntrada();
 }
 function eventosIngresos() {
     const botonesEtiquetas = document.querySelectorAll('.filtros-opciones.etiquetas-filter .btn-filtro');
@@ -231,7 +235,6 @@ function eventosIngresos() {
     const selectPrecios = document.querySelector('.precios-select');
 
     const inputBusqueda = document.querySelector('.buscar-producto');
-    const iconoBusqueda = document.querySelector('.almacen-general .buscador .lupa2');
 
     const botonFlotante = document.createElement('button');
     const items = document.querySelectorAll('.registro-item');
@@ -373,18 +376,11 @@ function eventosIngresos() {
 
         }, 200); // Tiempo de espera para la animación de ocultamiento
     }
-    iconoBusqueda.addEventListener('click', () => {
-        if (inputBusqueda.value) {
-            inputBusqueda.value = '';
-            const mensajeNoEncontrado = document.querySelector('.no-encontrado');
-            mensajeNoEncontrado.style.display = 'none';
-            iconoBusqueda.className = 'bx bx-search lupa2';
-            aplicarFiltros();
-        }
-    })
+    inputBusqueda.addEventListener('focus', function() {
+        this.select();
+    });
+
     inputBusqueda.addEventListener('input', (e) => {
-        const busqueda = normalizarTexto(e.target.value);
-        iconoBusqueda.className = busqueda ? 'bx bx-x lupa2' : 'bx bx-search lupa2';
         aplicarFiltros();
     });
     botonesEtiquetas.forEach(boton => {

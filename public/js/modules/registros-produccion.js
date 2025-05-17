@@ -59,9 +59,12 @@ export async function mostrarMisRegistros() {
             <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno">
-            <div class="buscador">
-                <input type="text" class="buscar-registro-produccion" placeholder="Buscar...">
-                <i class='bx bx-search lupa'></i>
+            <div class="entrada">
+                <i class='bx bx-search'></i>
+                <div class="input">
+                    <p class="detalle">Buscar</p>
+                    <input type="text" class="buscar-registro-produccion" placeholder="">
+                </div>
                 <button class="btn-calendario"><i class='bx bx-calendar'></i></button>
             </div>
             <div class="filtros-opciones estado">
@@ -97,6 +100,7 @@ export async function mostrarMisRegistros() {
     contenido.innerHTML = registrationHTML;
 
     eventosMisRegistros();
+    configuracionesEntrada();
 }
 function eventosMisRegistros() {
     const btnExcel = document.getElementById('exportar-excel');
@@ -105,7 +109,6 @@ function eventosMisRegistros() {
     const botonesInfo = document.querySelectorAll('.btn-info');
     const items = document.querySelectorAll('.registro-item');
     const inputBusqueda = document.querySelector('.buscar-registro-produccion');
-    const iconoBusqueda = document.querySelector('.buscador .lupa');
     const botonCalendario = document.querySelector('.btn-calendario');
 
 
@@ -287,16 +290,10 @@ function eventosMisRegistros() {
 
 
     inputBusqueda.addEventListener('input', (e) => {
-        const busqueda = normalizarTexto(e.target.value);
-        iconoBusqueda.className = busqueda ? 'bx bx-x lupa' : 'bx bx-search lupa';
         aplicarFiltros();
     });
-    iconoBusqueda.addEventListener('click', () => {
-        if (inputBusqueda.value) {
-            inputBusqueda.value = '';
-            iconoBusqueda.className = 'bx bx-search lupa';
-            aplicarFiltros();
-        }
+    inputBusqueda.addEventListener('focus', function() {
+        this.select();
     });
     function normalizarTexto(texto) {
         return texto.toString()

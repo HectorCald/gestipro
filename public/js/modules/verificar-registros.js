@@ -288,6 +288,9 @@ function eventosVerificacion() {
     inputBusqueda.addEventListener('input', () => {
         aplicarFiltros();
     });
+    inputBusqueda.addEventListener('focus', function() {
+        this.select();
+    });
 
 
     items.forEach(item => {
