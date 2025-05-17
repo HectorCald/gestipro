@@ -115,9 +115,12 @@ export async function mostrarConteo() {
             <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno almacen-general">
-            <div class="buscador">
-                <input type="text" class="buscar-producto" placeholder="Buscar...">
-                <i class='bx bx-search lupa2'></i>
+            <div class="entrada">
+                <i class='bx bx-search'></i>
+                <div class="input">
+                    <p class="detalle">Buscar</p>
+                    <input type="text" class="buscar-producto" placeholder="">
+                </div>
             </div>
             <div class="filtros-opciones etiquetas-filter">
                 <button class="btn-filtro activado">Todos</button>
@@ -172,13 +175,13 @@ export async function mostrarConteo() {
     });
 
     eventosConteo();
+    configuracionesEntrada();
 }
 function eventosConteo() {
     const botonesEtiquetas = document.querySelectorAll('.filtros-opciones.etiquetas-filter .btn-filtro');
     const botonesCantidad = document.querySelectorAll('.filtros-opciones.cantidad-filter .btn-filtro');
 
     const inputBusqueda = document.querySelector('.buscar-producto');
-    const iconoBusqueda = document.querySelector('.almacen-general .buscador .lupa2');
 
     const vistaPrevia = document.getElementById('vista-previa');
     const registrosConteo = document.getElementById('registros-conteo');
@@ -273,7 +276,7 @@ function eventosConteo() {
                 setTimeout(() => {
                     registro.style.opacity = '1';
                     registro.style.transform = 'translateY(0)';
-                }, 0);
+                },  20);
             });
 
             // Mensaje vacío
@@ -295,18 +298,11 @@ function eventosConteo() {
             behavior: 'smooth'
         });
     }
-    iconoBusqueda.addEventListener('click', () => {
-        if (inputBusqueda.value) {
-            inputBusqueda.value = '';
-            const mensajeNoEncontrado = document.querySelector('.no-encontrado');
-            mensajeNoEncontrado.style.display = 'none';
-            iconoBusqueda.className = 'bx bx-search lupa2';
-            aplicarFiltros();
-        }
-    })
+    inputBusqueda.addEventListener('focus', function() {
+        this.select();
+    });
+
     inputBusqueda.addEventListener('input', (e) => {
-        const busqueda = normalizarTexto(e.target.value);
-        iconoBusqueda.className = busqueda ? 'bx bx-x lupa2' : 'bx bx-search lupa2';
         aplicarFiltros();
     });
     botonesEtiquetas.forEach(boton => {
@@ -481,9 +477,12 @@ function eventosConteo() {
             <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno">
-            <div class="buscador">
-                <input type="text" class="buscar-registro" placeholder="Buscar...">
-                <i class='bx bx-search lupa2'></i>
+            <div class="entrada">
+                <i class='bx bx-search'></i>
+                <div class="input">
+                    <p class="detalle">Buscar</p>
+                    <input type="text" class="buscar-registro" placeholder="">
+                </div>
             </div>
             ${registrosConteos.map(registro => `
                 <div class="registro-item" data-id="${registro.id}">
@@ -528,7 +527,6 @@ function eventosConteo() {
         const items = document.querySelectorAll('.registro-item');
 
         const inputBusqueda = document.querySelector('.buscar-registro');
-        const iconoBusqueda = document.querySelector('.relleno .buscador .lupa2');
 
         const botonesEliminar = document.querySelectorAll('.btn-eliminar');
         const botonesEditar = document.querySelectorAll('.btn-editar');
@@ -578,39 +576,51 @@ function eventosConteo() {
             const mensajeNoEncontrado = document.querySelector('.no-encontrado');
             let encontrados = 0;
 
+            // Animación de ocultamiento
             registros.forEach(registro => {
-                const id = registro.dataset.id;
-                const registroData = registrosConteos.find(r => r.id === id);
-                const textoRegistro = normalizarTexto([
-                    registroData.id,
-                    registroData.fecha,
-                    registroData.nombre,
-                    registroData.productos,
-                    registroData.observaciones || ''
-                ].join(' '));
-
-                if (textoRegistro.includes(busqueda)) {
-                    registro.style.display = 'flex';
-                    encontrados++;
-                } else {
-                    registro.style.display = 'none';
-                }
+                registro.style.opacity = '0';
+                registro.style.transform = 'translateY(-20px)';
             });
 
-            mensajeNoEncontrado.style.display = encontrados === 0 ? 'block' : 'none';
+            setTimeout(() => {
+                registros.forEach(registro => {
+                    registro.style.display = 'none';
+                });
+
+                registros.forEach((registro, index) => {
+                    const id = registro.dataset.id;
+                    const registroData = registrosConteos.find(r => r.id === id);
+                    const textoRegistro = normalizarTexto([
+                        registroData.id,
+                        registroData.fecha,
+                        registroData.nombre,
+                        registroData.productos,
+                        registroData.observaciones || ''
+                    ].join(' '));
+
+                    if (textoRegistro.includes(busqueda)) {
+                        registro.style.display = 'flex';
+                        registro.style.opacity = '0';
+                        registro.style.transform = 'translateY(20px)';
+
+                        setTimeout(() => {
+                            registro.style.opacity = '1';
+                            registro.style.transform = 'translateY(0)';
+                        },20); // Efecto cascada suave
+
+                        encontrados++;
+                    }
+                });
+
+                mensajeNoEncontrado.style.display = encontrados === 0 ? 'block' : 'none';
+            }, 200);
         }
 
         inputBusqueda.addEventListener('input', () => {
-            const busqueda = inputBusqueda.value;
-            iconoBusqueda.className = busqueda ? 'bx bx-x lupa2' : 'bx bx-search lupa2';
             aplicarFiltroBusqueda();
         });
-        iconoBusqueda.addEventListener('click', () => {
-            if (inputBusqueda.value) {
-                inputBusqueda.value = '';
-                iconoBusqueda.className = 'bx bx-search lupa2';
-                aplicarFiltroBusqueda();
-            }
+        inputBusqueda.addEventListener('focus', function() {
+            this.select();
         });
 
 
@@ -868,7 +878,9 @@ function eventosConteo() {
         btnExcel.addEventListener('click', () => exportarArchivos('conteo', registrosAExportar));
 
         aplicarFiltroBusqueda();
+        configuracionesEntrada();
     }
 
     aplicarFiltros();
+
 }

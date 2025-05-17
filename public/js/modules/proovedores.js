@@ -46,9 +46,12 @@ export async function mostrarProovedores() {
             <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno">
-            <div class="buscador">
-                <input type="text" class="buscar-proovedor" placeholder="Buscar...">
-                <i class='bx bx-search lupa2'></i>
+            <div class="entrada">
+                <i class='bx bx-search'></i>
+                <div class="input">
+                    <p class="detalle">Buscar</p>
+                    <input type="text" class="buscar-proovedor" placeholder="">
+                </div>
             </div>
                 ${proovedores.map(proovedor => `
                 <div class="registro-item" data-id="${proovedor.id}">
@@ -80,6 +83,7 @@ export async function mostrarProovedores() {
     contenido.innerHTML = registrationHTML;
     
     eventosProovedores();
+    configuracionesEntrada();
 }
 function eventosProovedores() {
     const botonesEliminar = document.querySelectorAll('.btn-eliminar-proovedor');
@@ -88,7 +92,6 @@ function eventosProovedores() {
     const botonesHistorial = document.querySelectorAll('.btn-historial-proovedor');
 
     const inputBusqueda = document.querySelector('.buscar-proovedor');
-    const iconoBusqueda = document.querySelector('.buscador .lupa2');
 
     const btnNuevoCliente = document.querySelector('.btn-crear-proovedor');
     const items = document.querySelectorAll('.registro-item');
@@ -136,16 +139,10 @@ function eventosProovedores() {
     });
 
     inputBusqueda.addEventListener('input', (e) => {
-        const busqueda = normalizarTexto(e.target.value);
-        iconoBusqueda.className = busqueda ? 'bx bx-x lupa2' : 'bx bx-search-alt-2 lupa2';
         aplicarFiltros();
     });
-    iconoBusqueda.addEventListener('click', () => {
-        if (inputBusqueda.value) {
-            inputBusqueda.value = '';
-            iconoBusqueda.className = 'bx bx-search-alt-2 lupa2';
-            aplicarFiltros();
-        }
+    inputBusqueda.addEventListener('focus', function() {
+        this.select();
     });
     function aplicarFiltros() {
         const busqueda = normalizarTexto(inputBusqueda.value);

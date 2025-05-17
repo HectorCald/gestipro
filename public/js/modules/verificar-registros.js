@@ -232,7 +232,7 @@ function eventosVerificacion() {
                     setTimeout(() => {
                         elemento.style.opacity = '1';
                         elemento.style.transform = 'translateY(0)';
-                    }, 20); // Efecto cascada suave
+                    },20); // Efecto cascada suave
                 }
             });
 

@@ -118,9 +118,12 @@ export async function mostrarMovimientosAlmacen(nombre = '') {
             <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno">
-            <div class="buscador">
-                <input type="text" class="buscar-registro-almacen" value="${nombre}" placeholder="Buscar...">
-                <i class='bx bx-search lupa'></i>
+            <div class="entrada">
+                <i class='bx bx-search'></i>
+                <div class="input">
+                    <p class="detalle">Buscar</p>
+                    <input type="text" class="buscar-registro-almacen" placeholder="">
+                </div>
                 <button class="btn-calendario"><i class='bx bx-calendar'></i></button>
             </div>
             <div class="filtros-opciones tipo">
@@ -161,6 +164,7 @@ export async function mostrarMovimientosAlmacen(nombre = '') {
 
     
     eventosRegistrosAlmacen();
+    configuracionesEntrada();
 }
 function eventosRegistrosAlmacen() {
     const btnExcel = document.getElementById('exportar-excel');
@@ -175,7 +179,6 @@ function eventosRegistrosAlmacen() {
     const items = document.querySelectorAll('.registro-item');
 
     const inputBusqueda = document.querySelector('.buscar-registro-almacen');
-    const iconoBusqueda = document.querySelector('.relleno .buscador .lupa');
     const botonCalendario = document.querySelector('.btn-calendario');
 
     let filtroNombreActual = 'Todos';
@@ -354,18 +357,11 @@ function eventosRegistrosAlmacen() {
         });
     }
     inputBusqueda.addEventListener('input', (e) => {
-        const busqueda = normalizarTexto(e.target.value);
-        iconoBusqueda.className = busqueda ? 'bx bx-x lupa' : 'bx bx-search lupa';
         aplicarFiltros();
     });
-    iconoBusqueda.addEventListener('click', () => {
-        if (inputBusqueda.value) {
-            inputBusqueda.value = '';
-            iconoBusqueda.className = 'bx bx-search lupa';
-            aplicarFiltros();
-        }
+    inputBusqueda.addEventListener('focus', function() {
+        this.select();
     });
-
 
     document.querySelector('.proovedor-cliente').addEventListener('change', aplicarFiltros);
     function actualizarSelectProovedorCliente(tipoFiltro) {

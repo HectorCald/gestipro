@@ -46,9 +46,12 @@ export async function mostrarClientes() {
             <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno">
-            <div class="buscador">
-                <input type="text" class="buscar-cliente" placeholder="Buscar...">
-                <i class='bx bx-search lupa2'></i>
+            <div class="entrada">
+                <i class='bx bx-search'></i>
+                <div class="input">
+                    <p class="detalle">Buscar</p>
+                    <input type="text" class="buscar-cliente" placeholder="">
+                </div>
             </div>
                 ${clientes.map(cliente => `
                 <div class="registro-item" data-id="${cliente.id}">
@@ -80,6 +83,7 @@ export async function mostrarClientes() {
     contenido.innerHTML = registrationHTML;
     
     eventosClientes();
+    configuracionesEntrada();
 }
 function eventosClientes() {
     const botonesEliminar = document.querySelectorAll('.btn-eliminar-cliente');
@@ -88,7 +92,6 @@ function eventosClientes() {
     const botonesHistorial = document.querySelectorAll('.btn-historial-cliente');
 
     const inputBusqueda = document.querySelector('.buscar-cliente');
-    const iconoBusqueda = document.querySelector('.buscador i');
 
     const btnNuevoCliente = document.querySelector('.btn-crear-cliente');
 
@@ -136,8 +139,6 @@ function eventosClientes() {
 
 
     inputBusqueda.addEventListener('input', (e) => {
-        const busqueda = normalizarTexto(e.target.value);
-        iconoBusqueda.className = busqueda ? 'bx bx-x lupa2' : 'bx bx-search-alt-2 lupa2';
         aplicarFiltros();
     });
 
@@ -181,12 +182,8 @@ function eventosClientes() {
             mensajeNoEncontrado.style.display = hayResultados ? 'none' : 'block';
         }, 300);
     }
-    iconoBusqueda.addEventListener('click', () => {
-        if (inputBusqueda.value) {
-            inputBusqueda.value = '';
-            iconoBusqueda.className = 'bx bx-search-alt-2 lupa2';
-            aplicarFiltros();
-        }
+    inputBusqueda.addEventListener('focus', function() {
+        this.select();
     });
     function normalizarTexto(texto) {
         return (texto || '').toString()
