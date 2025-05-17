@@ -222,7 +222,7 @@ export async function mostrarIngresos(busquedaProducto = '') {
     }
 
 
-    const { aplicarFiltros } = eventosIngresos();
+    eventosIngresos();
     aplicarFiltros('Todos', 'Todos');
     contenido.style.paddingBottom = '10px';
 }

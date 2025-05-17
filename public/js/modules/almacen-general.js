@@ -217,7 +217,7 @@ export async function mostrarAlmacenGeneral() {
         selectPrecios.dispatchEvent(new Event('change'));
     }
 
-    const { aplicarFiltros } = eventosAlmacenGeneral();
+    eventosAlmacenGeneral();
     aplicarFiltros('Todos', 'Todos');
 }
 function eventosAlmacenGeneral() {

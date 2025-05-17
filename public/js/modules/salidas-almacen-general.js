@@ -221,7 +221,7 @@ export async function mostrarSalidas() {
     }
 
 
-    const { aplicarFiltros } = eventosSalidas();
+    eventosSalidas();
     aplicarFiltros('Todos', 'Todos');
 
     contenido.style.paddingBottom = '10px';

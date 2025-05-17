@@ -96,7 +96,7 @@ export async function mostrarMisRegistros() {
     contenido.innerHTML = registrationHTML;
 
     mostrarAnuncio();
-    const { aplicarFiltros } = eventosMisRegistros();
+    eventosMisRegistros();
 
     aplicarFiltros('Todos');
 }

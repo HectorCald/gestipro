@@ -159,7 +159,7 @@ export async function mostrarMovimientosAlmacen(nombre = '') {
     contenido.innerHTML = registrationHTML;
 
     mostrarAnuncio();
-    const { aplicarFiltros } = eventosRegistrosAlmacen();
+    eventosRegistrosAlmacen();
 
     aplicarFiltros('Todos');
 }

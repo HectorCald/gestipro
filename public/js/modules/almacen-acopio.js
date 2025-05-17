@@ -147,7 +147,7 @@ export async function mostrarAlmacenAcopio() {
     contenido.innerHTML = registrationHTML;
     mostrarAnuncio();
 
-    const { aplicarFiltros } = eventosAlmacenAcopio();
+    eventosAlmacenAcopio();
     aplicarFiltros('Todos');
 }
 function eventosAlmacenAcopio() {

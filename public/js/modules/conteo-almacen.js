@@ -170,7 +170,7 @@ export async function mostrarConteo() {
         }
     });
 
-    const { aplicarFiltros } = eventosConteo();
+    eventosConteo();
     aplicarFiltros('Todos', 'Todos');
 }
 function eventosConteo() {
