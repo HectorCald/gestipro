@@ -108,7 +108,6 @@ export async function mostrarVerificacion() {
     
     
     eventosVerificacion();
-    aplicarFiltros('Todos', 'Todos');
 }
 function eventosVerificacion() {
     const btnExcel = document.getElementById('exportar-excel');
@@ -458,7 +457,6 @@ function eventosVerificacion() {
                     });
 
                     ocultarAnuncioSecond();
-                    await obtenerRegistrosProduccion();
                     await mostrarVerificacion();
                     await mostrarIngresos(registro.producto); // Pasar el nombre del producto verificado
                 } else {
@@ -829,5 +827,5 @@ function eventosVerificacion() {
 
 
     btnExcel.addEventListener('click', () => exportarArchivos('produccion', registrosAExportar));
-    return { aplicarFiltros };
+
 }

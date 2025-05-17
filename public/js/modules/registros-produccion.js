@@ -97,8 +97,6 @@ export async function mostrarMisRegistros() {
 
     mostrarAnuncio();
     eventosMisRegistros();
-
-    aplicarFiltros('Todos');
 }
 function eventosMisRegistros() {
     const btnExcel = document.getElementById('exportar-excel');
@@ -371,5 +369,4 @@ function eventosMisRegistros() {
 
 
     btnExcel.addEventListener('click', () => exportarArchivos('produccion', registrosAExportar));
-    return { aplicarFiltros };
 }

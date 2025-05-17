@@ -218,7 +218,6 @@ export async function mostrarAlmacenGeneral() {
     }
 
     eventosAlmacenGeneral();
-    aplicarFiltros('Todos', 'Todos');
 }
 function eventosAlmacenGeneral() {
     const botonesEtiquetas = document.querySelectorAll('.filtros-opciones.etiquetas-filter .btn-filtro');
@@ -1356,6 +1355,4 @@ function eventosAlmacenGeneral() {
             }
         });
     }
-
-    return { aplicarFiltros };
 }

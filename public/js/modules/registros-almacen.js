@@ -160,8 +160,6 @@ export async function mostrarMovimientosAlmacen(nombre = '') {
 
     mostrarAnuncio();
     eventosRegistrosAlmacen();
-
-    aplicarFiltros('Todos');
 }
 function eventosRegistrosAlmacen() {
     const btnExcel = document.getElementById('exportar-excel');
@@ -798,5 +796,4 @@ function eventosRegistrosAlmacen() {
 
 
     btnExcel.addEventListener('click', () => exportarArchivos('almacen', registrosAExportar));
-    return { aplicarFiltros };
 }

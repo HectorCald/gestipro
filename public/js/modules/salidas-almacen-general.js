@@ -222,7 +222,6 @@ export async function mostrarSalidas() {
 
     contenido.style.paddingBottom = '10px';
     eventosSalidas();
-    aplicarFiltros('Todos', 'Todos');
 }
 function eventosSalidas() {
     const botonesEtiquetas = document.querySelectorAll('.filtros-opciones.etiquetas-filter .btn-filtro');
@@ -855,6 +854,4 @@ function eventosSalidas() {
         }
     }
     window.registrarSalida = registrarSalida;
-
-    return { aplicarFiltros };
 }

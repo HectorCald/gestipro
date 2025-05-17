@@ -223,7 +223,6 @@ export async function mostrarIngresos(busquedaProducto = '') {
 
     contenido.style.paddingBottom = '10px';
     eventosIngresos();
-    aplicarFiltros('Todos', 'Todos');
 }
 function eventosIngresos() {
     const botonesEtiquetas = document.querySelectorAll('.filtros-opciones.etiquetas-filter .btn-filtro');
@@ -856,5 +855,5 @@ function eventosIngresos() {
         }
     }
     window.registrarIngreso = registrarIngreso;
-    return { aplicarFiltros };
+
 }

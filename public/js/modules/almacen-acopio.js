@@ -148,7 +148,6 @@ export async function mostrarAlmacenAcopio() {
     mostrarAnuncio();
 
     eventosAlmacenAcopio();
-    aplicarFiltros('Todos');
 }
 function eventosAlmacenAcopio() {
     const botonesEtiquetas = document.querySelectorAll('.filtros-opciones.etiquetas-filter .btn-filtro');
@@ -1149,5 +1148,4 @@ function eventosAlmacenAcopio() {
             }
         });
     }
-    return { aplicarFiltros };
 }

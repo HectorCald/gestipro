@@ -171,7 +171,6 @@ export async function mostrarConteo() {
     });
 
     eventosConteo();
-    aplicarFiltros('Todos', 'Todos');
 }
 function eventosConteo() {
     const botonesEtiquetas = document.querySelectorAll('.filtros-opciones.etiquetas-filter .btn-filtro');
@@ -868,6 +867,4 @@ function eventosConteo() {
         });
         btnExcel.addEventListener('click', () => exportarArchivos('conteo', registrosAExportar));
     }
-
-    return { aplicarFiltros };
 }
