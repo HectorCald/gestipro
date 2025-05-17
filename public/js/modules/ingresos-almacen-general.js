@@ -227,7 +227,10 @@ export async function mostrarIngresos(busquedaProducto = '') {
 
     contenido.style.paddingBottom = '10px';
     eventosIngresos();
-    configuracionesEntrada();
+    setTimeout(() => {
+        configuracionesEntrada();
+    }, 100);
+    
 }
 function eventosIngresos() {
     const botonesEtiquetas = document.querySelectorAll('.filtros-opciones.etiquetas-filter .btn-filtro');

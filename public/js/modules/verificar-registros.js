@@ -108,10 +108,12 @@ export async function mostrarVerificacion() {
     `;
     contenido.innerHTML = registrationHTML;
     mostrarAnuncio();
-    
-    
+
+
     eventosVerificacion();
-    configuracionesEntrada();
+    setTimeout(() => {
+        configuracionesEntrada();
+    }, 100);
 }
 function eventosVerificacion() {
     const btnExcel = document.getElementById('exportar-excel');
@@ -232,7 +234,7 @@ function eventosVerificacion() {
                     setTimeout(() => {
                         elemento.style.opacity = '1';
                         elemento.style.transform = 'translateY(0)';
-                    },20); // Efecto cascada suave
+                    }, 20); // Efecto cascada suave
                 }
             });
 
@@ -288,7 +290,7 @@ function eventosVerificacion() {
     inputBusqueda.addEventListener('input', () => {
         aplicarFiltros();
     });
-    inputBusqueda.addEventListener('focus', function() {
+    inputBusqueda.addEventListener('focus', function () {
         this.select();
     });
 
@@ -407,8 +409,20 @@ function eventosVerificacion() {
         btnVerificar.addEventListener('click', confirmarVerificacion);
 
         async function confirmarVerificacion() {
-            const cantidadReal = document.querySelector('.verificar-registro .cantidad_real').value.trim();
-            const observaciones = document.querySelector('.verificar-registro .observaciones').value.trim();
+            const cantidadRealInput = document.querySelector('.verificar-registro .cantidad_real');
+            const observacionesInput = document.querySelector('.verificar-registro .observaciones');
+
+            if (!cantidadRealInput || !observacionesInput) {
+                mostrarNotificacion({
+                    message: 'Error al acceder a los campos del formulario',
+                    type: 'error',
+                    duration: 3500
+                });
+                return;
+            }
+
+            const cantidadReal = cantidadRealInput.value.trim();
+            const observaciones = observacionesInput.value.trim();
 
             if (!cantidadReal) {
                 mostrarNotificacion({
@@ -421,7 +435,6 @@ function eventosVerificacion() {
 
             try {
                 mostrarCarga();
-
                 const registro = registrosProduccion.find(r => r.id === registroId);
 
                 const response = await fetch(`/verificar-registro-produccion/${registroId}`, {
@@ -456,7 +469,6 @@ function eventosVerificacion() {
 
                     ocultarAnuncioSecond();
                     await mostrarVerificacion();
-                    await mostrarIngresos(registro.producto); // Pasar el nombre del producto verificado
                 } else {
                     throw new Error(data.error || 'Error al verificar el registro');
                 }

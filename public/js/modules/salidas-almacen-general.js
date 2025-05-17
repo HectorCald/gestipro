@@ -226,7 +226,9 @@ export async function mostrarSalidas() {
 
     contenido.style.paddingBottom = '10px';
     eventosSalidas();
-    configuracionesEntrada();
+    setTimeout(() => {
+        configuracionesEntrada();
+    }, 100);
 }
 function eventosSalidas() {
     const botonesEtiquetas = document.querySelectorAll('.filtros-opciones.etiquetas-filter .btn-filtro');

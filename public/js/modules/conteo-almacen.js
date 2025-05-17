@@ -175,7 +175,9 @@ export async function mostrarConteo() {
     });
 
     eventosConteo();
-    configuracionesEntrada();
+    setTimeout(() => {
+        configuracionesEntrada();
+    }, 100);
 }
 function eventosConteo() {
     const botonesEtiquetas = document.querySelectorAll('.filtros-opciones.etiquetas-filter .btn-filtro');
@@ -519,6 +521,9 @@ function eventosConteo() {
 
         contenido.innerHTML = registrationHTML;
         eventosRegistrosConteo();
+        setTimeout(() => {
+            configuracionesEntrada();
+        }, 100);
     }
     function eventosRegistrosConteo() {
         const btnExcel = document.getElementById('exportar-excel');

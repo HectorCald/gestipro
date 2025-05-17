@@ -164,7 +164,9 @@ export async function mostrarMovimientosAlmacen(nombre = '') {
 
     
     eventosRegistrosAlmacen();
-    configuracionesEntrada();
+    setTimeout(() => {
+        configuracionesEntrada();
+    }, 100);
 }
 function eventosRegistrosAlmacen() {
     const btnExcel = document.getElementById('exportar-excel');

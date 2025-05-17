@@ -83,7 +83,9 @@ export async function mostrarClientes() {
     contenido.innerHTML = registrationHTML;
     
     eventosClientes();
-    configuracionesEntrada();
+    setTimeout(() => {
+        configuracionesEntrada();
+    }, 100);
 }
 function eventosClientes() {
     const botonesEliminar = document.querySelectorAll('.btn-eliminar-cliente');

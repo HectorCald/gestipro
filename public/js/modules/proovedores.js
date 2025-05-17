@@ -83,7 +83,9 @@ export async function mostrarProovedores() {
     contenido.innerHTML = registrationHTML;
     
     eventosProovedores();
-    configuracionesEntrada();
+    setTimeout(() => {
+        configuracionesEntrada();
+    }, 100);
 }
 function eventosProovedores() {
     const botonesEliminar = document.querySelectorAll('.btn-eliminar-proovedor');
