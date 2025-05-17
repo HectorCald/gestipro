@@ -189,6 +189,7 @@ function mostrarCuenta(nombre, apellido, email, foto) {
     contenido.innerHTML = registrationHTML;
     mostrarAnuncio();
     evetosCuenta();
+    configuracionesEntrada();
 }
 function evetosCuenta() {
     const inputFoto = document.querySelector('#input-foto');
