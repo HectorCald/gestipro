@@ -177,11 +177,10 @@ function mostrarMenu() {
 
     const menuHTML = `
         <div class="encabezado">
-            <h1 class="titulo">Menú de ${usuarioInfo.rol}</h1>
+            <h1 class="titulo">Menú de ${usuarioInfo}</h1>
             <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno">
-            <p class="normal"><i class='bx bx-chevron-right'></i> Tus funciones basicas</p>
             ${opcionesHTML}
         </div>
     `;

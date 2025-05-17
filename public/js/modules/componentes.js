@@ -216,7 +216,7 @@ export function configuracionesEntrada() {
 
         // Verificar el estado inicial
         if (input.value.trim() !== '') {
-            label.style.transform = 'translateY(-100%) scale(0.75)';
+            label.style.transform = 'translateY(-90%) scale(0.75)';
             label.style.color = 'var(--cuarto-color)';
             label.style.fontWeight = '600';
             label.style.zIndex = '5';
