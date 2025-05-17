@@ -115,7 +115,6 @@ export async function mostrarVerificacion() {
             item.style.transform = 'translateY(0)';
         }, index * 50); // Efecto cascada
     });
-    alert('hola')
     
     eventosVerificacion();
     aplicarFiltros('Todos', 'Todos');
