@@ -220,11 +220,9 @@ export async function mostrarSalidas() {
         selectPrecios.dispatchEvent(new Event('change'));
     }
 
-
+    contenido.style.paddingBottom = '10px';
     eventosSalidas();
     aplicarFiltros('Todos', 'Todos');
-
-    contenido.style.paddingBottom = '10px';
 }
 function eventosSalidas() {
     const botonesEtiquetas = document.querySelectorAll('.filtros-opciones.etiquetas-filter .btn-filtro');
