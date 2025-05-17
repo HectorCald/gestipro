@@ -77,6 +77,7 @@ async function obtenerAlmacenAcopio() {
 
 
 export async function mostrarAlmacenAcopio() {
+    mostrarAnuncio();
     await obtenerAlmacenAcopio();
     const contenido = document.querySelector('.anuncio .contenido');
     const etiquetasUnicas = [...new Set(etiquetasAcopio.map(etiqueta => etiqueta.etiqueta))];
@@ -145,7 +146,7 @@ export async function mostrarAlmacenAcopio() {
     `;
 
     contenido.innerHTML = registrationHTML;
-    mostrarAnuncio();
+    
 
     eventosAlmacenAcopio();
 }
@@ -1148,4 +1149,6 @@ function eventosAlmacenAcopio() {
             }
         });
     }
+
+    aplicarFiltros();
 }

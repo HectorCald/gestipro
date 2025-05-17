@@ -36,6 +36,7 @@ async function obtenerClientes() {
 
 
 export async function mostrarClientes() {
+    mostrarAnuncio();
     await obtenerClientes();
 
     const contenido = document.querySelector('.anuncio .contenido');
@@ -77,7 +78,7 @@ export async function mostrarClientes() {
         </div>
     `;
     contenido.innerHTML = registrationHTML;
-    mostrarAnuncio();
+    
     eventosClientes();
 }
 function eventosClientes() {
@@ -514,4 +515,6 @@ function eventosClientes() {
         const cliente = clientes.find(c => c.id === clienteId);
         mostrarMovimientosAlmacen(cliente.nombre);
     }
+
+    aplicarFiltros();
 }

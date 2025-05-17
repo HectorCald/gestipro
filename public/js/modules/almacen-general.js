@@ -141,6 +141,7 @@ async function obtenerAlmacenGeneral() {
 
 
 export async function mostrarAlmacenGeneral() {
+    mostrarAnuncio();
     await obtenerAlmacenGeneral();
     const contenido = document.querySelector('.anuncio .contenido');
     // Usar etiquetas en lugar de nombres para los filtros
@@ -210,7 +211,7 @@ export async function mostrarAlmacenGeneral() {
         
     `;
     contenido.innerHTML = registrationHTML;
-    mostrarAnuncio();
+    
 
     const selectPrecios = document.querySelector('.precios-select');
     if (selectPrecios) {
@@ -1355,4 +1356,6 @@ function eventosAlmacenGeneral() {
             }
         });
     }
+
+    aplicarFiltros();
 }

@@ -108,6 +108,7 @@ async function obtenerRegistrosAlmacen() {
 
 
 export async function mostrarMovimientosAlmacen(nombre = '') {
+    mostrarAnuncio();
     await obtenerRegistrosAlmacen();
 
     const contenido = document.querySelector('.anuncio .contenido');
@@ -158,7 +159,7 @@ export async function mostrarMovimientosAlmacen(nombre = '') {
     `;
     contenido.innerHTML = registrationHTML;
 
-    mostrarAnuncio();
+    
     eventosRegistrosAlmacen();
 }
 function eventosRegistrosAlmacen() {
@@ -796,4 +797,5 @@ function eventosRegistrosAlmacen() {
 
 
     btnExcel.addEventListener('click', () => exportarArchivos('almacen', registrosAExportar));
+    aplicarFiltros();
 }

@@ -103,6 +103,7 @@ async function obtenerAlmacenGeneral() {
 
 
 export async function mostrarConteo() {
+    mostrarAnuncio();
     await obtenerAlmacenGeneral();
 
     const contenido = document.querySelector('.anuncio .contenido');
@@ -160,7 +161,7 @@ export async function mostrarConteo() {
     `;
 
     contenido.innerHTML = registrationHTML;
-    mostrarAnuncio();
+    
 
     const stockGuardado = JSON.parse(localStorage.getItem('damabrava_stock_fisico') || '{}');
     Object.entries(stockGuardado).forEach(([id, valor]) => {
@@ -470,6 +471,7 @@ function eventosConteo() {
 
     registrosConteo.addEventListener('click', registrosConteoAlmacen);
     async function registrosConteoAlmacen() {
+        mostrarAnuncio();
         await obtenerRegistrosConteo();
         const contenido = document.querySelector('.anuncio .contenido');
 
@@ -517,8 +519,6 @@ function eventosConteo() {
     `;
 
         contenido.innerHTML = registrationHTML;
-        mostrarAnuncio();
-
         eventosRegistrosConteo();
     }
     function eventosRegistrosConteo() {
@@ -866,5 +866,9 @@ function eventosConteo() {
             });
         });
         btnExcel.addEventListener('click', () => exportarArchivos('conteo', registrosAExportar));
+
+        aplicarFiltroBusqueda();
     }
+
+    aplicarFiltros();
 }

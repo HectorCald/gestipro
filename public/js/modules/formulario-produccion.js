@@ -2,6 +2,7 @@ let productosGlobal = [];
 
 async function obtenerProductos() {
     try {
+        mostrarCarga();
         const response = await fetch('/obtener-productos');
         const data = await response.json();
 
@@ -24,11 +25,15 @@ async function obtenerProductos() {
             duration: 3500
         });
         return false;
+    }finally{
+        ocultarCarga();
     }
 }
 
 
 export async function mostrarFormularioProduccion() {
+    mostrarAnuncio();
+    await obtenerProductos();
     const contenido = document.querySelector('.anuncio .contenido');
     const registrationHTML = `
         <div class="encabezado">
@@ -110,8 +115,7 @@ export async function mostrarFormularioProduccion() {
     `;
 
     contenido.innerHTML = registrationHTML;
-    mostrarAnuncio();
-    await obtenerProductos();
+    
     evetosFormularioProduccion();
 }
 function evetosFormularioProduccion() {

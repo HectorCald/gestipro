@@ -49,6 +49,7 @@ async function obtenerMisRegistros() {
 
 
 export async function mostrarMisRegistros() {
+    mostrarAnuncio();
     await obtenerMisRegistros();
 
     const contenido = document.querySelector('.anuncio .contenido');
@@ -95,7 +96,6 @@ export async function mostrarMisRegistros() {
     `;
     contenido.innerHTML = registrationHTML;
 
-    mostrarAnuncio();
     eventosMisRegistros();
 }
 function eventosMisRegistros() {
@@ -369,4 +369,5 @@ function eventosMisRegistros() {
 
 
     btnExcel.addEventListener('click', () => exportarArchivos('produccion', registrosAExportar));
+    aplicarFiltros();
 }

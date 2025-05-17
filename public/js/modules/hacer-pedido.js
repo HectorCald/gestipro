@@ -163,8 +163,8 @@ export async function mostrarHacerPedido(busquedaProducto = '') {
         }
     });
 
-    const { aplicarFiltros } = eventosPedidos();
-    aplicarFiltros('Todos');
+
+    eventosPedidos();
 
     contenido.style.paddingBottom = '10px';
 
@@ -659,5 +659,5 @@ function eventosPedidos() {
     }
     window.registrarPedido = registrarPedido;
 
-    return { aplicarFiltros };
+    aplicarFiltros();
 }

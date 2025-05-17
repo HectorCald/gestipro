@@ -36,6 +36,7 @@ async function obtenerProovedores() {
 
 
 export async function mostrarProovedores() {
+    mostrarAnuncio();
     await obtenerProovedores();
 
     const contenido = document.querySelector('.anuncio .contenido');
@@ -77,7 +78,7 @@ export async function mostrarProovedores() {
         </div>
     `;
     contenido.innerHTML = registrationHTML;
-    mostrarAnuncio();
+    
     eventosProovedores();
 }
 function eventosProovedores() {
@@ -515,4 +516,6 @@ function eventosProovedores() {
         const proovedor = proovedores.find(p => p.id === proovedorId);
         mostrarMovimientosAlmacen(proovedor.nombre);
     }
+
+    aplicarFiltros();
 }
