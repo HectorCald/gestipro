@@ -2,7 +2,7 @@ export async function mostrarAnuncio() {
     return new Promise(resolve => {
         const anuncio = document.querySelector('.anuncio');
         
-        anuncio.style.transform = 'translateY(100%)';
+        anuncio.style.transform = 'translateX(100%)';
         anuncio.style.display = 'flex';
         anuncio.offsetHeight;
         anuncio.classList.add('slide-in');
@@ -34,47 +34,34 @@ export async function mostrarAnuncio() {
     });
 }
 export async function mostrarAnuncioSecond() {
-    const anuncio = document.querySelector('.anuncio-second');
-    anuncio.style.transform = 'translateX(100%)';
-    anuncio.style.display = 'flex';
-    anuncio.offsetHeight;
-    anuncio.classList.add('slide-in');
+    return new Promise(resolve => {
+        const anuncio = document.querySelector('.anuncio-second');
+        anuncio.style.transform = 'translateX(100%)';
+        anuncio.style.display = 'flex';
+        anuncio.offsetHeight;
+        anuncio.classList.add('slide-in');
 
-    // Agregar una nueva entrada al historial (nivel 2)
-    history.pushState({ nivel: 2, tipo: 'anuncioSecond' }, '');
+        // Esperar a que termine la animación
+        anuncio.addEventListener('transitionend', () => {
+            resolve();
+        }, { once: true });
 
-    const handlePopState = async (event) => {
-        const anuncioSecondVisible = document.querySelector('.anuncio-second')?.style.display === 'flex';
-        if (anuncioSecondVisible) {
-            await ocultarAnuncioSecond();
-            // No agregamos nuevo estado aquí, dejamos que el history.back() funcione naturalmente
-        }
-    };
+        // Agregar una nueva entrada al historial (nivel 2)
+        history.pushState({ nivel: 2, tipo: 'anuncioSecond' }, '');
 
-    window.removeEventListener('popstate', handlePopState);
-    window.addEventListener('popstate', handlePopState);
-
-    // Solo agregamos el evento de clic si no es la selección inicial de empresa
-    const isSpreadsheetSelection = anuncio.querySelector('#spreadsheet-select');
-    if (!isSpreadsheetSelection) {
-        anuncio.addEventListener('click', async (e) => {
-            if (e.target === anuncio) {
-                e.preventDefault();
+        const handlePopState = async (event) => {
+            const anuncioSecondVisible = document.querySelector('.anuncio-second')?.style.display === 'flex';
+            if (anuncioSecondVisible) {
                 await ocultarAnuncioSecond();
-                anuncio.removeEventListener('touchstart', handleTouchStart);
-                anuncio.removeEventListener('touchmove', handleTouchMove);
-                history.back();
+                // No agregamos nuevo estado aquí, dejamos que el history.back() funcione naturalmente
             }
-        });
+        };
 
-        const contenido = anuncio.querySelector('.contenido');
-        if (contenido) {
-            contenido.addEventListener('click', (e) => {
-                e.stopPropagation();
-            });
-        }
-    }
-    configuracionesEntrada();
+        window.removeEventListener('popstate', handlePopState);
+        window.addEventListener('popstate', handlePopState);
+
+        configuracionesEntrada();
+    });
 }
 export async function ocultarAnuncio() {
     const anuncio = document.querySelector('.anuncio');
