@@ -222,7 +222,9 @@ export async function mostrarAlmacenGeneral() {
     }
 
     eventosAlmacenGeneral();
-    configuracionesEntrada();
+    setTimeout(() => {
+        configuracionesEntrada();
+    }, 100);
 }
 function eventosAlmacenGeneral() {
     const botonesEtiquetas = document.querySelectorAll('.filtros-opciones.etiquetas-filter .btn-filtro');
