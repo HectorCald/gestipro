@@ -7,6 +7,8 @@ let usuarioInfo = {
     estado: '',
     plugins: ''
 };
+let registrosProduccion = [];
+let registrosMovimientos = [];
 
 async function obtenerUsuario() {
     try {
@@ -70,17 +72,6 @@ async function obtenerUsuario() {
         });
         return false;
     }
-}
-let registrosProduccion = [];
-let registrosMovimientos = [];
-
-
-export function recuperarUsuarioLocal() {
-    const usuarioGuardado = localStorage.getItem('damabrava_usuario');
-    if (usuarioGuardado) {
-        return JSON.parse(usuarioGuardado);
-    }
-    return null;
 }
 async function obtenerMisRegistros() {
     try {
@@ -147,7 +138,6 @@ async function obtenerMovimientosAlmacen() {
         return false;
     }
 }
-
 function obtenerFunciones() {
     const atajosPorRol = {
         'Producción': [

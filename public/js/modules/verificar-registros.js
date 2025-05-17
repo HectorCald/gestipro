@@ -106,8 +106,18 @@ export async function mostrarVerificacion() {
     contenido.innerHTML = registrationHTML;
     mostrarAnuncio();
 
-
-    const { aplicarFiltros } = eventosVerificacion();
+    const items = document.querySelectorAll('.registro-item');
+    items.forEach((item, index) => {
+        item.style.opacity = '0';
+        item.style.transform = 'translateY(20px)';
+        setTimeout(() => {
+            item.style.opacity = '1';
+            item.style.transform = 'translateY(0)';
+        }, index * 50); // Efecto cascada
+    });
+    alert('hola')
+    
+    eventosVerificacion();
     aplicarFiltros('Todos', 'Todos');
 }
 function eventosVerificacion() {
@@ -153,6 +163,10 @@ function eventosVerificacion() {
         const busqueda = normalizarTexto(inputBusqueda.value);
         const items = document.querySelectorAll('.registro-item');
         const mensajeNoEncontrado = document.querySelector('.no-encontrado');
+
+        items.forEach(item => {
+            item.style.display = 'none';
+        });
 
         // Primero, filtrar todos los registros
         const registrosFiltrados = Array.from(items).map(registro => {
@@ -226,11 +240,11 @@ function eventosVerificacion() {
                     elemento.style.display = 'flex';
                     elemento.style.opacity = '0';
                     elemento.style.transform = 'translateY(20px)';
-
+                    
                     setTimeout(() => {
                         elemento.style.opacity = '1';
                         elemento.style.transform = 'translateY(0)';
-                    }, 20); // Efecto cascada suave
+                    }, index * 30);
                 }
             });
 
