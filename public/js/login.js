@@ -300,6 +300,9 @@ function crearFormularioRegistro() {
     mostrarAnuncio();
 
     eventosFormularioRegistro();
+    setTimeout(() => {
+        configuracionesEntrada();
+    }, 100);
 
 }
 function eventosFormularioRegistro() {
