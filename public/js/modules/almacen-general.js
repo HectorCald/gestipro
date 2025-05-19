@@ -507,8 +507,8 @@ function eventosAlmacenGeneral() {
             </div>
         </div>
         <div class="anuncio-botones">
-            <button class="btn-editar btn blue" data-id="${producto.id}"><i class='bx bx-edit'></i> Editar</button>
-            <button class="btn-eliminar btn red" data-id="${producto.id}"><i class="bx bx-trash"></i> Eliminar</button>
+            <button class="btn-editar btn blue" data-id="${producto.id}"><i class='bx bx-edit'></i></button>
+            <button class="btn-eliminar btn red" data-id="${producto.id}"><i class="bx bx-trash"></i></button>
         </div>
     `;
         contenido.innerHTML = registrationHTML;
