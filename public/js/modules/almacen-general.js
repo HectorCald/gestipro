@@ -175,7 +175,7 @@ export async function mostrarAlmacenGeneral() {
                 <button class="btn-filtro"><i class='bx bx-sort-up'></i></button>
                 <button class="btn-filtro"><i class='bx bx-sort-a-z'></i></button>
                 <button class="btn-filtro"><i class='bx bx-sort-z-a'></i></button>
-                <button class="btn-filtro">Sueltas</button>
+                <button class="btn-filtro">Slts.</button>
                 <select class="precios-select" style="width:100%">
                     ${preciosOpciones}
                 </select>
