@@ -96,6 +96,14 @@ function obtenerOpcionesMenu() {
                 detalle: 'Haz tu conteo fisico del almacen (imprime y archiva).',
                 onclick: 'onclick="mostrarConteo(); ocultarAnuncioSecond()"'
             },
+            {
+                clase: 'opcion-btn',
+                vista: 'almacen-view',
+                icono: 'fa-history',
+                texto: 'Registros conteo',
+                detalle: 'Comprueba, descarga y administra tus registros de conteo.',
+                onclick: 'onclick="registrosConteoAlmacen(); ocultarAnuncioSecond()"'
+            },
         ],
         'Administración': [
             {
@@ -133,7 +141,7 @@ function obtenerOpcionesMenu() {
     if (atajosRol) {
         atajosUsuario = [...atajosRol];
     }
-    return atajosUsuario.slice(0, 5);
+    return atajosUsuario.slice(0, 10);
 }
 export async function crearNav(rol) {
 

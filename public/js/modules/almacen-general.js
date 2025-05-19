@@ -422,25 +422,6 @@ function eventosAlmacenGeneral() {
             window.info(registroId);
         });
     });
-    document.addEventListener('click', () => {
-        document.querySelectorAll('.registro-item').forEach(item => {
-            item.classList.remove('activo');
-            item.querySelector('.registro-acciones')?.classList.remove('mostrar');
-        });
-    });
-    document.querySelector('.contenido').addEventListener('click', () => {
-        document.querySelectorAll('.registro-item').forEach(item => {
-            item.classList.remove('activo');
-            item.querySelector('.registro-acciones')?.classList.remove('mostrar');
-        });
-    });
-    document.querySelector('.relleno').addEventListener('scroll', () => {
-        document.querySelectorAll('.registro-item').forEach(item => {
-            item.classList.remove('activo');
-            item.querySelector('.registro-acciones')?.classList.remove('mostrar');
-        });
-    });
-
 
     btnCrearProducto.addEventListener('click', crearProducto);
     btnEtiquetas.addEventListener('click', gestionarEtiquetas);
@@ -553,7 +534,7 @@ function eventosAlmacenGeneral() {
                 </div>
             </div>
             <div class="anuncio-botones">
-                <button class="btn-eliminar-producto btn red"><i class="bi bi-trash-fill"></i> Confirmar eliminación</button>
+                <button class="btn-eliminar-producto btn red"><i class="bx bx-trash"></i> Confirmar eliminación</button>
             </div>
         `;
             contenido.innerHTML = registrationHTML;
@@ -768,7 +749,7 @@ function eventosAlmacenGeneral() {
                     </div>
             </div>
             <div class="anuncio-botones">
-                <button class="btn-editar-producto btn orange"><i class="bx bx-save"></i> Guardar cambios</button>
+                <button class="btn-editar-producto btn blue"><i class="bx bx-save"></i> Guardar cambios</button>
             </div>
         `;
 

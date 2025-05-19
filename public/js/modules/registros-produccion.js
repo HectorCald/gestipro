@@ -134,7 +134,6 @@ function eventosMisRegistros() {
     const btnExcel = document.getElementById('exportar-excel');
     const registrosAExportar = registrosProduccion;
     const botonesEstado = document.querySelectorAll('.filtros-opciones.estado .btn-filtro');
-    const botonesInfo = document.querySelectorAll('.btn-info');
     const items = document.querySelectorAll('.registro-item');
     const inputBusqueda = document.querySelector('.buscar-registro-produccion');
     const botonCalendario = document.querySelector('.btn-calendario');
@@ -146,26 +145,6 @@ function eventosMisRegistros() {
             window.info(registroId);
         });
     });
-    document.addEventListener('click', () => {
-        document.querySelectorAll('.registro-item').forEach(item => {
-            item.classList.remove('activo');
-            item.querySelector('.registro-acciones')?.classList.remove('mostrar');
-        });
-    });
-    document.querySelector('.contenido').addEventListener('click', () => {
-        document.querySelectorAll('.registro-item').forEach(item => {
-            item.classList.remove('activo');
-            item.querySelector('.registro-acciones')?.classList.remove('mostrar');
-        });
-    });
-    document.querySelector('.relleno').addEventListener('scroll', () => {
-        document.querySelectorAll('.registro-item').forEach(item => {
-            item.classList.remove('activo');
-            item.querySelector('.registro-acciones')?.classList.remove('mostrar');
-        });
-    });
-
-
 
     let filtroNombreActual = 'todos';
     let filtroFechaInstance = null;

@@ -174,10 +174,6 @@ function eventosRegistrosAlmacen() {
 
     const botonesTipo = document.querySelectorAll('.filtros-opciones.tipo .btn-filtro');
 
-    const botonesEliminar = document.querySelectorAll('.btn-eliminar');
-    const botonesEditar = document.querySelectorAll('.btn-editar');
-    const botonesInfo = document.querySelectorAll('.btn-info');
-
     const items = document.querySelectorAll('.registro-item');
 
     const inputBusqueda = document.querySelector('.buscar-registro-almacen');
@@ -185,24 +181,12 @@ function eventosRegistrosAlmacen() {
 
     let filtroNombreActual = 'Todos';
     let filtroFechaInstance = null;
-    items.forEach(item => {
-        const accionesDiv = item.querySelector('.registro-acciones');
-        if (accionesDiv && !item.querySelector('.fecha_verificacion')) {
-            item.addEventListener('click', (e) => {
-                e.stopPropagation();
-                // Ocultar todos los demás menús
-                document.querySelectorAll('.registro-item').forEach(otroItem => {
-                    if (otroItem !== item) {
-                        otroItem.classList.remove('activo');
-                        otroItem.querySelector('.registro-acciones')?.classList.remove('mostrar');
-                    }
-                });
 
-                // Alternar estado actual
-                item.classList.toggle('activo');
-                accionesDiv.classList.toggle('mostrar');
-            });
-        }
+    items.forEach(item => {
+        item.addEventListener('click', function () {
+            const registroId = this.dataset.id;
+            window.info(registroId);
+        });
     });
 
 
@@ -399,54 +383,28 @@ function eventosRegistrosAlmacen() {
         }
     }
 
-
-    document.addEventListener('click', () => {
-        document.querySelectorAll('.registro-item').forEach(item => {
-            item.classList.remove('activo');
-            item.querySelector('.registro-acciones')?.classList.remove('mostrar');
-        });
-    });
-    document.querySelector('.contenido').addEventListener('click', () => {
-        document.querySelectorAll('.registro-item').forEach(item => {
-            item.classList.remove('activo');
-            item.querySelector('.registro-acciones')?.classList.remove('mostrar');
-        });
-    });
-    document.querySelector('.relleno').addEventListener('scroll', () => {
-        document.querySelectorAll('.registro-item').forEach(item => {
-            item.classList.remove('activo');
-            item.querySelector('.registro-acciones')?.classList.remove('mostrar');
-        });
-    });
-
-
-    botonesInfo.forEach(btn => {
-        btn.addEventListener('click', info);
-    });
-    botonesEliminar.forEach(btn => {
-        btn.addEventListener('click', eliminar);
-    });
-    botonesEditar.forEach(btn => {
-        btn.addEventListener('click', editar);
-    });
-
-
-    function info(event) {
-        const registroId = event.currentTarget.dataset.id;
-        const registro = registrosAlmacen.find(r => r.id === registroId);  // Changed from registrosProduccion
+    window.info = function (registroId) {
+        const registro = registrosAlmacen.find(r => r.id === registroId);
+        if (!registro) return; // Changed from registrosProduccion
 
         const contenido = document.querySelector('.anuncio-second .contenido');
         const registrationHTML = `
         <div class="encabezado">
-            <h1 class="titulo">Info registro almacén</h1>
+            <h1 class="titulo">${registro.nombre_movimiento}</h1>
             <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno verificar-registro">
             <p class="normal"><i class='bx bx-chevron-right'></i>Información básica</p>
-            <div class="campo-vertical">
-                <span class="nombre"><strong><i class='bx bx-id-card'></i> ID: </strong>${registro.id}</span>
-                <span class="fecha"><strong><i class='bx bx-calendar'></i> Fecha - Hora: </strong>${registro.fecha_hora}</span>
-                <span class="valor ${registro.tipo.toLowerCase()}"><strong><i class='bx bx-transfer'></i> Tipo: </strong>${registro.tipo}</span>
+            <div class="campo-horizontal">
+                <div class="campo-vertical">
+                    <span class="nombre"><strong><i class='bx bx-id-card'></i> Id: </strong>${registro.id}</span>
+                    <span class="valor"><strong><i class='bx bx-calendar'></i> Fecha: </strong>${registro.fecha_hora.split(',')[0]}</span>
+                    <span class="valor"><strong><i class='bx bx-time'></i> Hora: </strong>${registro.fecha_hora.split(',')[1]}</span>
+                    <span class="valor"><strong><i class='bx bx-package'></i> Tipo: </strong>${registro.tipo}</span>
+                </div>    
+                <div class="imagen-producto">
+                    <i class='bx bx-package'></i>
+                </div>
             </div>
 
             <p class="normal"><i class='bx bx-chevron-right'></i>Detalles del movimiento</p>
@@ -477,318 +435,299 @@ function eventosRegistrosAlmacen() {
             <div class="campo-vertical">
                  <span class="valor"><strong><i class='bx bx-comment-detail'></i> Observaciones: </strong>${registro.observaciones || 'Ninguna'}</span>
             </div>
-           
-        </div>
-    `;
-        contenido.innerHTML = registrationHTML;
-        contenido.style.paddingBottom = '10px';
-        mostrarAnuncioSecond();
-    }
-    function eliminar(event) {
-        const registroId = event.currentTarget.dataset.id;
-        const registro = registrosAlmacen.find(r => r.id === registroId);  // Changed 
-
-        const contenido = document.querySelector('.anuncio-second .contenido');
-        const registrationHTML = `
-        <div class="encabezado">
-            <h1 class="titulo">Eliminar registro</h1>
-            <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
-        </div>
-        <div class="relleno">
-            <p class="normal"><i class='bx bx-chevron-right'></i>Información básica</p>
-            <div class="campo-vertical">
-                <span class="nombre"><strong><i class='bx bx-id-card'></i> ID: </strong>${registro.id}</span>
-                <span class="fecha"><strong><i class='bx bx-calendar'></i> Fecha - Hora: </strong>${registro.fecha_hora}</span>
-                <span class="valor ${registro.tipo.toLowerCase()}"><strong><i class='bx bx-transfer'></i> Tipo: </strong>${registro.tipo}</span>
-            </div>
-
-            <p class="normal"><i class='bx bx-chevron-right'></i>Detalles del movimiento</p>
-            <div class="campo-vertical">
-                <span class="valor"><strong><i class='bx bx-id-card'></i> Nombre movimiento: </strong>${registro.nombre_movimiento}</span>
-                <span class="valor"><strong><i class='bx bx-user'></i> Cliente/Proveedor: </strong>${registro.cliente_proovedor.split('(')[0].trim()}</span>
-                <span class="valor"><strong><i class='bx bx-user-circle'></i> Responsable: </strong>${registro.operario}</span>
-            </div>
-
-            <p class="normal"><i class='bx bx-chevron-right'></i>Productos y cantidades</p>
-            <div class="campo-vertical">
-                ${registro.productos.split(';').map((producto, index) => {
-            const cantidad = registro.cantidades.split(';')[index] || 'N/A';
-            return `
-                        <span class="producto"><strong><i class='bx bx-box'></i> ${producto.trim()}</strong>${cantidad.trim()} Und.</span>
-                    `;
-        }).join('')}
-            </div>
-            <p class="normal"><i class='bx bx-chevron-right'></i>Detalles financieros</p>
-            <div class="campo-vertical">
-                <span class="valor"><strong><i class='bx bx-dollar-circle'></i> Subtotal: </strong>Bs. ${parseFloat(registro.subtotal).toFixed(2)}</span>
-                <span class="valor"><strong><i class='bx bx-tag'></i> Descuento: </strong>Bs. ${parseFloat(registro.descuento).toFixed(2)}</span>
-                <span class="valor"><strong><i class='bx bx-trending-up'></i> Aumento: </strong>Bs. ${parseFloat(registro.aumento).toFixed(2)}</span>
-                <span class="valor total"><strong><i class='bx bx-money'></i> Total: </strong>Bs. ${parseFloat(registro.total).toFixed(2)}</span>
-            </div>
-
-            <p class="normal"><i class='bx bx-chevron-right'></i>Observaciones</p>
-            <div class="campo-vertical">
-                 <span class="valor"><strong><i class='bx bx-comment-detail'></i> Observaciones: </strong>${registro.observaciones || 'Ninguna'}</span>
-            </div>
-            <p class="normal"><i class='bx bx-chevron-right'></i>Motivo de la eliminación</p>
-            <div class="entrada">
-                <i class='bx bx-comment-detail'></i>
-                <div class="input">
-                    <p class="detalle">Motivo</p>
-                    <input class="motivo" type="text" autocomplete="off" placeholder=" " required>
-                </div>
-            </div>
         </div>
         <div class="anuncio-botones">
-            <button class="btn-eliminar-registro btn red"><i class="bi bi-trash-fill"></i> Eliminar</button>
+            <button class="btn-editar btn blue" data-id="${registro.id}"><i class='bx bx-edit'></i></button>
+            <button class="btn-eliminar btn red" data-id="${registro.id}"><i class="bx bx-trash"></i></button>
         </div>
     `;
         contenido.innerHTML = registrationHTML;
         mostrarAnuncioSecond();
 
-        // Agregar evento al botón guardar
-        const btnEliminar = contenido.querySelector('.btn-eliminar-registro');
-        btnEliminar.addEventListener('click', confirmarEliminacion);
+        const btnEditar = contenido.querySelector('.btn-editar');
+        const btnEliminar = contenido.querySelector('.btn-eliminar');
 
-        async function confirmarEliminacion() {
-            const motivo = document.querySelector('.motivo').value.trim();
+        btnEditar.addEventListener('click', () => editar(registro));
+        btnEliminar.addEventListener('click', () => eliminar(registro));
 
-            if (!motivo) {
-                mostrarNotificacion({
-                    message: 'Debe ingresar el motivo de la eliminación',
-                    type: 'warning',
-                    duration: 3500
-                });
-                return;
-            }
 
-            try {
-                mostrarCarga();
-                const response = await fetch(`/eliminar-registro-almacen/${registroId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error('Error en la respuesta del servidor');
-                }
-
-                const data = await response.json();
-
-                if (data.success) {
-                    await mostrarMovimientosAlmacen();
-                    await registrarHistorial(
-                        `${usuarioInfo.nombre} ${usuarioInfo.apellido}`,
-                        'Eliminación',
-                        `Motivo: ${motivo} - Registro: ${registro.producto} (${registro.lote})`
-                    );
-
+        function eliminar(registro) { // Changed 
+            const contenido = document.querySelector('.anuncio-second .contenido');
+            const registrationHTML = `
+            <div class="encabezado">
+                <h1 class="titulo">Eliminar registro</h1>
+               <button class="btn close" onclick="info('${registro.id}');"><i class="fas fa-arrow-right"></i></button>
+            </div>
+            <div class="relleno">
+                <p class="normal"><i class='bx bx-chevron-right'></i>Información básica</p>
+                <div class="campo-horizontal">
+                    <div class="campo-vertical">
+                        <span class="nombre"><strong><i class='bx bx-id-card'></i> Id: </strong>${registro.id}</span>
+                        <span class="valor"><strong><i class='bx bx-calendar'></i> Fecha: </strong>${registro.fecha_hora.split(',')[0]}</span>
+                        <span class="valor"><strong><i class='bx bx-time'></i> Hora: </strong>${registro.fecha_hora.split(',')[1]}</span>
+                        <span class="valor"><strong><i class='bx bx-package'></i> Tipo: </strong>${registro.tipo}</span>
+                    </div>    
+                    <div class="imagen-producto">
+                        <i class='bx bx-package'></i>
+                    </div>
+                </div>
+                <p class="normal"><i class='bx bx-chevron-right'></i>Motivo de la eliminación</p>
+                <div class="entrada">
+                    <i class='bx bx-comment-detail'></i>
+                    <div class="input">
+                        <p class="detalle">Motivo</p>
+                        <input class="motivo" type="text" autocomplete="off" placeholder=" " required>
+                    </div>
+                </div>
+            </div>
+            <div class="anuncio-botones">
+                <button class="btn-eliminar-registro btn red"><i class="bx bx-trash"></i> Confirmar eliminación</button>
+            </div>
+        `;
+            contenido.innerHTML = registrationHTML;
+            mostrarAnuncioSecond();
+    
+            // Agregar evento al botón guardar
+            const btnEliminar = contenido.querySelector('.btn-eliminar-registro');
+            btnEliminar.addEventListener('click', confirmarEliminacion);
+    
+            async function confirmarEliminacion() {
+                const motivo = document.querySelector('.motivo').value.trim();
+    
+                if (!motivo) {
                     mostrarNotificacion({
-                        message: 'Registro eliminado correctamente',
-                        type: 'success',
-                        duration: 3000
+                        message: 'Debe ingresar el motivo de la eliminación',
+                        type: 'warning',
+                        duration: 3500
                     });
-
-                    ocultarAnuncioSecond();
-                } else {
-                    throw new Error(data.error || 'Error al eliminar el registro');
+                    return;
                 }
-            } catch (error) {
-                console.error('Error:', error);
-                mostrarNotificacion({
-                    message: error.message || 'Error al eliminar el registro',
-                    type: 'error',
-                    duration: 3500
-                });
-            } finally {
-                ocultarCarga();
+    
+                try {
+                    mostrarCarga();
+                    const response = await fetch(`/eliminar-registro-almacen/${registroId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+    
+                    if (!response.ok) {
+                        throw new Error('Error en la respuesta del servidor');
+                    }
+    
+                    const data = await response.json();
+    
+                    if (data.success) {
+                        await mostrarMovimientosAlmacen();
+                        await registrarHistorial(
+                            `${usuarioInfo.nombre} ${usuarioInfo.apellido}`,
+                            'Eliminación',
+                            `Motivo: ${motivo} - Registro: ${registro.producto} (${registro.lote})`
+                        );
+    
+                        mostrarNotificacion({
+                            message: 'Registro eliminado correctamente',
+                            type: 'success',
+                            duration: 3000
+                        });
+    
+                        ocultarAnuncioSecond();
+                    } else {
+                        throw new Error(data.error || 'Error al eliminar el registro');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    mostrarNotificacion({
+                        message: error.message || 'Error al eliminar el registro',
+                        type: 'error',
+                        duration: 3500
+                    });
+                } finally {
+                    ocultarCarga();
+                }
             }
         }
-    }
-    function editar(event) {
-        const registroId = event.currentTarget.dataset.id;
-        const registro = registrosAlmacen.find(r => r.id === registroId);
-
-        const contenido = document.querySelector('.anuncio-second .contenido');
-        const registrationHTML = `
-        <div class="encabezado">
-            <h1 class="titulo">Editar registro almacén</h1>
-            <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
-        </div>
-        <div class="relleno editar-produccion">
-        <p class="normal"><i class='bx bx-chevron-right'></i>Información basica</p>
-            <div class="entrada">
-                <i class='bx bx-id-card'></i>
-                <div class="input">
-                    <p class="detalle">Nombre del movimiento</p>
-                    <input class="nombre-movimiento" value="${registro.nombre_movimiento}" type="text" autocomplete="off" placeholder=" " required>
-                </div>
+        function editar(registro) {
+            const contenido = document.querySelector('.anuncio-second .contenido');
+            const registrationHTML = `
+            <div class="encabezado">
+                <h1 class="titulo">Editar registro almacén</h1>
+                <button class="btn close" onclick="info('${registro.id}');"><i class="fas fa-arrow-right"></i></button>
             </div>
-            <div class="entrada">
-                <i class='bx bx-user'></i>
-                <div class="input">
-                    <p class="detalle">Cliente/Proovedor</p>
-                    <select class="cliente">
-                        <option value="${registro.cliente_proovedor}">${registro.cliente_proovedor.split('(')[0].trim()}</option>
-                        ${registro.tipo.toLowerCase() === 'salida'
-                ? clientes.map(c => `<option value="${c.nombre}(${c.id})">${c.nombre}</option>`).join('')
-                : proovedores.map(p => `<option value="${p.nombre}(${p.id})">${p.nombre}</option>`).join('')
-            }
-                    </select>
-                </div>
-            </div>
-            <div class="entrada">
-                <i class='bx bx-user-circle'></i>
-                <div class="input">
-                    <p class="detalle">Responsable</p>
-                    <input class="responsable" type="text" value="${registro.operario}" autocomplete="off" placeholder=" " required>
-                </div>
-            </div>
-            <p class="normal"><i class='bx bx-chevron-right'></i>Productos y cantidades</p>
-            ${registro.productos.split(';').map((producto, index) => `
+            <div class="relleno editar-produccion">
+            <p class="normal"><i class='bx bx-chevron-right'></i>Información basica</p>
                 <div class="entrada">
-                    <i class='bx bx-package'></i>
+                    <i class='bx bx-id-card'></i>
                     <div class="input">
-                        <p class="detalle">Producto</p>
-                        <input class="producto" value="${producto.trim()}" autocomplete="off">
+                        <p class="detalle">Nombre del movimiento</p>
+                        <input class="nombre-movimiento" value="${registro.nombre_movimiento}" type="text" autocomplete="off" placeholder=" " required>
                     </div>
                 </div>
                 <div class="entrada">
-                    <i class='bx bx-hash'></i>
+                    <i class='bx bx-user'></i>
                     <div class="input">
-                        <p class="detalle">Cantidad</p>
-                        <input class="cantidad" type="number" value="${registro.cantidades.split(';')[index]?.trim() || ''}">
-                    </div>
-                </div>
-            `).join('')}            
-
-            <p class="normal"><i class='bx bx-chevron-right'></i>Detalles financieros</p>
-            <div class="entrada">
-                <i class='bx bx-dollar'></i>
-                <div class="input">
-                    <p class="detalle">Subtotal (Bs)</p>
-                    <input type="number" step="0.01" class="subtotal" value="${parseFloat(registro.subtotal).toFixed(2)}">
-                </div>
-            </div>
-            <div class="entrada">
-                <i class='bx bx-minus-circle'></i>
-                <div class="input">
-                    <p class="detalle">Descuento (Bs)</p>
-                    <input type="number" step="0.01" class="descuento" value="${parseFloat(registro.descuento).toFixed(2)}">
-                </div>
-            </div>
-            <div class="entrada">
-                <i class='bx bx-plus-circle'></i>
-                <div class="input">
-                    <p class="detalle">Aumento (Bs)</p>
-                    <input type="number" step="0.01" class="aumento" value="${parseFloat(registro.aumento).toFixed(2)}">
-                </div>
-            </div>
-            <div class="entrada">
-                <i class='bx bx-money'></i>
-                <div class="input">
-                    <p class="detalle">Total (Bs)</p>
-                    <input type="number" step="0.01" class="total" value="${parseFloat(registro.total).toFixed(2)}">
-                </div>
-            </div>
-
-            <p class="normal"><i class='bx bx-chevron-right'></i>Otros</p>
-
-            <div class="entrada">
-                <i class='bx bx-comment-detail'></i>
-                <div class="input">
-                    <p class="detalle">Observaciones</p>
-                    <input class="observaciones" type="text" autocomplete="off" value="${registro.observaciones}" placeholder=" " required>
-                </div>
-            </div>
-
-            <p class="normal"><i class='bx bx-chevron-right'></i>Motivo de la edición</p>
-            <div class="entrada">
-                <i class='bx bx-comment-detail'></i>
-                <div class="input">
-                    <p class="detalle">Motivo</p>
-                    <input class="motivo" type="text" autocomplete="off" placeholder=" " required>
-                </div>
-            </div>
-        </div>
-        <div class="anuncio-botones">
-            <button class="btn-editar-movimiento btn orange"><i class="bx bx-save"></i> Guardar cambios</button>
-        </div>
-        `;
-        contenido.innerHTML = registrationHTML;
-        mostrarAnuncioSecond();
-
-        const btnEditar = contenido.querySelector('.btn-editar-movimiento');
-        btnEditar.addEventListener('click', confirmarEdicion);
-
-        async function confirmarEdicion() {
-            const motivo = document.querySelector('.motivo').value.trim();
-            // Agregar protección para valores undefined
-            const productos = Array.from(document.querySelectorAll('.producto'))
-                .map(input => input?.value?.trim() || '')  // <-- Agregar operador opcional
-                .filter(val => val !== '')
-                .join(';');
-
-            const cantidades = Array.from(document.querySelectorAll('.cantidad'))
-                .map(input => input?.value?.trim() || '')  // <-- Agregar operador opcional
-                .filter(val => val !== '')
-                .join(';');
-
-            if (!motivo) {
-                mostrarNotificacion({
-                    message: 'Debe completar el motivo de edición',
-                    type: 'warning',
-                    duration: 3500
-                });
-                return;
-            }
-
-            try {
-                mostrarCarga();
-                const response = await fetch(`/editar-registro-almacen/${registroId}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        nombre_movimiento: document.querySelector('.nombre-movimiento').value.trim(),
-                        cliente_proovedor: document.querySelector('.cliente').value,
-                        operario: document.querySelector('.responsable').value.trim(),
-                        productos,
-                        cantidades,
-                        subtotal: parseFloat(document.querySelector('.subtotal').value),
-                        descuento: parseFloat(document.querySelector('.descuento').value),
-                        aumento: parseFloat(document.querySelector('.aumento').value),
-                        total: parseFloat(document.querySelector('.total').value),
-                        observaciones: document.querySelector('.observaciones').value.trim(),
-                        motivo
-                    })
-                });
-
-                if (!response.ok) throw new Error('Error en la respuesta del servidor');
-
-                const data = await response.json();
-
-                if (data.success) {
-                    await mostrarMovimientosAlmacen();
-                    mostrarNotificacion({
-                        message: 'Registro actualizado correctamente',
-                        type: 'success',
-                        duration: 3000
-                    });
-                    ocultarAnuncioSecond();
+                        <p class="detalle">Cliente/Proovedor</p>
+                        <select class="cliente">
+                            <option value="${registro.cliente_proovedor}">${registro.cliente_proovedor.split('(')[0].trim()}</option>
+                            ${registro.tipo.toLowerCase() === 'salida'
+                    ? clientes.map(c => `<option value="${c.nombre}(${c.id})">${c.nombre}</option>`).join('')
+                    : proovedores.map(p => `<option value="${p.nombre}(${p.id})">${p.nombre}</option>`).join('')
                 }
-            } catch (error) {
-                console.error('Error:', error);
-                mostrarNotificacion({
-                    message: error.message || 'Error al actualizar el registro',
-                    type: 'error',
-                    duration: 3500
-                });
-            } finally {
-                ocultarCarga();
+                        </select>
+                    </div>
+                </div>
+                <div class="entrada">
+                    <i class='bx bx-user-circle'></i>
+                    <div class="input">
+                        <p class="detalle">Responsable</p>
+                        <input class="responsable" type="text" value="${registro.operario}" autocomplete="off" placeholder=" " required>
+                    </div>
+                </div>
+                <p class="normal"><i class='bx bx-chevron-right'></i>Productos y cantidades</p>
+                ${registro.productos.split(';').map((producto, index) => `
+                    <div class="entrada">
+                        <i class='bx bx-package'></i>
+                        <div class="input">
+                            <p class="detalle">Producto</p>
+                            <input class="producto" value="${producto.trim()}" autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="entrada">
+                        <i class='bx bx-hash'></i>
+                        <div class="input">
+                            <p class="detalle">Cantidad</p>
+                            <input class="cantidad" type="number" value="${registro.cantidades.split(';')[index]?.trim() || ''}">
+                        </div>
+                    </div>
+                `).join('')}            
+    
+                <p class="normal"><i class='bx bx-chevron-right'></i>Detalles financieros</p>
+                <div class="entrada">
+                    <i class='bx bx-dollar'></i>
+                    <div class="input">
+                        <p class="detalle">Subtotal (Bs)</p>
+                        <input type="number" step="0.01" class="subtotal" value="${parseFloat(registro.subtotal).toFixed(2)}">
+                    </div>
+                </div>
+                <div class="entrada">
+                    <i class='bx bx-minus-circle'></i>
+                    <div class="input">
+                        <p class="detalle">Descuento (Bs)</p>
+                        <input type="number" step="0.01" class="descuento" value="${parseFloat(registro.descuento).toFixed(2)}">
+                    </div>
+                </div>
+                <div class="entrada">
+                    <i class='bx bx-plus-circle'></i>
+                    <div class="input">
+                        <p class="detalle">Aumento (Bs)</p>
+                        <input type="number" step="0.01" class="aumento" value="${parseFloat(registro.aumento).toFixed(2)}">
+                    </div>
+                </div>
+                <div class="entrada">
+                    <i class='bx bx-money'></i>
+                    <div class="input">
+                        <p class="detalle">Total (Bs)</p>
+                        <input type="number" step="0.01" class="total" value="${parseFloat(registro.total).toFixed(2)}">
+                    </div>
+                </div>
+    
+                <p class="normal"><i class='bx bx-chevron-right'></i>Otros</p>
+    
+                <div class="entrada">
+                    <i class='bx bx-comment-detail'></i>
+                    <div class="input">
+                        <p class="detalle">Observaciones</p>
+                        <input class="observaciones" type="text" autocomplete="off" value="${registro.observaciones}" placeholder=" " required>
+                    </div>
+                </div>
+    
+                <p class="normal"><i class='bx bx-chevron-right'></i>Motivo de la edición</p>
+                <div class="entrada">
+                    <i class='bx bx-comment-detail'></i>
+                    <div class="input">
+                        <p class="detalle">Motivo</p>
+                        <input class="motivo" type="text" autocomplete="off" placeholder=" " required>
+                    </div>
+                </div>
+            </div>
+            <div class="anuncio-botones">
+                <button class="btn-editar-movimiento btn blue"><i class="bx bx-save"></i> Guardar cambios</button>
+            </div>
+            `;
+            contenido.innerHTML = registrationHTML;
+            mostrarAnuncioSecond();
+    
+            const btnEditar = contenido.querySelector('.btn-editar-movimiento');
+            btnEditar.addEventListener('click', confirmarEdicion);
+    
+            async function confirmarEdicion() {
+                const motivo = document.querySelector('.motivo').value.trim();
+                // Agregar protección para valores undefined
+                const productos = Array.from(document.querySelectorAll('.producto'))
+                    .map(input => input?.value?.trim() || '')  // <-- Agregar operador opcional
+                    .filter(val => val !== '')
+                    .join(';');
+    
+                const cantidades = Array.from(document.querySelectorAll('.cantidad'))
+                    .map(input => input?.value?.trim() || '')  // <-- Agregar operador opcional
+                    .filter(val => val !== '')
+                    .join(';');
+    
+                if (!motivo) {
+                    mostrarNotificacion({
+                        message: 'Debe completar el motivo de edición',
+                        type: 'warning',
+                        duration: 3500
+                    });
+                    return;
+                }
+    
+                try {
+                    mostrarCarga();
+                    const response = await fetch(`/editar-registro-almacen/${registroId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            nombre_movimiento: document.querySelector('.nombre-movimiento').value.trim(),
+                            cliente_proovedor: document.querySelector('.cliente').value,
+                            operario: document.querySelector('.responsable').value.trim(),
+                            productos,
+                            cantidades,
+                            subtotal: parseFloat(document.querySelector('.subtotal').value),
+                            descuento: parseFloat(document.querySelector('.descuento').value),
+                            aumento: parseFloat(document.querySelector('.aumento').value),
+                            total: parseFloat(document.querySelector('.total').value),
+                            observaciones: document.querySelector('.observaciones').value.trim(),
+                            motivo
+                        })
+                    });
+    
+                    if (!response.ok) throw new Error('Error en la respuesta del servidor');
+    
+                    const data = await response.json();
+    
+                    if (data.success) {
+                        await mostrarMovimientosAlmacen();
+                        mostrarNotificacion({
+                            message: 'Registro actualizado correctamente',
+                            type: 'success',
+                            duration: 3000
+                        });
+                        ocultarAnuncioSecond();
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    mostrarNotificacion({
+                        message: error.message || 'Error al actualizar el registro',
+                        type: 'error',
+                        duration: 3500
+                    });
+                } finally {
+                    ocultarCarga();
+                }
             }
         }
     }

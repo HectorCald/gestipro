@@ -53,6 +53,9 @@
 .btn.orange {
     background-color: var(--cuarto-color);
 }
+.btn.yellow {
+    background-color: orange;
+}
 
 .btn.gray {
     background-color: var(--cero-color);

@@ -315,27 +315,6 @@ function eventosVerificacion() {
             window.info(registroId);
         });
     });
-    document.addEventListener('click', () => {
-        document.querySelectorAll('.registro-item').forEach(item => {
-            item.classList.remove('activo');
-            item.querySelector('.registro-acciones')?.classList.remove('mostrar');
-        });
-    });
-    document.querySelector('.contenido').addEventListener('click', () => {
-        document.querySelectorAll('.registro-item').forEach(item => {
-            item.classList.remove('activo');
-            item.querySelector('.registro-acciones')?.classList.remove('mostrar');
-        });
-    });
-    document.querySelector('.relleno').addEventListener('scroll', () => {
-        document.querySelectorAll('.registro-item').forEach(item => {
-            item.classList.remove('activo');
-            item.querySelector('.registro-acciones')?.classList.remove('mostrar');
-        });
-    });
-
-
-
     window.info = function (registroId) {
         const registro = registrosProduccion.find(r => r.id === registroId);
         if (!registro) return;
@@ -445,7 +424,7 @@ function eventosVerificacion() {
                 </div>
             </div>
             <div class="anuncio-botones">
-                <button class="btn-eliminar-registro btn red"><i class="bi bi-trash-fill"></i> Eliminar</button>
+                <button class="btn-eliminar-registro btn red"><i class="bx bx-trash"></i> Confirmar eliminación</button>
             </div>
         `;
             contenido.innerHTML = registrationHTML;
@@ -606,7 +585,7 @@ function eventosVerificacion() {
                     </div>
             </div>
             <div class="anuncio-botones">
-                <button class="btn-editar-registro btn orange"><i class="bx bx-save"></i> Guardar cambios</button>
+                <button class="btn-editar-registro btn blue"><i class="bx bx-save"></i> Guardar cambios</button>
             </div>
         `;
             contenido.innerHTML = registrationHTML;
@@ -736,7 +715,7 @@ function eventosVerificacion() {
                 </div>
             </div>
             <div class="anuncio-botones">
-                <button class="btn-verificar-registro btn orange"><i class='bx bx-check-circle'></i> Verificar</button>
+                <button class="btn-verificar-registro btn green"><i class='bx bx-check-circle'></i> Verificar y finalizar</button>
             </div>
             `;
             contenido.innerHTML = registrationHTML;
@@ -823,9 +802,6 @@ function eventosVerificacion() {
             }
         }
     }
-
-
-
     btnExcel.addEventListener('click', () => exportarArchivos('produccion', registrosAExportar));
     aplicarFiltros();
 }
