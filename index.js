@@ -99,13 +99,10 @@ app.get('/dashboard_otro', requireAuth, (req, res) => {
 app.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
-    // List of all spreadsheet IDs
     const spreadsheetIds = [
         process.env.SPREADSHEET_ID_1,
         process.env.SPREADSHEET_ID_2
-        // Add more spreadsheet IDs as needed
     ];
-
     try {
         const sheets = google.sheets({ version: 'v4', auth });
 
@@ -527,19 +524,20 @@ app.get('/obtener-registros-produccion', requireAuth, async (req, res) => {
         const registros = rows.map(row => ({
             id: row[0] || '',
             fecha: row[1] || '',
-            producto: row[2] || '',
-            lote: row[3] || '',
-            gramos: row[4] || '',
-            proceso: row[5] || '',
-            microondas: row[6] || '',
-            envases_terminados: row[7] || '',
-            fecha_vencimiento: row[8] || '',
-            nombre: row[9] || '',
-            c_real: row[10] || '',
-            fecha_verificacion: row[11] || '',
-            observaciones: row[12] || '',
-            pagado: row[13] || '',
-            user: row[14] || ''
+            idProducto: row[2] || '',
+            producto: row[3] || '',
+            lote: row[4] || '',
+            gramos: row[5] || '',
+            proceso: row[6] || '',
+            microondas: row[7] || '',
+            envases_terminados: row[8] || '',
+            fecha_vencimiento: row[9] || '',
+            nombre: row[10] || '',
+            user: row[11] || '',
+            c_real: row[12] || '',
+            fecha_verificacion: row[13] || '',
+            observaciones: row[14] || '',
+            pagado: row[15] || '',
         }));
 
         res.json({
@@ -556,16 +554,27 @@ app.get('/obtener-registros-produccion', requireAuth, async (req, res) => {
     }
 });
 app.post('/registrar-produccion', requireAuth, async (req, res) => {
-    const { spreadsheetId, email, nombre } = req.user;  // Add nombre from token
-    const { producto, lote, gramos, proceso, microondas, tiempo, envasados, vencimiento } = req.body;
+    const { spreadsheetId, email, nombre } = req.user;
+    const { producto, idProducto, lote, gramos, proceso, microondas, tiempo, envasados, vencimiento } = req.body;
 
     try {
         const sheets = google.sheets({ version: 'v4', auth });
 
-        // Get last ID to generate new one
+        // Validate required fields
+        if (!producto || !lote || !gramos || !proceso || !envasados || !vencimiento) {
+            console.log('Error: Campos requeridos faltantes');
+            return res.status(400).json({
+                success: false,
+                error: 'Todos los campos son requeridos'
+            });
+        }
+
         const lastIdResponse = await sheets.spreadsheets.values.get({
             spreadsheetId: spreadsheetId,
             range: 'Produccion!A2:A'
+        }).catch(error => {
+            console.error('Error al obtener último ID:', error);
+            throw new Error('Error al acceder a la hoja de cálculo');
         });
 
         const lastId = lastIdResponse.data.values ?
@@ -578,6 +587,7 @@ app.post('/registrar-produccion', requireAuth, async (req, res) => {
         const newRow = [
             newId,              // ID
             currentDate,        // FECHA
+            idProducto,                 // ID
             producto,           // PRODUCTO
             lote,              // LOTE
             gramos,            // GR.
@@ -585,34 +595,43 @@ app.post('/registrar-produccion', requireAuth, async (req, res) => {
             microondasValue,   // MICR.
             envasados,         // ENVS. TERM.
             vencimiento,       // FECHA VENC.
-            nombre,            // NOMBRE (using nombre from token)
-            '',                // C. REAL
-            '',                // FECHA VER.
-            '',                // OBSERVACIONES
-            'Pendiente',       // PAGADO
+            nombre,            // NOMBRE
             email              // USER
         ];
 
         await sheets.spreadsheets.values.append({
             spreadsheetId: spreadsheetId,
-            range: 'Produccion!A:O',
+            range: 'Produccion!A:L',
             valueInputOption: 'USER_ENTERED',
             insertDataOption: 'INSERT_ROWS',
             resource: {
                 values: [newRow]
             }
+        }).catch(error => {
+            console.error('Error al insertar datos:', error);
+            throw new Error('Error al insertar datos en la hoja de cálculo');
         });
 
         res.json({
             success: true,
-            message: 'Producción registrada correctamente'
+            message: 'Producción registrada correctamente',
+            data: {
+                id: newId,
+                fecha: currentDate
+            }
         });
 
     } catch (error) {
-        console.error('Error al registrar producción:', error);
+        console.error('Error detallado al registrar producción:', {
+            error: error.message,
+            stack: error.stack,
+            spreadsheetId,
+            timestamp: new Date().toISOString()
+        });
+
         res.status(500).json({
             success: false,
-            error: 'Error al registrar la producción'
+            error: 'Error al registrar la producción: ' + error.message
         });
     }
 });
@@ -784,11 +803,10 @@ app.put('/verificar-registro-produccion/:id', requireAuth, async (req, res) => {
         const currentDate = new Date().toLocaleDateString('es-ES');
 
         const updatedRow = [
-            ...existingRow.slice(0, 10),    // Mantener datos hasta la columna 10
+            ...existingRow.slice(0, 12),    // Mantener datos hasta la columna 10
             cantidad_real,                   // Cantidad real verificada
             currentDate,                     // Fecha de verificación
-            observaciones,                   // Observaciones
-            ...existingRow.slice(13)         // Mantener resto de datos
+            observaciones                 // Observaciones
         ];
 
         // Actualizar la fila
@@ -822,7 +840,7 @@ app.get('/obtener-productos', requireAuth, async (req, res) => {
 
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId: spreadsheetId,
-            range: 'Almacen general!A2:L' // Ahora incluye la columna L para la imagen
+            range: 'Almacen general!A2:M' // Ahora incluye la columna L para la imagen
         });
 
         const rows = response.data.values || [];
@@ -840,7 +858,8 @@ app.get('/obtener-productos', requireAuth, async (req, res) => {
             etiquetas: row[8] || '',
             acopio_id: row[9] || '',
             alm_acopio_producto: row[10] || '',
-            imagen: row[11] || './icons/default-product.png' // Valor por defecto si no hay imagen
+            imagen: row[11] || './icons/default-product.png', // Valor por defecto si no hay imagen
+            uSueltas: row[12] || '' 
         }));
 
         res.json({
@@ -974,17 +993,19 @@ app.delete('/eliminar-producto/:id', requireAuth, async (req, res) => {
         res.status(500).json({ success: false, error: 'Error al eliminar el producto' });
     }
 });
+// ... código existente ...
+
 app.put('/actualizar-producto/:id', requireAuth, async (req, res) => {
     try {
         const { spreadsheetId } = req.user;
         const { id } = req.params;
-        const { producto, gramos, stock, cantidadxgrupo, lista, codigo_barras, precios, etiquetas, acopio_id, alm_acopio_producto } = req.body;
+        const { producto, gramos, stock, cantidadxgrupo, lista, codigo_barras, precios, etiquetas, acopio_id, alm_acopio_producto, imagen, uSueltas } = req.body;
         const sheets = google.sheets({ version: 'v4', auth });
 
-        // Get current products
+        // Obtener productos actuales
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId,
-            range: 'Almacen general!A2:L'
+            range: 'Almacen general!A2:N' // Cambiado a N para incluir todas las columnas
         });
 
         const rows = response.data.values || [];
@@ -1006,13 +1027,14 @@ app.put('/actualizar-producto/:id', requireAuth, async (req, res) => {
             etiquetas,              // ETIQUETAS
             acopio_id || '',        // ACOPIO ID
             alm_acopio_producto || 'No hay índice seleccionado', // ALM-ACOPIO NOMBRE
-            rows[rowIndex][11] || './icons/default-product.png'  // Mantener imagen existente
+            imagen,
+            uSueltas        // UNIDADES SUELTAS
         ];
 
-        // Update the row
+        // Actualizar el rango para incluir todas las columnas necesarias
         await sheets.spreadsheets.values.update({
             spreadsheetId,
-            range: `Almacen general!A${rowIndex + 2}:L${rowIndex + 2}`,
+            range: `Almacen general!A${rowIndex + 2}:N${rowIndex + 2}`,
             valueInputOption: 'USER_ENTERED',
             resource: { values: [updatedRow] }
         });
@@ -1028,6 +1050,8 @@ app.put('/actualizar-producto/:id', requireAuth, async (req, res) => {
         res.status(500).json({ success: false, error: 'Error al actualizar el producto' });
     }
 });
+
+// ... resto del código ...
 app.post('/actualizar-stock', requireAuth, async (req, res) => {
     try {
         const { spreadsheetId } = req.user;  // Obtener el ID del usuario autenticado

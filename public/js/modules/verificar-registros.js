@@ -1,5 +1,6 @@
 let registrosProduccion = [];
 let usuarioInfo = recuperarUsuarioLocal();
+
 function recuperarUsuarioLocal() {
     const usuarioGuardado = localStorage.getItem('damabrava_usuario');
     if (usuarioGuardado) {
@@ -350,7 +351,6 @@ function eventosVerificacion() {
 
     function verificar(event) {
         const registroId = event.currentTarget.dataset.id;
-
         const registro = registrosProduccion.find(r => r.id === registroId);
 
         const contenido = document.querySelector('.anuncio-second .contenido');
@@ -468,7 +468,7 @@ function eventosVerificacion() {
                     });
 
                     ocultarAnuncioSecond();
-                    await mostrarVerificacion();
+                    await mostrarIngresos(registro.idProducto);
                 } else {
                     throw new Error(data.error || 'Error al verificar el registro');
                 }

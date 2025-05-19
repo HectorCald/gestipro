@@ -1,14 +1,8 @@
 let registrosProduccion = [];
 let usuarioInfo = recuperarUsuarioLocal();
+let productosGlobal = [];
 
 
-function recuperarUsuarioLocal() {
-    const usuarioGuardado = localStorage.getItem('damabrava_usuario');
-    if (usuarioGuardado) {
-        return JSON.parse(usuarioGuardado);
-    }
-    return null;
-}
 async function obtenerMisRegistros() {
     try {
         mostrarCarga();
@@ -42,15 +36,49 @@ async function obtenerMisRegistros() {
             duration: 3500
         });
         return false;
+    }
+}
+async function obtenerProductos() {
+    try {
+        const response = await fetch('/obtener-productos');
+        const data = await response.json();
+
+        if (data.success) {
+            productosGlobal = data.productos;
+            return true;
+        } else {
+            mostrarNotificacion({
+                message: 'Error al obtener productos',
+                type: 'error',
+                duration: 3500
+            });
+            return false;
+        }
+    } catch (error) {
+        console.error('Error al obtener productos:', error);
+        mostrarNotificacion({
+            message: 'Error al obtener productos',
+            type: 'error',
+            duration: 3500
+        });
+        return false;
     } finally {
         ocultarCarga();
     }
+}
+function recuperarUsuarioLocal() {
+    const usuarioGuardado = localStorage.getItem('damabrava_usuario');
+    if (usuarioGuardado) {
+        return JSON.parse(usuarioGuardado);
+    }
+    return null;
 }
 
 
 export async function mostrarMisRegistros() {
     mostrarAnuncio();
     await obtenerMisRegistros();
+    await obtenerProductos();
 
     const contenido = document.querySelector('.anuncio .contenido');
     const registrationHTML = `
@@ -292,7 +320,7 @@ function eventosMisRegistros() {
     inputBusqueda.addEventListener('input', (e) => {
         aplicarFiltros();
     });
-    inputBusqueda.addEventListener('focus', function() {
+    inputBusqueda.addEventListener('focus', function () {
         this.select();
     });
     function normalizarTexto(texto) {
@@ -303,9 +331,6 @@ function eventosMisRegistros() {
             .replace(/[-_\s]+/g, ''); // Eliminar guiones, guiones bajos y espacios
     }
 
-
-
-    
 
     function scrollToCenter(boton, contenedorPadre) {
         const scrollLeft = boton.offsetLeft - (contenedorPadre.offsetWidth / 2) + (boton.offsetWidth / 2);
@@ -320,50 +345,57 @@ function eventosMisRegistros() {
     });
     function info(event) {
         const registroId = event.currentTarget.dataset.id;
-        const registro = registrosProduccion.find(r => r.id === registroId);  // Changed from registrosProduccion
+        const registro = registrosProduccion.find(r => r.id === registroId);
+        const producto = productosGlobal.find(p => p.id === registro.idProducto);
+
+        // Calcular tiras completas y unidades sueltas
+        const cantidadPorGrupo = producto ? producto.cantidadxgrupo : 1;
+        const numeroADividir = registro.fecha_verificacion ? registro.c_real : registro.envases_terminados;
+        const tirasCompletas = Math.floor(numeroADividir / cantidadPorGrupo);
+        const unidadesSueltas = numeroADividir % cantidadPorGrupo;
+
+        const unidadesTira = producto ? (cantidadPorGrupo <= 1 ? `${tirasCompletas} und.` : `${tirasCompletas} tiras`) : 'N/A';
 
         const contenido = document.querySelector('.anuncio-second .contenido');
         const registrationHTML = `
-        <div class="encabezado">
-            <h1 class="titulo">Detalles del Registro</h1>
-            <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
-        </div>
-        <div class="relleno">
-            <p class="normal"><i class='bx bx-chevron-right'></i>Información básica</p>
-            <div class="campo-vertical">
-                <span><strong><i class='bx bx-calendar'></i> Fecha:</strong> ${registro.fecha}</span>
-                <span><strong><i class='bx bx-id-card'></i> ID:</strong> ${registro.id}</span>
+            <div class="encabezado">
+                <h1 class="titulo">Detalles del Registro</h1>
+                <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
             </div>
-
-            <p class="normal"><i class='bx bx-chevron-right'></i>Información del producto</p>
-            <div class="campo-vertical">
-                <span><strong><i class='bx bx-package'></i> Producto:</strong> ${registro.producto}</span>
-                <span><strong><i class='bx bx-cube'></i> Gramos:</strong> ${registro.gramos}gr.</span>
-                <span><strong><i class='bx bx-box'></i> Lote:</strong> ${registro.lote}</span>
-            </div>
-
-            <p class="normal"><i class='bx bx-chevron-right'></i>Detalles de producción</p>
-            <div class="campo-vertical">
-                <span><strong><i class='bx bx-package'></i> Seleccionado/cernido:</strong> ${registro.proceso}</span>
-                <span><strong><i class='bx bx-microchip'></i> Microondas:</strong> ${registro.microondas}</span>
-                <span><strong><i class='bx bx-package'></i> Envases terminados:</strong> ${registro.envases_terminados} Und.</span>
-                <span><strong><i class='bx bx-calendar'></i> Fecha de vencimiento:</strong> ${registro.fecha_vencimiento}</span>
-            </div>
-            <p class="normal"><i class='bx bx-chevron-right'></i>Detalles de verificación</p>
-            <div class="campo-vertical">
-                <span><strong><i class='bx bx-transfer'></i> Verificado:</strong> ${registro.fecha_verificacion ? `${registro.c_real} Und.` : 'Pendiente'}</span>
-                ${registro.fecha_verificacion ? `<span><strong><i class='bx bx-calendar-check'></i> Fecha verificación:</strong> ${registro.fecha_verificacion}</span>` : ''}
-            ${registro.observaciones ? `
-                    <span><strong><i class='bx bx-comment-detail'></i>Observaciones: </strong> ${registro.observaciones}</span>
+            <div class="relleno">
+                <p class="normal"><i class='bx bx-chevron-right'></i>Información básica</p>
+                <div class="campo-vertical">
+                    <span><strong><i class='bx bx-calendar'></i> Fecha:</strong> ${registro.fecha}</span>
+                    <span><strong><i class='bx bx-id-card'></i> ID:</strong> ${registro.id}</span>
                 </div>
-            ` : ''}
-        </div>
-    `;
+
+                <p class="normal"><i class='bx bx-chevron-right'></i>Información del producto</p>
+                <div class="campo-vertical">
+                    <span><strong><i class='bx bx-package'></i> Producto:</strong> ${registro.producto}</span>
+                    <span><strong><i class='bx bx-cube'></i> Gramos:</strong> ${registro.gramos}gr.</span>
+                    <span><strong><i class='bx bx-box'></i> Lote:</strong> ${registro.lote}</span>
+                </div>
+
+                <p class="normal"><i class='bx bx-chevron-right'></i>Detalles de producción</p>
+                <div class="campo-vertical">
+                    <span><strong><i class='bx bx-package'></i> Seleccionado/cernido:</strong> ${registro.proceso}</span>
+                    <span><strong><i class='bx bx-microchip'></i> Microondas:</strong> ${registro.microondas}</span>
+                    <span><strong><i class='bx bx-package'></i> Envases terminados:</strong> ${registro.envases_terminados} und.</span>
+                    <span><strong><i class='bx bx-calendar'></i> Fecha de vencimiento:</strong> ${registro.fecha_vencimiento}</span>
+                </div>
+                <p class="normal"><i class='bx bx-chevron-right'></i>Detalles de verificación</p>
+                <div class="campo-vertical">
+                    <span><strong><i class='bx bx-transfer'></i> Verificado:</strong> ${registro.fecha_verificacion ? `${registro.c_real} Und.` : 'Pendiente'}</span>
+                    ${registro.fecha_verificacion ? `<span><strong><i class='bx bx-calendar-check'></i> Fecha verificación:</strong> ${registro.fecha_verificacion}</span>` : ''}
+                    ${registro.fecha_verificacion ? `<span><strong><i class='bx bx-box'></i> Cantidad</strong> ${unidadesTira}</span>` : ''}
+                    ${registro.fecha_verificacion ? `<span><strong><i class='bx bx-box'></i> Sueltos:</strong> ${unidadesSueltas} und.</span>` : ''}
+                    ${registro.observaciones ? `<span><strong><i class='bx bx-comment-detail'></i>Observaciones: </strong> ${registro.observaciones}</span></div>` : ''}
+            </div>
+        `;
         contenido.innerHTML = registrationHTML;
         contenido.style.paddingBottom = '10px';
         mostrarAnuncioSecond();
     }
-
 
     btnExcel.addEventListener('click', () => exportarArchivos('produccion', registrosAExportar));
     aplicarFiltros();

@@ -163,6 +163,7 @@ function evetosFormularioProduccion() {
                         productoInput.value = p.producto;
                         sugerenciasList.style.display = 'none';
                         gramajeInput.value = p.gramos;
+                        window.idPro = p.id;
                         const event = new Event('focus');
                         gramajeInput.dispatchEvent(event);
                     };
@@ -178,6 +179,7 @@ function evetosFormularioProduccion() {
     registrar.addEventListener('click', async () => {
         // Get all form values
         const producto = productoInput.value.trim();
+        const idProducto = window.idPro;
         const lote = document.querySelector('.entrada .lote').value; // Fixed selector
         const gramos = gramajeInput.value;
         const proceso = document.querySelector('.proceso').value;
@@ -281,6 +283,7 @@ function evetosFormularioProduccion() {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
+                    idProducto,
                     producto,
                     lote,
                     gramos,

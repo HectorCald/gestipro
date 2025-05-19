@@ -175,6 +175,9 @@ export async function mostrarAlmacenGeneral() {
                 <button class="btn-filtro"><i class='bx bx-sort-up'></i></button>
                 <button class="btn-filtro"><i class='bx bx-sort-a-z'></i></button>
                 <button class="btn-filtro"><i class='bx bx-sort-z-a'></i></button>
+                <button class="btn-filtro">Sueltas</button>
+                <button class="btn-filtro">zz</button>
+
                 <select class="precios-select" style="width:100%">
                     ${preciosOpciones}
                 </select>
@@ -182,7 +185,9 @@ export async function mostrarAlmacenGeneral() {
                 ${productos.map(producto => `
                 <div class="registro-item" data-id="${producto.id}">
                     <div class="header">
-                        <i class='bx bx-package'></i>
+                        ${producto.imagen && producto.imagen.startsWith('data:image') ?
+            `<img class="imagen" src="${producto.imagen}">` :
+            `<i class='bx bx-package'></i>`}
                         <div class="info-header">
                             <span class="id">${producto.id}
                                 <div class="precio-cantidad">
@@ -214,7 +219,7 @@ export async function mostrarAlmacenGeneral() {
         
     `;
     contenido.innerHTML = registrationHTML;
-    
+
 
     const selectPrecios = document.querySelector('.precios-select');
     if (selectPrecios) {
@@ -263,6 +268,8 @@ function eventosAlmacenGeneral() {
         const busqueda = normalizarTexto(inputBusqueda.value);
         const precioSeleccionado = selectPrecios.options[selectPrecios.selectedIndex].text;
         const botonCantidadActivo = document.querySelector('.filtros-opciones.cantidad-filter .btn-filtro.activado');
+        const botonSueltas = document.querySelector('.filtros-opciones.cantidad-filter .btn-filtro:nth-child(5)');
+        const mostrarSueltas = botonSueltas.classList.contains('activado');
         const mensajeNoEncontrado = document.querySelector('.no-encontrado');
 
         // Animación de ocultamiento
@@ -273,7 +280,16 @@ function eventosAlmacenGeneral() {
 
         setTimeout(() => {
             // Ocultar elementos y procesar filtros
-            registros.forEach(registro => registro.style.display = 'none');
+            registros.forEach(registro => {
+                registro.style.display = 'none';
+                const producto = productos.find(p => p.id === registro.dataset.id);
+                const stockSpan = registro.querySelector('.stock');
+                if (stockSpan) {
+                    stockSpan.textContent = mostrarSueltas ?
+                        `${producto.uSueltas || 0} Sueltas` :
+                        `${producto.stock} Und.`;
+                }
+            });
 
             // Filtrar y ordenar
             const productosFiltrados = Array.from(registros).filter(registro => {
@@ -281,8 +297,13 @@ function eventosAlmacenGeneral() {
                 const etiquetasProducto = producto.etiquetas.split(';').map(e => e.trim());
                 let mostrar = true;
 
+                // Filtro de sueltas
+                if (mostrarSueltas) {
+                    mostrar = mostrar && (producto.uSueltas && producto.uSueltas > 0);
+                }
+
                 // Filtro de etiquetas
-                if (filtroNombreActual !== 'Todos') {
+                if (mostrar && filtroNombreActual !== 'Todos') {
                     mostrar = mostrar && etiquetasProducto.includes(filtroNombreActual);
                 }
 
@@ -302,15 +323,43 @@ function eventosAlmacenGeneral() {
             if (botonCantidadActivo) {
                 const index = Array.from(botonesCantidad).indexOf(botonCantidadActivo);
                 switch (index) {
-                    case 0: productosFiltrados.sort((a, b) => parseInt(b.querySelector('.stock').textContent) - parseInt(a.querySelector('.stock').textContent)); break;
-                    case 1: productosFiltrados.sort((a, b) => parseInt(a.querySelector('.stock').textContent) - parseInt(b.querySelector('.stock').textContent)); break;
-                    case 2: productosFiltrados.sort((a, b) => a.querySelector('.nombre strong').textContent.localeCompare(b.querySelector('.nombre strong').textContent)); break;
-                    case 3: productosFiltrados.sort((a, b) => b.querySelector('.nombre strong').textContent.localeCompare(a.querySelector('.nombre strong').textContent)); break;
+                    case 0:
+                        productosFiltrados.sort((a, b) => {
+                            const valA = mostrarSueltas ?
+                                (productos.find(p => p.id === a.dataset.id).uSueltas || 0) :
+                                parseInt(a.querySelector('.stock').textContent);
+                            const valB = mostrarSueltas ?
+                                (productos.find(p => p.id === b.dataset.id).uSueltas || 0) :
+                                parseInt(b.querySelector('.stock').textContent);
+                            return valB - valA;
+                        });
+                        break;
+                    case 1:
+                        productosFiltrados.sort((a, b) => {
+                            const valA = mostrarSueltas ?
+                                (productos.find(p => p.id === a.dataset.id).uSueltas || 0) :
+                                parseInt(a.querySelector('.stock').textContent);
+                            const valB = mostrarSueltas ?
+                                (productos.find(p => p.id === b.dataset.id).uSueltas || 0) :
+                                parseInt(b.querySelector('.stock').textContent);
+                            return valA - valB;
+                        });
+                        break;
+                    case 2:
+                        productosFiltrados.sort((a, b) =>
+                            a.querySelector('.nombre strong').textContent.localeCompare(b.querySelector('.nombre strong').textContent)
+                        );
+                        break;
+                    case 3:
+                        productosFiltrados.sort((a, b) =>
+                            b.querySelector('.nombre strong').textContent.localeCompare(a.querySelector('.nombre strong').textContent)
+                        );
+                        break;
                 }
             }
 
             // Mostrar elementos filtrados con animación
-            productosFiltrados.forEach((registro, index) => {
+            productosFiltrados.forEach(registro => {
                 registro.style.display = 'flex';
                 registro.style.opacity = '0';
                 registro.style.transform = 'translateY(20px)';
@@ -338,10 +387,9 @@ function eventosAlmacenGeneral() {
 
             // Mensaje vacío
             mensajeNoEncontrado.style.display = productosFiltrados.length === 0 ? 'block' : 'none';
-
         }, 200);
     }
-    inputBusqueda.addEventListener('focus', function() {
+    inputBusqueda.addEventListener('focus', function () {
         this.select();
     });
     inputBusqueda.addEventListener('input', (e) => {
@@ -358,13 +406,23 @@ function eventosAlmacenGeneral() {
     });
     botonesCantidad.forEach(boton => {
         boton.addEventListener('click', () => {
-            botonesCantidad.forEach(b => b.classList.remove('activado'));
-            boton.classList.add('activado');
+            if (boton.textContent.trim() === 'Sueltas') {
+                // Toggle para el botón de Sueltas
+                boton.classList.toggle('activado');
+            } else {
+                // Comportamiento normal para otros botones
+                botonesCantidad.forEach(b => {
+                    if (b.textContent.trim() !== 'Sueltas') {
+                        b.classList.remove('activado');
+                    }
+                });
+                boton.classList.add('activado');
+            }
             aplicarFiltros();
         });
     });
     selectPrecios.addEventListener('change', aplicarFiltros);
-    
+
 
 
     items.forEach(item => {
@@ -409,7 +467,7 @@ function eventosAlmacenGeneral() {
     btnCrearProducto.addEventListener('click', crearProducto);
     btnEtiquetas.addEventListener('click', gestionarEtiquetas);
     btnPrecios.addEventListener('click', gestionarPrecios);
-    
+
 
     botonesInfo.forEach(btn => {
         btn.addEventListener('click', info);
@@ -468,6 +526,7 @@ function eventosAlmacenGeneral() {
                 <span class="valor"><strong><i class='bx bx-hash'></i> Cantidad por grupo: </strong>${producto.cantidadxgrupo}</span>
                 <span class="valor"><strong><i class='bx bx-list-ul'></i> Lista: </strong>${producto.lista}</span>
                 <span class="valor"><strong><i class='bx bx-package'></i> Alamcen Index: </strong>${producto.alm_acopio_producto}</span>
+                <span class="valor"><strong><i class='bx bx-package'></i> Unidades sueltas: </strong>${producto.uSueltas}</span>
             </div>
 
             <p class="normal"><i class='bx bx-chevron-right'></i>Precios</p>
@@ -631,7 +690,7 @@ function eventosAlmacenGeneral() {
             <span>${etiqueta}</span>
             <button type="button" class="btn-quitar-etiqueta"><i class='bx bx-x'></i></button>
         </div>
-    `).join('');
+        `).join('');
 
         // Procesar los precios del producto
         // Procesar los precios del producto
@@ -706,6 +765,20 @@ function eventosAlmacenGeneral() {
                         <input class="cantidad-grupo" type="number" value="${producto.cantidadxgrupo}" autocomplete="off" placeholder=" " required>
                     </div>
                 </div>
+                <div class="entrada">
+                    <i class='bx bx-package'></i>
+                    <div class="input">
+                        <p class="detalle">Unidades sueltas</p>
+                        <input class="unidades-sueltas" type="number" value="${producto.uSueltas}" autocomplete="off" placeholder=" " required>
+                    </div>
+                </div>
+                <div class="entrada">
+                    <i class='bx bx-image'></i>
+                    <div class="input">
+                        <p class="detalle">Imagen actual: ${producto.imagen ? 'Imagen cargada' : 'Sin imagen'}</p>
+                        <input class="imagen-producto" type="file" accept="image/*">
+                    </div>
+                </div>
             <p class="normal"><i class='bx bx-chevron-right'></i>Etiquetas</p>
             <div class="etiquetas-container">
                 <div class="etiquetas-actuales">
@@ -718,8 +791,8 @@ function eventosAlmacenGeneral() {
                     <p class="detalle">Selecciona nueva etiqueta</p>
                     <select class="select-etiqueta" required>
                     ${etiquetasDisponibles.map(etiqueta =>
-                        `<option value="${etiqueta}">${etiqueta}</option>`
-                    ).join('')}
+            `<option value="${etiqueta}">${etiqueta}</option>`
+        ).join('')}
                     </select>
                     <button type="button" class="btn-agregar-etiqueta"><i class='bx bx-plus'></i></button>
                 </div>
@@ -727,6 +800,22 @@ function eventosAlmacenGeneral() {
 
             <p class="normal"><i class='bx bx-chevron-right'></i>Precios</p>
                 ${preciosFormateados}
+
+            <p class="normal"><i class='bx bx-chevron-right'></i>Almacén Index</p>
+                <div class="entrada">
+                    <i class='bx bx-package'></i>
+                    <div class="input">
+                        <p class="detalle">Selecciona Almacén Index</p>
+                        <select class="alm-acopio-producto" required>
+                            <option value=""></option>
+                            ${productosAcopio.map(productoAcopio => `
+                                <option value="${productoAcopio.id}" ${productoAcopio.producto === producto.alm_acopio_producto ? 'selected' : ''}>
+                                    ${productoAcopio.producto}
+                                </option>
+                            `).join('')}
+                        </select>
+                    </div>
+                </div>
 
             <p class="normal"><i class='bx bx-chevron-right'></i>Motivo de la edición</p>
                 <div class="entrada">
@@ -785,6 +874,54 @@ function eventosAlmacenGeneral() {
         const btnEditarProducto = contenido.querySelector('.btn-editar-producto');
         btnEditarProducto.addEventListener('click', confirmarEdicionProducto);
 
+        async function procesarImagen(file) {
+            return new Promise((resolve, reject) => {
+                if (!file || !file.type.startsWith('image/')) {
+                    reject(new Error('Solo se permiten archivos de imagen'));
+                    return;
+                }
+
+                const img = new Image();
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    img.src = e.target.result;
+                };
+
+                img.onload = function () {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+
+                    const MAX_SIZE = 500;
+                    if (width > height && width > MAX_SIZE) {
+                        height *= MAX_SIZE / width;
+                        width = MAX_SIZE;
+                    } else if (height > MAX_SIZE) {
+                        width *= MAX_SIZE / height;
+                        height = MAX_SIZE;
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    const calidad = /Mobile|Android|iPhone/i.test(navigator.userAgent) ? 0.5 : 0.7;
+                    const imagenBase64 = canvas.toDataURL('image/jpeg', calidad);
+
+                    if (imagenBase64.length > 2000000) {
+                        reject(new Error('La imagen es demasiado grande, intenta con una más pequeña'));
+                        return;
+                    }
+
+                    resolve(imagenBase64);
+                };
+
+                reader.readAsDataURL(file);
+            });
+        }
+
         async function confirmarEdicionProducto() {
             try {
                 const producto = document.querySelector('.editar-producto .producto').value.trim();
@@ -792,8 +929,31 @@ function eventosAlmacenGeneral() {
                 const stock = document.querySelector('.editar-producto .stock').value.trim();
                 const cantidadxgrupo = document.querySelector('.editar-producto .cantidad-grupo').value.trim();
                 const lista = document.querySelector('.editar-producto .lista').value.trim();
-                const codigo_barras = document.querySelector('.editar-producto .codigo-barras').value.trim(); // Fixed hyphen
+                const codigo_barras = document.querySelector('.editar-producto .codigo-barras').value.trim();
+                const sueltas = document.querySelector('.editar-producto .unidades-sueltas').value.trim();
                 const motivo = document.querySelector('.editar-producto .motivo').value.trim();
+                const inputFoto = document.querySelector('.imagen-producto');
+                const acopioSelect = document.querySelector('.editar-producto .alm-acopio-producto');
+                const acopio_id = acopioSelect.value;
+                const alm_acopio_producto = acopio_id ?
+                    productosAcopio.find(p => p.id === acopio_id)?.producto :
+                    'No hay índice seleccionado';
+
+                // Procesar la imagen si se seleccionó una nueva
+                let imagen = producto.imagen; // Mantener la imagen existente por defecto
+                if (inputFoto && inputFoto.files[0]) {
+                    try {
+                        imagen = await procesarImagen(inputFoto.files[0]);
+                    } catch (error) {
+                        mostrarNotificacion({
+                            message: error.message,
+                            type: 'error',
+                            duration: 3500
+                        });
+                        return;
+                    }
+                }
+
 
                 // Get selected etiquetas
                 const etiquetasSeleccionadas = Array.from(document.querySelectorAll('.etiqueta-item'))
@@ -830,7 +990,10 @@ function eventosAlmacenGeneral() {
                         lista,
                         codigo_barras,
                         precios: preciosActualizados,
-                        etiquetas: etiquetasSeleccionadas
+                        etiquetas: etiquetasSeleccionadas,
+                        imagen,
+                        uSueltas: sueltas,
+                        alm_acopio_producto // Agregamos el almacén index
                     })
                 });
 

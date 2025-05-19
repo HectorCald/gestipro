@@ -162,7 +162,7 @@ export async function mostrarIngresos(busquedaProducto = '') {
                 <i class='bx bx-search'></i>
                 <div class="input">
                     <p class="detalle">Buscar</p>
-                    <input type="text" class="buscar-producto" placeholder="">
+                    <input type="text" class="buscar-producto" value="${busquedaProducto}" placeholder="">
                 </div>
             </div>
             <div class="filtros-opciones etiquetas-filter">
@@ -326,9 +326,10 @@ function eventosIngresos() {
                 if (busqueda) {
                     mostrar = mostrar && (
                         normalizarTexto(producto.producto).includes(busqueda) ||
-                        normalizarTexto(producto.gramos.toString()).includes(busqueda) ||
+                        normalizarTexto(producto.gramos).includes(busqueda) ||
                         normalizarTexto(producto.codigo_barras).includes(busqueda) ||
-                        normalizarTexto(producto.etiquetas).includes(busqueda)
+                        normalizarTexto(producto.etiquetas).includes(busqueda) ||
+                        normalizarTexto(producto.id).includes(busqueda)
                     );
                 }
 

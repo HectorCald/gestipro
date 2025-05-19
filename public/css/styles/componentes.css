@@ -890,7 +890,7 @@
     padding: 10px;
     transition: transform 0.2s ease;
     position: relative;
-    height: auto;
+    height: 80px;
     opacity: 1;
     transform: translateY(0);
     transition: opacity 0.2s ease-out, transform 0.2s ease-out;
@@ -905,9 +905,11 @@
         height: 100%;
         width: 100%;
 
-        i {
-            width: 80px;
-            height: 100%;
+        i, .imagen {
+            min-width: 60px;
+            width: 60px;
+            height: auto;
+            height: 60px;
             border-radius: 10px;
             background-color: var(--fondo2);
             display: flex;
