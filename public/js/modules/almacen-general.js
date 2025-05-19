@@ -186,8 +186,8 @@ export async function mostrarAlmacenGeneral() {
                 <div class="registro-item" data-id="${producto.id}">
                     <div class="header">
                         ${producto.imagen && producto.imagen.startsWith('data:image') ?
-                        `<img class="imagen" src="${producto.imagen}">` :
-                        `<i class='bx bx-package'></i>`}
+            `<img class="imagen" src="${producto.imagen}">` :
+            `<i class='bx bx-package'></i>`}
                         <div class="info-header">
                             <span class="id">${producto.id}
                                 <div class="precio-cantidad">
@@ -198,11 +198,6 @@ export async function mostrarAlmacenGeneral() {
                             <span class="nombre"><strong>${producto.producto} - ${producto.gramos}gr.</strong></span>
                             <span class="etiquetas">${producto.etiquetas.split(';').join(' • ')}</span>
                         </div>
-                    </div>
-                    <div class="registro-acciones">
-                        <button class="btn-info btn-icon gray" data-id="${producto.id}"><i class='bx bx-info-circle'></i>Info</button>
-                        <button class="btn-editar btn-icon blue" data-id="${producto.id}"><i class='bx bx-edit'></i> Editar</button>
-                        <button class="btn-eliminar btn-icon red" data-id="${producto.id}"><i class="bx bx-trash"></i> Eliminar</button>
                     </div>
                 </div>
             `).join('')}
@@ -235,10 +230,6 @@ function eventosAlmacenGeneral() {
     const botonesEtiquetas = document.querySelectorAll('.filtros-opciones.etiquetas-filter .btn-filtro');
     const botonesCantidad = document.querySelectorAll('.filtros-opciones.cantidad-filter .btn-filtro');
     const selectPrecios = document.querySelector('.precios-select');
-
-    const botonesEliminar = document.querySelectorAll('.btn-eliminar');
-    const botonesEditar = document.querySelectorAll('.btn-editar');
-    const botonesInfo = document.querySelectorAll('.btn-info');
 
     const btnCrearProducto = document.querySelector('.btn-crear-producto');
     const btnEtiquetas = document.querySelector('.btn-etiquetas');
@@ -426,23 +417,10 @@ function eventosAlmacenGeneral() {
 
 
     items.forEach(item => {
-        const accionesDiv = item.querySelector('.registro-acciones');
-        if (accionesDiv && !item.querySelector('.fecha_verificacion')) {
-            item.addEventListener('click', (e) => {
-                e.stopPropagation();
-                // Ocultar todos los demás menús
-                document.querySelectorAll('.registro-item').forEach(otroItem => {
-                    if (otroItem !== item) {
-                        otroItem.classList.remove('activo');
-                        otroItem.querySelector('.registro-acciones')?.classList.remove('mostrar');
-                    }
-                });
-
-                // Alternar estado actual
-                item.classList.toggle('activo');
-                accionesDiv.classList.toggle('mostrar');
-            });
-        }
+        item.addEventListener('click', function() {
+            const registroId = this.dataset.id;
+            window.info(registroId);
+        });
     });
     document.addEventListener('click', () => {
         document.querySelectorAll('.registro-item').forEach(item => {
@@ -469,21 +447,9 @@ function eventosAlmacenGeneral() {
     btnPrecios.addEventListener('click', gestionarPrecios);
 
 
-    botonesInfo.forEach(btn => {
-        btn.addEventListener('click', info);
-    });
-    botonesEliminar.forEach(btn => {
-        btn.addEventListener('click', eliminar);
-    });
-    botonesEditar.forEach(btn => {
-        btn.addEventListener('click', editar);
-    });
-
-
-
-    function info(event) {
-        const registroId = event.currentTarget.dataset.id;
+    window.info = function(registroId) {
         const producto = productos.find(r => r.id === registroId);
+        if (!producto) return;
 
         // Procesar los precios
         const preciosFormateados = producto.precios.split(';')
@@ -517,8 +483,8 @@ function eventosAlmacenGeneral() {
                 </div>
                 <div class="imagen-producto">
                 ${producto.imagen && producto.imagen.startsWith('data:image') ?
-                    `<img class="imagen" src="${producto.imagen}">` :
-                    `<i class='bx bx-package'></i>`}
+                `<img class="imagen" src="${producto.imagen}">` :
+                `<i class='bx bx-package'></i>`}
                 </div>
             </div>
 
@@ -526,7 +492,7 @@ function eventosAlmacenGeneral() {
             <div class="campo-vertical">
                 <span class="valor"><strong><i class='bx bx-hash'></i> Cantidad por grupo: </strong>${producto.cantidadxgrupo}</span>
                 <span class="valor"><strong><i class='bx bx-list-ul'></i> Lista: </strong>${producto.lista}</span>
-                <span class="valor"><strong><i class='bx bx-package'></i> Alamcen Index: </strong>${producto.alm_acopio_producto}</span>
+                <span class="valor"><strong><i class='bx bx-package'></i> Almacen acopio: </strong>${producto.alm_acopio_producto}</span>
                 <span class="valor"><strong><i class='bx bx-package'></i> Unidades sueltas: </strong>${producto.uSueltas}</span>
             </div>
 
@@ -540,252 +506,44 @@ function eventosAlmacenGeneral() {
                 ${etiquetasFormateados}
             </div>
         </div>
-    `;
-        contenido.innerHTML = registrationHTML;
-        contenido.style.paddingBottom = '10px';
-        mostrarAnuncioSecond();
-    }
-    function eliminar(event) {
-        const registroId = event.currentTarget.dataset.id;
-        const producto = productos.find(r => r.id === registroId);
-
-        const contenido = document.querySelector('.anuncio-second .contenido');
-        const registrationHTML = `
-        <div class="encabezado">
-            <h1 class="titulo">Eliminar producto</h1>
-            <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
-        </div>
-        <div class="relleno">
-            <p class="normal"><i class='bx bx-chevron-right'></i>Información básica</p>
-            <div class="campo-vertical">
-                <span class="nombre"><strong><i class='bx bx-id-card'></i> Id: </strong>${producto.id}</span>
-                <span class="nombre"><strong><i class='bx bx-cube'></i> Producto: </strong>${producto.producto}</span>
-            </div>
-
-            <p class="normal"><i class='bx bx-chevron-right'></i>Información del producto</p>
-            <div class="campo-vertical">
-                <span class="valor"><strong><i class="ri-scales-line"></i> Gramaje: </strong>${producto.gramos}gr.</span>
-                <span class="valor"><strong><i class='bx bx-package'></i> Stock: </strong>${producto.stock} Und.</span>
-                <span class="valor"><strong><i class='bx bx-hash'></i> Codigo: </strong>${producto.codigo_barras} Und.</span>
-            </div>
-            <p class="normal"><i class='bx bx-chevron-right'></i>Motivo de la eliminación</p>
-            <div class="entrada">
-                <i class='bx bx-comment-detail'></i>
-                <div class="input">
-                    <p class="detalle">Motivo</p>
-                    <input class="motivo" type="text" autocomplete="off" placeholder=" " required>
-                </div>
-            </div>
-        </div>
         <div class="anuncio-botones">
-            <button class="btn-eliminar-producto btn red"><i class="bi bi-trash-fill"></i> Eliminar</button>
+            <button class="btn-editar btn orange" data-id="${producto.id}"><i class='bx bx-edit'></i> Editar</button>
+            <button class="btn-eliminar btn red" data-id="${producto.id}"><i class="bx bx-trash"></i> Eliminar</button>
         </div>
     `;
         contenido.innerHTML = registrationHTML;
         mostrarAnuncioSecond();
 
-        // Agregar evento al botón guardar
-        const btnEliminarProducto = contenido.querySelector('.btn-eliminar-producto');
-        btnEliminarProducto.addEventListener('click', confirmarEliminacionProducto);
+        const btnEditar = contenido.querySelector('.btn-editar');
+        const btnEliminar = contenido.querySelector('.btn-eliminar');
 
-        async function confirmarEliminacionProducto() {
-            const motivo = document.querySelector('.motivo').value.trim();
+        btnEditar.addEventListener('click', () => editar(producto));
+        btnEliminar.addEventListener('click', () => eliminar(producto));
 
-            if (!motivo) {
-                mostrarNotificacion({
-                    message: 'Debe ingresar el motivo de la eliminación',
-                    type: 'warning',
-                    duration: 3500
-                });
-                return;
-            }
+        function eliminar(producto) {
 
-            try {
-                mostrarCarga();
-
-                const response = await fetch(`/eliminar-producto/${registroId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ motivo })
-                });
-
-                if (!response.ok) {
-                    throw new Error('Error en la respuesta del servidor');
-                }
-
-                const data = await response.json();
-
-                if (data.success) {
-                    await mostrarAlmacenGeneral();
-                    await registrarHistorial(
-                        `${usuarioInfo.nombre} ${usuarioInfo.apellido}`,
-                        'Eliminación',
-                        `Motivo: ${motivo} - Producto: ${producto.producto} (${producto.id})`
-                    );
-
-                    mostrarNotificacion({
-                        message: 'Producto eliminado correctamente',
-                        type: 'success',
-                        duration: 3000
-                    });
-                    ocultarAnuncioSecond();
-                } else {
-                    throw new Error(data.error || 'Error al eliminar el producto');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                mostrarNotificacion({
-                    message: error.message || 'Error al eliminar el producto',
-                    type: 'error',
-                    duration: 3500
-                });
-            } finally {
-                ocultarCarga();
-            }
-        }
-    }
-    function editar(event) {
-        const registroId = event.currentTarget.dataset.id;
-        const producto = productos.find(r => r.id === registroId);
-
-        // Procesar las etiquetas actuales del producto
-        const etiquetasProducto = producto.etiquetas.split(';').filter(e => e.trim());
-        const etiquetasHTML = etiquetasProducto.map(etiqueta => `
-        <div class="etiqueta-item" data-valor="${etiqueta}">
-            <i class='bx bx-purchase-tag'></i>
-            <span>${etiqueta}</span>
-            <button type="button" class="btn-quitar-etiqueta"><i class='bx bx-x'></i></button>
-        </div>
-        `).join('');
-
-        // Procesar los precios del producto
-        // Procesar los precios del producto
-        const preciosFormateados = producto.precios.split(';')
-            .filter(precio => precio.trim())
-            .map(precio => {
-                const [ciudad, valor] = precio.split(',');
-                return `<div class="entrada">
-                            <i class='bx bx-store'></i>
-                            <div class="input">
-                                <p class="detalle">${ciudad}</p>
-                                <input class="precio-input" data-ciudad="${ciudad}" type="number" value="${valor}" autocomplete="off" placeholder=" " required>
-                            </div>
-                        </div>`;
-            })
-            .join('');
-
-        // Lista de etiquetas disponibles (excluyendo las ya seleccionadas)
-        const etiquetasDisponibles = etiquetas
-            .map(e => e.etiqueta)
-            .filter(e => !etiquetasProducto.includes(e));
-
-        const contenido = document.querySelector('.anuncio-second .contenido');
-        const registrationHTML = `
-        <div class="encabezado">
-            <h1 class="titulo">Editar producto</h1>
-            <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
-        </div>
-        <div class="relleno editar-producto">
-            <p class="normal"><i class='bx bx-chevron-right'></i>Información basica</p>
-                <div class="entrada">
-                    <i class='bx bx-cube'></i>
-                    <div class="input">
-                        <p class="detalle">Producto</p>
-                        <input class="producto" type="text" value="${producto.producto}" autocomplete="off" placeholder=" " required>
-                    </div>
-                </div>
-                <div class="entrada">
-                    <i class="ri-scales-line"></i>
-                    <div class="input">
-                        <p class="detalle">Gramaje</p>
-                        <input class="gramaje" type="number" value="${producto.gramos}" autocomplete="off" placeholder=" " required>
-                    </div>
-                </div>
-
-            <p class="normal"><i class='bx bx-chevron-right'></i>Detalles adicionales</p>
-                <div class="entrada">
-                    <i class='bx bx-package'></i>
-                    <div class="input">
-                        <p class="detalle">Stock</p>
-                        <input class="stock" type="number" value="${producto.stock}" autocomplete="off" placeholder=" " required>
-                    </div>
-                </div>
-                <div class="entrada">
-                    <i class='bx bx-barcode'></i>
-                    <div class="input">
-                        <p class="detalle">Código de barras</p>
-                        <input class="codigo-barras" type="text" value="${producto.codigo_barras}" autocomplete="off" placeholder=" " required>
-                    </div>
-                </div>
-                <div class="entrada">
-                    <i class='bx bx-list-ul'></i>
-                    <div class="input">
-                        <p class="detalle">Lista</p>
-                        <input class="lista" type="text" value="${producto.lista}" autocomplete="off" placeholder=" " required>
-                    </div>
-                </div>
-                <div class="entrada">
-                    <i class='bx bx-package'></i>
-                    <div class="input">
-                        <p class="detalle">Cantidad por grupo</p>
-                        <input class="cantidad-grupo" type="number" value="${producto.cantidadxgrupo}" autocomplete="off" placeholder=" " required>
-                    </div>
-                </div>
-                <div class="entrada">
-                    <i class='bx bx-package'></i>
-                    <div class="input">
-                        <p class="detalle">Unidades sueltas</p>
-                        <input class="unidades-sueltas" type="number" value="${producto.uSueltas}" autocomplete="off" placeholder=" " required>
-                    </div>
-                </div>
-                <div class="entrada">
-                    <i class='bx bx-image'></i>
-                    <div class="input">
-                        <p class="detalle">Imagen actual: ${producto.imagen ? 'Imagen cargada' : 'Sin imagen'}</p>
-                        <input class="imagen-producto" type="file" accept="image/*">
-                    </div>
-                </div>
-            <p class="normal"><i class='bx bx-chevron-right'></i>Etiquetas</p>
-            <div class="etiquetas-container">
-                <div class="etiquetas-actuales">
-                    ${etiquetasHTML}
-                </div>
+            const contenido = document.querySelector('.anuncio-second .contenido');
+            const registrationHTML = `
+            <div class="encabezado">
+                <h1 class="titulo">Eliminar producto</h1>
+                <button class="btn close" onclick="info('${producto.id}');"><i class="fas fa-arrow-right"></i></button>
             </div>
-            <div class="entrada">
-                <i class='bx bx-purchase-tag'></i>
-                <div class="input">
-                    <p class="detalle">Selecciona nueva etiqueta</p>
-                    <select class="select-etiqueta" required>
-                    ${etiquetasDisponibles.map(etiqueta =>
-            `<option value="${etiqueta}">${etiqueta}</option>`
-        ).join('')}
-                    </select>
-                    <button type="button" class="btn-agregar-etiqueta"><i class='bx bx-plus'></i></button>
-                </div>
-            </div>
-
-            <p class="normal"><i class='bx bx-chevron-right'></i>Precios</p>
-                ${preciosFormateados}
-
-            <p class="normal"><i class='bx bx-chevron-right'></i>Almacén Index</p>
-                <div class="entrada">
-                    <i class='bx bx-package'></i>
-                    <div class="input">
-                        <p class="detalle">Selecciona Almacén Index</p>
-                        <select class="alm-acopio-producto" required>
-                            <option value=""></option>
-                            ${productosAcopio.map(productoAcopio => `
-                                <option value="${productoAcopio.id}" ${productoAcopio.producto === producto.alm_acopio_producto ? 'selected' : ''}>
-                                    ${productoAcopio.producto}
-                                </option>
-                            `).join('')}
-                        </select>
+            <div class="relleno">
+                <p class="normal"><i class='bx bx-chevron-right'></i>Información general</p>
+                <div class="campo-horizontal">
+                    <div class="campo-vertical">
+                        <span class="nombre"><strong><i class='bx bx-id-card'></i> Id: </strong>${producto.id}</span>
+                        <span class="valor"><strong><i class="ri-scales-line"></i> Gramaje: </strong>${producto.gramos}gr.</span>
+                        <span class="valor"><strong><i class='bx bx-package'></i> Stock: </strong>${producto.stock} Und.</span>
+                        <span class="valor"><strong><i class='bx bx-hash'></i> Codigo: </strong>${producto.codigo_barras}</span>
+                    </div>
+                    <div class="imagen-producto">
+                    ${producto.imagen && producto.imagen.startsWith('data:image') ?
+                    `<img class="imagen" src="${producto.imagen}">` :
+                    `<i class='bx bx-package'></i>`}
                     </div>
                 </div>
-
-            <p class="normal"><i class='bx bx-chevron-right'></i>Motivo de la edición</p>
+                <p class="normal"><i class='bx bx-chevron-right'></i>Motivo de la eliminación</p>
                 <div class="entrada">
                     <i class='bx bx-comment-detail'></i>
                     <div class="input">
@@ -793,209 +551,426 @@ function eventosAlmacenGeneral() {
                         <input class="motivo" type="text" autocomplete="off" placeholder=" " required>
                     </div>
                 </div>
-        </div>
-        <div class="anuncio-botones">
-            <button class="btn-editar-producto btn orange"><i class="bx bx-save"></i> Guardar cambios</button>
-        </div>
-    `;
+            </div>
+            <div class="anuncio-botones">
+                <button class="btn-eliminar-producto btn red"><i class="bi bi-trash-fill"></i> Confirmar eliminación</button>
+            </div>
+        `;
+            contenido.innerHTML = registrationHTML;
+            mostrarAnuncioSecond();
 
-        contenido.innerHTML = registrationHTML;
+            // Agregar evento al botón guardar
+            const btnEliminarProducto = contenido.querySelector('.btn-eliminar-producto');
+            btnEliminarProducto.addEventListener('click', confirmarEliminacionProducto);
 
-        // Eventos para manejar etiquetas
-        const btnAgregarEtiqueta = contenido.querySelector('.btn-agregar-etiqueta');
-        const selectEtiqueta = contenido.querySelector('.select-etiqueta');
-        const etiquetasActuales = contenido.querySelector('.etiquetas-actuales');
+            async function confirmarEliminacionProducto() {
+                const motivo = document.querySelector('.motivo').value.trim();
 
-        btnAgregarEtiqueta.addEventListener('click', () => {
-            const etiquetaSeleccionada = selectEtiqueta.value;
-            if (etiquetaSeleccionada) {
-                const nuevaEtiqueta = document.createElement('div');
-                nuevaEtiqueta.className = 'etiqueta-item';
-                nuevaEtiqueta.dataset.valor = etiquetaSeleccionada;
-                nuevaEtiqueta.innerHTML = `
-                <i class='bx bx-purchase-tag'></i>
-                <span>${etiquetaSeleccionada}</span>
-                <button type="button" class="btn-quitar-etiqueta"><i class='bx bx-x'></i></button>
-            `;
-                etiquetasActuales.appendChild(nuevaEtiqueta);
-                selectEtiqueta.querySelector(`option[value="${etiquetaSeleccionada}"]`).remove();
-                selectEtiqueta.value = '';
-            }
-        });
-
-        // Eventos para quitar etiquetas
-        etiquetasActuales.addEventListener('click', (e) => {
-            if (e.target.closest('.btn-quitar-etiqueta')) {
-                const etiquetaItem = e.target.closest('.etiqueta-item');
-                const valorEtiqueta = etiquetaItem.dataset.valor;
-                const option = document.createElement('option');
-                option.value = valorEtiqueta;
-                option.textContent = valorEtiqueta;
-                selectEtiqueta.appendChild(option);
-                etiquetaItem.remove();
-            }
-        });
-
-        mostrarAnuncioSecond();
-
-        // Agregar evento al botón guardar
-        const btnEditarProducto = contenido.querySelector('.btn-editar-producto');
-        btnEditarProducto.addEventListener('click', confirmarEdicionProducto);
-
-        async function procesarImagen(file) {
-            return new Promise((resolve, reject) => {
-                if (!file || !file.type.startsWith('image/')) {
-                    reject(new Error('Solo se permiten archivos de imagen'));
-                    return;
-                }
-
-                const img = new Image();
-                const reader = new FileReader();
-
-                reader.onload = function (e) {
-                    img.src = e.target.result;
-                };
-
-                img.onload = function () {
-                    const canvas = document.createElement('canvas');
-                    let width = img.width;
-                    let height = img.height;
-
-                    const MAX_SIZE = 500;
-                    if (width > height && width > MAX_SIZE) {
-                        height *= MAX_SIZE / width;
-                        width = MAX_SIZE;
-                    } else if (height > MAX_SIZE) {
-                        width *= MAX_SIZE / height;
-                        height = MAX_SIZE;
-                    }
-
-                    canvas.width = width;
-                    canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
-
-                    const calidad = /Mobile|Android|iPhone/i.test(navigator.userAgent) ? 0.5 : 0.7;
-                    const imagenBase64 = canvas.toDataURL('image/jpeg', calidad);
-
-                    if (imagenBase64.length > 2000000) {
-                        reject(new Error('La imagen es demasiado grande, intenta con una más pequeña'));
-                        return;
-                    }
-
-                    resolve(imagenBase64);
-                };
-
-                reader.readAsDataURL(file);
-            });
-        }
-
-        async function confirmarEdicionProducto() {
-            try {
-                const producto = document.querySelector('.editar-producto .producto').value.trim();
-                const gramos = document.querySelector('.editar-producto .gramaje').value.trim();
-                const stock = document.querySelector('.editar-producto .stock').value.trim();
-                const cantidadxgrupo = document.querySelector('.editar-producto .cantidad-grupo').value.trim();
-                const lista = document.querySelector('.editar-producto .lista').value.trim();
-                const codigo_barras = document.querySelector('.editar-producto .codigo-barras').value.trim();
-                const sueltas = document.querySelector('.editar-producto .unidades-sueltas').value.trim();
-                const motivo = document.querySelector('.editar-producto .motivo').value.trim();
-                const inputFoto = document.querySelector('.imagen-producto');
-                const acopioSelect = document.querySelector('.editar-producto .alm-acopio-producto');
-                const acopio_id = acopioSelect.value;
-                const alm_acopio_producto = acopio_id ?
-                    productosAcopio.find(p => p.id === acopio_id)?.producto :
-                    'No hay índice seleccionado';
-
-                // Procesar la imagen si se seleccionó una nueva
-                let imagen = producto.imagen; // Mantener la imagen existente por defecto
-                if (inputFoto && inputFoto.files[0]) {
-                    try {
-                        imagen = await procesarImagen(inputFoto.files[0]);
-                    } catch (error) {
-                        mostrarNotificacion({
-                            message: error.message,
-                            type: 'error',
-                            duration: 3500
-                        });
-                        return;
-                    }
-                }
-
-
-                // Get selected etiquetas
-                const etiquetasSeleccionadas = Array.from(document.querySelectorAll('.etiqueta-item'))
-                    .map(item => item.dataset.valor)
-                    .join(';');
-
-                // Get precios
-                const preciosInputs = document.querySelectorAll('.editar-producto .precio-input');
-                const preciosActualizados = Array.from(preciosInputs)
-                    .map(input => `${input.dataset.ciudad},${input.value}`)
-                    .join(';');
-
-                if (!producto || !gramos || !stock || !cantidadxgrupo || !lista || !motivo) {
+                if (!motivo) {
                     mostrarNotificacion({
-                        message: 'Todos los campos obligatorios deben ser completados',
+                        message: 'Debe ingresar el motivo de la eliminación',
                         type: 'warning',
                         duration: 3500
                     });
                     return;
                 }
 
-                mostrarCarga();
+                try {
+                    mostrarCarga();
 
-                const response = await fetch(`/actualizar-producto/${registroId}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        producto,
-                        gramos,
-                        stock,
-                        cantidadxgrupo,
-                        lista,
-                        codigo_barras,
-                        precios: preciosActualizados,
-                        etiquetas: etiquetasSeleccionadas,
-                        imagen,
-                        uSueltas: sueltas,
-                        alm_acopio_producto // Agregamos el almacén index
-                    })
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    await registrarHistorial(
-                        `${usuarioInfo.nombre} ${usuarioInfo.apellido}`,
-                        'Edición',
-                        `Motivo: ${motivo} - Producto: ${producto} (${registroId})`
-                    );
-                    await mostrarAlmacenGeneral();
-                    mostrarNotificacion({
-                        message: 'Producto actualizado correctamente',
-                        type: 'success',
-                        duration: 3000
+                    const response = await fetch(`/eliminar-producto/${registroId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ motivo })
                     });
 
-                    ocultarAnuncioSecond();
-                } else {
-                    throw new Error(data.error || 'Error al actualizar el producto');
+                    if (!response.ok) {
+                        throw new Error('Error en la respuesta del servidor');
+                    }
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        await mostrarAlmacenGeneral();
+                        await registrarHistorial(
+                            `${usuarioInfo.nombre} ${usuarioInfo.apellido}`,
+                            'Eliminación',
+                            `Motivo: ${motivo} - Producto: ${producto.producto} (${producto.id})`
+                        );
+
+                        mostrarNotificacion({
+                            message: 'Producto eliminado correctamente',
+                            type: 'success',
+                            duration: 3000
+                        });
+                        ocultarAnuncioSecond();
+                    } else {
+                        throw new Error(data.error || 'Error al eliminar el producto');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    mostrarNotificacion({
+                        message: error.message || 'Error al eliminar el producto',
+                        type: 'error',
+                        duration: 3500
+                    });
+                } finally {
+                    ocultarCarga();
                 }
-            } catch (error) {
-                console.error('Error:', error);
-                mostrarNotificacion({
-                    message: error.message || 'Error al actualizar el producto',
-                    type: 'error',
-                    duration: 3500
+            }
+        }
+        function editar(producto) {
+
+            // Procesar las etiquetas actuales del producto
+            const etiquetasProducto = producto.etiquetas.split(';').filter(e => e.trim());
+            const etiquetasHTML = etiquetasProducto.map(etiqueta => `
+            <div class="etiqueta-item" data-valor="${etiqueta}">
+                <i class='bx bx-purchase-tag'></i>
+                <span>${etiqueta}</span>
+                <button type="button" class="btn-quitar-etiqueta"><i class='bx bx-x'></i></button>
+            </div>
+            `).join('');
+
+            // Procesar los precios del producto
+            // Procesar los precios del producto
+            const preciosFormateados = producto.precios.split(';')
+                .filter(precio => precio.trim())
+                .map(precio => {
+                    const [ciudad, valor] = precio.split(',');
+                    return `<div class="entrada">
+                                <i class='bx bx-store'></i>
+                                <div class="input">
+                                    <p class="detalle">${ciudad}</p>
+                                    <input class="precio-input" data-ciudad="${ciudad}" type="number" value="${valor}" autocomplete="off" placeholder=" " required>
+                                </div>
+                            </div>`;
+                })
+                .join('');
+
+            // Lista de etiquetas disponibles (excluyendo las ya seleccionadas)
+            const etiquetasDisponibles = etiquetas
+                .map(e => e.etiqueta)
+                .filter(e => !etiquetasProducto.includes(e));
+
+            const contenido = document.querySelector('.anuncio-second .contenido');
+            const registrationHTML = `
+            <div class="encabezado">
+                <h1 class="titulo">Editar producto</h1>
+                <button class="btn close" onclick="info('${producto.id}');"><i class="fas fa-arrow-right"></i></button>
+            </div>
+            <div class="relleno editar-producto">
+                <p class="normal"><i class='bx bx-chevron-right'></i>Información basica</p>
+                    <div class="entrada">
+                        <i class='bx bx-cube'></i>
+                        <div class="input">
+                            <p class="detalle">Producto</p>
+                            <input class="producto" type="text" value="${producto.producto}" autocomplete="off" placeholder=" " required>
+                        </div>
+                    </div>
+                    <div class="entrada">
+                        <i class="ri-scales-line"></i>
+                        <div class="input">
+                            <p class="detalle">Gramaje</p>
+                            <input class="gramaje" type="number" value="${producto.gramos}" autocomplete="off" placeholder=" " required>
+                        </div>
+                    </div>
+    
+                <p class="normal"><i class='bx bx-chevron-right'></i>Detalles adicionales</p>
+                    <div class="entrada">
+                        <i class='bx bx-package'></i>
+                        <div class="input">
+                            <p class="detalle">Stock</p>
+                            <input class="stock" type="number" value="${producto.stock}" autocomplete="off" placeholder=" " required>
+                        </div>
+                    </div>
+                    <div class="entrada">
+                        <i class='bx bx-barcode'></i>
+                        <div class="input">
+                            <p class="detalle">Código de barras</p>
+                            <input class="codigo-barras" type="text" value="${producto.codigo_barras}" autocomplete="off" placeholder=" " required>
+                        </div>
+                    </div>
+                    <div class="entrada">
+                        <i class='bx bx-list-ul'></i>
+                        <div class="input">
+                            <p class="detalle">Lista</p>
+                            <input class="lista" type="text" value="${producto.lista}" autocomplete="off" placeholder=" " required>
+                        </div>
+                    </div>
+                    <div class="entrada">
+                        <i class='bx bx-package'></i>
+                        <div class="input">
+                            <p class="detalle">Cantidad por grupo</p>
+                            <input class="cantidad-grupo" type="number" value="${producto.cantidadxgrupo}" autocomplete="off" placeholder=" " required>
+                        </div>
+                    </div>
+                    <div class="entrada">
+                        <i class='bx bx-package'></i>
+                        <div class="input">
+                            <p class="detalle">Unidades sueltas</p>
+                            <input class="unidades-sueltas" type="number" value="${producto.uSueltas}" autocomplete="off" placeholder=" " required>
+                        </div>
+                    </div>
+                    <div class="entrada">
+                        <i class='bx bx-image'></i>
+                        <div class="input">
+                            <p class="detalle">Imagen actual: ${producto.imagen ? 'Imagen cargada' : 'Sin imagen'}</p>
+                            <input class="imagen-producto" type="file" accept="image/*">
+                        </div>
+                    </div>
+                <p class="normal"><i class='bx bx-chevron-right'></i>Etiquetas</p>
+                <div class="etiquetas-container">
+                    <div class="etiquetas-actuales">
+                        ${etiquetasHTML}
+                    </div>
+                </div>
+                <div class="entrada">
+                    <i class='bx bx-purchase-tag'></i>
+                    <div class="input">
+                        <p class="detalle">Selecciona nueva etiqueta</p>
+                        <select class="select-etiqueta" required>
+                        ${etiquetasDisponibles.map(etiqueta =>
+                `<option value="${etiqueta}">${etiqueta}</option>`
+            ).join('')}
+                        </select>
+                        <button type="button" class="btn-agregar-etiqueta"><i class='bx bx-plus'></i></button>
+                    </div>
+                </div>
+    
+                <p class="normal"><i class='bx bx-chevron-right'></i>Precios</p>
+                    ${preciosFormateados}
+    
+                <p class="normal"><i class='bx bx-chevron-right'></i>Almacén Index</p>
+                    <div class="entrada">
+                        <i class='bx bx-package'></i>
+                        <div class="input">
+                            <p class="detalle">Selecciona Almacén acopio</p>
+                            <select class="alm-acopio-producto" required>
+                                <option value=""></option>
+                                ${productosAcopio.map(productoAcopio => `
+                                    <option value="${productoAcopio.id}" ${productoAcopio.producto === producto.alm_acopio_producto ? 'selected' : ''}>
+                                        ${productoAcopio.producto}
+                                    </option>
+                                `).join('')}
+                            </select>
+                        </div>
+                    </div>
+    
+                <p class="normal"><i class='bx bx-chevron-right'></i>Motivo de la edición</p>
+                    <div class="entrada">
+                        <i class='bx bx-comment-detail'></i>
+                        <div class="input">
+                            <p class="detalle">Motivo</p>
+                            <input class="motivo" type="text" autocomplete="off" placeholder=" " required>
+                        </div>
+                    </div>
+            </div>
+            <div class="anuncio-botones">
+                <button class="btn-editar-producto btn orange"><i class="bx bx-save"></i> Guardar cambios</button>
+            </div>
+        `;
+
+            contenido.innerHTML = registrationHTML;
+
+            // Eventos para manejar etiquetas
+            const btnAgregarEtiqueta = contenido.querySelector('.btn-agregar-etiqueta');
+            const selectEtiqueta = contenido.querySelector('.select-etiqueta');
+            const etiquetasActuales = contenido.querySelector('.etiquetas-actuales');
+
+            btnAgregarEtiqueta.addEventListener('click', () => {
+                const etiquetaSeleccionada = selectEtiqueta.value;
+                if (etiquetaSeleccionada) {
+                    const nuevaEtiqueta = document.createElement('div');
+                    nuevaEtiqueta.className = 'etiqueta-item';
+                    nuevaEtiqueta.dataset.valor = etiquetaSeleccionada;
+                    nuevaEtiqueta.innerHTML = `
+                    <i class='bx bx-purchase-tag'></i>
+                    <span>${etiquetaSeleccionada}</span>
+                    <button type="button" class="btn-quitar-etiqueta"><i class='bx bx-x'></i></button>
+                `;
+                    etiquetasActuales.appendChild(nuevaEtiqueta);
+                    selectEtiqueta.querySelector(`option[value="${etiquetaSeleccionada}"]`).remove();
+                    selectEtiqueta.value = '';
+                }
+            });
+
+            // Eventos para quitar etiquetas
+            etiquetasActuales.addEventListener('click', (e) => {
+                if (e.target.closest('.btn-quitar-etiqueta')) {
+                    const etiquetaItem = e.target.closest('.etiqueta-item');
+                    const valorEtiqueta = etiquetaItem.dataset.valor;
+                    const option = document.createElement('option');
+                    option.value = valorEtiqueta;
+                    option.textContent = valorEtiqueta;
+                    selectEtiqueta.appendChild(option);
+                    etiquetaItem.remove();
+                }
+            });
+
+            mostrarAnuncioSecond();
+
+            // Agregar evento al botón guardar
+            const btnEditarProducto = contenido.querySelector('.btn-editar-producto');
+            btnEditarProducto.addEventListener('click', confirmarEdicionProducto);
+
+            async function procesarImagen(file) {
+                return new Promise((resolve, reject) => {
+                    if (!file || !file.type.startsWith('image/')) {
+                        reject(new Error('Solo se permiten archivos de imagen'));
+                        return;
+                    }
+
+                    const img = new Image();
+                    const reader = new FileReader();
+
+                    reader.onload = function (e) {
+                        img.src = e.target.result;
+                    };
+
+                    img.onload = function () {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+
+                        const MAX_SIZE = 500;
+                        if (width > height && width > MAX_SIZE) {
+                            height *= MAX_SIZE / width;
+                            width = MAX_SIZE;
+                        } else if (height > MAX_SIZE) {
+                            width *= MAX_SIZE / height;
+                            height = MAX_SIZE;
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        const calidad = /Mobile|Android|iPhone/i.test(navigator.userAgent) ? 0.5 : 0.7;
+                        const imagenBase64 = canvas.toDataURL('image/jpeg', calidad);
+
+                        if (imagenBase64.length > 2000000) {
+                            reject(new Error('La imagen es demasiado grande, intenta con una más pequeña'));
+                            return;
+                        }
+
+                        resolve(imagenBase64);
+                    };
+
+                    reader.readAsDataURL(file);
                 });
-            } finally {
-                ocultarCarga();
+            }
+
+            async function confirmarEdicionProducto() {
+                try {
+                    const producto = document.querySelector('.editar-producto .producto').value.trim();
+                    const gramos = document.querySelector('.editar-producto .gramaje').value.trim();
+                    const stock = document.querySelector('.editar-producto .stock').value.trim();
+                    const cantidadxgrupo = document.querySelector('.editar-producto .cantidad-grupo').value.trim();
+                    const lista = document.querySelector('.editar-producto .lista').value.trim();
+                    const codigo_barras = document.querySelector('.editar-producto .codigo-barras').value.trim();
+                    const sueltas = document.querySelector('.editar-producto .unidades-sueltas').value.trim();
+                    const motivo = document.querySelector('.editar-producto .motivo').value.trim();
+                    const inputFoto = document.querySelector('.imagen-producto');
+                    const acopioSelect = document.querySelector('.editar-producto .alm-acopio-producto');
+                    const acopio_id = acopioSelect.value;
+                    const alm_acopio_producto = acopio_id ?
+                        productosAcopio.find(p => p.id === acopio_id)?.producto :
+                        'No hay índice seleccionado';
+
+                    // Procesar la imagen si se seleccionó una nueva
+                    let imagen = producto.imagen; // Mantener la imagen existente por defecto
+                    if (inputFoto && inputFoto.files[0]) {
+                        try {
+                            imagen = await procesarImagen(inputFoto.files[0]);
+                        } catch (error) {
+                            mostrarNotificacion({
+                                message: error.message,
+                                type: 'error',
+                                duration: 3500
+                            });
+                            return;
+                        }
+                    }
+
+
+                    // Get selected etiquetas
+                    const etiquetasSeleccionadas = Array.from(document.querySelectorAll('.etiqueta-item'))
+                        .map(item => item.dataset.valor)
+                        .join(';');
+
+                    // Get precios
+                    const preciosInputs = document.querySelectorAll('.editar-producto .precio-input');
+                    const preciosActualizados = Array.from(preciosInputs)
+                        .map(input => `${input.dataset.ciudad},${input.value}`)
+                        .join(';');
+
+                    if (!producto || !gramos || !stock || !cantidadxgrupo || !lista || !motivo) {
+                        mostrarNotificacion({
+                            message: 'Todos los campos obligatorios deben ser completados',
+                            type: 'warning',
+                            duration: 3500
+                        });
+                        return;
+                    }
+
+                    mostrarCarga();
+
+                    const response = await fetch(`/actualizar-producto/${registroId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            producto,
+                            gramos,
+                            stock,
+                            cantidadxgrupo,
+                            lista,
+                            codigo_barras,
+                            precios: preciosActualizados,
+                            etiquetas: etiquetasSeleccionadas,
+                            imagen,
+                            uSueltas: sueltas,
+                            alm_acopio_producto // Agregamos el almacén index
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        await registrarHistorial(
+                            `${usuarioInfo.nombre} ${usuarioInfo.apellido}`,
+                            'Edición',
+                            `Motivo: ${motivo} - Producto: ${producto} (${registroId})`
+                        );
+                        await mostrarAlmacenGeneral();
+                        mostrarNotificacion({
+                            message: 'Producto actualizado correctamente',
+                            type: 'success',
+                            duration: 3000
+                        });
+
+                        ocultarAnuncioSecond();
+                    } else {
+                        throw new Error(data.error || 'Error al actualizar el producto');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    mostrarNotificacion({
+                        message: error.message || 'Error al actualizar el producto',
+                        type: 'error',
+                        duration: 3500
+                    });
+                } finally {
+                    ocultarCarga();
+                }
             }
         }
     }
+    
     function crearProducto() {
 
         const preciosFormateados = precios.map(precio => {
