@@ -197,8 +197,8 @@ function eventosRegistrosConteo() {
         }).join('')}
         </div>
         <div class="anuncio-botones">
-            <button class="btn-editar btn blue" data-id="${registro.id}"><i class='bx bx-edit'></i> Editar</button>
-            <button class="btn-eliminar btn red" data-id="${registro.id}"><i class="bx bx-trash"></i> Eliminar</button>
+            <button class="btn-editar btn blue" data-id="${registro.id}"><i class='bx bx-edit'></i></button>
+            <button class="btn-eliminar btn red" data-id="${registro.id}"><i class="bx bx-trash"></i></button>
         </div>
     `;
 
@@ -237,7 +237,7 @@ function eventosRegistrosConteo() {
                     </div>
                 </div>
                 <div class="anuncio-botones">
-                    <button id="confirmar-eliminacion" class="btn red"><i class='bx bx-trash'></i> Eliminar</button>
+                    <button id="confirmar-eliminacion" class="btn red"><i class='bx bx-trash'></i> Confirmar eliminación</button>
                 </div>
             `;
 
@@ -328,7 +328,7 @@ function eventosRegistrosConteo() {
                     </div>
                 </div>
                 <div class="anuncio-botones">
-                    <button id="guardar-edicion" class="btn orange"><i class='bx bx-save'></i> Guardar cambios</button>
+                    <button id="guardar-edicion" class="btn blue"><i class='bx bx-save'></i> Guardar cambios</button>
                 </div>
             `;
 
