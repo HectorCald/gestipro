@@ -1151,7 +1151,7 @@
     }
 
     select {
-        width: fit-content;
+        min-width: fit-content;
         height: 40px;
         padding: 5px 15px;
         border: none;

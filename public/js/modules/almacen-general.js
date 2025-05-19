@@ -170,12 +170,12 @@ export async function mostrarAlmacenGeneral() {
                     <button class="btn-filtro">${etiqueta}</button>
                 `).join('')}
             </div>
-            <div class="filtros-opciones cantidad-filter" style="overflow:hidden">
+            <div class="filtros-opciones cantidad-filter">
                 <button class="btn-filtro"><i class='bx bx-sort-down'></i></button>
                 <button class="btn-filtro"><i class='bx bx-sort-up'></i></button>
                 <button class="btn-filtro"><i class='bx bx-sort-a-z'></i></button>
                 <button class="btn-filtro"><i class='bx bx-sort-z-a'></i></button>
-                <button class="btn-filtro">Slts.</button>
+                <button class="btn-filtro">Sueltas</button>
                 <select class="precios-select" style="width:100%">
                     ${preciosOpciones}
                 </select>
@@ -407,10 +407,14 @@ function eventosAlmacenGeneral() {
                 });
                 boton.classList.add('activado');
             }
+            scrollToCenter(boton, boton.parentElement);
             aplicarFiltros();
         });
     });
-    selectPrecios.addEventListener('change', aplicarFiltros);
+    selectPrecios.addEventListener('change', (e) => {
+        scrollToCenter(e.target, e.target.parentElement);
+        aplicarFiltros();
+    });
 
 
 
