@@ -507,7 +507,7 @@ function eventosAlmacenGeneral() {
             </div>
         </div>
         <div class="anuncio-botones">
-            <button class="btn-editar btn orange" data-id="${producto.id}"><i class='bx bx-edit'></i> Editar</button>
+            <button class="btn-editar btn blue" data-id="${producto.id}"><i class='bx bx-edit'></i> Editar</button>
             <button class="btn-eliminar btn red" data-id="${producto.id}"><i class="bx bx-trash"></i> Eliminar</button>
         </div>
     `;

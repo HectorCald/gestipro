@@ -45,7 +45,7 @@
     font-weight: 800;
 
     i {
-        font-size: var(--text-titulo) !important;
+        font-size: var(--text-2xl) !important;
         margin-right: 5px;
     }
 }
@@ -67,7 +67,7 @@
 }
 
 .btn.blue {
-    background-color: rgb(1, 56, 221);
+    background-color: rgb(26, 127, 210);
 }
 
 .btn.especial {

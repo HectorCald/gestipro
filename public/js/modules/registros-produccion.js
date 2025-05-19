@@ -141,23 +141,10 @@ function eventosMisRegistros() {
 
 
     items.forEach(item => {
-        const accionesDiv = item.querySelector('.registro-acciones');
-        if (accionesDiv && !item.querySelector('.fecha_verificacion')) {
-            item.addEventListener('click', (e) => {
-                e.stopPropagation();
-                // Ocultar todos los demás menús
-                document.querySelectorAll('.registro-item').forEach(otroItem => {
-                    if (otroItem !== item) {
-                        otroItem.classList.remove('activo');
-                        otroItem.querySelector('.registro-acciones')?.classList.remove('mostrar');
-                    }
-                });
-
-                // Alternar estado actual
-                item.classList.toggle('activo');
-                accionesDiv.classList.toggle('mostrar');
-            });
-        }
+        item.addEventListener('click', function () {
+            const registroId = this.dataset.id;
+            window.info(registroId);
+        });
     });
     document.addEventListener('click', () => {
         document.querySelectorAll('.registro-item').forEach(item => {
@@ -340,59 +327,67 @@ function eventosMisRegistros() {
         });
     }
 
-    botonesInfo.forEach(btn => {
-        btn.addEventListener('click', info);
-    });
-    function info(event) {
-        const registroId = event.currentTarget.dataset.id;
+    window.info = function (registroId) {
         const registro = registrosProduccion.find(r => r.id === registroId);
-        const producto = productosGlobal.find(p => p.id === registro.idProducto);
+        if (!registro) return;
 
-        // Calcular tiras completas y unidades sueltas
+
+        const producto = productosGlobal.find(p => p.id === registro.idProducto);
         const cantidadPorGrupo = producto ? producto.cantidadxgrupo : 1;
         const numeroADividir = registro.fecha_verificacion ? registro.c_real : registro.envases_terminados;
         const tirasCompletas = Math.floor(numeroADividir / cantidadPorGrupo);
         const unidadesSueltas = numeroADividir % cantidadPorGrupo;
-
         const unidadesTira = producto ? (cantidadPorGrupo <= 1 ? `${tirasCompletas} und.` : `${tirasCompletas} tiras`) : 'N/A';
 
         const contenido = document.querySelector('.anuncio-second .contenido');
         const registrationHTML = `
-            <div class="encabezado">
-                <h1 class="titulo">Detalles del Registro</h1>
-                <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
-            </div>
-            <div class="relleno">
-                <p class="normal"><i class='bx bx-chevron-right'></i>Información básica</p>
+        <div class="encabezado">
+            <h1 class="titulo">${registro.producto}</h1>
+            <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
+        </div>
+        <div class="relleno verificar-registro">
+            <p class="normal"><i class='bx bx-chevron-right'></i> Información del producto</p>
+            <div class="campo-horizontal">
                 <div class="campo-vertical">
-                    <span><strong><i class='bx bx-calendar'></i> Fecha:</strong> ${registro.fecha}</span>
-                    <span><strong><i class='bx bx-id-card'></i> ID:</strong> ${registro.id}</span>
+                    <span class="nombre"><strong><i class='bx bx-id-card'></i> Id: </strong>${registro.id}</span>
+                    <span class="valor"><strong><i class="ri-scales-line"></i> Gramaje: </strong>${registro.gramos}gr.</span>
+                    <span class="valor"><strong><i class='bx bx-package'></i> Envases: </strong>${registro.envases_terminados} Und.</span>
+                    <span class="valor"><strong><i class='bx bx-hash'></i> Vencimiento: </strong>${registro.fecha_vencimiento}</span>
                 </div>
-
-                <p class="normal"><i class='bx bx-chevron-right'></i>Información del producto</p>
-                <div class="campo-vertical">
-                    <span><strong><i class='bx bx-package'></i> Producto:</strong> ${registro.producto}</span>
-                    <span><strong><i class='bx bx-cube'></i> Gramos:</strong> ${registro.gramos}gr.</span>
-                    <span><strong><i class='bx bx-box'></i> Lote:</strong> ${registro.lote}</span>
-                </div>
-
-                <p class="normal"><i class='bx bx-chevron-right'></i>Detalles de producción</p>
-                <div class="campo-vertical">
-                    <span><strong><i class='bx bx-package'></i> Seleccionado/cernido:</strong> ${registro.proceso}</span>
-                    <span><strong><i class='bx bx-microchip'></i> Microondas:</strong> ${registro.microondas}</span>
-                    <span><strong><i class='bx bx-package'></i> Envases terminados:</strong> ${registro.envases_terminados} und.</span>
-                    <span><strong><i class='bx bx-calendar'></i> Fecha de vencimiento:</strong> ${registro.fecha_vencimiento}</span>
-                </div>
-                <p class="normal"><i class='bx bx-chevron-right'></i>Detalles de verificación</p>
-                <div class="campo-vertical">
-                    <span><strong><i class='bx bx-transfer'></i> Verificado:</strong> ${registro.fecha_verificacion ? `${registro.c_real} Und.` : 'Pendiente'}</span>
-                    ${registro.fecha_verificacion ? `<span><strong><i class='bx bx-calendar-check'></i> Fecha verificación:</strong> ${registro.fecha_verificacion}</span>` : ''}
-                    ${registro.fecha_verificacion ? `<span><strong><i class='bx bx-box'></i> Cantidad</strong> ${unidadesTira}</span>` : ''}
-                    ${registro.fecha_verificacion ? `<span><strong><i class='bx bx-box'></i> Sueltos:</strong> ${unidadesSueltas} und.</span>` : ''}
-                    ${registro.observaciones ? `<span><strong><i class='bx bx-comment-detail'></i>Observaciones: </strong> ${registro.observaciones}</span>` : ''}
+                <div class="imagen-producto">
+                ${producto.imagen && producto.imagen.startsWith('data:image') ?
+                `<img class="imagen" src="${producto.imagen}">` :
+                `<i class='bx bx-package'></i>`}
                 </div>
             </div>
+
+            <p class="normal"><i class='bx bx-chevron-right'></i> Información básica</p>
+            <div class="campo-vertical">
+                <span class="nombre"><strong><i class='bx bx-id-card'></i> Id: </strong>${registro.id}</span>
+                <span class="nombre"><strong><i class='bx bx-user'></i> Operador: </strong>${registro.nombre}</span>
+                <span class="fecha"><strong><i class='bx bx-calendar'></i> Fecha: </strong>${registro.fecha}</span>
+            </div>
+
+            <p class="normal"><i class='bx bx-chevron-right'></i> Detalles de producción</p>
+            <div class="campo-vertical">
+                <span class="valor"><strong><i class='bx bx-cog'></i> Selección/Cernido: </strong>${registro.proceso}</span>
+                <span class="valor"><strong><i class='bx bx-bowl-hot'></i> Microondas: </strong>${registro.microondas}</span>
+                <span class="valor"><strong><i class='bx bx-check-shield'></i> Envases terminados: </strong>${registro.envases_terminados}</span>
+                <span class="valor"><strong><i class='bx bx-calendar'></i> Fecha de vencimiento: </strong>${registro.fecha_vencimiento}</span>
+            </div>
+
+            <p class="normal"><i class='bx bx-chevron-right'></i> Detalles de verificación</p>
+            <div class="campo-vertical">
+                <span><strong><i class='bx bx-transfer'></i> Verificado:</strong> ${registro.fecha_verificacion ? `${registro.c_real} Und.` : 'Pendiente'}</span>
+                ${registro.fecha_verificacion ? `<span><strong><i class='bx bx-calendar-check'></i> Fecha verificación:</strong> ${registro.fecha_verificacion}</span>` : ''}
+                ${registro.fecha_verificacion ? `<span><strong><i class='bx bx-box'></i> Cantidad</strong> ${unidadesTira}</span>` : ''}
+                ${registro.fecha_verificacion ? `<span><strong><i class='bx bx-box'></i> Sueltos:</strong> ${unidadesSueltas} und.</span>` : ''}
+                ${registro.observaciones ? `<span><strong><i class='bx bx-comment-detail'></i>Observaciones: </strong> ${registro.observaciones}</span>` : ''}
+            </div>
+        </div>
         `;
+        
+
         contenido.innerHTML = registrationHTML;
         contenido.style.paddingBottom = '10px';
         mostrarAnuncioSecond();

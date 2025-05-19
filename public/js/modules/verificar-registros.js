@@ -395,9 +395,9 @@ function eventosVerificacion() {
             </div>
         </div>
         <div class="anuncio-botones">
-            <button class="btn-editar btn orange" data-id="${registro.id}"><i class='bx bx-edit'></i> Editar</button>
-            <button class="btn-eliminar btn red" data-id="${registro.id}"><i class="bx bx-trash"></i> Eliminar</button>
-            <button class="btn-verificar btn green" data-id="${registro.id}"><i class="bx bx-check-circle"></i> Verificar</button>
+            <button class="btn-editar btn blue" data-id="${registro.id}"><i class='bx bx-edit'></i></button>
+            <button class="btn-eliminar btn red" data-id="${registro.id}"><i class="bx bx-trash"></i></button>
+            ${registro.fecha_verificacion ? '': `<button class="btn-verificar btn green" data-id="${registro.id}"><i class="bx bx-check-circle"></i></button>`}
         </div>
         `;
 
