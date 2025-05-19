@@ -503,18 +503,17 @@ function eventosAlmacenGeneral() {
         const contenido = document.querySelector('.anuncio-second .contenido');
         const registrationHTML = `
         <div class="encabezado">
-            <h1 class="titulo">Info producto</h1>
+            <h1 class="titulo">${producto.producto}</h1>
             <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno verificar-registro">
         <p class="normal"><i class='bx bx-chevron-right'></i>Información general</p>
             <div class="campo-horizontal">
                 <div class="campo-vertical">
-                    <span class="nombre"><strong><i class='bx bx-id-card'></i> ${producto.id}</strong></span>
-                    <span class="nombre"><strong><i class='bx bx-cube'></i>${producto.producto}</strong></span>
-                    <span class="valor"><strong><i class="ri-scales-line"></i> ${producto.gramos} gramos</strong></span>
-                    <span class="valor"><strong><i class='bx bx-package'></i>${producto.stock} unidades (stock)</strong></span>
-                    <span class="valor"><strong><i class='bx bx-hash'></i> Codigo: ${producto.codigo_barras}</strong></span>
+                    <span class="nombre"><strong><i class='bx bx-id-card'></i> Id: </strong>${producto.id}</span>
+                    <span class="valor"><strong><i class="ri-scales-line"></i> Gramaje: </strong>${producto.gramos}gr.</span>
+                    <span class="valor"><strong><i class='bx bx-package'></i> Stock: </strong>${producto.stock} Und.</span>
+                    <span class="valor"><strong><i class='bx bx-hash'></i> Codigo: </strong>${producto.codigo_barras}</span>
                 </div>
                 <div class="imagen-producto">
                 ${producto.imagen && producto.imagen.startsWith('data:image') ?
@@ -522,6 +521,7 @@ function eventosAlmacenGeneral() {
                     `<i class='bx bx-package'></i>`}
                 </div>
             </div>
+
             <p class="normal"><i class='bx bx-chevron-right'></i>Detalles adicionales</p>
             <div class="campo-vertical">
                 <span class="valor"><strong><i class='bx bx-hash'></i> Cantidad por grupo: </strong>${producto.cantidadxgrupo}</span>
