@@ -736,3 +736,98 @@ function eventosRegistrosAlmacen() {
     btnExcel.addEventListener('click', () => exportarArchivos('almacen', registrosAExportar));
     aplicarFiltros();
 }
+
+
+function renderInitialHTML() {
+
+    const contenido = document.querySelector('.anuncio .contenido');
+    const initialHTML = `  
+        <div class="encabezado">
+            <h1 class="titulo">Almacén General</h1>
+            <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
+        </div>
+        <div class="relleno almacen-general">
+            <div class="entrada">
+                <i class='bx bx-search'></i>
+                <div class="input">
+                    <p class="detalle">Buscar</p>
+                    <input type="text" class="buscar-registro-verificacion" placeholder="">
+                </div>
+                <button class="btn-calendario"><i class='bx bx-calendar'></i></button>
+            </div>
+            <div class="filtros-opciones etiquetas-filter">
+                <button class="btn-filtro activado">Todos</button>
+                ${Array(5).fill().map(() => `
+                    <div class="skeleton skeleton-etiqueta"></div>
+                `).join('')}
+            </div>
+            <div class="filtros-opciones estado">
+                <button class="btn-filtro activado">Todos</button>
+                <button class="btn-filtro">Pendientes</button>
+                <button class="btn-filtro">Verificados</button>
+                <button class="btn-filtro">Observados</button>
+            </div>
+            <div class="productos-container">
+                ${Array(10).fill().map(() => `
+                    <div class="skeleton-producto">
+                        <div class="skeleton-header">
+                            <div class="skeleton skeleton-img"></div>
+                            <div class="skeleton-content">
+                                <div class="skeleton skeleton-line"></div>
+                                <div class="skeleton skeleton-line"></div>
+                                <div class="skeleton skeleton-line"></div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+        <div class="anuncio-botones">
+            <button id="exportar-excel" class="btn orange" style="margin-bottom:10px"><i class='bx bx-download'></i> Descargar registros</button>
+        </div>
+    `;
+    contenido.innerHTML = initialHTML;
+}
+export async function mostrarVerificacion() {
+    mostrarAnuncio();
+    renderInitialHTML();
+
+    const [registrosProduccion, productos] = await Promise.all([
+        obtenerRegistrosProduccion(),
+        obtenerProductos()
+    ]);
+
+    updateHTMLWithData();
+    eventosVerificacion();
+    setTimeout(() => {
+        configuracionesEntrada();
+    }, 100);
+}
+function updateHTMLWithData() {
+    // Update etiquetas filter
+    const nombresUnicos = [...new Set(registrosProduccion.map(registro => registro.nombre))];
+    const etiquetasFilter = document.querySelector('.etiquetas-filter');
+    const etiquetasHTML = nombresUnicos.map(etiqueta => `
+        <button class="btn-filtro">${etiqueta}</button>
+    `).join('');
+    etiquetasFilter.innerHTML = `
+        <button class="btn-filtro activado">Todos</button>
+        ${etiquetasHTML}
+    `;
+
+    // Update productos
+    const productosContainer = document.querySelector('.productos-container');
+    const productosHTML = registrosProduccion.map(registro => `
+        <div class="registro-item" data-id="${registro.id}">
+            <div class="header">
+                <i class='bx bx-file'></i>
+                <div class="info-header">
+                    <span class="id">${registro.nombre}<span class="valor ${registro.fecha_verificacion ? 'verificado' : 'pendiente'}">${registro.fecha_verificacion ? 'Verificado' : 'Pendiente'}</span></span>
+                    <span class="nombre"><strong>${registro.producto} - ${registro.gramos}gr.</strong></span>
+                    <span class="fecha">${registro.fecha}</span>
+                </div>
+            </div>
+        </div>
+    `).join('');
+    productosContainer.innerHTML = productosHTML;
+}

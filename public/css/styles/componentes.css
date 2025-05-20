@@ -1170,11 +1170,14 @@
 .imagen-producto {
     min-width: 115px;
     max-width: 115px;
-    height: 115px;
+    height: 100%;
     background: none;
     display: flex;
     justify-content: center;
     align-items: center;
+    background-color: var(--primary-color);
+    padding: 10px;
+    border-radius: 10px;
 
     img {
         border-radius: 10px;
