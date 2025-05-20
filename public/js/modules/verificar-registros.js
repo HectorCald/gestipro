@@ -114,7 +114,7 @@ function renderInitialHTML() {
             </div>
             <div class="no-encontrado" style="display: none; text-align: center; color: #555; font-size: 1.1rem;padding:20px">
                 <i class='bx bx-file-blank' style="font-size: 50px;opacity:0.5"></i>
-                <p style="text-align: center; color: #555;">No se encontraron registros. ¡Aún estás a tiempo de crear el primero!</p>
+                <p style="text-align: center; color: #555;">¡Ups!, No se encontraron registros segun tu busqueda o filtrado.</p>
             </div>
         </div>
         <div class="anuncio-botones">

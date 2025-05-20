@@ -58,26 +58,26 @@ function obtenerOpcionesMenu() {
         'Almacen': [
             {
                 clase: 'opcion-btn',
-                vista: 'regAlmacen-view',
-                icono: 'fa-history',
-                texto: 'Registros',
-                detalle: 'Movimientos del almacen (Ingresos, salidas).',
-                onclick: 'onclick="mostrarMovimientosAlmacen(); ocultarAnuncioSecond()"'
+                vista: 'almacen-view',
+                icono: 'fa-dolly',
+                texto: 'Almacen general',
+                detalle: 'Gestiona tu almacen.',
+                onclick: 'onclick="mostrarAlmacenGeneral(); ocultarAnuncioSecond()"'
             },
             {
                 clase: 'opcion-btn',
                 vista: 'almacen-view',
-                icono: 'fa-dolly',
-                texto: 'Almacen',
-                detalle: 'Gestionar tu almacen general (crear, editar, eliminar).',
-                onclick: 'onclick="mostrarAlmacenGeneral(); ocultarAnuncioSecond()"'
+                icono: 'fa-clipboard-list',
+                texto: 'Conteo fisico',
+                detalle: 'Realiza conteos fisicos.',
+                onclick: 'onclick="mostrarConteo(); ocultarAnuncioSecond()"'
             },
             {
                 clase: 'opcion-btn',
                 vista: 'almacen-view',
                 icono: 'fa-user-circle',
                 texto: 'Clientes',
-                detalle: 'Gestiona tus clientes (agregar, editar, eliminar).',
+                detalle: 'Gestiona tus clientes',
                 onclick: 'onclick="mostrarClientes(); ocultarAnuncioSecond()"'
             },
             {
@@ -85,23 +85,23 @@ function obtenerOpcionesMenu() {
                 vista: 'almacen-view',
                 icono: 'fa-truck',
                 texto: 'Proovedores',
-                detalle: 'Gestiona tus proovedores (agregar, editar, eliminar).',
+                detalle: 'Gestiona tus proovedores',
                 onclick: 'onclick="mostrarProovedores(); ocultarAnuncioSecond()"'
             },
             {
                 clase: 'opcion-btn',
-                vista: 'almacen-view',
-                icono: 'fa-clipboard-list',
-                texto: 'Conteo',
-                detalle: 'Haz tu conteo fisico del almacen (imprime y archiva).',
-                onclick: 'onclick="mostrarConteo(); ocultarAnuncioSecond()"'
+                vista: 'regAlmacen-view',
+                icono: 'fa-history',
+                texto: 'Registros almacen',
+                detalle: 'Aqui puedes ver todos los registros',
+                onclick: 'onclick="mostrarMovimientosAlmacen(); ocultarAnuncioSecond()"'
             },
             {
                 clase: 'opcion-btn',
                 vista: 'almacen-view',
                 icono: 'fa-history',
                 texto: 'Registros conteo',
-                detalle: 'Comprueba, descarga y administra tus registros de conteo.',
+                detalle: 'Aqui puedes ver todos los registros',
                 onclick: 'onclick="registrosConteoAlmacen(); ocultarAnuncioSecond()"'
             },
         ],
