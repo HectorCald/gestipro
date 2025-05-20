@@ -813,12 +813,11 @@ function renderInitialHTML(producto) {
                     <div class="skeleton skeleton-etiqueta"></div>
                 `).join('')}
             </div>
-            <div class="filtros-opciones cantidad-filter">
+            <div class="filtros-opciones cantidad-filter" style="overflow:hidden">
                 <button class="btn-filtro"><i class='bx bx-sort-down'></i></button>
                 <button class="btn-filtro"><i class='bx bx-sort-up'></i></button>
                 <button class="btn-filtro"><i class='bx bx-sort-a-z'></i></button>
                 <button class="btn-filtro"><i class='bx bx-sort-z-a'></i></button>
-                <button class="btn-filtro">Sueltas</button>
                 <select class="precios-select" style="width:100%">
                     <option class="skeleton skeleton-etiqueta" value="">Precios</option>
                 </select>
@@ -868,17 +867,23 @@ function updateHTMLWithData() {
 
     // Update productos
     const productosContainer = document.querySelector('.productos-container');
-    const productosHTML = productos.map(producto => `
+    const productosHTML = productos.map(producto => {
+        // Obtener la cantidad del carrito si existe
+        const itemCarrito = carritoSalidas.get(producto.id);
+        const cantidadEnCarrito = itemCarrito ? itemCarrito.cantidad : '';
+        
+        return `
         <div class="registro-item" data-id="${producto.id}">
             <div class="header">
                 ${producto.imagen && producto.imagen.startsWith('data:image') ?
-            `<img class="imagen" src="${producto.imagen}">` :
-            `<i class='bx bx-package'></i>`}
+                    `<img class="imagen" src="${producto.imagen}">` :
+                    `<i class='bx bx-package'></i>`}
                 <div class="info-header">
                     <span class="id">${producto.id}
                         <div class="precio-cantidad">
                             <span class="valor stock">${producto.stock} Und.</span>
                             <span class="valor precio">Bs/.${producto.precios.split(';')[0].split(',')[1]}</span>
+                            <span class="carrito-cantidad">${cantidadEnCarrito}</span>
                         </div>
                     </span>
                     <span class="nombre"><strong>${producto.producto} - ${producto.gramos}gr.</strong></span>
@@ -886,6 +891,6 @@ function updateHTMLWithData() {
                 </div>
             </div>
         </div>
-    `).join('');
+    `}).join('');
     productosContainer.innerHTML = productosHTML;
 }

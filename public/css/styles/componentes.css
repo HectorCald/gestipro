@@ -1682,7 +1682,7 @@
 
 .skeleton-header {
     display: flex;
-    gap: 15px;
+    gap: 10px;
 }
 
 .skeleton-img {
@@ -1694,11 +1694,14 @@
 
 .skeleton-content {
     flex-grow: 1;
+    height: 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 .skeleton-line {
     height: 12px;
-    margin: 8px 0;
 }
 
 .skeleton-line:nth-child(1) {
