@@ -915,7 +915,7 @@
     padding: 10px;
     transition: transform 0.2s ease;
     position: relative;
-    height: fit-content;
+    height: 80px;
     opacity: 1;
     transform: translateY(0);
     transition: opacity 0.2s ease-out, transform 0.2s ease-out;
