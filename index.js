@@ -736,6 +736,7 @@ app.put('/editar-registro-produccion/:id', requireAuth, async (req, res) => {
         const updatedRow = [
             id,                             // ID
             existingRow[1],                 // FECHA
+            existingRow[2],
             producto,                       // PRODUCTO
             lote,                 // LOTE
             gramos,                         // GRAMOS
@@ -743,12 +744,11 @@ app.put('/editar-registro-produccion/:id', requireAuth, async (req, res) => {
             microondas,                     // MICROONDAS
             envases_terminados,             // ENVASES TERMINADOS
             fecha_vencimiento,              // FECHA VENCIMIENTO
-            existingRow[9],                 // NOMBRE
+            existingRow[10],                 // NOMBRE
+            existingRow[11], 
             verificado,                // C_REAL
-            existingRow[11],                // FECHA_VERIFICACION
+            existingRow[13],                // FECHA_VERIFICACION
             observaciones,                // OBSERVACIONES
-            existingRow[13],                // PAGADO
-            existingRow[14]                 // USER
         ];
 
         // Actualizar la fila

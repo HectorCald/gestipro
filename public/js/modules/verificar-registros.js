@@ -112,6 +112,10 @@ function renderInitialHTML() {
                     </div>
                 `).join('')}
             </div>
+            <div class="no-encontrado" style="display: none; text-align: center; color: #555; font-size: 1.1rem;padding:20px">
+                <i class='bx bx-file-blank' style="font-size: 50px;opacity:0.5"></i>
+                <p style="text-align: center; color: #555;">No se encontraron registros. ¡Aún estás a tiempo de crear el primero!</p>
+            </div>
         </div>
         <div class="anuncio-botones">
             <button id="exportar-excel" class="btn orange" style="margin-bottom:10px"><i class='bx bx-download'></i> Descargar registros</button>
@@ -122,6 +126,9 @@ function renderInitialHTML() {
 export async function mostrarVerificacion() {
     mostrarAnuncio();
     renderInitialHTML();
+    setTimeout(() => {
+        configuracionesEntrada();
+    }, 100);
 
     const [registrosProduccion, productos] = await Promise.all([
         obtenerRegistrosProduccion(),
@@ -130,9 +137,7 @@ export async function mostrarVerificacion() {
 
     updateHTMLWithData();
     eventosVerificacion();
-    setTimeout(() => {
-        configuracionesEntrada();
-    }, 100);
+    
 }
 
 function updateHTMLWithData() {
@@ -163,6 +168,9 @@ function updateHTMLWithData() {
     `).join('');
     productosContainer.innerHTML = productosHTML;
 }
+
+
+
 function eventosVerificacion() {
     const btnExcel = document.getElementById('exportar-excel');
     const registrosAExportar = registrosProduccion;
@@ -492,13 +500,7 @@ function eventosVerificacion() {
                     const data = await response.json();
 
                     if (data.success) {
-                        // Registrar en historial
-                        await registrarHistorial(
-                            `${usuarioInfo.nombre} ${usuarioInfo.apellido}`,
-                            'Eliminación',
-                            `Motivo: ${motivo} - Registro: ${registro.producto} (${registro.lote})`
-                        );
-
+                        ocultarCarga();
                         mostrarNotificacion({
                             message: 'Registro eliminado correctamente',
                             type: 'success',
@@ -506,7 +508,6 @@ function eventosVerificacion() {
                         });
 
                         ocultarAnuncioSecond();
-                        await obtenerRegistrosProduccion();
                         await mostrarVerificacion();
                     } else {
                         throw new Error(data.error || 'Error al eliminar el registro');
@@ -673,12 +674,7 @@ function eventosVerificacion() {
                     const data = await response.json();
 
                     if (data.success) {
-                        await registrarHistorial(
-                            `${usuarioInfo.nombre} ${usuarioInfo.apellido}`,
-                            'Edición',
-                            `Motivo: ${motivo} - Registro: ${registro.producto} (${registro.lote})`
-                        );
-
+                        ocultarCarga();
                         mostrarNotificacion({
                             message: 'Registro actualizado correctamente',
                             type: 'success',
@@ -686,7 +682,6 @@ function eventosVerificacion() {
                         });
 
                         ocultarAnuncioSecond();
-                        await obtenerRegistrosProduccion();
                         await mostrarVerificacion();
                     } else {
                         throw new Error(data.error || 'Error al actualizar el registro');
@@ -800,12 +795,7 @@ function eventosVerificacion() {
                     const data = await response.json();
 
                     if (data.success) {
-                        await registrarHistorial(
-                            `${usuarioInfo.nombre} ${usuarioInfo.apellido}`,
-                            'Verificación',
-                            `Cantidad real: ${cantidadReal} - Registro: ${registro.producto} (${registro.lote})`
-                        );
-
+                        ocultarCarga();
                         mostrarNotificacion({
                             message: 'Registro verificado correctamente',
                             type: 'success',

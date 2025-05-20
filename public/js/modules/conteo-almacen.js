@@ -34,7 +34,6 @@ async function obtenerEtiquetas() {
 async function obtenerAlmacenGeneral() {
     try {
         mostrarCarga();
-        await obtenerEtiquetas();
         const response = await fetch('/obtener-productos');
         const data = await response.json();
 
@@ -67,82 +66,6 @@ async function obtenerAlmacenGeneral() {
 }
 
 
-export async function mostrarConteo() {
-    mostrarAnuncio();
-    await obtenerAlmacenGeneral();
-
-    const contenido = document.querySelector('.anuncio .contenido');
-    const etiquetasUnicas = [...new Set(etiquetas.map(etiqueta => etiqueta.etiqueta))];
-
-    const registrationHTML = `  
-        <div class="encabezado">
-            <h1 class="titulo">Conteo de almacen</h1>
-            <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
-        </div>
-        <div class="relleno almacen-general">
-            <div class="entrada">
-                <i class='bx bx-search'></i>
-                <div class="input">
-                    <p class="detalle">Buscar</p>
-                    <input type="text" class="buscar-producto" placeholder="">
-                </div>
-            </div>
-            <div class="filtros-opciones etiquetas-filter">
-                <button class="btn-filtro activado">Todos</button>
-                ${etiquetasUnicas.map(etiqueta => `
-                    <button class="btn-filtro">${etiqueta}</button>
-                `).join('')}
-            </div>
-            <div class="filtros-opciones cantidad-filter" style="overflow:hidden">
-                <button class="btn-filtro"><i class='bx bx-sort-down'></i></button>
-                <button class="btn-filtro"><i class='bx bx-sort-up'></i></button>
-                <button class="btn-filtro"><i class='bx bx-sort-a-z'></i></button>
-                <button class="btn-filtro"><i class='bx bx-sort-z-a'></i></button>
-            </div>
-
-                ${productos.map(producto => `
-                <div class="registro-item" data-id="${producto.id}">
-                    <div class="header">
-                        <i class='bx bx-package'></i>
-                        <div class="info-header">
-                            <span class="id">${producto.id}
-                                <div class="precio-cantidad">
-                                    <span class="valor stock" style="display:none">${producto.stock} Und.</span>
-                                    <input type="number" class="stock-fisico" value="${producto.stock}" min="0">
-                                </div>
-                            </span>
-                            <span class="nombre"><strong>${producto.producto} - ${producto.gramos}gr.</strong></span>
-                            <span class="etiquetas">${producto.etiquetas.split(';').join(' • ')}</span>
-                        </div>
-                    </div>
-                </div>
-            `).join('')}
-            <p class="no-encontrado" style="text-align: center; font-size: 15px; color: #777; width:100%; padding:15px; display:none">
-                <i class='bx bx-box' style="font-size: 2rem; display: block; margin-bottom: 8px;"></i>
-                ¡Ups! No encontramos productos que coincidan con tu búsqueda o filtrado.
-            </p>
-        </div>
-        <div class="anuncio-botones">
-            <button id="vista-previa" class="btn orange"><i class='bx bx-show'></i> Vista previa</button>
-        </div>
-    `;
-
-    contenido.innerHTML = registrationHTML;
-    
-
-    const stockGuardado = JSON.parse(localStorage.getItem('damabrava_stock_fisico') || '{}');
-    Object.entries(stockGuardado).forEach(([id, valor]) => {
-        const input = document.querySelector(`.registro-item[data-id="${id}"] .stock-fisico`);
-        if (input) {
-            input.value = valor;
-        }
-    });
-
-    eventosConteo();
-    setTimeout(() => {
-        configuracionesEntrada();
-    }, 100);
-}
 function eventosConteo() {
     const botonesEtiquetas = document.querySelectorAll('.filtros-opciones.etiquetas-filter .btn-filtro');
     const botonesCantidad = document.querySelectorAll('.filtros-opciones.cantidad-filter .btn-filtro');
@@ -227,7 +150,7 @@ function eventosConteo() {
                 }
             }
 
-            const contenedor = document.querySelector('.relleno.almacen-general');
+            const contenedor = document.querySelector('.productos-container');
             productosFiltrados.forEach(registro => {
                 contenedor.appendChild(registro);
             });
@@ -432,4 +355,109 @@ function eventosConteo() {
 
     aplicarFiltros();
 
+}
+
+
+export async function mostrarConteo() {
+    mostrarAnuncio();
+    renderInitialHTML(); // Render initial HTML immediately
+    setTimeout(() => {
+        configuracionesEntrada();
+    }, 100);
+    
+    // Load data in parallel
+    const [almacenGeneral, etiquetasResult] = await Promise.all([
+        obtenerAlmacenGeneral(),
+        obtenerEtiquetas(),
+    ]);
+
+    updateHTMLWithData(); // Update HTML once data is loaded
+    eventosConteo();
+    
+}
+function renderInitialHTML() {
+
+    const contenido = document.querySelector('.anuncio .contenido');
+    const initialHTML = `  
+        <div class="encabezado">
+            <h1 class="titulo">Almacén General</h1>
+            <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
+        </div>
+        <div class="relleno almacen-general">
+            <div class="entrada">
+                <i class='bx bx-search'></i>
+                <div class="input">
+                    <p class="detalle">Buscar</p>
+                    <input type="text" class="buscar-producto" placeholder="">
+                </div>
+            </div>
+            <div class="filtros-opciones etiquetas-filter">
+                <button class="btn-filtro activado">Todos</button>
+                ${Array(5).fill().map(() => `
+                    <div class="skeleton skeleton-etiqueta"></div>
+                `).join('')}
+            </div>
+            <div class="filtros-opciones cantidad-filter">
+                <button class="btn-filtro"><i class='bx bx-sort-down'></i> Descendente</button>
+                <button class="btn-filtro"><i class='bx bx-sort-up'></i> Ascendente</button>
+                <button class="btn-filtro"><i class='bx bx-sort-a-z'></i></button>
+                <button class="btn-filtro"><i class='bx bx-sort-z-a'></i></button>
+            </div>
+            <div class="productos-container">
+                ${Array(10).fill().map(() => `
+                    <div class="skeleton-producto">
+                        <div class="skeleton-header">
+                            <div class="skeleton skeleton-img"></div>
+                            <div class="skeleton-content">
+                                <div class="skeleton skeleton-line"></div>
+                                <div class="skeleton skeleton-line"></div>
+                                <div class="skeleton skeleton-line"></div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+            <div class="no-encontrado" style="display: none; text-align: center; color: #555; font-size: 1.1rem;padding:20px">
+                <i class='bx bx-package' style="font-size: 50px;opacity:0.5"></i>
+                <p style="text-align: center; color: #555;">¡Ups!, No se encontraron productos segun tu busqueda o filtrado.</p>
+            </div>
+        </div>
+        <div class="anuncio-botones">
+            <button id="vista-previa" class="btn orange"><i class='bx bx-show'></i> Vista previa</button>
+        </div>
+    `;
+    contenido.innerHTML = initialHTML;
+}
+function updateHTMLWithData() {
+    // Update etiquetas filter
+    const etiquetasUnicas = [...new Set(etiquetas.map(etiqueta => etiqueta.etiqueta))];
+    const etiquetasFilter = document.querySelector('.etiquetas-filter');
+    const etiquetasHTML = etiquetasUnicas.map(etiqueta => `
+        <button class="btn-filtro">${etiqueta}</button>
+    `).join('');
+    etiquetasFilter.innerHTML = `
+        <button class="btn-filtro activado">Todos</button>
+        ${etiquetasHTML}
+    `;
+
+    // Update productos
+    const productosContainer = document.querySelector('.productos-container');
+    const productosHTML = productos.map(producto => `
+        <div class="registro-item" data-id="${producto.id}">
+            <div class="header">
+                <i class='bx bx-package'></i>
+                <div class="info-header">
+                    <span class="id">${producto.id}
+                        <div class="precio-cantidad">
+                            <span class="valor stock" style="display:none">${producto.stock} Und.</span>
+                            <input type="number" class="stock-fisico" value="${producto.stock}" min="0">
+                        </div>
+                    </span>
+                    <span class="nombre"><strong>${producto.producto} - ${producto.gramos}gr.</strong></span>
+                    <span class="etiquetas">${producto.etiquetas.split(';').join(' • ')}</span>
+                </div>
+            </div>
+        </div>
+    `).join('');
+    productosContainer.innerHTML = productosHTML;
 }

@@ -140,6 +140,9 @@ async function obtenerAlmacenGeneral() {
 export async function mostrarAlmacenGeneral() {
     mostrarAnuncio();
     renderInitialHTML(); // Render initial HTML immediately
+    setTimeout(() => {
+        configuracionesEntrada();
+    }, 100);
     
     // Load data in parallel
     const [almacenGeneral, etiquetasResult, preciosResult, almacenAcopio] = await Promise.all([
@@ -151,9 +154,7 @@ export async function mostrarAlmacenGeneral() {
 
     updateHTMLWithData(); // Update HTML once data is loaded
     eventosAlmacenGeneral();
-    setTimeout(() => {
-        configuracionesEntrada();
-    }, 100);
+    
 }
 function renderInitialHTML() {
 
@@ -200,6 +201,10 @@ function renderInitialHTML() {
                         </div>
                     </div>
                 `).join('')}
+            </div>
+            <div class="no-encontrado" style="display: none; text-align: center; color: #555; font-size: 1.1rem;padding:20px">
+                <i class='bx bx-package' style="font-size: 50px;opacity:0.5"></i>
+                <p style="text-align: center; color: #555;">¡Ups!, No se encontraron productos segun tu busqueda o filtrado.</p>
             </div>
         </div>
         <div class="anuncio-botones">
@@ -607,19 +612,15 @@ function eventosAlmacenGeneral() {
                     const data = await response.json();
 
                     if (data.success) {
-                        await mostrarAlmacenGeneral();
-                        await registrarHistorial(
-                            `${usuarioInfo.nombre} ${usuarioInfo.apellido}`,
-                            'Eliminación',
-                            `Motivo: ${motivo} - Producto: ${producto.producto} (${producto.id})`
-                        );
-
+                        
                         mostrarNotificacion({
                             message: 'Producto eliminado correctamente',
                             type: 'success',
                             duration: 3000
                         });
+                        ocultarCarga();
                         ocultarAnuncioSecond();
+                        await mostrarAlmacenGeneral();
                     } else {
                         throw new Error(data.error || 'Error al eliminar el producto');
                     }
@@ -955,19 +956,14 @@ function eventosAlmacenGeneral() {
                     const data = await response.json();
 
                     if (data.success) {
-                        await registrarHistorial(
-                            `${usuarioInfo.nombre} ${usuarioInfo.apellido}`,
-                            'Edición',
-                            `Motivo: ${motivo} - Producto: ${producto} (${registroId})`
-                        );
-                        await mostrarAlmacenGeneral();
                         mostrarNotificacion({
-                            message: 'Producto actualizado correctamente',
+                            message: 'Producto editado correctamente',
                             type: 'success',
                             duration: 3000
                         });
-
+                        ocultarCarga();
                         ocultarAnuncioSecond();
+                        await mostrarAlmacenGeneral();
                     } else {
                         throw new Error(data.error || 'Error al actualizar el producto');
                     }
@@ -1194,13 +1190,14 @@ function eventosAlmacenGeneral() {
                 const data = await response.json();
 
                 if (data.success) {
-                    await mostrarAlmacenGeneral();
                     mostrarNotificacion({
                         message: 'Producto creado correctamente',
                         type: 'success',
                         duration: 3000
                     });
+                    ocultarCarga();
                     ocultarAnuncioSecond();
+                    await mostrarAlmacenGeneral();
                 } else {
                     throw new Error(data.error || 'Error al crear el producto');
                 }

@@ -5,7 +5,6 @@ let productosGlobal = [];
 
 async function obtenerMisRegistros() {
     try {
-        mostrarCarga();
         const response = await fetch('/obtener-registros-produccion');
         const data = await response.json();
 
@@ -62,8 +61,6 @@ async function obtenerProductos() {
             duration: 3500
         });
         return false;
-    } finally {
-        ocultarCarga();
     }
 }
 function recuperarUsuarioLocal() {
@@ -75,61 +72,6 @@ function recuperarUsuarioLocal() {
 }
 
 
-export async function mostrarMisRegistros() {
-    mostrarAnuncio();
-    await obtenerMisRegistros();
-    await obtenerProductos();
-
-    const contenido = document.querySelector('.anuncio .contenido');
-    const registrationHTML = `
-        <div class="encabezado">
-            <h1 class="titulo">Mis registros</h1>
-            <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
-        </div>
-        <div class="relleno">
-            <div class="entrada">
-                <i class='bx bx-search'></i>
-                <div class="input">
-                    <p class="detalle">Buscar</p>
-                    <input type="text" class="buscar-registro-produccion" placeholder="">
-                </div>
-                <button class="btn-calendario"><i class='bx bx-calendar'></i></button>
-            </div>
-            <div class="filtros-opciones estado">
-                <button class="btn-filtro activado">Todos</button>
-                <button class="btn-filtro">Pendientes</button>
-                <button class="btn-filtro">Verificados</button>
-                <button class="btn-filtro">Observados</button>
-            </div>
-            ${registrosProduccion.map(registro => `
-            <div class="registro-item" data-id="${registro.id}">
-                <div class="header">
-                    <i class='bx bx-file'></i>
-                    <div class="info-header">
-                        <span class="id">${registro.id}<span class="valor ${registro.fecha_verificacion ? 'verificado' : 'pendiente'}">${registro.fecha_verificacion ? 'Verificado' : 'Pendiente'}</span></span>
-                        <span class="nombre"><strong>${registro.producto} - ${registro.gramos}gr.</strong></span>
-                        <span class="fecha">${registro.fecha}</span>
-                    </div>
-                </div>
-                <div class="registro-acciones">
-                    <button class="btn-info btn-icon gray" data-id="${registro.id}"><i class='bx bx-info-circle'></i>Info</button>
-                </div>
-            </div>
-            `).join('')}
-            <p class="no-encontrado" style="text-align: center; font-size: 15px; color: #777; width:100%; padding:15px; display:none">
-                <i class='bx bx-box' style="font-size: 2rem; display: block; margin-bottom: 8px;"></i>
-                ¡Ups! No encontramos registros que coincidan con tu búsqueda o filtrado.
-            </p>
-        </div>
-        <div class="anuncio-botones">
-            <button id="exportar-excel" class="btn orange" style="margin-bottom:10px"><i class='bx bx-download'></i> Descargar registros</button>
-        </div>
-    `;
-    contenido.innerHTML = registrationHTML;
-
-    eventosMisRegistros();
-    configuracionesEntrada();
-}
 function eventosMisRegistros() {
     const btnExcel = document.getElementById('exportar-excel');
     const registrosAExportar = registrosProduccion;
@@ -374,4 +316,87 @@ function eventosMisRegistros() {
 
     btnExcel.addEventListener('click', () => exportarArchivos('produccion', registrosAExportar));
     aplicarFiltros();
+}
+
+
+function renderInitialHTML() {
+
+    const contenido = document.querySelector('.anuncio .contenido');
+    const initialHTML = `  
+        <div class="encabezado">
+            <h1 class="titulo">Almacén General</h1>
+            <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
+        </div>
+        <div class="relleno almacen-general">
+            <div class="entrada">
+                <i class='bx bx-search'></i>
+                <div class="input">
+                    <p class="detalle">Buscar</p>
+                    <input type="text" class="buscar-registro-produccion" placeholder="">
+                </div>
+                <button class="btn-calendario"><i class='bx bx-calendar'></i></button>
+            </div>
+            <div class="filtros-opciones estado">
+                <button class="btn-filtro activado">Todos</button>
+                <button class="btn-filtro">Pendientes</button>
+                <button class="btn-filtro">Verificados</button>
+                <button class="btn-filtro">Observados</button>
+            </div>
+            <div class="productos-container">
+                ${Array(10).fill().map(() => `
+                    <div class="skeleton-producto">
+                        <div class="skeleton-header">
+                            <div class="skeleton skeleton-img"></div>
+                            <div class="skeleton-content">
+                                <div class="skeleton skeleton-line"></div>
+                                <div class="skeleton skeleton-line"></div>
+                                <div class="skeleton skeleton-line"></div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+            <div class="no-encontrado" style="display: none; text-align: center; color: #555; font-size: 1.1rem;padding:20px">
+                <i class='bx bx-file-blank' style="font-size: 50px;opacity:0.5"></i>
+                <p style="text-align: center; color: #555;">¡Ups!, No se encontraron registros segun tu busqueda o filtrado.</p>
+            </div>
+        </div>
+        <div class="anuncio-botones">
+            <button id="exportar-excel" class="btn orange" style="margin-bottom:10px"><i class='bx bx-download'></i> Descargar registros</button>
+        </div>
+    `;
+    contenido.innerHTML = initialHTML;
+}
+export async function mostrarMisRegistros() {
+    mostrarAnuncio();
+    renderInitialHTML();
+    setTimeout(() => {
+        configuracionesEntrada();
+    }, 100);
+
+    const [registrosProduccion, productos] = await Promise.all([
+        obtenerMisRegistros(),
+        obtenerProductos()
+    ]);
+
+    updateHTMLWithData();
+    eventosMisRegistros();
+    
+}
+function updateHTMLWithData() {
+    // Update productos
+    const productosContainer = document.querySelector('.productos-container');
+    const productosHTML = registrosProduccion.map(registro => `
+        <div class="registro-item" data-id="${registro.id}">
+            <div class="header">
+                <i class='bx bx-file'></i>
+                <div class="info-header">
+                    <span class="id">${registro.nombre}<span class="valor ${registro.fecha_verificacion ? 'verificado' : 'pendiente'}">${registro.fecha_verificacion ? 'Verificado' : 'Pendiente'}</span></span>
+                    <span class="nombre"><strong>${registro.producto} - ${registro.gramos}gr.</strong></span>
+                    <span class="fecha">${registro.fecha}</span>
+                </div>
+            </div>
+        </div>
+    `).join('');
+    productosContainer.innerHTML = productosHTML;
 }

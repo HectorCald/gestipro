@@ -741,9 +741,10 @@ function eventosSalidas() {
                 type: 'success',
                 duration: 3000
             });
-
-            await mostrarSalidas();
+            ocultarCarga();
             ocultarAnuncioSecond();
+            await mostrarSalidas();
+            
 
         } catch (error) {
             console.error('Error al procesar la salida:', error);
@@ -764,6 +765,9 @@ function eventosSalidas() {
 export async function mostrarSalidas() {
     mostrarAnuncio();
     renderInitialHTML(); // Render initial HTML immediately
+    setTimeout(() => {
+        configuracionesEntrada();
+    }, 100);
 
     // Load data in parallel
     const [almacenGeneral, etiquetas, precios, proovedores] = await Promise.all([
@@ -775,9 +779,7 @@ export async function mostrarSalidas() {
 
     updateHTMLWithData(); // Update HTML once data is loaded
     eventosSalidas();
-    setTimeout(() => {
-        configuracionesEntrada();
-    }, 100);
+    
 }
 function renderInitialHTML() {
 
@@ -824,6 +826,10 @@ function renderInitialHTML() {
                         </div>
                     </div>
                 `).join('')}
+            </div>
+            <div class="no-encontrado" style="display: none; text-align: center; color: #555; font-size: 1.1rem;padding:20px">
+                <i class='bx bx-package' style="font-size: 50px;opacity:0.5"></i>
+                <p style="text-align: center; color: #555;">¡Ups!, No se encontraron productos segun tu busqueda o filtrado.</p>
             </div>
         </div>
     `;

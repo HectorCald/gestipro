@@ -1,7 +1,6 @@
 let clientes = [];
 async function obtenerClientes() {
     try {
-        mostrarCarga();
         const response = await fetch('/obtener-clientes');
         const data = await response.json();
 
@@ -35,17 +34,15 @@ async function obtenerClientes() {
 
 
 
-export async function mostrarClientes() {
-    mostrarAnuncio();
-    await obtenerClientes();
+function renderInitialHTML() {
 
     const contenido = document.querySelector('.anuncio .contenido');
-    const registrationHTML = `
+    const initialHTML = `  
         <div class="encabezado">
-            <h1 class="titulo">Clientes</h1>
+            <h1 class="titulo">Almacén General</h1>
             <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
         </div>
-        <div class="relleno">
+        <div class="relleno almacen-general">
             <div class="entrada">
                 <i class='bx bx-search'></i>
                 <div class="input">
@@ -53,40 +50,65 @@ export async function mostrarClientes() {
                     <input type="text" class="buscar-cliente" placeholder="">
                 </div>
             </div>
-                ${clientes.map(cliente => `
-                <div class="registro-item" data-id="${cliente.id}">
-                    <div class="header">
-                        <i class='bx bx-id-card'></i>
-                        <div class="info-header">
-                            <span class="id">${cliente.id}<span class="valor">${cliente.direccion}</span></span>
-                            <span class="nombre"><strong>${cliente.nombre}</strong></span>
-                            <span class="fecha">${cliente.telefono}-${cliente.zona}</span>
+            <div class="productos-container">
+                ${Array(10).fill().map(() => `
+                    <div class="skeleton-producto">
+                        <div class="skeleton-header">
+                            <div class="skeleton skeleton-img"></div>
+                            <div class="skeleton-content">
+                                <div class="skeleton skeleton-line"></div>
+                                <div class="skeleton skeleton-line"></div>
+                                <div class="skeleton skeleton-line"></div>
+                            </div>
                         </div>
                     </div>
-                    <div class="registro-acciones">
-                        <button class="btn-info-cliente btn-icon gray" data-id="${cliente.id}"><i class='bx bx-info-circle'></i>Info</button>
-                        <button class="btn-editar-cliente btn-icon blue" data-id="${cliente.id}"><i class='bx bx-edit'></i> Editar</button>
-                        <button class="btn-eliminar-cliente btn-icon red" data-id="${cliente.id}"><i class="bx bx-trash"></i> Eliminar</button>
-                        <button class="btn-historial-cliente btn-icon orange" data-id="${cliente.id}"><i class='bx bx-history'></i>Historial</button>
-                    </div>
-                </div>
-            `).join('')}
-            <p class="no-encontrado" style="text-align: center; font-size: 15px; color: #777; width:100%; padding:15px; display:none">
-                <i class='bx bx-box' style="font-size: 2rem; display: block; margin-bottom: 8px;"></i>
-                ¡Ups! No encontramos clientes que coincidan con tu búsqueda.
-            </p>
+                `).join('')}
+            </div>
+            <div class="no-encontrado" style="display: none; text-align: center; color: #555; font-size: 1.1rem;padding:20px">
+                <i class='bx bx-id-card' style="font-size: 50px;opacity:0.5"></i>
+                <p style="text-align: center; color: #555;">¡Ups!, No se encontraron clientes segun tu busqueda o filtrado.</p>
+            </div>
         </div>
         <div class="anuncio-botones">
             <button class="btn-crear-cliente btn orange"> <i class='bx bx-plus'></i> Crear nuevo cliente</button>
         </div>
     `;
-    contenido.innerHTML = registrationHTML;
-    
-    eventosClientes();
+    contenido.innerHTML = initialHTML;
+}
+export async function mostrarClientes() {
+    mostrarAnuncio();
+    renderInitialHTML();
     setTimeout(() => {
         configuracionesEntrada();
-    }, 100);
+    }, 100)
+
+    const [clientes] = await Promise.all([
+        obtenerClientes()
+    ]);
+
+    updateHTMLWithData();
+    eventosClientes();
+    ;
 }
+function updateHTMLWithData() {
+
+    const productosContainer = document.querySelector('.productos-container');
+    const productosHTML = clientes.map(cliente => `
+        <div class="registro-item" data-id="${cliente.id}">
+            <div class="header">
+                <i class='bx bx-id-card'></i>
+                <div class="info-header">
+                    <span class="id">${cliente.id}<span class="valor">${cliente.direccion}</span></span>
+                    <span class="nombre"><strong>${cliente.nombre}</strong></span>
+                    <span class="fecha">${cliente.telefono}-${cliente.zona}</span>
+                </div>
+            </div>
+        </div>
+    `).join('');
+    productosContainer.innerHTML = productosHTML;
+}
+
+
 function eventosClientes() {
     const inputBusqueda = document.querySelector('.buscar-cliente');
     const btnNuevoCliente = document.querySelector('.btn-crear-cliente');
@@ -245,13 +267,15 @@ function eventosClientes() {
                     });
     
                     if (response.ok) {
-                        await mostrarClientes();
-                        ocultarAnuncioSecond();
+                        
                         mostrarNotificacion({
                             message: 'Cliente eliminado correctamente',
                             type: 'success',
                             duration: 3000
                         });
+                        ocultarCarga();
+                        ocultarAnuncioSecond();
+                        await mostrarClientes();
                     } else {
                         throw new Error('Error al eliminar el cliente');
                     }
@@ -349,13 +373,14 @@ function eventosClientes() {
                     });
     
                     if (response.ok) {
-                        await mostrarClientes();
-                        ocultarAnuncioSecond();
                         mostrarNotificacion({
                             message: 'Cliente actualizado correctamente',
                             type: 'success',
                             duration: 3000
                         });
+                        ocultarCarga();
+                        ocultarAnuncioSecond();
+                        await mostrarClientes();
                     } else {
                         throw new Error('Error al actualizar el cliente');
                     }
@@ -449,13 +474,14 @@ function eventosClientes() {
                 });
 
                 if (response.ok) {
-                    await mostrarClientes();
-                    ocultarAnuncioSecond();
                     mostrarNotificacion({
                         message: 'Cliente creado correctamente',
                         type: 'success',
                         duration: 3000
                     });
+                    ocultarCarga();
+                    ocultarAnuncioSecond();
+                    await mostrarClientes();
                 } else {
                     throw new Error('Error al crear el cliente');
                 }

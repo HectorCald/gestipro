@@ -1,7 +1,6 @@
 let proovedores = [];
 async function obtenerProovedores() {
     try {
-        mostrarCarga();
         const response = await fetch('/obtener-proovedores');
         const data = await response.json();
 
@@ -34,18 +33,15 @@ async function obtenerProovedores() {
 }
 
 
-
-export async function mostrarProovedores() {
-    mostrarAnuncio();
-    await obtenerProovedores();
+function renderInitialHTML() {
 
     const contenido = document.querySelector('.anuncio .contenido');
-    const registrationHTML = `
+    const initialHTML = `  
         <div class="encabezado">
-            <h1 class="titulo">Proovedores</h1>
+            <h1 class="titulo">Almacén General</h1>
             <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
         </div>
-        <div class="relleno">
+        <div class="relleno almacen-general">
             <div class="entrada">
                 <i class='bx bx-search'></i>
                 <div class="input">
@@ -53,40 +49,64 @@ export async function mostrarProovedores() {
                     <input type="text" class="buscar-proovedor" placeholder="">
                 </div>
             </div>
-                ${proovedores.map(proovedor => `
-                <div class="registro-item" data-id="${proovedor.id}">
-                    <div class="header">
-                        <i class='bx bx-id-card'></i>
-                        <div class="info-header">
-                            <span class="id">${proovedor.id}<span class="valor">${proovedor.direccion}</span></span>
-                            <span class="nombre"><strong>${proovedor.nombre}</strong></span>
-                            <span class="fecha">${proovedor.telefono}-${proovedor.zona}</span>
+            <div class="productos-container">
+                ${Array(10).fill().map(() => `
+                    <div class="skeleton-producto">
+                        <div class="skeleton-header">
+                            <div class="skeleton skeleton-img"></div>
+                            <div class="skeleton-content">
+                                <div class="skeleton skeleton-line"></div>
+                                <div class="skeleton skeleton-line"></div>
+                                <div class="skeleton skeleton-line"></div>
+                            </div>
                         </div>
                     </div>
-                    <div class="registro-acciones">
-                        <button class="btn-info-proovedor btn-icon gray" data-id="${proovedor.id}"><i class='bx bx-info-circle'></i>Info</button>
-                        <button class="btn-editar-proovedor btn-icon blue" data-id="${proovedor.id}"><i class='bx bx-edit'></i> Editar</button>
-                        <button class="btn-eliminar-proovedor btn-icon red" data-id="${proovedor.id}"><i class="bx bx-trash"></i> Eliminar</button>
-                        <button class="btn-historial-proovedor btn-icon orange" data-id="${proovedor.id}"><i class='bx bx-history'></i>Historial</button>
-                    </div>
-                </div>
-            `).join('')}
-            <p class="no-encontrado" style="text-align: center; font-size: 15px; color: #777; width:100%; padding:15px; display:none">
-                <i class='bx bx-box' style="font-size: 2rem; display: block; margin-bottom: 8px;"></i>
-                ¡Ups! No encontramos proovedores que coincidan con tu búsqueda.
-            </p>
+                `).join('')}
+            </div>
+            <div class="no-encontrado" style="display: none; text-align: center; color: #555; font-size: 1.1rem;padding:20px">
+                <i class='bx bx-id-card' style="font-size: 50px;opacity:0.5"></i>
+                <p style="text-align: center; color: #555;">¡Ups!, No se encontraron proovedores segun tu busqueda o filtrado.</p>
+            </div>
         </div>
         <div class="anuncio-botones">
             <button class="btn-crear-proovedor btn orange"> <i class='bx bx-plus'></i> Crear nuevo proovedor</button>
         </div>
     `;
-    contenido.innerHTML = registrationHTML;
-    
-    eventosProovedores();
+    contenido.innerHTML = initialHTML;
+}
+export async function mostrarProovedores() {
+    mostrarAnuncio();
+    renderInitialHTML();
     setTimeout(() => {
         configuracionesEntrada();
     }, 100);
+
+    const [proovedor] = await Promise.all([
+        obtenerProovedores()
+    ]);
+
+    updateHTMLWithData();
+    eventosProovedores();
 }
+function updateHTMLWithData() {
+
+    const productosContainer = document.querySelector('.productos-container');
+    const productosHTML = proovedores.map(proovedor => `
+        <div class="registro-item" data-id="${proovedor.id}">
+            <div class="header">
+                <i class='bx bx-id-card'></i>
+                <div class="info-header">
+                    <span class="id">${proovedor.id}<span class="valor">${proovedor.direccion}</span></span>
+                    <span class="nombre"><strong>${proovedor.nombre}</strong></span>
+                    <span class="fecha">${proovedor.telefono}-${proovedor.zona}</span>
+                </div>
+            </div>
+        </div>
+    `).join('');
+    productosContainer.innerHTML = productosHTML;
+}
+
+
 function eventosProovedores() {
     const inputBusqueda = document.querySelector('.buscar-proovedor');
 
@@ -249,13 +269,15 @@ function eventosProovedores() {
                     });
     
                     if (response.ok) {
-                        await mostrarProovedores();
-                        ocultarAnuncioSecond();
+                        
                         mostrarNotificacion({
                             message: 'Proovedor eliminado correctamente',
                             type: 'success',
                             duration: 3000
                         });
+                        ocultarCarga();
+                        ocultarAnuncioSecond();
+                        await mostrarProovedores();
                     } else {
                         throw new Error('Error al eliminar el proovedor');
                     }
@@ -353,13 +375,14 @@ function eventosProovedores() {
                     });
     
                     if (response.ok) {
-                        await mostrarProovedores();
-                        ocultarAnuncioSecond();
                         mostrarNotificacion({
                             message: 'Proovedor actualizado correctamente',
                             type: 'success',
                             duration: 3000
                         });
+                        ocultarCarga();
+                        ocultarAnuncioSecond();
+                        await mostrarProovedores();
                     } else {
                         throw new Error('Error al actualizar el proovedor');
                     }
@@ -454,13 +477,14 @@ function eventosProovedores() {
                 });
 
                 if (response.ok) {
-                    await mostrarProovedores();
-                    ocultarAnuncioSecond();
                     mostrarNotificacion({
                         message: 'Proovedor creado correctamente',
                         type: 'success',
                         duration: 3000
                     });
+                    ocultarCarga();
+                    ocultarAnuncioSecond();
+                    await mostrarProovedores();
                 } else {
                     throw new Error('Error al crear el proovedor');
                 }

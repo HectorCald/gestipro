@@ -737,15 +737,16 @@ function eventosIngresos() {
             localStorage.removeItem('damabrava_carrito_ingresos');
             document.querySelector('.btn-flotante-ingresos').style.display = 'none';
 
-
+            
             mostrarNotificacion({
                 message: 'Ingreso registrado exitosamente',
                 type: 'success',
                 duration: 3000
             });
-
-            await mostrarIngresos();
+            ocultarCarga();
             ocultarAnuncioSecond();
+            await mostrarIngresos();
+            
 
         } catch (error) {
             console.error('Error al procesar el ingreso:', error);
@@ -763,9 +764,12 @@ function eventosIngresos() {
 }
 
 
-export async function mostrarIngresos() {
+export async function mostrarIngresos(producto='') {
     mostrarAnuncio();
-    renderInitialHTML(); // Render initial HTML immediately
+    renderInitialHTML(producto); // Render initial HTML immediately
+    setTimeout(() => {
+        configuracionesEntrada();
+    }, 100);
 
     // Load data in parallel
     const [almacenGeneral, etiquetas, precios, proovedores] = await Promise.all([
@@ -777,11 +781,17 @@ export async function mostrarIngresos() {
 
     updateHTMLWithData(); // Update HTML once data is loaded
     eventosIngresos();
-    setTimeout(() => {
-        configuracionesEntrada();
-    }, 100);
+    
+    if (producto) {
+        const inputBusqueda = document.querySelector('.buscar-producto');
+        if (inputBusqueda) {
+            setTimeout(() => {
+                aplicarFiltros();
+            }, 300);
+        }
+    }
 }
-function renderInitialHTML() {
+function renderInitialHTML(producto) {
 
     const contenido = document.querySelector('.anuncio .contenido');
     const initialHTML = `  
@@ -794,7 +804,7 @@ function renderInitialHTML() {
                 <i class='bx bx-search'></i>
                 <div class="input">
                     <p class="detalle">Buscar</p>
-                    <input type="text" class="buscar-producto" placeholder="">
+                    <input type="text" value="${producto} "class="buscar-producto" placeholder="">
                 </div>
             </div>
             <div class="filtros-opciones etiquetas-filter">
@@ -826,6 +836,10 @@ function renderInitialHTML() {
                         </div>
                     </div>
                 `).join('')}
+            </div>
+            <div class="no-encontrado" style="display: none; text-align: center; color: #555; font-size: 1.1rem;padding:20px">
+                <i class='bx bx-package' style="font-size: 50px;opacity:0.5"></i>
+                <p style="text-align: center; color: #555;">¡Ups!, No se encontraron productos segun tu busqueda o filtrado.</p>
             </div>
         </div>
     `;

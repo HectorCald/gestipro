@@ -2,7 +2,6 @@ let productosGlobal = [];
 
 async function obtenerProductos() {
     try {
-        mostrarCarga();
         const response = await fetch('/obtener-productos');
         const data = await response.json();
 
@@ -25,17 +24,11 @@ async function obtenerProductos() {
             duration: 3500
         });
         return false;
-    }finally{
-        ocultarCarga();
     }
 }
 
-
-export async function mostrarFormularioProduccion() {
-    mostrarAnuncio();
-    await obtenerProductos();
-    const contenido = document.querySelector('.anuncio .contenido');
-    const registrationHTML = `
+function renderInitialHTML() {
+    return `
         <div class="encabezado">
             <h1 class="titulo">Nueva producción</h1>
             <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
@@ -45,29 +38,42 @@ export async function mostrarFormularioProduccion() {
                 <i class="ri-box-3-line"></i>
                 <div class="input">
                     <p class="detalle">Producto</p>
-                    <input class="producto" type="text" autocomplete="off" placeholder=" " required>
+                    <input class="producto skeleton" type="text" autocomplete="off" placeholder=" " required disabled>
                 </div>
             </div>
-            <div class="sugerencias" id="productos-list"></div>
+            <div class="sugerencias" id="productos-list">
+                ${Array(3).fill().map(() => `
+                    <div class="skeleton-producto">
+                        <div class="skeleton-header">
+                            <div class="skeleton skeleton-img"></div>
+                            <div class="skeleton-content">
+                                <div class="skeleton skeleton-line"></div>
+                                <div class="skeleton skeleton-line"></div>
+                                <div class="skeleton skeleton-line"></div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
             <div class="entrada">
                 <i class="ri-scales-line"></i>
                 <div class="input">
                     <p class="detalle">Gramaje</p>
-                    <input class="gramaje" type="number" inputmode="numeric" pattern="[0-9]*" placeholder=" " required>
+                    <input class="gramaje skeleton" type="number" inputmode="numeric" pattern="[0-9]*" placeholder=" " required disabled>
                 </div>
             </div>
             <div class="entrada">
                 <i class='bx bx-spreadsheet'></i>
                 <div class="input">
                     <p class="detalle">Lote:</p>
-                    <input class="lote" type="number" inputmode="numeric" pattern="[0-9]*" placeholder=" " required>
+                    <input class="lote skeleton" type="number" inputmode="numeric" pattern="[0-9]*" placeholder=" " required disabled>
                 </div>
             </div>
             <div class="entrada">
                 <i class='bx bx-git-compare'></i>
                 <div class="input">
                     <p class="detalle">Proceso</p>
-                    <select class="proceso" required>
+                    <select class="proceso skeleton" required disabled>
                         <option value="" disabled selected></option>
                         <option value="Cernido">Cernido</option>
                         <option value="Seleccion">Selección</option>
@@ -79,7 +85,7 @@ export async function mostrarFormularioProduccion() {
                 <i class='bx bx-bowl-hot'></i>
                 <div class="input">
                     <p class="detalle">Microondas</p>
-                    <select class="select" required>
+                    <select class="select skeleton" required disabled>
                         <option value="" disabled selected></option>
                         <option value="Si">Si</option>
                         <option value="No">No</option>
@@ -90,33 +96,51 @@ export async function mostrarFormularioProduccion() {
                 <i class='bx bx-time'></i>
                 <div class="input">
                     <p class="detalle">Tiempo</p>
-                    <input class="microondas" type="number" inputmode="numeric" pattern="[0-9]*" placeholder=" " required>
+                    <input class="microondas skeleton" type="number" inputmode="numeric" pattern="[0-9]*" placeholder=" " required disabled>
                 </div>
             </div>
             <div class="entrada">
                 <i class='bx bxs-cube-alt'></i>
                 <div class="input">
                     <p class="detalle">Envases terminados</p>
-                    <input class="envasados" type="number" inputmode="numeric" pattern="[0-9]*" placeholder=" " required>
+                    <input class="envasados skeleton" type="number" inputmode="numeric" pattern="[0-9]*" placeholder=" " required disabled>
                 </div>
             </div>
             <div class="entrada">
                 <i class='bx bx-calendar'></i>
                 <div class="input">
                     <p class="detalle">Fecha de vencimiento</p>
-                    <input class="vencimiento" type="month" placeholder=" " required>
+                    <input class="vencimiento skeleton" type="month" placeholder=" " required disabled>
                 </div>
             </div>
         </div>
         <div class="anuncio-botones">
-            <button id="btn-registrar" class="btn orange"><i class="bx bx-notepad"></i> Registrar</button>
+            <button id="btn-registrar" class="btn orange skeleton" disabled><i class="bx bx-notepad"></i> Registrar</button>
         </div>
     `;
+}
 
-    contenido.innerHTML = registrationHTML;
+function updateHTMLWithData() {
+    const inputs = document.querySelectorAll('.skeleton');
+    inputs.forEach(input => {
+        input.classList.remove('skeleton');
+        input.removeAttribute('disabled');
+    });
     
-    evetosFormularioProduccion();
-    configuracionesEntrada();
+    document.querySelector('#productos-list').innerHTML = '';
+}
+
+export async function mostrarFormularioProduccion() {
+    mostrarAnuncio();
+    const contenido = document.querySelector('.anuncio .contenido');
+    contenido.innerHTML = renderInitialHTML();
+    
+    const success = await obtenerProductos();
+    if (success) {
+        updateHTMLWithData();
+        evetosFormularioProduccion();
+        configuracionesEntrada();
+    }
 }
 function evetosFormularioProduccion() {
     const selectMicroondas = document.querySelector('.select');
