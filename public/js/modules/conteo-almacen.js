@@ -33,7 +33,6 @@ async function obtenerEtiquetas() {
 }
 async function obtenerAlmacenGeneral() {
     try {
-        mostrarCarga();
         const response = await fetch('/obtener-productos');
         const data = await response.json();
 
@@ -60,8 +59,6 @@ async function obtenerAlmacenGeneral() {
             duration: 3500
         });
         return false;
-    } finally {
-        ocultarCarga();
     }
 }
 
