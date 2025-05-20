@@ -265,6 +265,7 @@ export async function crearHome() {
 
     await obtenerUsuario();
     crearNav(usuarioInfo.rol);
+    crearPerfil();
     const promesas = [
         usuarioInfo.rol === 'Producción' ? obtenerMisRegistros() : null,
         usuarioInfo.rol === 'Almacen' ? obtenerMovimientosAlmacen() : null

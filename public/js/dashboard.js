@@ -61,10 +61,11 @@ window.registrosConteoAlmacen = registrosConteoAlmacen
 window.mostrarHacerPedido = mostrarHacerPedido
 window.mostrarAlmacenAcopio = mostrarAlmacenAcopio
 
+window.crearPerfil = crearPerfil
+
 
 document.addEventListener('DOMContentLoaded', async () => {
     flotante();
     await crearHome();
-    crearPerfil();
     crearNotificaciones();
 });
