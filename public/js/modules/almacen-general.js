@@ -184,15 +184,16 @@ function renderInitialHTML() {
                 <button class="btn-filtro"><i class='bx bx-sort-z-a'></i></button>
                 <button class="btn-filtro">Sueltas</button>
                 <select class="precios-select" style="width:100%">
-                    <option value="">Precios...</option>
+                    <option value="">Precios</option>
                 </select>
             </div>
             <div class="productos-container">
-                ${Array(5).fill().map(() => `
+                ${Array(10).fill().map(() => `
                     <div class="skeleton-producto">
                         <div class="skeleton-header">
                             <div class="skeleton skeleton-img"></div>
                             <div class="skeleton-content">
+                                <div class="skeleton skeleton-line"></div>
                                 <div class="skeleton skeleton-line"></div>
                                 <div class="skeleton skeleton-line"></div>
                             </div>

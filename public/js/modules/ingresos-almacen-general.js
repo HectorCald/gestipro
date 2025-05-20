@@ -105,10 +105,6 @@ async function obtenerProovedores() {
 }
 async function obtenerAlmacenGeneral() {
     try {
-        mostrarCarga();
-        await obtenerEtiquetas();
-        await obtenerPrecios();
-        await obtenerProovedores();
         const response = await fetch('/obtener-productos');
         const data = await response.json();
 
@@ -135,103 +131,10 @@ async function obtenerAlmacenGeneral() {
             duration: 3500
         });
         return false;
-    } finally {
-        ocultarCarga();
     }
 }
 
 
-export async function mostrarIngresos(busquedaProducto = '') {
-    mostrarAnuncio();
-    await obtenerAlmacenGeneral();
-
-    const contenido = document.querySelector('.anuncio .contenido');
-    const etiquetasUnicas = [...new Set(etiquetas.map(etiqueta => etiqueta.etiqueta))];
-    const preciosOpciones = precios.map((precio, index) => {
-        const primerPrecio = precio.precio.split(';')[0].split(',')[0];
-        return `<option value="${precio.id}" ${index === 1 ? 'selected' : ''}>${primerPrecio}</option>`;
-    }).join('');
-
-    const registrationHTML = `  
-        <div class="encabezado">
-            <h1 class="titulo">Ingresos de almacen</h1>
-            <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
-        </div>
-        <div class="relleno almacen-general">
-            <div class="entrada">
-                <i class='bx bx-search'></i>
-                <div class="input">
-                    <p class="detalle">Buscar</p>
-                    <input type="text" class="buscar-producto" value="${busquedaProducto}" placeholder="">
-                </div>
-            </div>
-            <div class="filtros-opciones etiquetas-filter">
-                <button class="btn-filtro activado">Todos</button>
-                ${etiquetasUnicas.map(etiqueta => `
-                    <button class="btn-filtro">${etiqueta}</button>
-                `).join('')}
-            </div>
-            <div class="filtros-opciones cantidad-filter" style="overflow:hidden">
-                <button class="btn-filtro"><i class='bx bx-sort-down'></i></button>
-                <button class="btn-filtro"><i class='bx bx-sort-up'></i></button>
-                <button class="btn-filtro"><i class='bx bx-sort-a-z'></i></button>
-                <button class="btn-filtro"><i class='bx bx-sort-z-a'></i></button>
-                <select class="precios-select" style="width:100%">
-                    ${preciosOpciones}
-                </select>
-            </div>
-
-                ${productos.map(producto => `
-                <div class="registro-item" data-id="${producto.id}">
-                    <div class="header">
-                        <i class='bx bx-package'></i>
-                        <div class="info-header">
-                            <span class="id">${producto.id}
-                                <div class="precio-cantidad">
-                                    <span class="valor stock">${producto.stock} Und.</span>
-                                    <span class="valor precio">Bs/.${producto.precios.split(';')[0].split(',')[1]}</span>
-                                    <span class="carrito-cantidad"></span>
-                                </div>
-                            </span>
-                            <span class="nombre"><strong>${producto.producto} - ${producto.gramos}gr.</strong></span>
-                            <span class="etiquetas">${producto.etiquetas.split(';').join(' • ')}</span>
-                        </div>
-                    </div>
-                    <div class="registro-acciones">
-                        <button class="btn-salida btn-icon blue" data-id="${producto.id}"><i class='bx bx-transfer-alt'></i></button>
-                    </div>
-                </div>
-            `).join('')}
-            <p class="no-encontrado" style="text-align: center; font-size: 15px; color: #777; width:100%; padding:15px; display:none">
-                <i class='bx bx-box' style="font-size: 2rem; display: block; margin-bottom: 8px;"></i>
-                ¡Ups! No encontramos productos que coincidan con tu búsqueda o filtrado.
-            </p>
-
-        </div>
-    `;
-
-    contenido.innerHTML = registrationHTML;
-    
-
-    carritoSalidas.forEach((item, id) => {
-        const headerCounter = document.querySelector(`.registro-item[data-id="${id}"] .carrito-cantidad`);
-        if (headerCounter) {
-            headerCounter.textContent = item.cantidad;
-        }
-    });
-
-    const selectPrecios = document.querySelector('.precios-select');
-    if (selectPrecios) {
-        selectPrecios.dispatchEvent(new Event('change'));
-    }
-
-    contenido.style.paddingBottom = '10px';
-    eventosIngresos();
-    setTimeout(() => {
-        configuracionesEntrada();
-    }, 100);
-    
-}
 function eventosIngresos() {
     const botonesEtiquetas = document.querySelectorAll('.filtros-opciones.etiquetas-filter .btn-filtro');
     const botonesCantidad = document.querySelectorAll('.filtros-opciones.cantidad-filter .btn-filtro');
@@ -360,7 +263,7 @@ function eventosIngresos() {
             });
 
             // Reordenar en el DOM y actualizar precios
-            const contenedor = document.querySelector('.relleno.almacen-general');
+            const contenedor = document.querySelector('.productos-container');
             productosFiltrados.forEach(registro => {
                 const producto = productos.find(p => p.id === registro.dataset.id);
                 if (precioSeleccionado) {
@@ -380,7 +283,7 @@ function eventosIngresos() {
 
         }, 200); // Tiempo de espera para la animación de ocultamiento
     }
-    inputBusqueda.addEventListener('focus', function() {
+    inputBusqueda.addEventListener('focus', function () {
         this.select();
     });
 
@@ -404,7 +307,7 @@ function eventosIngresos() {
         });
     });
     selectPrecios.addEventListener('change', aplicarFiltros);
-    
+
 
     function agregarAlCarrito(productoId) {
         const producto = productos.find(p => p.id === productoId);
@@ -780,8 +683,8 @@ function eventosIngresos() {
             total: 0,
             observaciones: document.querySelector('.Observaciones').value || 'Ninguna',
             precios_unitarios: Array.from(carritoSalidas.values())
-            .map(item => parseFloat(item.subtotal).toFixed(2))
-            .join(';')
+                .map(item => parseFloat(item.subtotal).toFixed(2))
+                .join(';')
         };
 
         registroIngreso.total = registroIngreso.subtotal - registroIngreso.descuento + registroIngreso.aumento;
@@ -857,4 +760,118 @@ function eventosIngresos() {
     }
     window.registrarIngreso = registrarIngreso;
     aplicarFiltros()
+}
+
+
+export async function mostrarIngresos() {
+    mostrarAnuncio();
+    renderInitialHTML(); // Render initial HTML immediately
+
+    // Load data in parallel
+    const [almacenGeneral, etiquetas, precios, proovedores] = await Promise.all([
+        obtenerAlmacenGeneral(),
+        obtenerEtiquetas(),
+        obtenerPrecios(),
+        obtenerProovedores(),
+    ]);
+
+    updateHTMLWithData(); // Update HTML once data is loaded
+    eventosIngresos();
+    setTimeout(() => {
+        configuracionesEntrada();
+    }, 100);
+}
+function renderInitialHTML() {
+
+    const contenido = document.querySelector('.anuncio .contenido');
+    const initialHTML = `  
+        <div class="encabezado">
+            <h1 class="titulo">Almacén General</h1>
+            <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
+        </div>
+        <div class="relleno almacen-general">
+            <div class="entrada">
+                <i class='bx bx-search'></i>
+                <div class="input">
+                    <p class="detalle">Buscar</p>
+                    <input type="text" class="buscar-producto" placeholder="">
+                </div>
+            </div>
+            <div class="filtros-opciones etiquetas-filter">
+                <button class="btn-filtro activado">Todos</button>
+                ${Array(5).fill().map(() => `
+                    <div class="skeleton skeleton-etiqueta"></div>
+                `).join('')}
+            </div>
+            <div class="filtros-opciones cantidad-filter">
+                <button class="btn-filtro"><i class='bx bx-sort-down'></i></button>
+                <button class="btn-filtro"><i class='bx bx-sort-up'></i></button>
+                <button class="btn-filtro"><i class='bx bx-sort-a-z'></i></button>
+                <button class="btn-filtro"><i class='bx bx-sort-z-a'></i></button>
+                <button class="btn-filtro">Sueltas</button>
+                <select class="precios-select" style="width:100%">
+                    <option class="skeleton skeleton-etiqueta" value="">Precios</option>
+                </select>
+            </div>
+            <div class="productos-container">
+                ${Array(10).fill().map(() => `
+                    <div class="skeleton-producto">
+                        <div class="skeleton-header">
+                            <div class="skeleton skeleton-img"></div>
+                            <div class="skeleton-content">
+                                <div class="skeleton skeleton-line"></div>
+                                <div class="skeleton skeleton-line"></div>
+                                <div class="skeleton skeleton-line"></div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+    contenido.style.paddingBottom='10px';
+    contenido.innerHTML = initialHTML;
+}
+function updateHTMLWithData() {
+    // Update etiquetas filter
+    const etiquetasUnicas = [...new Set(etiquetas.map(etiqueta => etiqueta.etiqueta))];
+    const etiquetasFilter = document.querySelector('.etiquetas-filter');
+    const etiquetasHTML = etiquetasUnicas.map(etiqueta => `
+        <button class="btn-filtro">${etiqueta}</button>
+    `).join('');
+    etiquetasFilter.innerHTML = `
+        <button class="btn-filtro activado">Todos</button>
+        ${etiquetasHTML}
+    `;
+
+    // Update precios select
+    const preciosSelect = document.querySelector('.precios-select');
+    const preciosOpciones = precios.map((precio, index) => {
+        const primerPrecio = precio.precio.split(';')[0].split(',')[0];
+        return `<option value="${precio.id}" ${index === 1 ? 'selected' : ''}>${primerPrecio}</option>`;
+    }).join('');
+    preciosSelect.innerHTML = preciosOpciones;
+
+    // Update productos
+    const productosContainer = document.querySelector('.productos-container');
+    const productosHTML = productos.map(producto => `
+        <div class="registro-item" data-id="${producto.id}">
+            <div class="header">
+                ${producto.imagen && producto.imagen.startsWith('data:image') ?
+            `<img class="imagen" src="${producto.imagen}">` :
+            `<i class='bx bx-package'></i>`}
+                <div class="info-header">
+                    <span class="id">${producto.id}
+                        <div class="precio-cantidad">
+                            <span class="valor stock">${producto.stock} Und.</span>
+                            <span class="valor precio">Bs/.${producto.precios.split(';')[0].split(',')[1]}</span>
+                        </div>
+                    </span>
+                    <span class="nombre"><strong>${producto.producto} - ${producto.gramos}gr.</strong></span>
+                    <span class="etiquetas">${producto.etiquetas.split(';').join(' • ')}</span>
+                </div>
+            </div>
+        </div>
+    `).join('');
+    productosContainer.innerHTML = productosHTML;
 }

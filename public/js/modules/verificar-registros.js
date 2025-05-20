@@ -99,11 +99,12 @@ function renderInitialHTML() {
                 <button class="btn-filtro">Observados</button>
             </div>
             <div class="productos-container">
-                ${Array(5).fill().map(() => `
+                ${Array(10).fill().map(() => `
                     <div class="skeleton-producto">
                         <div class="skeleton-header">
                             <div class="skeleton skeleton-img"></div>
                             <div class="skeleton-content">
+                                <div class="skeleton skeleton-line"></div>
                                 <div class="skeleton skeleton-line"></div>
                                 <div class="skeleton skeleton-line"></div>
                             </div>
