@@ -1108,9 +1108,6 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 10px;
-    border-radius: 10px;
-    background-color: var(--primary-color) !important;
 
     img {
         border-radius: 10px;
@@ -1126,6 +1123,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
+        background-color: var(--primary-color);
     }
 }
 
