@@ -635,6 +635,56 @@ app.post('/registrar-produccion', requireAuth, async (req, res) => {
         });
     }
 });
+app.get('/obtener-mis-registros-produccion', requireAuth, async (req, res) => {
+    const { spreadsheetId } = req.user;
+    const userEmail = req.user.email;
+
+    try {
+        const sheets = google.sheets({ version: 'v4', auth });
+
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: 'Produccion!A2:O'
+        });
+
+        const rows = response.data.values || [];
+
+        // Filtrar solo los registros del usuario actual
+        const misRegistros = rows
+            .filter(row => row[11] === userEmail) // La columna C (índice 2) contiene el email del usuario
+            .map(row => ({
+                id: row[0] || '',
+                fecha: row[1] || '',
+                idProducto: row[2] || '',
+                producto: row[3] || '',
+                lote: row[4] || '',
+                gramos: row[5] || '',
+                proceso: row[6] || '',
+                microondas: row[7] || '',
+                envases_terminados: row[8] || '',
+                fecha_vencimiento: row[9] || '',
+                nombre: row[10] || '',
+                user: row[11] || '',
+                c_real: row[12] || '',
+                fecha_verificacion: row[13] || '',
+                observaciones: row[14] || '',
+                pagado: row[15] || '',
+            }));
+
+        res.json({
+            success: true,
+            registros: misRegistros
+        });
+
+    } catch (error) {
+        console.error('Error al obtener registros:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error al obtener los registros'
+        });
+    }
+});
+
 
 /* ==================== RUTAS DE AlMACEN ==================== */
 app.delete('/eliminar-registro-produccion/:id', requireAuth, async (req, res) => {
@@ -745,7 +795,7 @@ app.put('/editar-registro-produccion/:id', requireAuth, async (req, res) => {
             envases_terminados,             // ENVASES TERMINADOS
             fecha_vencimiento,              // FECHA VENCIMIENTO
             existingRow[10],                 // NOMBRE
-            existingRow[11], 
+            existingRow[11],
             verificado,                // C_REAL
             existingRow[13],                // FECHA_VERIFICACION
             observaciones,                // OBSERVACIONES
@@ -859,7 +909,7 @@ app.get('/obtener-productos', requireAuth, async (req, res) => {
             acopio_id: row[9] || '',
             alm_acopio_producto: row[10] || '',
             imagen: row[11] || './icons/default-product.png', // Valor por defecto si no hay imagen
-            uSueltas: row[12] || '' 
+            uSueltas: row[12] || ''
         }));
 
         res.json({

@@ -5,20 +5,16 @@ let productosGlobal = [];
 
 async function obtenerMisRegistros() {
     try {
-        const response = await fetch('/obtener-registros-produccion');
+        const response = await fetch('/obtener-mis-registros-produccion');
         const data = await response.json();
 
         if (data.success) {
-            // Filtrar registros por el email del usuario actual y ordenar de más reciente a más antiguo
-            registrosProduccion = data.registros
-                .filter(registro => registro.user === usuarioInfo.email)
-                .sort((a, b) => {
-                    const idA = parseInt(a.id.split('-')[1]);
-                    const idB = parseInt(b.id.split('-')[1]);
-                    return idB - idA; // Orden descendente por número de ID
-                });
+            registrosProduccion = data.registros.sort((a, b) => {
+                const idA = parseInt(a.id.split('-')[1]);
+                const idB = parseInt(b.id.split('-')[1]);
+                return idB - idA;
+            });
             return true;
-
         } else {
             mostrarNotificacion({
                 message: 'Error al obtener registros de producción',
@@ -391,7 +387,7 @@ function updateHTMLWithData() {
             <div class="header">
                 <i class='bx bx-file'></i>
                 <div class="info-header">
-                    <span class="id">${registro.nombre}<span class="valor ${registro.fecha_verificacion ? 'verificado' : 'pendiente'}">${registro.fecha_verificacion ? 'Verificado' : 'Pendiente'}</span></span>
+                    <span class="id">${registro.id}<span class="valor ${registro.fecha_verificacion ? 'verificado' : 'pendiente'}">${registro.fecha_verificacion ? 'Verificado' : 'Pendiente'}</span></span>
                     <span class="nombre"><strong>${registro.producto} - ${registro.gramos}gr.</strong></span>
                     <span class="fecha">${registro.fecha}</span>
                 </div>
