@@ -241,7 +241,7 @@ export function configuracionesEntrada() {
         if (input.tagName.toLowerCase() === 'select') {
             input.addEventListener('change', () => {
                 if (input.value.trim()) {
-                    label.style.transform = 'translateY(-100%) scale(0.75)';
+                    label.style.transform = 'translateY(-90%) scale(0.75)';
                     label.style.color = 'var(--cuarto-color)';
                     label.style.fontWeight = '600';
                     label.style.zIndex = '5';
