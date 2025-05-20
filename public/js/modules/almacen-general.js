@@ -244,12 +244,12 @@ function updateHTMLWithData() {
                 `<img class="imagen" src="${producto.imagen}">` :
                 `<i class='bx bx-package'></i>`}
                 <div class="info-header">
-                    <span class="id">${producto.id}
+                    <div class="id">${producto.id}
                         <div class="precio-cantidad">
                             <span class="valor stock">${producto.stock} Und.</span>
                             <span class="valor precio">Bs/.${producto.precios.split(';')[0].split(',')[1]}</span>
                         </div>
-                    </span>
+                    </div>
                     <span class="nombre"><strong>${producto.producto} - ${producto.gramos}gr.</strong></span>
                     <span class="etiquetas">${producto.etiquetas.split(';').join(' • ')}</span>
                 </div>
@@ -922,9 +922,9 @@ function eventosAlmacenGeneral() {
                         .map(input => `${input.dataset.ciudad},${input.value}`)
                         .join(';');
 
-                    if (!producto || !gramos || !stock || !cantidadxgrupo || !lista || !motivo) {
+                    if (!motivo) {
                         mostrarNotificacion({
-                            message: 'Todos los campos obligatorios deben ser completados',
+                            message: 'Ingresa el motivo de la edición',
                             type: 'warning',
                             duration: 3500
                         });

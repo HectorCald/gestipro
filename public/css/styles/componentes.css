@@ -915,12 +915,14 @@
     padding: 10px;
     transition: transform 0.2s ease;
     position: relative;
-    height: 80px;
+    height: fit-content;
     opacity: 1;
     transform: translateY(0);
     transition: opacity 0.2s ease-out, transform 0.2s ease-out;
     will-change: opacity, transform;
     margin-bottom: 10px;
+    width: 100%;
+    cursor: pointer;
 
 
     .header {
@@ -929,6 +931,7 @@
         align-items: flex-start;
         gap: 10px;
         height: 100%;
+        max-width: 100%;
         width: 100%;
 
         i,
@@ -950,6 +953,7 @@
             flex-direction: column;
             width: 100%;
             font-size: var(--text-detalle);
+            gap: 5px;
 
             .fecha {
                 color: gray;
@@ -957,6 +961,7 @@
 
             .etiquetas {
                 color: gray;
+                font-size: 10px;
             }
 
             .id {
@@ -988,6 +993,7 @@
             background: none;
             border-radius: 10px;
             font-weight: 900 !important;
+            
         }
 
         .precio {
@@ -1644,11 +1650,10 @@
 
 .skeleton {
     background: var(--oct-color);
-    background: linear-gradient(110deg, 
-        var(--oct-color) 8%, 
-        var(--primary-color) 18%, 
-        var(--oct-color) 33%
-    );
+    background: linear-gradient(110deg,
+            var(--oct-color) 8%,
+            var(--primary-color) 18%,
+            var(--oct-color) 33%);
     background-size: 200% 100%;
     animation: 1.5s shine linear infinite;
     border-radius: 4px;
@@ -1696,9 +1701,18 @@
     height: 12px;
     margin: 8px 0;
 }
-.skeleton-line:nth-child(1) { width: 100%; }
-.skeleton-line:nth-child(2) { width: 70%; }
-.skeleton-line:nth-child(3) { width: 40%; }
+
+.skeleton-line:nth-child(1) {
+    width: 100%;
+}
+
+.skeleton-line:nth-child(2) {
+    width: 70%;
+}
+
+.skeleton-line:nth-child(3) {
+    width: 40%;
+}
 
 
 
@@ -1734,6 +1748,14 @@
     z-index: 5;
 }
 
-.sugerencias .skeleton-line:nth-child(1) { width: 70%; }
-.sugerencias .skeleton-line:nth-child(2) { width: 50%; }
-.sugerencias .skeleton-line:nth-child(3) { width: 30%; }
+.sugerencias .skeleton-line:nth-child(1) {
+    width: 70%;
+}
+
+.sugerencias .skeleton-line:nth-child(2) {
+    width: 50%;
+}
+
+.sugerencias .skeleton-line:nth-child(3) {
+    width: 30%;
+}
