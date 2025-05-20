@@ -10,7 +10,6 @@ function recuperarUsuarioLocal() {
     }
     return null;
 }
-
 async function obtenerEtiquetasAcopio() {
     try {
         const response = await fetch('/obtener-etiquetas-acopio');
@@ -41,10 +40,8 @@ async function obtenerEtiquetasAcopio() {
         return false;
     }
 }
-
 async function obtenerAlmacenAcopio() {
     try {
-        mostrarCarga();
         await obtenerEtiquetasAcopio();
         const response = await fetch('/obtener-productos-acopio');
         const data = await response.json();
@@ -80,34 +77,48 @@ async function obtenerAlmacenAcopio() {
             duration: 3500
         });
         return false;
-    } finally {
-        ocultarCarga();
     }
 }
 
-export async function mostrarHacerPedido(busquedaProducto = '') {
-    await obtenerAlmacenAcopio();
+
+
+export async function mostrarHacerPedido() {
+    mostrarAnuncio();
+    renderInitialHTML(); // Render initial HTML immediately
+    setTimeout(() => {
+        configuracionesEntrada();
+    }, 100);
+
+    // Load data in parallel
+    const [almacenGeneral, etiquetasResult] = await Promise.all([
+        obtenerAlmacenAcopio(),
+        obtenerEtiquetasAcopio(),
+    ]);
+
+    updateHTMLWithData(); // Update HTML once data is loaded
+    eventosPedidos();
+
+}
+function renderInitialHTML() {
 
     const contenido = document.querySelector('.anuncio .contenido');
-    const etiquetasUnicas = [...new Set(productos.map(p => p.etiquetas.split(';'))
-        .flat()
-        .filter(etiqueta => etiqueta.trim() !== '')
-    )];
-    const registrationHTML = `  
+    const initialHTML = `  
         <div class="encabezado">
-            <h1 class="titulo">Realizar Pedido</h1>
+            <h1 class="titulo">Almacén General</h1>
             <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
         </div>
-        <div class="relleno almacen-acopio">
-            <div class="buscador">
-                <input type="text" class="buscar-producto-acopio" placeholder="Buscar..." value="${busquedaProducto}">
+        <div class="relleno almacen-general">
+            <div class="entrada">
                 <i class='bx bx-search'></i>
+                <div class="input">
+                    <p class="detalle">Buscar</p>
+                    <input type="text" class="buscar-producto-acopio" placeholder="">
+                </div>
             </div>
-            <p class="normal"><i class='bx bx-chevron-right'></i>Filtros</p>
             <div class="filtros-opciones etiquetas-filter">
                 <button class="btn-filtro activado">Todos</button>
-                ${etiquetasUnicas.map(etiqueta => `
-                    <button class="btn-filtro">${etiqueta}</button>
+                ${Array(5).fill().map(() => `
+                    <div class="skeleton skeleton-etiqueta"></div>
                 `).join('')}
             </div>
             <div class="filtros-opciones cantidad-filter" style="overflow:hidden">
@@ -118,70 +129,88 @@ export async function mostrarHacerPedido(busquedaProducto = '') {
                 <button class="btn-filtro" title="Bruto">Bruto</button>
                 <button class="btn-filtro" title="Prima">Prima</button>
             </div>
+            <div class="productos-container">
+                ${Array(10).fill().map(() => `
+                    <div class="skeleton-producto">
+                        <div class="skeleton-header">
+                            <div class="skeleton skeleton-img"></div>
+                            <div class="skeleton-content">
+                                <div class="skeleton skeleton-line"></div>
+                                <div class="skeleton skeleton-line"></div>
+                                <div class="skeleton skeleton-line"></div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+            <div class="no-encontrado" style="display: none; text-align: center; color: #555; font-size: 1.1rem;padding:20px">
+                <i class='bx bx-package' style="font-size: 50px;opacity:0.5"></i>
+                <p style="text-align: center; color: #555;">¡Ups!, No se encontraron productos segun tu busqueda o filtrado.</p>
+            </div>
+        </div>
+    `;
+    contenido.style.paddingBottom = '10px';
+    contenido.innerHTML = initialHTML;
+}
+function updateHTMLWithData() {
+    // Update etiquetas filter
+    const etiquetasFilter = document.querySelector('.etiquetas-filter');
+    const etiquetasHTML = etiquetasAcopio.map(etiqueta => `
+        <button class="btn-filtro">${etiqueta.etiqueta}</button>
+    `).join('');
+    etiquetasFilter.innerHTML = `
+        <button class="btn-filtro activado">Todos</button>
+        ${etiquetasHTML}
+    `;
 
-            <p class="normal"><i class='bx bx-chevron-right'></i>Productos</p>
-            ${productos.map(producto => {
+    // Update productos
+    const productosContainer = document.querySelector('.productos-container');
+    const productosHTML = productos.map(producto => {
         // Calcular totales de bruto y prima
         const totalBruto = producto.bruto.split(';')
             .reduce((sum, lote) => sum + parseFloat(lote.split('-')[0]), 0);
         const totalPrima = producto.prima.split(';')
             .reduce((sum, lote) => sum + parseFloat(lote.split('-')[0]), 0);
 
+        // Obtener la cantidad del carrito si existe
+        const itemCarrito = carritoPedidos.get(producto.id);
+        const cantidadEnCarrito = itemCarrito ? itemCarrito.cantidad : '';
+
         return `
-                    <div class="registro-item" data-id="${producto.id}">
-                        <div class="header">
-                            <i class='bx bx-package'></i>
-                            <div class="info-header">
-                                <span class="id">${producto.id}
-                                    <div class="precio-cantidad">
-                                        <span class="valor stock">${totalBruto.toFixed(2)} Kg.</span>
-                                        <span class="carrito-cantidad"></span>
-                                    </div>
-                                </span>
-                                <span class="nombre"><strong>${producto.producto}</strong></span>
-                                <span class="fecha">${producto.etiquetas.split(';').join(' • ')}</span>
+            <div class="registro-item" data-id="${producto.id}">
+                <div class="header">
+                    <i class='bx bx-package'></i>
+                    <div class="info-header">
+                        <span class="id">${producto.id}
+                            <div class="precio-cantidad">
+                                <span class="valor stock">${totalBruto.toFixed(2)} Kg.</span>
+                                <span class="carrito-cantidad">${cantidadEnCarrito}</span>
                             </div>
-                        </div>
-                        
-                        <div class="registro-acciones">
-                            <button class="btn-pedido btn-icon green" data-id="${producto.id}">
-                                <i class='bx bx-cart-add'></i>
-                            </button>
-                        </div>
-                    </div>`;
-    }).join('')}
-        </div>
-    `;
-
-    contenido.innerHTML = registrationHTML;
-    mostrarAnuncio();
-
-    carritoPedidos.forEach((item, id) => {
-        const headerCounter = document.querySelector(`.registro-item[data-id="${id}"] .carrito-cantidad`);
-        if (headerCounter) {
-            headerCounter.textContent = item.cantidad;
-        }
-    });
-
-
-    eventosPedidos();
-
-    contenido.style.paddingBottom = '10px';
-
-    if (busquedaProducto) {
-        const inputBusqueda = document.querySelector('.buscar-producto-acopio');
-        const iconoBusqueda = document.querySelector('.buscador .buscador i');
-        inputBusqueda.dispatchEvent(new Event('input'));
-        iconoBusqueda.className = 'bx bx-x';
-    }
+                        </span>
+                        <span class="nombre"><strong>${producto.producto}</strong></span>
+                        <span class="etiquetas">${producto.etiquetas.split(';').join(' • ')}</span>
+                    </div>
+                </div>
+                <div class="registro-acciones">
+                    <button class="btn-pedido btn-icon green" data-id="${producto.id}">
+                        <i class='bx bx-cart-add'></i>
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+    productosContainer.innerHTML = productosHTML;
 }
+
 
 function eventosPedidos() {
     const botonesEtiquetas = document.querySelectorAll('.filtros-opciones.etiquetas-filter .btn-filtro');
     const botonesCantidad = document.querySelectorAll('.filtros-opciones.cantidad-filter .btn-filtro');
     const inputBusqueda = document.querySelector('.buscar-producto-acopio');
-    const iconoBusqueda = document.querySelector('.almacen-acopio .buscador i');
     const botonFlotante = document.createElement('button');
+
+    let pesoMostrado = 'bruto';
+    let filtroNombreActual = 'Todos';
 
     botonFlotante.className = 'btn-flotante-pedidos';
     botonFlotante.innerHTML = '<i class="bx bx-cart"></i>';
@@ -195,45 +224,11 @@ function eventosPedidos() {
         item.addEventListener('click', () => agregarAlCarrito(item.dataset.id));
     });
 
-    inputBusqueda.addEventListener('input', (e) => {
-        const busqueda = normalizarTexto(e.target.value);
-        iconoBusqueda.className = busqueda ? 'bx bx-x' : 'bx bx-search';
-
-        if (busqueda) {
-            iconoBusqueda.className = 'bx bx-x';
-            botonesEtiquetas.forEach(btn => btn.classList.remove('activado'));
-        } else {
-            iconoBusqueda.className = 'bx bx-search';
-            document.querySelector('.btn-filtro').classList.add('activado');
-        }
-
-        const registros = document.querySelectorAll('.registro-item');
-        registros.forEach(registro => {
-            const producto = productos.find(p => p.id === registro.dataset.id);
-            const textoProducto = normalizarTexto(producto.producto);
-            const etiquetas = normalizarTexto(producto.etiquetas);
-            const idProducto = normalizarTexto(producto.id);
-
-            if (!busqueda ||
-                textoProducto.includes(busqueda) ||
-                idProducto.includes(busqueda) ||
-                etiquetas.includes(busqueda)) {
-                registro.style.display = '';
-            } else {
-                registro.style.display = 'none';
-            }
-        });
+    inputBusqueda.addEventListener('focus', function () {
+        this.select();
     });
-
-    iconoBusqueda.addEventListener('click', () => {
-        if (inputBusqueda.value) {
-            inputBusqueda.value = '';
-            iconoBusqueda.className = 'bx bx-search';
-            document.querySelectorAll('.registro-item').forEach(registro => {
-                registro.style.display = '';
-            });
-            document.querySelector('.btn-filtro').classList.add('activado');
-        }
+    inputBusqueda.addEventListener('input', (e) => {
+        aplicarFiltros();
     });
 
     function normalizarTexto(texto) {
@@ -243,112 +238,78 @@ function eventosPedidos() {
             .replace(/[\u0300-\u036f]/g, '')
             .replace(/[-_\s]+/g, '');
     }
-    let pesoMostrado = 'bruto';
-    botonesCantidad.forEach((boton, index) => {
-        boton.addEventListener('click', () => {
-            botonesCantidad.forEach(b => b.classList.remove('activado'));
-            boton.classList.add('activado');
 
-            const registros = Array.from(document.querySelectorAll('.registro-item'));
-
-            // Handle weight display switches
-            if (index === 4) { // Bruto button
-                pesoMostrado = 'bruto';
-                registros.forEach(registro => {
-                    const producto = productos.find(p => p.id === registro.dataset.id);
-                    const totalBruto = producto.bruto.split(';')
-                        .reduce((sum, lote) => sum + parseFloat(lote.split('-')[0]), 0);
-                    const stockSpan = registro.querySelector('.valor.stock');
-                    stockSpan.textContent = `${totalBruto.toFixed(2)} Kg.`;
-                });
-                return;
-            } else if (index === 5) { // Prima button
-                pesoMostrado = 'prima';
-                registros.forEach(registro => {
-                    const producto = productos.find(p => p.id === registro.dataset.id);
-                    const totalPrima = producto.prima.split(';')
-                        .reduce((sum, lote) => sum + parseFloat(lote.split('-')[0]), 0);
-                    const stockSpan = registro.querySelector('.valor.stock');
-                    stockSpan.textContent = `${totalPrima.toFixed(2)} Kg.`;
-                });
-                return;
-            }
-
-            // Handle sorting
-            switch (index) {
-                case 0: // Mayor a menor
-                    registros.sort((a, b) => {
-                        const productoA = productos.find(p => p.id === a.dataset.id);
-                        const productoB = productos.find(p => p.id === b.dataset.id);
-
-                        const totalA = pesoMostrado === 'bruto' ?
-                            productoA.bruto.split(';').reduce((sum, lote) => sum + parseFloat(lote.split('-')[0]), 0) :
-                            productoA.prima.split(';').reduce((sum, lote) => sum + parseFloat(lote.split('-')[0]), 0);
-
-                        const totalB = pesoMostrado === 'bruto' ?
-                            productoB.bruto.split(';').reduce((sum, lote) => sum + parseFloat(lote.split('-')[0]), 0) :
-                            productoB.prima.split(';').reduce((sum, lote) => sum + parseFloat(lote.split('-')[0]), 0);
-
-                        return totalB - totalA;
-                    });
-                    break;
-                case 1: // Menor a mayor
-                    registros.sort((a, b) => {
-                        const productoA = productos.find(p => p.id === a.dataset.id);
-                        const productoB = productos.find(p => p.id === b.dataset.id);
-
-                        const totalA = pesoMostrado === 'bruto' ?
-                            productoA.bruto.split(';').reduce((sum, lote) => sum + parseFloat(lote.split('-')[0]), 0) :
-                            productoA.prima.split(';').reduce((sum, lote) => sum + parseFloat(lote.split('-')[0]), 0);
-
-                        const totalB = pesoMostrado === 'bruto' ?
-                            productoB.bruto.split(';').reduce((sum, lote) => sum + parseFloat(lote.split('-')[0]), 0) :
-                            productoB.prima.split(';').reduce((sum, lote) => sum + parseFloat(lote.split('-')[0]), 0);
-
-                        return totalA - totalB;
-                    });
-                    break;
-                case 2: // A-Z
-                    registros.sort((a, b) => {
-                        const nombreA = a.querySelector('.producto-header').textContent.toLowerCase();
-                        const nombreB = b.querySelector('.producto-header').textContent.toLowerCase();
-                        return nombreA.localeCompare(nombreB);
-                    });
-                    break;
-                case 3: // Z-A
-                    registros.sort((a, b) => {
-                        const nombreA = a.querySelector('.producto-header').textContent.toLowerCase();
-                        const nombreB = b.querySelector('.producto-header').textContent.toLowerCase();
-                        return nombreB.localeCompare(nombreA);
-                    });
-                    break;
-            }
-
-            const contenedor = document.querySelector('.relleno.almacen-acopio');
-            registros.forEach(registro => {
-                contenedor.appendChild(registro);
-            });
-        });
-    });
-
-    let filtroNombreActual = 'Todos';
     function aplicarFiltros() {
         const registros = document.querySelectorAll('.registro-item');
+        const busqueda = normalizarTexto(inputBusqueda.value);
+        const botonCantidadActivo = document.querySelector('.filtros-opciones.cantidad-filter .btn-filtro.activado');
 
+        // Ocultar todos con animación
         registros.forEach(registro => {
-            const registroId = registro.dataset.id;
-            const producto = productos.find(p => p.id === registroId);
-            const etiquetasProducto = producto.etiquetas.split(';').map(e => e.trim());
+            registro.style.opacity = '0';
+            registro.style.transform = 'translateY(-20px)';
+        });
 
-            let mostrar = true;
-            if (filtroNombreActual !== 'Todos') {
-                mostrar = etiquetasProducto.includes(filtroNombreActual);
+        setTimeout(() => {
+            registros.forEach(registro => registro.style.display = 'none');
+
+            // Filtrar y ordenar
+            const productosFiltrados = Array.from(registros).filter(registro => {
+                const producto = productos.find(p => p.id === registro.dataset.id);
+                if (!producto) return false;
+
+                const etiquetasProducto = producto.etiquetas ? producto.etiquetas.split(';').map(e => e.trim()) : [];
+                let mostrar = true;
+
+                if (filtroNombreActual !== 'Todos') {
+                    mostrar = etiquetasProducto.includes(filtroNombreActual);
+                }
+
+                if (busqueda) {
+                    mostrar = mostrar && (
+                        normalizarTexto(producto.producto).includes(busqueda) ||
+                        normalizarTexto(producto.id).includes(busqueda) ||
+                        normalizarTexto(producto.etiquetas || '').includes(busqueda)
+                    );
+                }
+
+                return mostrar;
+            });
+
+            // Ordenamiento
+            if (botonCantidadActivo) {
+                const index = Array.from(botonesCantidad).indexOf(botonCantidadActivo);
+                switch (index) {
+                    case 0: // Mayor a menor
+                        productosFiltrados.sort((a, b) => parseFloat(b.querySelector('.stock').textContent) - parseFloat(a.querySelector('.stock').textContent));
+                        break;
+                    case 1: // Menor a mayor
+                        productosFiltrados.sort((a, b) => parseFloat(a.querySelector('.stock').textContent) - parseFloat(b.querySelector('.stock').textContent));
+                        break;
+                    case 2: // A-Z
+                        productosFiltrados.sort((a, b) => a.querySelector('.nombre strong').textContent.localeCompare(b.querySelector('.nombre strong').textContent));
+                        break;
+                    case 3: // Z-A
+                        productosFiltrados.sort((a, b) => b.querySelector('.nombre strong').textContent.localeCompare(a.querySelector('.nombre strong').textContent));
+                        break;
+                }
             }
 
-            registro.style.display = mostrar ? '' : 'none';
-        });
-    }
+            const contenedor = document.querySelector('.productos-container');
+            productosFiltrados.forEach(registro => {
+                registro.style.display = 'flex';
+                contenedor.appendChild(registro);
+                setTimeout(() => {
+                    registro.style.opacity = '1';
+                    registro.style.transform = 'translateY(0)';
+                }, 50);
+            });
 
+            // Mensaje de no encontrado
+            const mensajeNoEncontrado = document.querySelector('.no-encontrado');
+            mensajeNoEncontrado.style.display = productosFiltrados.length === 0 ? 'block' : 'none';
+        }, 200);
+    }
     function scrollToCenter(boton, contenedorPadre) {
         const scrollLeft = boton.offsetLeft - (contenedorPadre.offsetWidth / 2) + (boton.offsetWidth / 2);
         contenedorPadre.scrollTo({
@@ -357,19 +318,54 @@ function eventosPedidos() {
         });
     }
 
+    botonesCantidad.forEach((boton, index) => {
+        boton.addEventListener('click', () => {
+            // Si es botón de peso (Bruto/Prima)
+            if (index === 4 || index === 5) {
+                // Desactivar solo los botones de peso
+                botonesCantidad[4].classList.remove('activado');
+                botonesCantidad[5].classList.remove('activado');
+                boton.classList.add('activado');
+
+                pesoMostrado = index === 4 ? 'bruto' : 'prima';
+                actualizarPesoMostrado();
+            } else {
+                // Para botones de ordenamiento (0-3)
+                const botonesOrdenamiento = Array.from(botonesCantidad).slice(0, 4);
+                botonesOrdenamiento.forEach(b => b.classList.remove('activado'));
+                boton.classList.add('activado');
+            }
+
+            aplicarFiltros();
+        });
+    });
+
+    function actualizarPesoMostrado() {
+        const registros = document.querySelectorAll('.registro-item');
+        registros.forEach(registro => {
+            const producto = productos.find(p => p.id === registro.dataset.id);
+            if (producto) {
+                const total = pesoMostrado === 'bruto'
+                    ? producto.bruto.split(';').reduce((sum, lote) => sum + parseFloat(lote.split('-')[0]), 0)
+                    : producto.prima.split(';').reduce((sum, lote) => sum + parseFloat(lote.split('-')[0]), 0);
+
+                const stockSpan = registro.querySelector('.valor.stock');
+                if (stockSpan) {
+                    stockSpan.textContent = `${total.toFixed(2)} Kg.`;
+                }
+            }
+        });
+    }
     botonesEtiquetas.forEach(boton => {
         boton.addEventListener('click', () => {
-            inputBusqueda.value = '';
-            iconoBusqueda.className = 'bx bx-search';
-
             botonesEtiquetas.forEach(b => b.classList.remove('activado'));
             boton.classList.add('activado');
-
             filtroNombreActual = boton.textContent.trim();
             aplicarFiltros();
             scrollToCenter(boton, boton.parentElement);
         });
     });
+
 
 
 
@@ -497,7 +493,7 @@ function eventosPedidos() {
                                         <option value="Quintales">qq.</option>
                                         <option value="Unidades">Und.</option>
                                     </select>
-                                    <input type="text" class="detalle" placeholder="Detalle">
+                                    <input type="text" class="detalle" placeholder="Observaciones">
                                 </div>
                                 <button class="btn-eliminar" onclick="eliminarDelCarrito('${item.id}')">
                                     <i class="bx bx-trash"></i>
@@ -589,69 +585,70 @@ function eventosPedidos() {
         localStorage.setItem('damabrava_carrito_pedidos', JSON.stringify(Array.from(carritoPedidos.entries())));
     }
 
-
     async function registrarPedido() {
-        const nombrePedido = document.querySelector('.nombre-pedido');
-        if (!nombrePedido.value) {
-            mostrarNotificacion({
-                message: 'Ingrese un nombre para el pedido',
-                type: 'error',
-                duration: 3000
-            });
-            return;
-        }
-
-        const registroPedido = {
-            fechaHora: new Date().toLocaleString(),
-            tipo: 'Pedido',
-            productos: Array.from(carritoPedidos.values()).map(item => item.id).join(';'),
-            cantidades: Array.from(carritoPedidos.values()).map(item => item.cantidad).join(';'),
-            operario: `${usuarioInfo.nombre} ${usuarioInfo.apellido}`,
-            nombre_pedido: nombrePedido.value,
-            observaciones: document.querySelector('.observaciones').value || 'Ninguna',
-            estado: 'Pendiente'
-        };
-
         try {
+            if (carritoPedidos.size === 0) {
+                mostrarNotificacion({
+                    message: 'El carrito está vacío',
+                    type: 'error',
+                    duration: 3000
+                });
+                return;
+            }
+
             mostrarCarga();
+
+            // Format products from cart
+            const productosParaEnviar = Array.from(carritoPedidos.entries()).map(([id, item]) => {
+                const carritoItem = document.querySelector(`.carrito-item[data-id="${id}"]`);
+                const observacionesInput = carritoItem.querySelector('.detalle');
+                const unidadSelect = carritoItem.querySelector('.unidad');
+                const unidad = unidadSelect ? unidadSelect.value : 'Bolsas';
+    
+                return {
+                    id: item.id,               // ID del producto
+                    nombre: item.producto,      // Nombre del producto
+                    cantidad: `${item.cantidad} ${unidad}`,    // Cantidad con unidad (ej: "5 Bolsas")
+                    observaciones: observacionesInput ? observacionesInput.value.trim() : ''
+                };
+            });
+
+            // Send to server
             const response = await fetch('/registrar-pedido', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('damabrava_token')}`
+                    'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(registroPedido)
+                body: JSON.stringify({
+                    productos: productosParaEnviar
+                })
             });
 
             const data = await response.json();
 
-            if (!response.ok || !data.success) {
-                throw new Error(data.error || 'Error en la respuesta del servidor');
+            if (data.success) {
+                // Clear cart
+                carritoPedidos.clear();
+                localStorage.setItem('damabrava_carrito_pedidos', '[]');
+
+                mostrarNotificacion({
+                    message: 'Pedido registrado correctamente',
+                    type: 'success',
+                    duration: 3000
+                });
+
+                ocultarCarga();
+                ocultarAnuncioSecond();
+                await mostrarHacerPedido();
+            } else {
+                throw new Error(data.error || 'Error al registrar el pedido');
             }
-
-            carritoPedidos.clear();
-            localStorage.removeItem('damabrava_carrito_pedidos');
-
-            document.querySelectorAll('.registro-item').forEach(item => {
-                const cantidadSpan = item.querySelector('.carrito-cantidad');
-                if (cantidadSpan) cantidadSpan.textContent = '';
-            });
-
-            actualizarCarritoUI();
-            ocultarAnuncioSecond();
-
-            mostrarNotificacion({
-                message: 'Pedido registrado exitosamente',
-                type: 'success',
-                duration: 3000
-            });
-
         } catch (error) {
-            console.error('Error al registrar pedido:', error);
+            console.error('Error:', error);
             mostrarNotificacion({
-                message: error.message || 'Error al procesar el pedido',
+                message: error.message,
                 type: 'error',
-                duration: 4000
+                duration: 3500
             });
         } finally {
             ocultarCarga();

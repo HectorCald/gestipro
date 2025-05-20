@@ -2283,7 +2283,7 @@ app.put('/editar-proovedor/:id', requireAuth, async (req, res) => {
     }
 });
 
-/* ==================== RUTAS DE ACOPIO ==================== */
+/* ==================== RUTAS DE ACOPIO ALMACEN ==================== */
 app.get('/obtener-productos-acopio', requireAuth, async (req, res) => {
     const { spreadsheetId } = req.user;
 
@@ -2473,7 +2473,7 @@ app.put('/editar-producto-acopio/:id', requireAuth, async (req, res) => {
     }
 });
 
-/* ==================== RUTAS DE ACOPIO ==================== */
+/* ==================== RUTAS DE ACOPIO ETIQUETAS==================== */
 app.get('/obtener-etiquetas-acopio', requireAuth, async (req, res) => {
     const { spreadsheetId } = req.user;
 
@@ -2585,6 +2585,213 @@ app.delete('/eliminar-etiqueta-acopio/:id', requireAuth, async (req, res) => {
         res.status(500).json({ success: false, error: 'Error al eliminar etiqueta' });
     }
 });
+
+/* ==================== RUTAS DE ACOPIO PEDIDOS DE MATERIA PRIMA ==================== */
+app.post('/registrar-pedido', requireAuth, async (req, res) => {
+    try {
+        const { spreadsheetId } = req.user;
+        const { productos } = req.body;
+        const sheets = google.sheets({ version: 'v4', auth });
+
+        // Get current pedidos to calculate next ID
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: 'Pedidos!A2:G' // Updated range to include all columns
+        });
+
+        const rows = response.data.values || [];
+        const lastId = rows.length > 0 ?
+            Math.max(...rows.map(row => parseInt(row[0].split('-')[1]))) : 0;
+
+        // Format current date (YYYY-MM-DD)
+        const fecha = new Date().toLocaleDateString('es-ES');
+
+        // Prepare new pedidos
+        const newPedidos = productos.map((producto, index) => {
+            const newId = `PAA-${(lastId + index + 1).toString().padStart(3, '0')}`;
+            return [
+                newId,                   // ID
+                fecha,                   // FECHA
+                producto.id,             // ID-PROD
+                producto.nombre,         // PRODUCTO
+                producto.cantidad,       // CANT-PED
+                producto.observaciones,  // OBS-PEDIDO
+                'Pendiente'             // ESTADO
+            ];
+        });
+
+        // Add new pedidos
+        await sheets.spreadsheets.values.append({
+            spreadsheetId,
+            range: 'Pedidos!A2:G',
+            valueInputOption: 'USER_ENTERED',
+            insertDataOption: 'INSERT_ROWS',
+            resource: {
+                values: newPedidos
+            }
+        });
+
+        res.json({
+            success: true,
+            message: 'Pedidos registrados correctamente',
+            pedidos: newPedidos
+        });
+    } catch (error) {
+        console.error('Error al registrar pedidos:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error al registrar los pedidos'
+        });
+    }
+});
+app.get('/obtener-pedidos', requireAuth, async (req, res) => {
+    const { spreadsheetId } = req.user;
+
+    try {
+        const sheets = google.sheets({ version: 'v4', auth });
+
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: 'Pedidos!A2:P' // A to O columns for all fields
+        });
+
+        const rows = response.data.values || [];
+        const pedidos = rows.map(row => ({
+            id: row[0] || '',
+            fecha: row[1] || '',
+            idProducto: row[2] || '',
+            producto: row[3] || '',
+            cantidadPedida: row[4] || '',
+            observacionesPedido: row[5] || '',
+            estado: row[6] || 'Pendiente',
+            cantidadEntregadaKg: row[7] || '',
+            proovedor: row[8] || '',
+            precio: row[9] || '',
+            observacionesCompras: row[10] || '',
+            cantidadEntregadaUnd: row[11] || '',
+            transporteOtros: row[12] || '',
+            fechaIngreso: row[13] || '',
+            estadoCompra: row[14] || '',
+            cantidadIngresada: row[15] || '',
+            observacionesIngresado: row[16] || ''
+        }));
+
+        res.json({
+            success: true,
+            pedidos
+        });
+
+    } catch (error) {
+        console.error('Error al obtener pedidos:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error al obtener los pedidos'
+        });
+    }
+});
+app.put('/entregar-pedido/:id', requireAuth, async (req, res) => {
+    try {
+        const { spreadsheetId } = req.user;
+        const { id } = req.params;
+        const {
+            cantidadKg,
+            proovedor,
+            precio,
+            observaciones,
+            cantidadUnidad,
+            unidadMedida,
+            transporteOtros,
+            estadoCompra
+        } = req.body;
+
+        const sheets = google.sheets({ version: 'v4', auth });
+
+        // Obtener todos los pedidos
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: 'Pedidos!A2:P'
+        });
+
+        const rows = response.data.values || [];
+        const rowIndex = rows.findIndex(row => row[0] === id);
+
+        if (rowIndex === -1) {
+            return res.status(404).json({ success: false, error: 'Pedido no encontrado' });
+        }
+
+        // Actualizar las columnas H a N
+        await sheets.spreadsheets.values.update({
+            spreadsheetId,
+            range: `Pedidos!H${rowIndex + 2}:N${rowIndex + 2}`,
+            valueInputOption: 'USER_ENTERED',
+            resource: {
+                values: [[
+                    cantidadKg,                    // CANT-ENTR-KG
+                    proovedor,                     // PROOVEDOR
+                    precio,                        // PRECIO
+                    observaciones,                 // OBS-COMPRAS
+                    `${cantidadUnidad} ${unidadMedida}`, // CANT-ENTRG-UND
+                    transporteOtros,               // TRANSPORTE-OTROS
+                    estadoCompra                   // ESTADO-COMPRA
+                ]]
+            }
+        });
+
+        // Actualizar estado a "Recibido"
+        await sheets.spreadsheets.values.update({
+            spreadsheetId,
+            range: `Pedidos!G${rowIndex + 2}`,
+            valueInputOption: 'USER_ENTERED',
+            resource: {
+                values: [[estadoCompra === 'No llego' ? 'No llego' : 'Recibido']]
+            }
+        });
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error al entregar pedido:', error);
+        res.status(500).json({ success: false, error: 'Error al entregar el pedido' });
+    }
+});
+
+
+
+/* ==================== RUTAS DE PROOVEDORES DE ACOPIO ==================== */
+app.get('/obtener-proovedores-acopio', requireAuth, async (req, res) => {
+    const { spreadsheetId } = req.user;
+
+    try {
+        const sheets = google.sheets({ version: 'v4', auth });
+
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: 'Proovedores acopio!A2:E' // A to E columns for all fields
+        });
+
+        const rows = response.data.values || [];
+        const proovedores = rows.map(row => ({
+            id: row[0] || '',
+            nombre: row[1] || '',
+            telefono: row[2] || '',
+            direccion: row[3] || '',
+            zona: row[4] || ''
+        }));
+
+        res.json({
+            success: true,
+            proovedores
+        });
+
+    } catch (error) {
+        console.error('Error al obtener proovedores de acopio:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error al obtener los proovedores de acopio'
+        });
+    }
+});
+
+
 
 
 

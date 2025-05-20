@@ -17,6 +17,7 @@ import { mostrarMovimientosAlmacen } from './modules/registros-almacen.js';
 import { mostrarMisRegistros} from './modules/registros-produccion.js';
 import { mostrarConteo } from './modules/conteo-almacen.js';
 import { registrosConteoAlmacen } from './modules/registros-conteos.js';
+import { mostrarPedidos } from './modules/registros-pedidos-acopio.js';
 
 
 window.crearHome = crearHome
@@ -60,6 +61,7 @@ window.registrosConteoAlmacen = registrosConteoAlmacen
 
 window.mostrarHacerPedido = mostrarHacerPedido
 window.mostrarAlmacenAcopio = mostrarAlmacenAcopio
+window.mostrarPedidos = mostrarPedidos
 
 window.crearPerfil = crearPerfil
 

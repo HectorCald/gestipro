@@ -979,6 +979,16 @@
             display: none;
         }
     }
+    .estado {
+        background: none;
+        font-weight: 900 !important;
+        font-size: 10px !important;
+    }
+    .estado.pendiente { color: var(--cero-color);}
+    .estado.recibido { color: var(--tercer-color) }
+    .estado.ingresado { color: var(--success);}
+    .estado.rechazado { color: var(--error);}
+    .estado.no-llego { color: orange;}
 
     .precio-cantidad {
         display: flex;
