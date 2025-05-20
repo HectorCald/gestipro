@@ -993,8 +993,6 @@ app.delete('/eliminar-producto/:id', requireAuth, async (req, res) => {
         res.status(500).json({ success: false, error: 'Error al eliminar el producto' });
     }
 });
-// ... código existente ...
-
 app.put('/actualizar-producto/:id', requireAuth, async (req, res) => {
     try {
         const { spreadsheetId } = req.user;
@@ -1050,8 +1048,6 @@ app.put('/actualizar-producto/:id', requireAuth, async (req, res) => {
         res.status(500).json({ success: false, error: 'Error al actualizar el producto' });
     }
 });
-
-// ... resto del código ...
 app.post('/actualizar-stock', requireAuth, async (req, res) => {
     try {
         const { spreadsheetId } = req.user;  // Obtener el ID del usuario autenticado

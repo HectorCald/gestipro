@@ -11,7 +11,6 @@ function recuperarUsuarioLocal() {
 }
 async function obtenerRegistrosProduccion() {
     try {
-        mostrarCarga();
         const response = await fetch('/obtener-registros-produccion');
         const data = await response.json();
 
@@ -67,24 +66,18 @@ async function obtenerProductos() {
             duration: 3500
         });
         return false;
-    } finally {
-        ocultarCarga();
     }
 }
 
+function renderInitialHTML() {
 
-export async function mostrarVerificacion() {
-    mostrarAnuncio();
-    await obtenerRegistrosProduccion();
-    await obtenerProductos();
     const contenido = document.querySelector('.anuncio .contenido');
-    const nombresUnicos = [...new Set(registrosProduccion.map(registro => registro.nombre))];
-    const registrationHTML = `
+    const initialHTML = `  
         <div class="encabezado">
-            <h1 class="titulo">Registros de producción</h1>
+            <h1 class="titulo">Almacén General</h1>
             <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
         </div>
-        <div class="relleno">
+        <div class="relleno almacen-general">
             <div class="entrada">
                 <i class='bx bx-search'></i>
                 <div class="input">
@@ -93,10 +86,10 @@ export async function mostrarVerificacion() {
                 </div>
                 <button class="btn-calendario"><i class='bx bx-calendar'></i></button>
             </div>
-            <div class="filtros-opciones nombre">
+            <div class="filtros-opciones etiquetas-filter">
                 <button class="btn-filtro activado">Todos</button>
-                ${nombresUnicos.map(nombre => `
-                    <button class="btn-filtro">${nombre}</button>
+                ${Array(5).fill().map(() => `
+                    <div class="skeleton skeleton-etiqueta"></div>
                 `).join('')}
             </div>
             <div class="filtros-opciones estado">
@@ -105,35 +98,69 @@ export async function mostrarVerificacion() {
                 <button class="btn-filtro">Verificados</button>
                 <button class="btn-filtro">Observados</button>
             </div>
-                ${registrosProduccion.map(registro => `
-                <div class="registro-item" data-id="${registro.id}">
-                    <div class="header">
-                        <i class='bx bx-file'></i>
-                        <div class="info-header">
-                            <span class="id">${registro.nombre}<span class="valor ${registro.fecha_verificacion ? 'verificado' : 'pendiente'}">${registro.fecha_verificacion ? 'Verificado' : 'Pendiente'}</span></span>
-                            <span class="nombre"><strong>${registro.producto} - ${registro.gramos}gr.</strong></span>
-                            <span class="fecha">${registro.fecha}</span>
+            <div class="productos-container">
+                ${Array(5).fill().map(() => `
+                    <div class="skeleton-producto">
+                        <div class="skeleton-header">
+                            <div class="skeleton skeleton-img"></div>
+                            <div class="skeleton-content">
+                                <div class="skeleton skeleton-line"></div>
+                                <div class="skeleton skeleton-line"></div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            `).join('')}
-            <p class="no-encontrado" style="text-align: center; font-size: 15px; color: #777; width:100%; padding:15px; display:none">
-                <i class='bx bx-box' style="font-size: 2rem; display: block; margin-bottom: 8px;"></i>
-                ¡Ups! No encontramos registros que coincidan con tu búsqueda o filtrado.
-            </p>
+                `).join('')}
+            </div>
         </div>
         <div class="anuncio-botones">
             <button id="exportar-excel" class="btn orange" style="margin-bottom:10px"><i class='bx bx-download'></i> Descargar registros</button>
         </div>
     `;
-    contenido.innerHTML = registrationHTML;
+    contenido.innerHTML = initialHTML;
+}
+export async function mostrarVerificacion() {
     mostrarAnuncio();
+    renderInitialHTML();
 
+    const [registrosProduccion, productos] = await Promise.all([
+        obtenerRegistrosProduccion(),
+        obtenerProductos()
+    ]);
 
+    updateHTMLWithData();
     eventosVerificacion();
     setTimeout(() => {
         configuracionesEntrada();
     }, 100);
+}
+
+function updateHTMLWithData() {
+    // Update etiquetas filter
+    const nombresUnicos = [...new Set(registrosProduccion.map(registro => registro.nombre))];
+    const etiquetasFilter = document.querySelector('.etiquetas-filter');
+    const etiquetasHTML = nombresUnicos.map(etiqueta => `
+        <button class="btn-filtro">${etiqueta}</button>
+    `).join('');
+    etiquetasFilter.innerHTML = `
+        <button class="btn-filtro activado">Todos</button>
+        ${etiquetasHTML}
+    `;
+
+    // Update productos
+    const productosContainer = document.querySelector('.productos-container');
+    const productosHTML = registrosProduccion.map(registro => `
+        <div class="registro-item" data-id="${registro.id}">
+            <div class="header">
+                <i class='bx bx-file'></i>
+                <div class="info-header">
+                    <span class="id">${registro.nombre}<span class="valor ${registro.fecha_verificacion ? 'verificado' : 'pendiente'}">${registro.fecha_verificacion ? 'Verificado' : 'Pendiente'}</span></span>
+                    <span class="nombre"><strong>${registro.producto} - ${registro.gramos}gr.</strong></span>
+                    <span class="fecha">${registro.fecha}</span>
+                </div>
+            </div>
+        </div>
+    `).join('');
+    productosContainer.innerHTML = productosHTML;
 }
 function eventosVerificacion() {
     const btnExcel = document.getElementById('exportar-excel');
@@ -376,7 +403,7 @@ function eventosVerificacion() {
         <div class="anuncio-botones">
             <button class="btn-editar btn blue" data-id="${registro.id}"><i class='bx bx-edit'></i></button>
             <button class="btn-eliminar btn red" data-id="${registro.id}"><i class="bx bx-trash"></i></button>
-            ${registro.fecha_verificacion ? '': `<button class="btn-verificar btn green" data-id="${registro.id}"><i class="bx bx-check-circle"></i></button>`}
+            ${registro.fecha_verificacion ? '' : `<button class="btn-verificar btn green" data-id="${registro.id}"><i class="bx bx-check-circle"></i></button>`}
         </div>
         `;
 

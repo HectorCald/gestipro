@@ -103,10 +103,6 @@ async function obtenerAlmacenAcopio() {
 }
 async function obtenerAlmacenGeneral() {
     try {
-        mostrarCarga();
-        await obtenerEtiquetas();
-        await obtenerPrecios();
-        await obtenerAlmacenAcopio();
         const response = await fetch('/obtener-productos');
         const data = await response.json();
 
@@ -140,18 +136,29 @@ async function obtenerAlmacenGeneral() {
 }
 
 
+
 export async function mostrarAlmacenGeneral() {
     mostrarAnuncio();
-    await obtenerAlmacenGeneral();
-    const contenido = document.querySelector('.anuncio .contenido');
-    // Usar etiquetas en lugar de nombres para los filtros
-    const etiquetasUnicas = [...new Set(etiquetas.map(etiqueta => etiqueta.etiqueta))];
-    const preciosOpciones = precios.map((precio, index) => {
-        const primerPrecio = precio.precio.split(';')[0].split(',')[0]; // Obtener la primera ciudad
-        return `<option value="${precio.id}" ${index === 1 ? 'selected' : ''}>${primerPrecio}</option>`;
-    }).join('');
+    renderInitialHTML(); // Render initial HTML immediately
+    
+    // Load data in parallel
+    const [almacenGeneral, etiquetasResult, preciosResult, almacenAcopio] = await Promise.all([
+        obtenerAlmacenGeneral(),
+        obtenerEtiquetas(),
+        obtenerPrecios(),
+        obtenerAlmacenAcopio()
+    ]);
 
-    const registrationHTML = `  
+    updateHTMLWithData(); // Update HTML once data is loaded
+    eventosAlmacenGeneral();
+    setTimeout(() => {
+        configuracionesEntrada();
+    }, 100);
+}
+function renderInitialHTML() {
+
+    const contenido = document.querySelector('.anuncio .contenido');
+    const initialHTML = `  
         <div class="encabezado">
             <h1 class="titulo">Almacén General</h1>
             <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
@@ -166,8 +173,8 @@ export async function mostrarAlmacenGeneral() {
             </div>
             <div class="filtros-opciones etiquetas-filter">
                 <button class="btn-filtro activado">Todos</button>
-                ${etiquetasUnicas.map(etiqueta => `
-                    <button class="btn-filtro">${etiqueta}</button>
+                ${Array(5).fill().map(() => `
+                    <div class="skeleton skeleton-etiqueta"></div>
                 `).join('')}
             </div>
             <div class="filtros-opciones cantidad-filter">
@@ -177,53 +184,77 @@ export async function mostrarAlmacenGeneral() {
                 <button class="btn-filtro"><i class='bx bx-sort-z-a'></i></button>
                 <button class="btn-filtro">Sueltas</button>
                 <select class="precios-select" style="width:100%">
-                    ${preciosOpciones}
+                    <option value="">Precios...</option>
                 </select>
             </div>
-                ${productos.map(producto => `
-                <div class="registro-item" data-id="${producto.id}">
-                    <div class="header">
-                        ${producto.imagen && producto.imagen.startsWith('data:image') ?
-            `<img class="imagen" src="${producto.imagen}">` :
-            `<i class='bx bx-package'></i>`}
-                        <div class="info-header">
-                            <span class="id">${producto.id}
-                                <div class="precio-cantidad">
-                                    <span class="valor stock">${producto.stock} Und.</span>
-                                    <span class="valor precio">Bs/.${producto.precios.split(';')[0].split(',')[1]}</span>
-                                </div>
-                            </span>
-                            <span class="nombre"><strong>${producto.producto} - ${producto.gramos}gr.</strong></span>
-                            <span class="etiquetas">${producto.etiquetas.split(';').join(' • ')}</span>
+            <div class="productos-container">
+                ${Array(5).fill().map(() => `
+                    <div class="skeleton-producto">
+                        <div class="skeleton-header">
+                            <div class="skeleton skeleton-img"></div>
+                            <div class="skeleton-content">
+                                <div class="skeleton skeleton-line"></div>
+                                <div class="skeleton skeleton-line"></div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            `).join('')}
-            <p class="no-encontrado" style="text-align: center; font-size: 15px; color: #777; width:100%; padding:15px; display:none">
-                <i class='bx bx-box' style="font-size: 2rem; display: block; margin-bottom: 8px;"></i>
-                ¡Ups! No encontramos productos que coincidan con tu búsqueda o filtrado.
-            </p>
+                `).join('')}
+            </div>
         </div>
         <div class="anuncio-botones">
             <button class="btn-crear-producto btn orange"> <i class='bx bx-plus'></i> Crear</button>
             <button class="btn-etiquetas btn especial"><i class='bx bx-purchase-tag'></i>  Etiquetas</button>
             <button class="btn-precios btn especial"><i class='bx bx-dollar'></i> Precios</button>
         </div>
-        
     `;
-    contenido.innerHTML = registrationHTML;
-
-
-    const selectPrecios = document.querySelector('.precios-select');
-    if (selectPrecios) {
-        selectPrecios.dispatchEvent(new Event('change'));
-    }
-
-    eventosAlmacenGeneral();
-    setTimeout(() => {
-        configuracionesEntrada();
-    }, 100);
+    contenido.innerHTML = initialHTML;
 }
+function updateHTMLWithData() {
+    // Update etiquetas filter
+    const etiquetasUnicas = [...new Set(etiquetas.map(etiqueta => etiqueta.etiqueta))];
+    const etiquetasFilter = document.querySelector('.etiquetas-filter');
+    const etiquetasHTML = etiquetasUnicas.map(etiqueta => `
+        <button class="btn-filtro">${etiqueta}</button>
+    `).join('');
+    etiquetasFilter.innerHTML = `
+        <button class="btn-filtro activado">Todos</button>
+        ${etiquetasHTML}
+    `;
+
+    // Update precios select
+    const preciosSelect = document.querySelector('.precios-select');
+    const preciosOpciones = precios.map((precio, index) => {
+        const primerPrecio = precio.precio.split(';')[0].split(',')[0];
+        return `<option value="${precio.id}" ${index === 1 ? 'selected' : ''}>${primerPrecio}</option>`;
+    }).join('');
+    preciosSelect.innerHTML = preciosOpciones;
+
+    // Update productos
+    const productosContainer = document.querySelector('.productos-container');
+    const productosHTML = productos.map(producto => `
+        <div class="registro-item" data-id="${producto.id}">
+            <div class="header">
+                ${producto.imagen && producto.imagen.startsWith('data:image') ?
+                `<img class="imagen" src="${producto.imagen}">` :
+                `<i class='bx bx-package'></i>`}
+                <div class="info-header">
+                    <span class="id">${producto.id}
+                        <div class="precio-cantidad">
+                            <span class="valor stock">${producto.stock} Und.</span>
+                            <span class="valor precio">Bs/.${producto.precios.split(';')[0].split(',')[1]}</span>
+                        </div>
+                    </span>
+                    <span class="nombre"><strong>${producto.producto} - ${producto.gramos}gr.</strong></span>
+                    <span class="etiquetas">${producto.etiquetas.split(';').join(' • ')}</span>
+                </div>
+            </div>
+        </div>
+    `).join('');
+    productosContainer.innerHTML = productosHTML;
+}
+
+
+
 function eventosAlmacenGeneral() {
     const botonesEtiquetas = document.querySelectorAll('.filtros-opciones.etiquetas-filter .btn-filtro');
     const botonesCantidad = document.querySelectorAll('.filtros-opciones.cantidad-filter .btn-filtro');
@@ -360,7 +391,7 @@ function eventosAlmacenGeneral() {
             });
 
             // Actualizar precios y reordenar DOM
-            const contenedor = document.querySelector('.relleno.almacen-general');
+            const contenedor = document.querySelector('.productos-container'); 
             productosFiltrados.forEach(registro => {
                 const producto = productos.find(p => p.id === registro.dataset.id);
                 if (precioSeleccionado) {
@@ -417,9 +448,8 @@ function eventosAlmacenGeneral() {
     });
 
 
-
     items.forEach(item => {
-        item.addEventListener('click', function() {
+        item.addEventListener('click', function () {
             const registroId = this.dataset.id;
             window.info(registroId);
         });
@@ -430,7 +460,7 @@ function eventosAlmacenGeneral() {
     btnPrecios.addEventListener('click', gestionarPrecios);
 
 
-    window.info = function(registroId) {
+    window.info = function (registroId) {
         const producto = productos.find(r => r.id === registroId);
         if (!producto) return;
 
@@ -953,7 +983,7 @@ function eventosAlmacenGeneral() {
             }
         }
     }
-    
+
     function crearProducto() {
 
         const preciosFormateados = precios.map(precio => {
