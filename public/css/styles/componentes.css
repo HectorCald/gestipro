@@ -953,7 +953,6 @@
             flex-direction: column;
             width: 100%;
             font-size: var(--text-detalle);
-            gap: 5px;
 
             .fecha {
                 color: gray;
