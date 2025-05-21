@@ -215,7 +215,7 @@ function eventosConteo() {
         const registrationHTML = `
         <div class="encabezado">
             <h1 class="titulo">Vista Previa del Conteo</h1>
-            <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
+            <button class="btn close" onclick="cerrarAnuncioManual('anuncioSecond')"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno">
             <p class="normal"><i class='bx bx-chevron-right'></i>Resumen del conteo</p>
@@ -373,11 +373,10 @@ export async function mostrarConteo() {
     
 }
 function renderInitialHTML() {
-
     const contenido = document.querySelector('.anuncio .contenido');
     const initialHTML = `  
         <div class="encabezado">
-            <h1 class="titulo">Almacén General</h1>
+            <h1 class="titulo">Conteo fisico</h1>
             <button class="btn close" onclick="cerrarAnuncioManual('anuncio')"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno almacen-general">
@@ -424,6 +423,7 @@ function renderInitialHTML() {
         </div>
     `;
     contenido.innerHTML = initialHTML;
+    contenido.style.paddingBottom = '80px';
 }
 function updateHTMLWithData() {
     // Update etiquetas filter

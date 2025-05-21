@@ -685,7 +685,7 @@ function eventosAlmacenAcopio() {
         const registrationHTML = `
         <div class="encabezado">
             <h1 class="titulo">Nuevo producto</h1>
-            <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
+            <button class="btn close" onclick="cerrarAnuncioManual('anuncioSecond')"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno nuevo-producto">
             <p class="normal"><i class='bx bx-chevron-right'></i>Información básica</p>
@@ -871,7 +871,7 @@ function eventosAlmacenAcopio() {
         const registrationHTML = `
         <div class="encabezado">
             <h1 class="titulo">Gestionar Etiquetas de Acopio</h1>
-            <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
+            <button class="btn close" onclick="cerrarAnuncioManual('anuncioSecond')"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno editar-produccion">
             <p class="normal"><i class='bx bx-chevron-right'></i>Etiquetas existentes</p>

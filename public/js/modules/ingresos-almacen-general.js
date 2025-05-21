@@ -824,7 +824,7 @@ function renderInitialHTML(producto) {
     const initialHTML = `  
         <div class="encabezado">
             <h1 class="titulo">Ingresos</h1>
-            <button class="btn close" onclick="cerrarAnuncioManual('anuncio'))"><i class="fas fa-arrow-right"></i></button>
+            <button class="btn close" onclick="cerrarAnuncioManual('anuncio')"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno almacen-general">
             <div class="entrada">

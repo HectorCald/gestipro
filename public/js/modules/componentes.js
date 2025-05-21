@@ -1,4 +1,4 @@
-// Anuncios y back
+// Anuncios
 const estadoAnuncios = {
     anuncioVisible: false,
     anuncioSecondVisible: false,
@@ -51,7 +51,7 @@ function ocultarAnuncioFisico() {
     if (anuncio && anuncio.style.display !== 'none') {
         anuncio.style.display = 'none';
         if (contenido) {
-            contenido.style.paddingBottom = '75px';
+            contenido.style.paddingBottom = '80px';
             contenido.innerHTML = '';
         }
     }
@@ -63,7 +63,7 @@ function ocultarAnuncioSecondFisico() {
     if (anuncio && anuncio.style.display !== 'none') {
         anuncio.style.display = 'none';
         if (contenido) {
-            contenido.style.paddingBottom = '75px';
+            contenido.style.paddingBottom = '80px';
             contenido.innerHTML = '';
         }
     }
@@ -75,7 +75,7 @@ function ocultarAnuncioTercerFisico() {
     if (anuncio && anuncio.style.display !== 'none') {
         anuncio.style.display = 'none';
         if (contenido) {
-            contenido.style.paddingBottom = '75px';
+            contenido.style.paddingBottom = '80px';
             contenido.innerHTML = '';
         }
     }

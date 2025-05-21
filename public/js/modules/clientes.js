@@ -74,6 +74,7 @@ function renderInitialHTML() {
         </div>
     `;
     contenido.innerHTML = initialHTML;
+    contenido.style.paddingBottom = '80px';
 }
 export async function mostrarClientes() {
     mostrarAnuncio();
@@ -407,7 +408,7 @@ function eventosClientes() {
         const registrationHTML = `
             <div class="encabezado">
                 <h1 class="titulo">Crear nuevo cliente</h1>
-                <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
+                <button class="btn close" onclick="cerrarAnuncioManual('anuncioSecond')"><i class="fas fa-arrow-right"></i></button>
             </div>
             <div class="relleno">
                 <p class="normal"><i class='bx bx-chevron-right'></i> Información del cliente</p>

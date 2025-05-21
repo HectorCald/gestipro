@@ -214,6 +214,7 @@ function renderInitialHTML() {
         </div>
     `;
     contenido.innerHTML = initialHTML;
+    contenido.style.paddingBottom = '80px';
 }
 function updateHTMLWithData() {
     // Update etiquetas filter
@@ -1000,7 +1001,7 @@ function eventosAlmacenGeneral() {
         const registrationHTML = `
         <div class="encabezado">
             <h1 class="titulo">Nuevo producto</h1>
-            <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
+            <button class="btn close" onclick="cerrarAnuncioManual('anuncioSecond')"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno nuevo-producto">
             <p class="normal"><i class='bx bx-chevron-right'></i>Información basica</p>
@@ -1226,7 +1227,7 @@ function eventosAlmacenGeneral() {
         const registrationHTML = `
         <div class="encabezado">
             <h1 class="titulo">Gestionar Etiquetas</h1>
-            <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
+            <button class="btn close" onclick="cerrarAnuncioManual('anuncioSecond')"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno editar-produccion">
             <p class="normal"><i class='bx bx-chevron-right'></i>Etiquetas existentes</p>
@@ -1343,7 +1344,7 @@ function eventosAlmacenGeneral() {
         const registrationHTML = `
         <div class="encabezado">
             <h1 class="titulo">Gestionar precios</h1>
-            <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
+            <button class="btn close" onclick="cerrarAnuncioManual('anuncioSecond')"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno">
             <p class="normal"><i class='bx bx-chevron-right'></i>Precios actuales</p>
