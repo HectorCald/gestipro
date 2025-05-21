@@ -1,16 +1,7 @@
 export async function mostrarAnuncio() {
-    return new Promise(resolve => {
         const anuncio = document.querySelector('.anuncio');
         
-        anuncio.style.transform = 'translateX(100%)';
         anuncio.style.display = 'flex';
-        anuncio.offsetHeight;
-        anuncio.classList.add('slide-in');
-
-        // Esperar a que termine la animación
-        anuncio.addEventListener('transitionend', () => {
-            resolve();
-        }, { once: true });
 
         history.pushState({ nivel: 1, tipo: 'anuncio' }, '');
 
@@ -30,21 +21,10 @@ export async function mostrarAnuncio() {
         window.removeEventListener('popstate', handlePopState);
         window.addEventListener('popstate', handlePopState);
 
-
-    });
 }
 export async function mostrarAnuncioSecond() {
-    return new Promise(resolve => {
-        const anuncio = document.querySelector('.anuncio-second');
-        anuncio.style.transform = 'translateX(100%)';
+    const anuncio = document.querySelector('.anuncio-second');
         anuncio.style.display = 'flex';
-        anuncio.offsetHeight;
-        anuncio.classList.add('slide-in');
-
-        // Esperar a que termine la animación
-        anuncio.addEventListener('transitionend', () => {
-            resolve();
-        }, { once: true });
 
         // Agregar una nueva entrada al historial (nivel 2)
         history.pushState({ nivel: 2, tipo: 'anuncioSecond' }, '');
@@ -59,9 +39,6 @@ export async function mostrarAnuncioSecond() {
 
         window.removeEventListener('popstate', handlePopState);
         window.addEventListener('popstate', handlePopState);
-
-        configuracionesEntrada();
-    });
 }
 export async function ocultarAnuncio() {
     const anuncio = document.querySelector('.anuncio');
@@ -76,11 +53,7 @@ export async function ocultarAnuncio() {
     if (btnp) btnp.style.display = 'none';
 
     if (!anuncio || anuncio.style.display === 'none') return;
-
-    anuncio.classList.add('slide-out');
-    await new Promise(resolve => setTimeout(resolve, 300));
     anuncio.style.display = 'none';
-    anuncio.classList.remove('slide-out', 'slide-in');
     contenido.style.paddingBottom = '75px';
     contenido.innerHTML = ''; // Limpiar el contenido
 }
@@ -91,10 +64,7 @@ export async function ocultarAnuncioSecond() {
 
     if (!anuncio || anuncio.style.display === 'none') return;
 
-    anuncio.classList.add('slide-out');
-    await new Promise(resolve => setTimeout(resolve, 300));
     anuncio.style.display = 'none';
-    anuncio.classList.remove('slide-out', 'slide-in');
     contenido.style.paddingBottom = '75px';
     contenido.innerHTML = ''; // Limpiar el contenido
 }
