@@ -1541,79 +1541,99 @@ app.delete('/eliminar-registro-almacen/:id', requireAuth, async (req, res) => {
         });
     }
 });
-app.put('/editar-registro-almacen/:id', requireAuth, async (req, res) => {
-    const { spreadsheetId } = req.user;
-    const { id } = req.params;
-    const {
-        nombre_movimiento,
-        cliente_proovedor,
-        operario,
-        productos,
-        cantidades,
-        subtotal,
-        descuento,
-        aumento,
-        total,
-        observaciones,
-    } = req.body;
-
+app.delete('/anular-movimiento/:id', requireAuth, async (req, res) => {
     try {
+        const { spreadsheetId } = req.user;
+        const { id } = req.params;
+        const { motivo } = req.body;
         const sheets = google.sheets({ version: 'v4', auth });
 
-        // Get current almacen records
-        const response = await sheets.spreadsheets.values.get({
+        // Obtener el registro a anular
+        const responseMovimiento = await sheets.spreadsheets.values.get({
             spreadsheetId,
-            range: 'Movimientos alm-gral!A2:M'
+            range: 'Movimientos alm-gral!A2:F'
         });
 
-        const rows = response.data.values || [];
-        const rowIndex = rows.findIndex(row => row[0] === id);
+        const movimientos = responseMovimiento.data.values || [];
+        const movimientoIndex = movimientos.findIndex(row => row[0] === id);
+        
+        if (movimientoIndex === -1) {
+            return res.status(404).json({ success: false, error: 'Movimiento no encontrado' });
+        }
 
-        if (rowIndex === -1) {
+        const movimiento = movimientos[movimientoIndex];
+        const tipo = movimiento[2];
+        const idProductos = movimiento[3].split(';');
+        const cantidades = movimiento[5].split(';');
+
+        // Obtener stock actual
+        const responseStock = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: 'Almacen general!A2:D'
+        });
+
+        const productos = responseStock.data.values || [];
+
+        // Actualizar stock
+        for (let i = 0; i < idProductos.length; i++) {
+            const idProducto = idProductos[i];
+            const cantidad = parseInt(cantidades[i]);
+            
+            const productoIndex = productos.findIndex(row => row[0] === idProducto);
+            if (productoIndex !== -1) {
+                const stockActual = parseInt(productos[productoIndex][3]);
+                const nuevoStock = tipo.toLowerCase() === 'ingreso' ? 
+                    stockActual - cantidad : 
+                    stockActual + cantidad;
+
+                await sheets.spreadsheets.values.update({
+                    spreadsheetId,
+                    range: `Almacen general!D${productoIndex + 2}`,
+                    valueInputOption: 'RAW',
+                    resource: {
+                        values: [[nuevoStock.toString()]]
+                    }
+                });
+            }
+        }
+
+        // Obtener el ID de la hoja
+        const spreadsheet = await sheets.spreadsheets.get({
+            spreadsheetId
+        });
+
+        const movimientosSheet = spreadsheet.data.sheets.find(
+            sheet => sheet.properties.title === 'Movimientos alm-gral'
+        );
+
+        if (!movimientosSheet) {
             return res.status(404).json({
                 success: false,
-                error: 'Registro no encontrado'
+                error: 'Hoja de Movimientos no encontrada'
             });
         }
 
-        // Prepare updated row data
-        const updatedRow = [
-            id,
-            rows[rowIndex][1], // Keep original fecha_hora
-            rows[rowIndex][2], // Keep original tipo
-            productos,
-            cantidades,
-            operario,
-            cliente_proovedor,
-            nombre_movimiento,
-            subtotal,
-            descuento,
-            aumento,
-            total,
-            observaciones
-        ];
-
-        // Update the row
-        await sheets.spreadsheets.values.update({
+        // Eliminar la fila completa
+        await sheets.spreadsheets.batchUpdate({
             spreadsheetId,
-            range: `Movimientos alm-gral!A${rowIndex + 2}:M${rowIndex + 2}`,
-            valueInputOption: 'USER_ENTERED',
             resource: {
-                values: [updatedRow]
+                requests: [{
+                    deleteDimension: {
+                        range: {
+                            sheetId: movimientosSheet.properties.sheetId,
+                            dimension: 'ROWS',
+                            startIndex: movimientoIndex + 1, // +1 por el encabezado
+                            endIndex: movimientoIndex + 2
+                        }
+                    }
+                }]
             }
         });
 
-        res.json({
-            success: true,
-            message: 'Registro de almacén actualizado correctamente'
-        });
-
+        res.json({ success: true });
     } catch (error) {
-        console.error('Error al actualizar registro de almacén:', error);
-        res.status(500).json({
-            success: false,
-            error: 'Error al actualizar el registro de almacén'
-        });
+        console.error('Error al anular movimiento:', error);
+        res.status(500).json({ success: false, error: 'Error al anular el movimiento' });
     }
 });
 

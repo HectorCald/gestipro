@@ -139,6 +139,7 @@ async function obtenerAlmacenGeneral() {
 
 
 export async function mostrarSalidas() {
+    carritoSalidas = new Map(JSON.parse(localStorage.getItem('damabrava_carrito') || '[]'));
     mostrarAnuncio();
     renderInitialHTML(); // Render initial HTML immediately
     setTimeout(() => {
@@ -162,7 +163,7 @@ function renderInitialHTML() {
     const contenido = document.querySelector('.anuncio .contenido');
     const initialHTML = `  
         <div class="encabezado">
-            <h1 class="titulo">Almacén General</h1>
+            <h1 class="titulo">Salidas</h1>
             <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno almacen-general">
