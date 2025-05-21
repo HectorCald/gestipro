@@ -108,7 +108,7 @@ function renderInitialHTML() {
     const contenido = document.querySelector('.anuncio .contenido');
     const initialHTML = `  
         <div class="encabezado">
-            <h1 class="titulo">Almacén General</h1>
+            <h1 class="titulo">Registros almacen</h1>
             <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno almacen-general">
@@ -656,47 +656,23 @@ function eventosRegistrosAlmacen() {
         }
         function copia(registro) {
             try {
-                // Obtener los arrays de productos y cantidades
                 const idProductos = registro.idProductos.split(';');
                 const cantidades = registro.cantidades.split(';');
-                const productos = registro.productos.split(';');
-                const preciosUnitarios = registro.precios_unitarios.split(';');
 
-                // Crear el nuevo carrito según el tipo de movimiento
-                let carrito;
+                // Solo guardamos IDs y cantidades
                 const storageKey = registro.tipo.toLowerCase() === 'ingreso' ? 'damabrava_carrito_ingresos' : 'damabrava_carrito';
+                const carritoCopia = new Map();
 
-                // Recuperar el carrito actual
-                carrito = new Map(JSON.parse(localStorage.getItem(storageKey) || '[]'));
-
-                // Limpiar carrito existente correctamente
-                carrito.forEach((item, id) => {
-                    const headerItem = document.querySelector(`.registro-item[data-id="${id}"]`);
-                    if (headerItem) {
-                        const cantidadSpan = headerItem.querySelector('.carrito-cantidad');
-                        const stockSpan = headerItem.querySelector('.stock');
-                        if (cantidadSpan) cantidadSpan.textContent = '';
-                        if (stockSpan) stockSpan.textContent = `${item.stock} Und.`;
-                    }
-                });
-
-                carrito.clear();
-                localStorage.removeItem(storageKey);
-
-                // Agregar cada producto al carrito
+                // Guardar solo IDs y cantidades
                 for (let i = 0; i < idProductos.length; i++) {
-                    const productoInfo = productos[i].split(' - ');
-                    carrito.set(idProductos[i], {
+                    carritoCopia.set(idProductos[i], {
                         id: idProductos[i],
-                        producto: productoInfo[0],
-                        gramos: parseInt(productoInfo[1].replace('gr', '')),
-                        cantidad: parseInt(cantidades[i]),
-                        precio: parseFloat(preciosUnitarios[i])
+                        cantidad: parseInt(cantidades[i])
                     });
                 }
 
-                // Guardar el carrito en localStorage
-                localStorage.setItem(storageKey, JSON.stringify(Array.from(carrito.entries())));
+                // Guardar en localStorage
+                localStorage.setItem(storageKey, JSON.stringify(Array.from(carritoCopia.entries())));
 
                 mostrarNotificacion({
                     message: 'Productos copiados al carrito correctamente',
@@ -704,11 +680,10 @@ function eventosRegistrosAlmacen() {
                     duration: 3000
                 });
 
-                // Cerrar el modal actual
+                // Cerrar modal actual y abrir el correspondiente
                 ocultarAnuncioSecond();
                 ocultarAnuncio();
 
-                // Abrir el modal correspondiente según el tipo
                 if (registro.tipo.toLowerCase() === 'ingreso') {
                     mostrarIngresos();
                 } else {

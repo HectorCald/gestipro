@@ -139,9 +139,8 @@ async function obtenerAlmacenGeneral() {
 
 
 export async function mostrarSalidas() {
-    carritoSalidas = new Map(JSON.parse(localStorage.getItem('damabrava_carrito') || '[]'));
     mostrarAnuncio();
-    renderInitialHTML(); // Render initial HTML immediately
+    renderInitialHTML();
     setTimeout(() => {
         configuracionesEntrada();
     }, 100);
@@ -153,10 +152,34 @@ export async function mostrarSalidas() {
         obtenerPrecios(),
         obtenerClientes(),
     ]);
+    const carritoBasico = new Map(JSON.parse(localStorage.getItem('damabrava_carrito') || '[]'));
 
-    updateHTMLWithData(); // Update HTML once data is loaded
-    eventosSalidas();
+    updateHTMLWithData();
     
+    // Actualizar carrito con datos actuales
+    carritoSalidas = new Map();
+    carritoBasico.forEach((item, id) => {
+        const productoActual = productos.find(p => p.id === id);
+        if (productoActual) {
+            carritoSalidas.set(id, {
+                ...productoActual,
+                cantidad: item.cantidad,
+                subtotal: parseFloat(productoActual.precios.split(';')[0].split(',')[1])
+            });
+            
+            // Actualizar UI
+            const headerItem = document.querySelector(`.registro-item[data-id="${id}"]`);
+            if (headerItem) {
+                const stockSpan = headerItem.querySelector('.stock');
+                if (stockSpan) stockSpan.textContent = `${productoActual.stock - item.cantidad} Und.`;
+                const cantidadSpan = headerItem.querySelector('.carrito-cantidad');
+                if (cantidadSpan) cantidadSpan.textContent = item.cantidad;
+            }
+        }
+    });
+
+    localStorage.setItem('damabrava_carrito', JSON.stringify(Array.from(carritoSalidas.entries())));
+    eventosSalidas();
 }
 function renderInitialHTML() {
 
@@ -209,7 +232,7 @@ function renderInitialHTML() {
             </div>
         </div>
     `;
-    contenido.style.paddingBottom='10px';
+    contenido.style.paddingBottom = '10px';
     contenido.innerHTML = initialHTML;
 }
 function updateHTMLWithData() {
@@ -244,8 +267,8 @@ function updateHTMLWithData() {
         <div class="registro-item" data-id="${producto.id}">
             <div class="header">
                 ${producto.imagen && producto.imagen.startsWith('data:image') ?
-            `<img class="imagen" src="${producto.imagen}">` :
-            `<i class='bx bx-package'></i>`}
+                `<img class="imagen" src="${producto.imagen}">` :
+                `<i class='bx bx-package'></i>`}
                 <div class="info-header">
                     <span class="id">${producto.id}
                         <div class="precio-cantidad">
@@ -271,7 +294,7 @@ function eventosSalidas() {
     const selectPrecios = document.querySelector('.precios-select');
 
     const inputBusqueda = document.querySelector('.buscar-producto');
-    
+
     const botonFlotante = document.createElement('button');
 
     let filtroNombreActual = 'Todos';
@@ -412,7 +435,7 @@ function eventosSalidas() {
             behavior: 'smooth'
         });
     }
-    inputBusqueda.addEventListener('focus', function() {
+    inputBusqueda.addEventListener('focus', function () {
         this.select();
     });
     inputBusqueda.addEventListener('input', (e) => {
@@ -889,7 +912,7 @@ function eventosSalidas() {
             ocultarCarga();
             ocultarAnuncioSecond();
             await mostrarSalidas();
-            
+
 
         } catch (error) {
             console.error('Error al procesar la salida:', error);
@@ -903,5 +926,6 @@ function eventosSalidas() {
         }
     }
     window.registrarSalida = registrarSalida;
+
     aplicarFiltros();
 }

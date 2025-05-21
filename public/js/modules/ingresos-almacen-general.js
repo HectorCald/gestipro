@@ -739,7 +739,7 @@ function eventosIngresos() {
             localStorage.removeItem('damabrava_carrito_ingresos');
             document.querySelector('.btn-flotante-ingresos').style.display = 'none';
 
-            
+
             mostrarNotificacion({
                 message: 'Ingreso registrado exitosamente',
                 type: 'success',
@@ -748,7 +748,7 @@ function eventosIngresos() {
             ocultarCarga();
             ocultarAnuncioSecond();
             await mostrarIngresos();
-            
+
 
         } catch (error) {
             console.error('Error al procesar el ingreso:', error);
@@ -766,8 +766,7 @@ function eventosIngresos() {
 }
 
 
-export async function mostrarIngresos(producto='') {
-    carritoSalidas = new Map(JSON.parse(localStorage.getItem('damabrava_carrito_ingresos') || '[]'));
+export async function mostrarIngresos(producto = '') {
     mostrarAnuncio();
     renderInitialHTML(producto); // Render initial HTML immediately
     setTimeout(() => {
@@ -782,9 +781,34 @@ export async function mostrarIngresos(producto='') {
         obtenerProovedores(),
     ]);
 
-    updateHTMLWithData(); // Update HTML once data is loaded
+    const carritoBasico = new Map(JSON.parse(localStorage.getItem('damabrava_carrito_ingresos') || '[]'));
+
+    updateHTMLWithData();
+
+
+
+    carritoSalidas = new Map();
+    carritoBasico.forEach((item, id) => {
+        const productoActual = productos.find(p => p.id === id);
+        if (productoActual) {
+            carritoSalidas.set(id, {
+                ...productoActual,
+                cantidad: item.cantidad,
+                subtotal: parseFloat(productoActual.precios.split(';')[0].split(',')[1])
+            });
+        }
+        const headerItem = document.querySelector(`.registro-item[data-id="${id}"]`);
+        if (headerItem) {
+            const stockSpan = headerItem.querySelector('.stock');
+            if (stockSpan) stockSpan.textContent = `${parseInt(productoActual.stock) + parseInt(item.cantidad)} Und.`;
+            const cantidadSpan = headerItem.querySelector('.carrito-cantidad');
+            if (cantidadSpan) cantidadSpan.textContent = item.cantidad;
+        }
+    });
+    localStorage.setItem('damabrava_carrito_ingresos', JSON.stringify(Array.from(carritoSalidas.entries())));
+
     eventosIngresos();
-    
+
     if (producto) {
         const inputBusqueda = document.querySelector('.buscar-producto');
         if (inputBusqueda) {
@@ -845,7 +869,7 @@ function renderInitialHTML(producto) {
             </div>
         </div>
     `;
-    contenido.style.paddingBottom='10px';
+    contenido.style.paddingBottom = '10px';
     contenido.innerHTML = initialHTML;
 }
 function updateHTMLWithData() {
@@ -874,13 +898,13 @@ function updateHTMLWithData() {
         // Obtener la cantidad del carrito si existe
         const itemCarrito = carritoSalidas.get(producto.id);
         const cantidadEnCarrito = itemCarrito ? itemCarrito.cantidad : '';
-        
+
         return `
         <div class="registro-item" data-id="${producto.id}">
             <div class="header">
                 ${producto.imagen && producto.imagen.startsWith('data:image') ?
-                    `<img class="imagen" src="${producto.imagen}">` :
-                    `<i class='bx bx-package'></i>`}
+                `<img class="imagen" src="${producto.imagen}">` :
+                `<i class='bx bx-package'></i>`}
                 <div class="info-header">
                     <span class="id">${producto.id}
                         <div class="precio-cantidad">
