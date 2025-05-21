@@ -1,48 +1,128 @@
+// Mantener un registro del estado actual
+const estadoAnuncios = {
+    anuncioVisible: false,
+    anuncioSecondVisible: false,
+    anuncioTercerVisible: false,
+    nivelActual: 0,
+    procesandoCierreManual: false  // Flag para evitar conflictos
+};
+
+// Controlador global para eventos de popstate
+window.addEventListener('popstate', (event) => {
+    // Si estamos procesando un cierre manual, no hacer nada
+    if (estadoAnuncios.procesandoCierreManual) {
+        estadoAnuncios.procesandoCierreManual = false;
+        return;
+    }
+    
+    const estado = event.state || {};
+    const nivelAnterior = estado.nivel || 0;
+    
+    // Determinar qué anuncio cerrar basado en el nivel del historial
+    if (estadoAnuncios.nivelActual === 3 && nivelAnterior <= 2) {
+        // Si estamos en nivel 3 (anuncioTercer visible) y volvemos a nivel 2 o menos
+        ocultarAnuncioTercerInterno();
+        estadoAnuncios.anuncioTercerVisible = false;
+        estadoAnuncios.nivelActual = nivelAnterior;
+    }
+    else if (estadoAnuncios.nivelActual === 2 && nivelAnterior <= 1) {
+        // Si estamos en nivel 2 (anuncioSecond visible) y volvemos a nivel 1 o 0
+        ocultarAnuncioSecondInterno();
+        estadoAnuncios.anuncioSecondVisible = false;
+        estadoAnuncios.nivelActual = nivelAnterior;
+    } 
+    else if (estadoAnuncios.nivelActual === 1 && nivelAnterior === 0) {
+        // Si estamos en nivel 1 (solo anuncio visible) y volvemos a nivel 0
+        ocultarAnuncioInterno();
+        estadoAnuncios.anuncioVisible = false;
+        estadoAnuncios.nivelActual = 0;
+    }
+
+    const anuncioTercer = document.querySelector('.anuncio-tercer');
+    const anuncioSecond = document.querySelector('.anuncio-second');
+    const anuncio = document.querySelector('.anuncio');
+    
+    // Cierre forzado si hay discrepancia entre estado y DOM
+    if (anuncioTercer && anuncioTercer.style.display === 'flex' && estadoAnuncios.nivelActual < 3) {
+        ocultarAnuncioTercerInterno();
+    }
+    if (anuncioSecond && anuncioSecond.style.display === 'flex' && estadoAnuncios.nivelActual < 2) {
+        ocultarAnuncioSecondInterno();
+    }
+    if (anuncio && anuncio.style.display === 'flex' && estadoAnuncios.nivelActual < 1) {
+        ocultarAnuncioInterno();
+    }
+});
+
 export async function mostrarAnuncio() {
-        const anuncio = document.querySelector('.anuncio');
-        
+    const anuncio = document.querySelector('.anuncio');
+    
+    if (anuncio && anuncio.style.display !== 'flex') {
         anuncio.style.display = 'flex';
-
-        history.pushState({ nivel: 1, tipo: 'anuncio' }, '');
-
-        const handlePopState = async (event) => {
-            const state = event.state || {};
-            const anuncioSecondVisible = document.querySelector('.anuncio-second')?.style.display === 'flex';
-            const anuncioVisible = document.querySelector('.anuncio')?.style.display === 'flex';
-
-            if (anuncioSecondVisible) {
-                await ocultarAnuncioSecond();
-            } else if (anuncioVisible) {
-                await ocultarAnuncio();
-                window.removeEventListener('popstate', handlePopState);
-            }
-        };
-
-        window.removeEventListener('popstate', handlePopState);
-        window.addEventListener('popstate', handlePopState);
-
+        
+        // Actualizar estado y agregar entrada en el historial solo si aún no está visible
+        if (!estadoAnuncios.anuncioVisible) {
+            estadoAnuncios.anuncioVisible = true;
+            estadoAnuncios.nivelActual = 1;
+            
+            // Añadir estado al historial
+            history.pushState({ nivel: 1, tipo: 'anuncio' }, '');
+        }
+    }
 }
+
 export async function mostrarAnuncioSecond() {
     const anuncio = document.querySelector('.anuncio-second');
+    
+    if (anuncio && anuncio.style.display !== 'flex') {
         anuncio.style.display = 'flex';
-
-        // Agregar una nueva entrada al historial (nivel 2)
-        history.pushState({ nivel: 2, tipo: 'anuncioSecond' }, '');
-
-        const handlePopState = async (event) => {
-            const anuncioSecondVisible = document.querySelector('.anuncio-second')?.style.display === 'flex';
-            if (anuncioSecondVisible) {
-                await ocultarAnuncioSecond();
-                // No agregamos nuevo estado aquí, dejamos que el history.back() funcione naturalmente
-            }
-        };
-
-        window.removeEventListener('popstate', handlePopState);
-        window.addEventListener('popstate', handlePopState);
-
-        configuracionesEntrada();
+        
+        // Actualizar estado y agregar entrada en el historial solo si aún no está visible
+        if (!estadoAnuncios.anuncioSecondVisible) {
+            estadoAnuncios.anuncioSecondVisible = true;
+            estadoAnuncios.nivelActual = 2;
+            
+            // Añadir estado al historial
+            history.pushState({ nivel: 2, tipo: 'anuncioSecond' }, '');
+        }
+    }
+    
+    // Configurar entrada si es necesario
+    configuracionesEntrada();
 }
+
+export async function mostrarAnuncioTercer() {
+    const anuncio = document.querySelector('.anuncio-tercer');
+    
+    if (anuncio && anuncio.style.display !== 'flex') {
+        anuncio.style.display = 'flex';
+        
+        // Actualizar estado y agregar entrada en el historial solo si aún no está visible
+        if (!estadoAnuncios.anuncioTercerVisible) {
+            estadoAnuncios.anuncioTercerVisible = true;
+            estadoAnuncios.nivelActual = 3;
+            
+            // Añadir estado al historial
+            history.pushState({ nivel: 3, tipo: 'anuncioTercer' }, '');
+        }
+    }
+    configuracionesEntrada();
+}
+
 export async function ocultarAnuncio() {
+    ocultarAnuncioInterno();
+}
+
+export async function ocultarAnuncioSecond() {
+    ocultarAnuncioSecondInterno();
+}
+
+export async function ocultarAnuncioTercer() {
+    ocultarAnuncioTercerInterno();
+}
+
+// Funciones internas que no modifican el historial (usadas por popstate)
+async function ocultarAnuncioInterno() {
     const anuncio = document.querySelector('.anuncio');
     const contenido = document.querySelector('.anuncio .contenido');
     const btni = document.querySelector('.btn-flotante-salidas');
@@ -55,21 +135,150 @@ export async function ocultarAnuncio() {
     if (btnp) btnp.style.display = 'none';
 
     if (!anuncio || anuncio.style.display === 'none') return;
+    
+    // Ocultar y limpiar el anuncio
     anuncio.style.display = 'none';
-    contenido.style.paddingBottom = '75px';
-    contenido.innerHTML = ''; // Limpiar el contenido
+    
+    if (contenido) {
+        contenido.style.paddingBottom = '75px';
+        contenido.innerHTML = ''; // Limpiar el contenido
+    }
+    
+    // Actualizar estado
+    estadoAnuncios.anuncioVisible = false;
+    
+    // Actualizar nivel según qué anuncios siguen visibles
+    if (estadoAnuncios.anuncioTercerVisible) {
+        estadoAnuncios.nivelActual = 3;
+    } else if (estadoAnuncios.anuncioSecondVisible) {
+        estadoAnuncios.nivelActual = 2;
+    } else {
+        estadoAnuncios.nivelActual = 0;
+    }
 }
 
-export async function ocultarAnuncioSecond() {
+async function ocultarAnuncioSecondInterno() {
     const anuncio = document.querySelector('.anuncio-second');
     const contenido = document.querySelector('.anuncio-second .contenido');
 
     if (!anuncio || anuncio.style.display === 'none') return;
 
+    // Ocultar y limpiar el anuncio secundario
     anuncio.style.display = 'none';
-    contenido.style.paddingBottom = '75px';
-    contenido.innerHTML = ''; // Limpiar el contenido
+    
+    if (contenido) {
+        contenido.style.paddingBottom = '75px';
+        contenido.innerHTML = ''; // Limpiar el contenido
+    }
+    
+    // Actualizar estado
+    estadoAnuncios.anuncioSecondVisible = false;
+    
+    // Actualizar nivel según qué anuncios siguen visibles
+    if (estadoAnuncios.anuncioTercerVisible) {
+        estadoAnuncios.nivelActual = 3;
+    } else if (estadoAnuncios.anuncioVisible) {
+        estadoAnuncios.nivelActual = 1;
+    } else {
+        estadoAnuncios.nivelActual = 0;
+    }
 }
+
+async function ocultarAnuncioTercerInterno() {
+    const anuncio = document.querySelector('.anuncio-tercer');
+    const contenido = document.querySelector('.anuncio-tercer .contenido');
+
+    if (!anuncio || anuncio.style.display === 'none') return;
+
+    // Ocultar y limpiar el anuncio tercer
+    anuncio.style.display = 'none';
+    
+    if (contenido) {
+        contenido.style.paddingBottom = '75px';
+        contenido.innerHTML = ''; // Limpiar el contenido
+    }
+    
+    // Actualizar estado
+    estadoAnuncios.anuncioTercerVisible = false;
+    
+    // Actualizar nivel según qué anuncios siguen visibles
+    if (estadoAnuncios.anuncioSecondVisible) {
+        estadoAnuncios.nivelActual = 2;
+    } else if (estadoAnuncios.anuncioVisible) {
+        estadoAnuncios.nivelActual = 1;
+    } else {
+        estadoAnuncios.nivelActual = 0;
+    }
+}
+
+// Función para cerrar manualmente un anuncio (por ejemplo, con un botón de cerrar)
+export function cerrarAnuncioManual(tipo) {
+    // Marcar que estamos procesando un cierre manual
+    estadoAnuncios.procesandoCierreManual = true;
+    
+    if (tipo === 'anuncioTercer' && estadoAnuncios.anuncioTercerVisible) {
+        ocultarAnuncioTercerInterno();
+        
+        // Navegar hacia atrás en el historial
+        if (estadoAnuncios.nivelActual === 3) {
+            history.back();
+        }
+    }
+    else if (tipo === 'anuncioSecond' && estadoAnuncios.anuncioSecondVisible) {
+        ocultarAnuncioSecondInterno();
+        
+        // Navegar hacia atrás en el historial sin disparar el evento popstate
+        if (estadoAnuncios.nivelActual === 2) {
+            history.back();
+        }
+    } 
+    else if (tipo === 'anuncio' && estadoAnuncios.anuncioVisible) {
+        // Calcular cuántos anuncios están abiertos para cerrar todos
+        let nivelesPorRetroceder = estadoAnuncios.nivelActual;
+        
+        // Cerrar todos los anuncios visibles
+        if (estadoAnuncios.anuncioTercerVisible) {
+            ocultarAnuncioTercerInterno();
+            estadoAnuncios.anuncioTercerVisible = false;
+        }
+        if (estadoAnuncios.anuncioSecondVisible) {
+            ocultarAnuncioSecondInterno();
+            estadoAnuncios.anuncioSecondVisible = false;
+        }
+        if (estadoAnuncios.anuncioVisible) {
+            ocultarAnuncioInterno();
+            estadoAnuncios.anuncioVisible = false;
+        }
+        
+        // Nuevo: Resetear el historial completamente
+        if (nivelesPorRetroceder > 0) {
+            history.go(-nivelesPorRetroceder);
+            // Forzar un reemplazo del estado actual
+            history.replaceState({ nivel: 0, tipo: 'base' }, '');
+        }
+        estadoAnuncios.nivelActual = 0;
+    }
+}
+
+// Función de utilidad para limpiar el estado (úsala si necesitas resetear todo)
+export function resetearEstadoAnuncios() {
+    estadoAnuncios.anuncioVisible = false;
+    estadoAnuncios.anuncioSecondVisible = false;
+    estadoAnuncios.anuncioTercerVisible = false;
+    estadoAnuncios.nivelActual = 0;
+    estadoAnuncios.procesandoCierreManual = false;
+    
+    // Ocultar físicamente los anuncios
+    const anuncio = document.querySelector('.anuncio');
+    const anuncioSecond = document.querySelector('.anuncio-second');
+    const anuncioTercer = document.querySelector('.anuncio-tercer');
+    
+    if (anuncio) anuncio.style.display = 'none';
+    if (anuncioSecond) anuncioSecond.style.display = 'none';
+    if (anuncioTercer) anuncioTercer.style.display = 'none';
+}
+
+
 
 export function mostrarCarga() {
     const cargaDiv = document.querySelector('.carga');

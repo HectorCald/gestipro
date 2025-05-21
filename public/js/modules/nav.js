@@ -170,7 +170,7 @@ function mostrarNav() {
     eventosNav();
 }
 function mostrarMenu() {
-    const contenido = document.querySelector('.anuncio-second .contenido');
+    const contenido = document.querySelector('.anuncio .contenido');
     const opcionesUsuario = obtenerOpcionesMenu();
     
     const opcionesHTML = opcionesUsuario.map(opcion => `
@@ -186,7 +186,7 @@ function mostrarMenu() {
     const menuHTML = `
         <div class="encabezado">
             <h1 class="titulo">Menú de ${usuarioInfo}</h1>
-            <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
+            <button class="btn close" onclick="cerrarAnuncioManual('anuncio')"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno">
             ${opcionesHTML}
@@ -195,7 +195,7 @@ function mostrarMenu() {
 
     contenido.innerHTML = menuHTML;
     contenido.style.paddingBottom = '10px';
-    mostrarAnuncioSecond();
+    mostrarAnuncio();
 }
 function eventosNav() {
     const refreshButton = document.querySelector('.nav-container .refresh');

@@ -162,7 +162,7 @@ function renderInitialHTML() {
     const initialHTML = `  
         <div class="encabezado">
             <h1 class="titulo">Almacén General</h1>
-            <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
+            <button class="btn close" onclick="cerrarAnuncioManual('anuncio');"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno almacen-general">
             <div class="entrada">
@@ -489,7 +489,7 @@ function eventosAlmacenGeneral() {
         const registrationHTML = `
         <div class="encabezado">
             <h1 class="titulo">${producto.producto}</h1>
-            <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
+            <button class="btn close" onclick="cerrarAnuncioManual('anuncioSecond');"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno verificar-registro">
         <p class="normal"><i class='bx bx-chevron-right'></i>Información general</p>
@@ -541,11 +541,11 @@ function eventosAlmacenGeneral() {
 
         function eliminar(producto) {
 
-            const contenido = document.querySelector('.anuncio-second .contenido');
+            const contenido = document.querySelector('.anuncio-tercer .contenido');
             const registrationHTML = `
             <div class="encabezado">
                 <h1 class="titulo">Eliminar producto</h1>
-                <button class="btn close" onclick="info('${producto.id}');"><i class="fas fa-arrow-right"></i></button>
+                <button class="btn close" onclick="cerrarAnuncioManual('anuncioTercer');"><i class="fas fa-arrow-right"></i></button>
             </div>
             <div class="relleno">
                 <p class="normal"><i class='bx bx-chevron-right'></i>Información general</p>
@@ -576,7 +576,7 @@ function eventosAlmacenGeneral() {
             </div>
         `;
             contenido.innerHTML = registrationHTML;
-            mostrarAnuncioSecond();
+            mostrarAnuncioTercer();
 
             // Agregar evento al botón guardar
             const btnEliminarProducto = contenido.querySelector('.btn-eliminar-producto');
@@ -669,11 +669,11 @@ function eventosAlmacenGeneral() {
                 .map(e => e.etiqueta)
                 .filter(e => !etiquetasProducto.includes(e));
 
-            const contenido = document.querySelector('.anuncio-second .contenido');
+            const contenido = document.querySelector('.anuncio-tercer .contenido');
             const registrationHTML = `
             <div class="encabezado">
                 <h1 class="titulo">Editar producto</h1>
-                <button class="btn close" onclick="info('${producto.id}');"><i class="fas fa-arrow-right"></i></button>
+                <button class="btn close" onclick="cerrarAnuncioManual('anuncioTercer');"><i class="fas fa-arrow-right"></i></button>
             </div>
             <div class="relleno editar-producto">
                 <p class="normal"><i class='bx bx-chevron-right'></i>Información basica</p>
@@ -824,7 +824,7 @@ function eventosAlmacenGeneral() {
                 }
             });
 
-            mostrarAnuncioSecond();
+            mostrarAnuncioTercer();
 
             // Agregar evento al botón guardar
             const btnEditarProducto = contenido.querySelector('.btn-editar-producto');

@@ -281,7 +281,7 @@ function eventosAlmacenAcopio() {
         const registrationHTML = `
             <div class="encabezado">
                 <h1 class="titulo">Info producto</h1>
-                <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
+                <button class="btn close" onclick="cerrarAnuncioManual('anuncioSecond');"><i class="fas fa-arrow-right"></i></button>
             </div>
             <div class="relleno verificar-registro">
                 <p class="normal"><i class='bx bx-chevron-right'></i>Información básica</p>
