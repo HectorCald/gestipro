@@ -640,6 +640,17 @@ function eventosSalidas() {
                         </div>
                     </div>
                     <div class="entrada">
+                        <i class='bx bx-money'></i>
+                        <div class="input">
+                            <p class="detalle">Estado de pago</p>
+                            <select class="select" required>
+                                <option value="" disabled selected></option>
+                                <option value="pagado">Pagado</option>
+                                <option value="no-pagado">No pagado</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="entrada">
                         <i class='bx bx-comment-detail'></i>
                         <div class="input">
                             <p class="detalle">Observaciones</p>
@@ -780,6 +791,8 @@ function eventosSalidas() {
     async function registrarSalida() {
         const clienteSelect = document.querySelector('.select-cliente');
         const nombreMovimiento = document.querySelector('.nombre-movimiento');
+        const estadoSelect = document.querySelector('.select');  // Nuevo
+
         if (!clienteSelect.value) {
             mostrarNotificacion({
                 message: 'Seleccione un cliente antes de continuar',
@@ -799,6 +812,7 @@ function eventosSalidas() {
         const registroSalida = {
             fechaHora: new Date().toLocaleString(),
             tipo: 'Salida',
+            idProductos: Array.from(carritoSalidas.values()).map(item => item.id).join(';'),  // Nuevo
             productos: Array.from(carritoSalidas.values()).map(item => `${item.producto} - ${item.gramos}gr`).join(';'),
             cantidades: Array.from(carritoSalidas.values()).map(item => item.cantidad).join(';'),
             operario: `${usuarioInfo.nombre} ${usuarioInfo.apellido}`,
@@ -810,8 +824,9 @@ function eventosSalidas() {
             total: 0,
             observaciones: document.querySelector('.observaciones').value || 'Ninguna',
             precios_unitarios: Array.from(carritoSalidas.values())
-            .map(item => parseFloat(item.subtotal).toFixed(2))
-            .join(';')
+                .map(item => parseFloat(item.subtotal).toFixed(2))
+                .join(';'),
+            estado: estadoSelect.value  // Nuevo
         };
 
         registroSalida.total = registroSalida.subtotal - registroSalida.descuento + registroSalida.aumento;

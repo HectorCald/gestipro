@@ -69,6 +69,7 @@ async function obtenerProductos() {
     }
 }
 
+
 function renderInitialHTML() {
 
     const contenido = document.querySelector('.anuncio .contenido');
@@ -139,7 +140,6 @@ export async function mostrarVerificacion() {
     eventosVerificacion();
     
 }
-
 function updateHTMLWithData() {
     // Update etiquetas filter
     const nombresUnicos = [...new Set(registrosProduccion.map(registro => registro.nombre))];
@@ -168,7 +168,6 @@ function updateHTMLWithData() {
     `).join('');
     productosContainer.innerHTML = productosHTML;
 }
-
 
 
 function eventosVerificacion() {
@@ -541,6 +540,7 @@ function eventosVerificacion() {
                             <input class="producto" type="text" value="${registro.producto}" autocomplete="off" placeholder=" " required>
                         </div>
                     </div>
+                    <div class="sugerencias" id="productos-list"></div>
                     <div class="entrada">
                         <i class="ri-scales-line"></i>
                         <div class="input">
@@ -620,7 +620,48 @@ function eventosVerificacion() {
             contenido.innerHTML = registrationHTML;
             mostrarAnuncioSecond();
 
-            // Agregar evento al botón guardar
+            const productoInput = document.querySelector('.entrada .producto');
+            const sugerenciasList = document.querySelector('#productos-list');
+            const gramajeInput = document.querySelector('.entrada .gramaje');
+
+            function normalizarTexto(texto) {
+                return texto
+                    .toLowerCase()
+                    .normalize("NFD")
+                    .replace(/[\u0300-\u036f]/g, "") // Eliminar acentos
+                    .replace(/[-\s]+/g, ""); // Eliminar guiones y espacios
+            }
+            productoInput.addEventListener('input', (e) => {
+                const valor = normalizarTexto(e.target.value);
+        
+                sugerenciasList.innerHTML = '';
+        
+                if (valor) {
+                    const sugerencias = productosGlobal.filter(p =>
+                        normalizarTexto(p.producto).includes(valor)
+                    ).slice(0, 5);
+        
+                    if (sugerencias.length) {
+                        sugerenciasList.style.display = 'flex';
+                        sugerencias.forEach(p => {
+                            const div = document.createElement('div');
+                            div.classList.add('item');
+                            div.textContent = p.producto + ' ' + p.gramos + 'gr.';
+                            div.onclick = () => {
+                                productoInput.value = p.producto;
+                                sugerenciasList.style.display = 'none';
+                                gramajeInput.value = p.gramos;
+                                window.idPro = p.id;
+                                const event = new Event('focus');
+                                gramajeInput.dispatchEvent(event);
+                            };
+                            sugerenciasList.appendChild(div);
+                        });
+                    }
+                } else {
+                    sugerenciasList.style.display = 'none';
+                }
+            });
             const btnEditar = contenido.querySelector('.btn-editar-registro');
             btnEditar.addEventListener('click', confirmarEdicion);
 

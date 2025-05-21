@@ -672,6 +672,7 @@ function eventosIngresos() {
         const registroIngreso = {
             fechaHora: new Date().toLocaleString(),
             tipo: 'Ingreso',
+            idProductos: Array.from(carritoSalidas.values()).map(item => item.id).join(';'),  // Nuevo
             productos: Array.from(carritoSalidas.values()).map(item => `${item.producto} - ${item.gramos}gr`).join(';'),
             cantidades: Array.from(carritoSalidas.values()).map(item => item.cantidad).join(';'),
             operario: `${usuarioInfo.nombre} ${usuarioInfo.apellido}`,
@@ -684,7 +685,8 @@ function eventosIngresos() {
             observaciones: document.querySelector('.Observaciones').value || 'Ninguna',
             precios_unitarios: Array.from(carritoSalidas.values())
                 .map(item => parseFloat(item.subtotal).toFixed(2))
-                .join(';')
+                .join(';'),
+            estado: ''  // Nuevo
         };
 
         registroIngreso.total = registroIngreso.subtotal - registroIngreso.descuento + registroIngreso.aumento;

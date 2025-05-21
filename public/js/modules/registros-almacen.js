@@ -312,7 +312,8 @@ function eventosRegistrosAlmacen() {
                     registroData.nombre_movimiento,
                     registroData.tipo,
                     registroData.fecha_hora,
-                    registroData.cliente_proovedor
+                    registroData.cliente_proovedor,
+                    registroData.estado
                 ].filter(Boolean).join(' ').toLowerCase();
                 mostrar = normalizarTexto(textoRegistro).includes(busqueda);
             }

@@ -1372,7 +1372,7 @@ app.get('/obtener-movimientos-almacen', requireAuth, async (req, res) => {
 
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId: spreadsheetId,
-            range: 'Movimientos alm-gral!A2:N' // Columns A through H
+            range: 'Movimientos alm-gral!A2:P' // Columns A through H
         });
 
         const rows = response.data.values || [];
@@ -1382,17 +1382,19 @@ app.get('/obtener-movimientos-almacen', requireAuth, async (req, res) => {
             id: row[0] || '',
             fecha_hora: row[1] || '',
             tipo: row[2] || '',
-            productos: row[3] || '',
-            cantidades: row[4] || '',
-            operario: row[5] || '',
-            cliente_proovedor: row[6] || '',
-            nombre_movimiento: row[7] || '',
-            subtotal: row[8] || '',
-            descuento: row[9] || '',
-            aumento: row[10] || '',
-            total: row[11] || '',
-            observaciones: row[12] || '',
-            precios_unitarios: row[13] || ''
+            idProductos: row[3] || '',
+            productos: row[4] || '',
+            cantidades: row[5] || '',
+            operario: row[6] || '',
+            cliente_proovedor: row[7] || '',
+            nombre_movimiento: row[8] || '',
+            subtotal: row[9] || '',
+            descuento: row[10] || '',
+            aumento: row[11] || '',
+            total: row[12] || '',
+            observaciones: row[13] || '',
+            precios_unitarios: row[14] || '',
+            estado: row[15] || ''
         }));
 
         res.json({
@@ -1409,58 +1411,63 @@ app.get('/obtener-movimientos-almacen', requireAuth, async (req, res) => {
     }
 });
 app.post('/registrar-movimiento', requireAuth, async (req, res) => {
-    const { spreadsheetId } = req.user;
-    const { fechaHora, tipo, productos, cantidades, operario, clienteId, nombre_movimiento, subtotal, descuento, aumento, total, observaciones, precios_unitarios } = req.body;
-
     try {
+        const { spreadsheetId } = req.user;
+        const movimiento = req.body;
         const sheets = google.sheets({ version: 'v4', auth });
 
-        // Generar nuevo ID
-        const lastIdResponse = await sheets.spreadsheets.values.get({
+        // Get current movements to calculate next ID
+        const response = await sheets.spreadsheets.values.get({
             spreadsheetId,
-            range: 'Movimientos alm-gral!A2:A'
+            range: 'Movimientos alm-gral!A2:P'  // Actualizado para incluir la nueva columna
         });
 
-        const lastId = lastIdResponse.data.values ?
-            Math.max(...lastIdResponse.data.values.map(row => parseInt(row[0]?.split('-')[1]) || 0)) : 0;
-        const newId = `MAG-${lastId + 1}`;
+        const rows = response.data.values || [];
+        const lastId = rows.length > 0 ?
+            Math.max(...rows.map(row => parseInt(row[0].split('-')[1]))) : 0;
+        const newId = `MAG-${(lastId + 1).toString().padStart(3, '0')}`;
 
-        // Registrar movimiento
+        // Prepare new movement row
         const newMovimiento = [
-            newId,
-            fechaHora,
-            tipo,
-            productos,
-            cantidades,
-            operario,
-            clienteId,
-            nombre_movimiento,
-            subtotal,
-            descuento,
-            aumento,
-            total,
-            observaciones,
-            precios_unitarios
+            newId,                    // ID
+            movimiento.fechaHora,     // FECHA-HORA
+            movimiento.tipo,          // TIPO
+            movimiento.idProductos,   // ID-PRODUCTOS (Nuevo)
+            movimiento.productos,     // PRODUCTOS
+            movimiento.cantidades,    // CANTIDADES
+            movimiento.operario,      // OPERARIO
+            movimiento.clienteId,     // CLIENTE/PROOVEDOR
+            movimiento.nombre_movimiento, // NOMBRE DEL MOVIMIENTO
+            movimiento.subtotal,      // SUBTOTAL
+            movimiento.descuento,     // DESCUENTO
+            movimiento.aumento,       // AUMENTO
+            movimiento.total,         // TOTAL
+            movimiento.observaciones, // OBSERVACIONES
+            movimiento.precios_unitarios, // PRECIOS-UNITARIOS
+            movimiento.estado         // ESTADO (Nuevo)
         ];
 
+        // Add new movement
         await sheets.spreadsheets.values.append({
             spreadsheetId,
-            range: 'Movimientos alm-gral!A2:N',
+            range: 'Movimientos alm-gral!A2:P',
             valueInputOption: 'USER_ENTERED',
-            resource: { values: [newMovimiento] }
+            insertDataOption: 'INSERT_ROWS',
+            resource: {
+                values: [newMovimiento]
+            }
         });
 
         res.json({
             success: true,
-            id: newId,
-            message: 'Movimiento registrado correctamente'
+            message: 'Movimiento registrado correctamente',
+            id: newId
         });
-
     } catch (error) {
-        console.error('Error en registrar movimiento:', error);
+        console.error('Error al registrar movimiento:', error);
         res.status(500).json({
             success: false,
-            error: `Error interno: ${error.message || 'Consulte los logs para más detalles'}`
+            error: 'Error al registrar el movimiento'
         });
     }
 });

@@ -39,6 +39,8 @@ export async function mostrarAnuncioSecond() {
 
         window.removeEventListener('popstate', handlePopState);
         window.addEventListener('popstate', handlePopState);
+
+        configuracionesEntrada();
 }
 export async function ocultarAnuncio() {
     const anuncio = document.querySelector('.anuncio');
