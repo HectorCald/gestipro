@@ -39,7 +39,7 @@ function renderInitialHTML() {
     const initialHTML = `  
         <div class="encabezado">
             <h1 class="titulo">Almacén General</h1>
-            <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
+            <button class="btn close" onclick="cerrarAnuncioManual('anuncio')"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno almacen-general">
             <div class="entrada">
@@ -187,7 +187,7 @@ function eventosProovedores() {
         const registrationHTML = `
             <div class="encabezado">
                 <h1 class="titulo">Info proovedor</h1>
-                <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
+                <button class="btn close" onclick="cerrarAnuncioManual('anuncioSecond')"><i class="fas fa-arrow-right"></i></button>
             </div>
             <div class="relleno verificar-registro">
                 <p class="normal"><i class='bx bx-chevron-right'></i>Información del proovedor</p>
@@ -218,11 +218,11 @@ function eventosProovedores() {
 
         async function eliminar(proovedor) {
 
-            const contenido = document.querySelector('.anuncio-second .contenido');
+            const contenido = document.querySelector('.anuncio-tercer .contenido');
             const registrationHTML = `
                 <div class="encabezado">
                     <h1 class="titulo">Eliminar cliente</h1>
-                    <button class="btn close" onclick="info('${proovedor.id}');"><i class="fas fa-arrow-right"></i></button>
+                    <button class="btn close" onclick="cerrarAnuncioManual('anuncioTercer')"><i class="fas fa-arrow-right"></i></button>
                 </div>
                 <div class="relleno">
                     <p class="normal"><i class='bx bx-chevron-right'></i> Información del proovedor</p>
@@ -247,7 +247,7 @@ function eventosProovedores() {
                 </div>
             `;
             contenido.innerHTML = registrationHTML;
-            mostrarAnuncioSecond();
+            mostrarAnuncioTercer();
     
             const btnEliminarProovedor = contenido.querySelector('.btn-eliminar-proovedor-confirmar');
             btnEliminarProovedor.addEventListener('click', async () => {
@@ -295,7 +295,7 @@ function eventosProovedores() {
         }
         async function editar(proovedor) {
     
-            const contenido = document.querySelector('.anuncio-second .contenido');
+            const contenido = document.querySelector('.anuncio-tercer .contenido');
             const registrationHTML = `
             <div class="encabezado">
                 <h1 class="titulo">Editar cliente</h1>
@@ -345,7 +345,7 @@ function eventosProovedores() {
             </div>
         `;
             contenido.innerHTML = registrationHTML;
-            mostrarAnuncioSecond();
+            mostrarAnuncioTercer();
     
             const btnGuardarProveedor = contenido.querySelector('.btn-guardar-proovedor');
             btnGuardarProveedor.addEventListener('click', async () => {

@@ -136,7 +136,7 @@ function mostrarCuenta(nombre, apellido, email, foto) {
     const registrationHTML = `
         <div class="encabezado">
             <h1 class="titulo">Tu cuenta</h1>
-            <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
+            <button class="btn close" onclick="cerrarAnuncioManual('anuncio')"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno">
             <div class="foto-perfil">
@@ -384,7 +384,7 @@ function mostrarConfiguraciones() {
     const registrationHTML = `
         <div class="encabezado">
             <h1 class="titulo">Tus configuraciones</h1>
-            <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
+            <button class="btn close" onclick="cerrarAnuncioManual('anuncio')"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno">
         <p class="normal"><i class='bx bx-chevron-right'></i> Tema</p>

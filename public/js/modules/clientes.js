@@ -40,7 +40,7 @@ function renderInitialHTML() {
     const initialHTML = `  
         <div class="encabezado">
             <h1 class="titulo">Almacén General</h1>
-            <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
+            <button class="btn close" onclick="cerrarAnuncioManual('anuncio')"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno almacen-general">
             <div class="entrada">
@@ -185,7 +185,7 @@ function eventosClientes() {
         const registrationHTML = `
             <div class="encabezado">
                 <h1 class="titulo">${cliente.nombre}</h1>
-                <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
+                <button class="btn close" onclick="cerrarAnuncioManual('anuncio');"><i class="fas fa-arrow-right"></i></button>
             </div>
             <div class="relleno verificar-registro">
                 <p class="normal"><i class='bx bx-chevron-right'></i>Información del cliente</p>
@@ -216,11 +216,11 @@ function eventosClientes() {
 
         async function eliminar(cliente) {
     
-            const contenido = document.querySelector('.anuncio-second .contenido');
+            const contenido = document.querySelector('.anuncio-tercer .contenido');
             const registrationHTML = `
                 <div class="encabezado">
                     <h1 class="titulo">Eliminar cliente</h1>
-                    <button class="btn close" onclick="info('${cliente.id}');"><i class="fas fa-arrow-right"></i></button>
+                    <button class="btn close" onclick="cerrarAnuncioManual('anuncioTercer');"><i class="fas fa-arrow-right"></i></button>
                 </div>
                 <div class="relleno">
                     <p class="normal"><i class='bx bx-chevron-right'></i> Información del cliente</p>
@@ -245,7 +245,7 @@ function eventosClientes() {
                 </div>
             `;
             contenido.innerHTML = registrationHTML;
-            mostrarAnuncioSecond();
+            mostrarAnuncioTercer();
     
             const btnEliminarCliente = contenido.querySelector('.btn-eliminar-cliente-confirmar');
             btnEliminarCliente.addEventListener('click', async () => {
@@ -293,11 +293,11 @@ function eventosClientes() {
         }
         async function editar(cliente) {
     
-            const contenido = document.querySelector('.anuncio-second .contenido');
+            const contenido = document.querySelector('.anuncio-tercer .contenido');
             const registrationHTML = `
             <div class="encabezado">
                 <h1 class="titulo">Editar cliente</h1>
-                <button class="btn close" onclick="info('${cliente.id}');"><i class="fas fa-arrow-right"></i></button>
+                <button class="btn close" onclick="cerrarAnuncioManual('anuncioTercer');"><i class="fas fa-arrow-right"></i></button>
             </div>
             <div class="relleno">
                 <p class="normal"><i class='bx bx-chevron-right'></i> Información del cliente</p>
@@ -343,7 +343,7 @@ function eventosClientes() {
             </div>
         `;
             contenido.innerHTML = registrationHTML;
-            mostrarAnuncioSecond();
+            mostrarAnuncioTercer();
     
             const btnGuardarCliente = contenido.querySelector('.btn-guardar-cliente');
             btnGuardarCliente.addEventListener('click', async () => {

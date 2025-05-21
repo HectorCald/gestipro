@@ -109,7 +109,7 @@ function renderInitialHTML() {
     const initialHTML = `  
         <div class="encabezado">
             <h1 class="titulo">Registros almacen</h1>
-            <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
+            <button class="btn close" onclick="cerrarAnuncioManual('anuncio')"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno almacen-general">
             <div class="entrada">
@@ -411,7 +411,7 @@ function eventosRegistrosAlmacen() {
         const registrationHTML = `
         <div class="encabezado">
             <h1 class="titulo">${registro.nombre_movimiento}</h1>
-            <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
+            <button class="btn close" onclick="cerrarAnuncioManual('anuncioSecond')"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno verificar-registro">
             <p class="normal"><i class='bx bx-chevron-right'></i>Información básica</p>
@@ -475,11 +475,11 @@ function eventosRegistrosAlmacen() {
 
 
         function eliminar(registro) { // Changed 
-            const contenido = document.querySelector('.anuncio-second .contenido');
+            const contenido = document.querySelector('.anuncio-tercer .contenido');
             const registrationHTML = `
             <div class="encabezado">
                 <h1 class="titulo">Eliminar registro</h1>
-               <button class="btn close" onclick="info('${registro.id}');"><i class="fas fa-arrow-right"></i></button>
+               <button class="btn close" onclick="cerrarAnuncioManual('anuncioTercer')"><i class="fas fa-arrow-right"></i></button>
             </div>
             <div class="relleno">
                 <p class="normal"><i class='bx bx-chevron-right'></i>Información básica</p>
@@ -508,7 +508,7 @@ function eventosRegistrosAlmacen() {
             </div>
         `;
             contenido.innerHTML = registrationHTML;
-            mostrarAnuncioSecond();
+            mostrarAnuncioTercer();
 
             // Agregar evento al botón guardar
             const btnEliminar = contenido.querySelector('.btn-eliminar-registro');
@@ -568,11 +568,11 @@ function eventosRegistrosAlmacen() {
             }
         }
         function anular(registro) {
-            const contenido = document.querySelector('.anuncio-second .contenido');
+            const contenido = document.querySelector('.anuncio-tercer .contenido');
             const registrationHTML = `
             <div class="encabezado">
                 <h1 class="titulo">Anular registro</h1>
-                <button class="btn close" onclick="info('${registro.id}');"><i class="fas fa-arrow-right"></i></button>
+                <button class="btn close" onclick="cerrarAnuncioManual('anuncioTercer')"><i class="fas fa-arrow-right"></i></button>
             </div>
             <div class="relleno">
                 <p class="normal"><i class='bx bx-chevron-right'></i>Información básica</p>

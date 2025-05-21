@@ -117,7 +117,7 @@ function eventosRegistrosConteo() {
         const infoHTML = `
         <div class="encabezado">
             <h1 class="titulo">Detalles del conteo</h1>
-            <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
+            <button class="btn close" onclick="cerrarAnuncioManual('anuncioSecond')"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno verificar-registro">
             <p class="normal"><i class='bx bx-chevron-right'></i>Información básica</p>
@@ -160,11 +160,11 @@ function eventosRegistrosConteo() {
 
 
         function eliminar(registro) {
-            const contenido = document.querySelector('.anuncio-second .contenido');
+            const contenido = document.querySelector('.anuncio-tercer .contenido');
             const eliminarHTML = `
                 <div class="encabezado">
                     <h1 class="titulo">Eliminar Conteo</h1>
-                    <button class="btn close" onclick="info('${registro.id}');"><i class="fas fa-arrow-right"></i></button>
+                    <button class="btn close" onclick="cerrarAnuncioManual('anuncioTercer')"><i class="fas fa-arrow-right"></i></button>
                 </div>
                 <div class="relleno">
                     <p class="normal"><i class='bx bx-chevron-right'></i>Información del conteo a eliminar</p>
@@ -189,7 +189,7 @@ function eventosRegistrosConteo() {
             `;
 
             contenido.innerHTML = eliminarHTML;
-            mostrarAnuncioSecond();
+            mostrarAnuncioTercer();
 
             document.getElementById('confirmar-eliminacion').addEventListener('click', async () => {
                 const motivo = document.querySelector('.motivo-eliminacion').value.trim();
@@ -240,11 +240,11 @@ function eventosRegistrosConteo() {
         }
 
         function editar(registro) {
-            const contenido = document.querySelector('.anuncio-second .contenido');
+            const contenido = document.querySelector('.anuncio-tercer .contenido');
             const editarHTML = `
                 <div class="encabezado">
                     <h1 class="titulo">Editar Conteo</h1>
-                    <button class="btn close" onclick="info('${registro.id}');"><i class="fas fa-arrow-right"></i></button>
+                    <button class="btn close" onclick="cerrarAnuncioManual('anuncioTercer')"><i class="fas fa-arrow-right"></i></button>
                 </div>
                 <div class="relleno">
                     <p class="normal"><i class='bx bx-chevron-right'></i>Información basica</p>
@@ -360,7 +360,7 @@ function renderInitialHTML() {
     const initialHTML = `  
         <div class="encabezado">
             <h1 class="titulo">Almacén General</h1>
-            <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
+            <button class="btn close" onclick="cerrarAnuncioManual('anuncio')"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno almacen-general">
             <div class="entrada">

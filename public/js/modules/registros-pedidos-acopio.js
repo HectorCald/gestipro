@@ -80,7 +80,7 @@ function renderInitialHTML() {
     const initialHTML = `  
         <div class="encabezado">
             <h1 class="titulo">Pedidos</h1>
-            <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
+            <button class="btn close" onclick="cerrarAnuncioManual('anuncio')"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno almacen-general">
             <div class="entrada">
@@ -352,7 +352,7 @@ function eventosPedidos() {
         const registrationHTML = `
         <div class="encabezado">
             <h1 class="titulo">${registro.producto}</h1>
-            <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
+            <button class="btn close" onclick="cerrarAnuncioManual('anuncioSecond')"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno verificar-registro">
             <p class="normal"><i class='bx bx-chevron-right'></i> Información del pedido</p>
@@ -421,11 +421,11 @@ function eventosPedidos() {
 
         function eliminar(registro) {
 
-            const contenido = document.querySelector('.anuncio-second .contenido');
+            const contenido = document.querySelector('.anuncio-tercer .contenido');
             const registrationHTML = `
             <div class="encabezado">
                 <h1 class="titulo">Eliminar registro</h1>
-                <button class="btn close" onclick="info('${registro.id}');"><i class="fas fa-arrow-right"></i></button>
+                <button class="btn close" onclick="cerrarAnuncioManual('tercer')"><i class="fas fa-arrow-right"></i></button>
             </div>
             <div class="relleno">
                 <p class="normal"><i class='bx bx-chevron-right'></i> Información básica</p>
@@ -456,7 +456,7 @@ function eventosPedidos() {
             </div>
         `;
             contenido.innerHTML = registrationHTML;
-            mostrarAnuncioSecond();
+            mostrarAnuncioTercer();
 
             // Agregar evento al botón guardar
             const btnEliminar = contenido.querySelector('.btn-eliminar-registro');
@@ -518,11 +518,11 @@ function eventosPedidos() {
         }
         function editar(registro) {
 
-            const contenido = document.querySelector('.anuncio-second .contenido');
+            const contenido = document.querySelector('.anuncio-tercer .contenido');
             const registrationHTML = `
             <div class="encabezado">
                 <h1 class="titulo">Editar registro</h1>
-                <button class="btn close" onclick="info('${registro.id}');"><i class="fas fa-arrow-right"></i></button>
+                <button class="btn close" onclick="cerrarAnuncioManual('anuncioTercer')"><i class="fas fa-arrow-right"></i></button>
             </div>
             <div class="relleno editar-produccion">
                 <p class="normal"><i class='bx bx-chevron-right'></i>Información basica</p>
@@ -610,7 +610,7 @@ function eventosPedidos() {
             </div>
         `;
             contenido.innerHTML = registrationHTML;
-            mostrarAnuncioSecond();
+            mostrarAnuncioTercer();
 
             // Agregar evento al botón guardar
             const btnEditar = contenido.querySelector('.btn-editar-registro');
@@ -691,11 +691,11 @@ function eventosPedidos() {
             }
         }
         function entregar(registro) {
-            const contenido = document.querySelector('.anuncio-second .contenido');
+            const contenido = document.querySelector('.anuncio-tercer .contenido');
             const registrationHTML = `
         <div class="encabezado">
             <h1 class="titulo">Entregar Pedido</h1>
-            <button class="btn close" onclick="info('${registro.id}');"><i class="fas fa-arrow-right"></i></button>
+            <button class="btn close" onclick="cerrarAnuncioManual('anuncioTercer')"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno verificar-registro">
             <p class="normal"><i class='bx bx-chevron-right'></i> Información del pedido</p>
@@ -788,7 +788,7 @@ function eventosPedidos() {
     `;
 
             contenido.innerHTML = registrationHTML;
-            mostrarAnuncioSecond();
+            mostrarAnuncioTercer();
 
 
             const btnConfirmar = contenido.querySelector('.btn-confirmar-entrega');
@@ -867,11 +867,11 @@ function eventosPedidos() {
         }
         function ingresar(registro) {
 
-            const contenido = document.querySelector('.anuncio-second .contenido');
+            const contenido = document.querySelector('.anuncio-tercer .contenido');
             const registrationHTML = `
             <div class="encabezado">
                 <h1 class="titulo">Verificar registro</h1>
-                <button class="btn close" onclick="info('${registro.id}');"><i class="fas fa-arrow-right"></i></button>
+                <button class="btn close" onclick="cerrarAnuncioManual('anuncioTercer')"><i class="fas fa-arrow-right"></i></button>
             </div>
             <div class="relleno verificar-registro">
                <p class="normal"><i class='bx bx-chevron-right'></i> Información básica</p>
@@ -909,7 +909,7 @@ function eventosPedidos() {
             </div>
             `;
             contenido.innerHTML = registrationHTML;
-            mostrarAnuncioSecond();
+            mostrarAnuncioTercer();
 
             // Agregar evento al botón guardar
             const btnVerificar = contenido.querySelector('.btn-verificar-registro');

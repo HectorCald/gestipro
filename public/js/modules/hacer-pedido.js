@@ -105,7 +105,7 @@ function renderInitialHTML() {
     const initialHTML = `  
         <div class="encabezado">
             <h1 class="titulo">Almacén General</h1>
-            <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
+            <button class="btn close" onclick="cerrarAnuncioManual('anuncio')"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno almacen-general">
             <div class="entrada">
@@ -465,7 +465,7 @@ function eventosPedidos() {
         anuncioSecond.innerHTML = `
             <div class="encabezado">
                 <h1 class="titulo">Carrito de Pedidos</h1>
-                <button class="btn close" onclick="ocultarAnuncioSecond();"><i class="fas fa-arrow-right"></i></button>
+                <button class="btn close" onclick="cerrarAnuncioManual('anuncioSecond')"><i class="fas fa-arrow-right"></i></button>
                 <button class="btn filtros limpiar"><i class="fas fa-broom"></i></button>
             </div>
             <div class="relleno">

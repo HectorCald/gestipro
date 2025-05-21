@@ -37,7 +37,7 @@ export async function mostrarFormularioProduccion() {
     const registrationHTML = `
         <div class="encabezado">
             <h1 class="titulo">Nueva producción</h1>
-            <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
+            <button class="btn close" onclick="cerrarAnuncioManual('anuncio')"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno">
             <div class="entrada">
