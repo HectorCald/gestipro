@@ -1026,7 +1026,8 @@ function eventosAlmacenGeneral() {
                     </div>
                 </div>
 
-            <p class="normal"><i class='bx bx-chevron-right'></i>Detalles adicionales</p>
+            <p class="normal"><i class='bx bx-chevron-right'></i>Detalles del producto</p>
+            <div class="campo-horizontal">
                 <div class="entrada">
                     <i class='bx bx-package'></i>
                     <div class="input">
@@ -1037,10 +1038,12 @@ function eventosAlmacenGeneral() {
                 <div class="entrada">
                     <i class='bx bx-barcode'></i>
                     <div class="input">
-                        <p class="detalle">Código de barras</p>
+                        <p class="detalle">Código</p>
                         <input class="codigo-barras" type="number" autocomplete="off" placeholder=" " required>
                     </div>
                 </div>
+            </div>
+             <div class="campo-horizontal">
                 <div class="entrada">
                     <i class='bx bx-list-ul'></i>
                     <div class="input">
@@ -1051,10 +1054,13 @@ function eventosAlmacenGeneral() {
                 <div class="entrada">
                     <i class='bx bx-package'></i>
                     <div class="input">
-                        <p class="detalle">Cantidad por grupo</p>
+                        <p class="detalle">U. por Tira</p>
                         <input class="cantidad-grupo" type="number"  autocomplete="off" placeholder=" " required>
                     </div>
                 </div>
+            </div>
+                
+                
             <p class="normal"><i class='bx bx-chevron-right'></i>Etiquetas</p>
             <div class="etiquetas-container">
                 <div class="etiquetas-actuales">
