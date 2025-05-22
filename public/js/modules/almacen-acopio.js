@@ -82,6 +82,25 @@ function eventosAlmacenAcopio() {
 
     btnCrearProducto.addEventListener('click', crearProducto);
     btnEtiquetas.addEventListener('click', gestionarEtiquetas);
+    const contenedor = document.querySelector('.relleno');
+    contenedor.addEventListener('scroll', () => {
+        const yaExiste = contenedor.querySelector('.scroll-top');
+
+        if (contenedor.scrollTop > 100) {
+            if (!yaExiste) {
+                const boton = document.createElement('button');
+                boton.className = 'scroll-top';
+                boton.innerHTML = '<i class="fas fa-arrow-up"></i>';
+                boton.onclick = () => scrollToTop('.relleno');
+                contenedor.appendChild(boton);
+            }
+        } else {
+            // Si vuelve arriba, ocultamos el botón si existe
+            if (yaExiste) {
+                yaExiste.remove();
+            }
+        }
+    });
 
     const items = document.querySelectorAll('.registro-item');
 
@@ -1029,7 +1048,7 @@ function renderInitialHTML() {
                 <button class="btn-filtro" title="Menor a mayor"><i class='bx bx-sort-up'></i></button>
                 <button class="btn-filtro"><i class='bx bx-sort-a-z'></i></button>
                 <button class="btn-filtro"><i class='bx bx-sort-z-a'></i></button>
-                <button class="btn-filtro" title="Bruto">Bruto</button>
+                <button class="btn-filtro activado" title="Bruto">Bruto</button>
                 <button class="btn-filtro" title="Prima">Prima</button>
             </div>
             <div class="productos-container">

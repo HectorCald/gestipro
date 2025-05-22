@@ -104,7 +104,7 @@ function renderInitialHTML() {
     const contenido = document.querySelector('.anuncio .contenido');
     const initialHTML = `  
         <div class="encabezado">
-            <h1 class="titulo">Almacén General</h1>
+            <h1 class="titulo">Nuevo pedido</h1>
             <button class="btn close" onclick="cerrarAnuncioManual('anuncio')"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno almacen-general">
@@ -208,6 +208,25 @@ function eventosPedidos() {
     const botonesCantidad = document.querySelectorAll('.filtros-opciones.cantidad-filter .btn-filtro');
     const inputBusqueda = document.querySelector('.buscar-producto-acopio');
     const botonFlotante = document.createElement('button');
+    const contenedor = document.querySelector('.relleno');
+    contenedor.addEventListener('scroll', () => {
+        const yaExiste = contenedor.querySelector('.scroll-top');
+
+        if (contenedor.scrollTop > 100) {
+            if (!yaExiste) {
+                const boton = document.createElement('button');
+                boton.className = 'scroll-top';
+                boton.innerHTML = '<i class="fas fa-arrow-up"></i>';
+                boton.onclick = () => scrollToTop('.relleno');
+                contenedor.appendChild(boton);
+            }
+        } else {
+            // Si vuelve arriba, ocultamos el botón si existe
+            if (yaExiste) {
+                yaExiste.remove();
+            }
+        }
+    });
 
     let pesoMostrado = 'bruto';
     let filtroNombreActual = 'Todos';

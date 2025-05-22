@@ -22,7 +22,7 @@ function calcularNivelReal(estadoDOM) {
 }
 function cerrarAnunciosPorNivel(nivelObjetivo) {
     const estadoDOM = obtenerEstadoRealDOM();
-    
+
     // Cerrar anuncios según el nivel objetivo
     if (estadoDOM.tercer && nivelObjetivo < 3) {
         ocultarAnuncioTercerFisico();
@@ -33,7 +33,7 @@ function cerrarAnunciosPorNivel(nivelObjetivo) {
     if (estadoDOM.normal && nivelObjetivo < 1) {
         ocultarAnuncioFisico();
     }
-    
+
     // Actualizar estado interno
     actualizarEstadoInterno();
 }
@@ -82,7 +82,7 @@ function ocultarAnuncioTercerFisico() {
 }
 function actualizarEstadoInterno() {
     const estadoDOM = obtenerEstadoRealDOM();
-    
+
     estadoAnuncios.anuncioVisible = estadoDOM.normal;
     estadoAnuncios.anuncioSecondVisible = estadoDOM.second;
     estadoAnuncios.anuncioTercerVisible = estadoDOM.tercer;
@@ -90,16 +90,16 @@ function actualizarEstadoInterno() {
 }
 function sincronizarHistorial(nivelDestino, forzarReemplazo = false) {
     if (estadoAnuncios.sincronizandoHistorial) return;
-    
+
     estadoAnuncios.sincronizandoHistorial = true;
-    
+
     try {
         const estadoHistorial = history.state?.nivel || 0;
-        
+
         if (estadoHistorial !== nivelDestino || forzarReemplazo) {
             // Si el nivel del historial es mayor, necesitamos ir hacia atrás
             const diferencia = estadoHistorial - nivelDestino;
-            
+
             if (diferencia > 0) {
                 estadoAnuncios.ignorarProximoPopstate = true;
                 history.go(-diferencia);
@@ -123,7 +123,7 @@ window.addEventListener('popstate', (event) => {
         estadoAnuncios.ignorarProximoPopstate = false;
         return;
     }
-    
+
     // Si estamos sincronizando, salir
     if (estadoAnuncios.sincronizandoHistorial) {
         return;
@@ -132,7 +132,7 @@ window.addEventListener('popstate', (event) => {
     const nivelDestino = event.state?.nivel || 0;
     const estadoDOM = obtenerEstadoRealDOM();
     const nivelActualDOM = calcularNivelReal(estadoDOM);
-    
+
     // Solo proceder si realmente necesitamos cerrar algo
     if (nivelActualDOM > nivelDestino) {
         cerrarAnunciosPorNivel(nivelDestino);
@@ -140,11 +140,11 @@ window.addEventListener('popstate', (event) => {
 });
 export async function mostrarAnuncio() {
     const anuncio = document.querySelector('.anuncio');
-    
+
     if (anuncio && anuncio.style.display !== 'flex') {
         anuncio.style.display = 'flex';
         actualizarEstadoInterno();
-        
+
         // Solo agregar al historial si realmente cambiamos de nivel
         if (estadoAnuncios.nivelActual === 1 && (history.state?.nivel || 0) < 1) {
             history.pushState({ nivel: 1, tipo: 'anuncio' }, '');
@@ -153,11 +153,11 @@ export async function mostrarAnuncio() {
 }
 export async function mostrarAnuncioSecond() {
     const anuncio = document.querySelector('.anuncio-second');
-    
+
     if (anuncio && anuncio.style.display !== 'flex') {
         anuncio.style.display = 'flex';
         actualizarEstadoInterno();
-        
+
         // Solo agregar al historial si realmente cambiamos de nivel
         if (estadoAnuncios.nivelActual === 2 && (history.state?.nivel || 0) < 2) {
             history.pushState({ nivel: 2, tipo: 'anuncioSecond' }, '');
@@ -167,11 +167,11 @@ export async function mostrarAnuncioSecond() {
 }
 export async function mostrarAnuncioTercer() {
     const anuncio = document.querySelector('.anuncio-tercer');
-    
+
     if (anuncio && anuncio.style.display !== 'flex') {
         anuncio.style.display = 'flex';
         actualizarEstadoInterno();
-        
+
         // Solo agregar al historial si realmente cambiamos de nivel
         if (estadoAnuncios.nivelActual === 3 && (history.state?.nivel || 0) < 3) {
             history.pushState({ nivel: 3, tipo: 'anuncioTercer' }, '');
@@ -194,14 +194,14 @@ export async function ocultarAnuncioTercer() {
     let nivelDestino = 0;
     if (estadoDOM.second) nivelDestino = 2;
     else if (estadoDOM.normal) nivelDestino = 1;
-    
+
     cerrarAnunciosPorNivel(nivelDestino);
     sincronizarHistorial(nivelDestino, true);
 }
 export function cerrarAnuncioManual(tipo) {
     const estadoDOM = obtenerEstadoRealDOM();
     let nivelDestino = 0;
-    
+
     switch (tipo) {
         case 'anuncioTercer':
             if (estadoDOM.tercer) {
@@ -209,14 +209,14 @@ export function cerrarAnuncioManual(tipo) {
                 ocultarAnuncioTercerFisico();
             }
             break;
-            
+
         case 'anuncioSecond':
             if (estadoDOM.second) {
                 nivelDestino = estadoDOM.normal ? 1 : 0;
                 ocultarAnuncioSecondFisico();
             }
             break;
-            
+
         case 'anuncio':
             // Cerrar todos
             ocultarAnuncioTercerFisico();
@@ -225,7 +225,7 @@ export function cerrarAnuncioManual(tipo) {
             nivelDestino = 0;
             break;
     }
-    
+
     actualizarEstadoInterno();
     sincronizarHistorial(nivelDestino, true);
 }
@@ -685,3 +685,17 @@ export function exportarArchivos(rExp, registrosAExportar) {
         duration: 3000
     });
 }
+
+
+export function scrollToTop(view) {
+    const view2 = document.querySelector(view);
+    if (view2 && view2.scrollTo) {
+        view2.scrollTo({
+            top: 0,
+            behavior: 'smooth' // Esto hace que el scroll sea suave
+        });
+    } else {
+        console.warn('El parámetro "view" no es un contenedor válido.');
+    }
+}
+

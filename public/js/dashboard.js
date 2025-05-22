@@ -1,8 +1,8 @@
-import { crearNotificacion, mostrarNotificacion, mostrarAnuncio, ocultarAnuncio, mostrarCarga, ocultarCarga, configuracionesEntrada, mostrarAnuncioSecond, ocultarAnuncioSecond, registrarHistorial, exportarArchivos, cerrarAnuncioManual, mostrarAnuncioTercer, ocultarAnuncioTercer} from './modules/componentes.js'
-import { crearNav} from './modules/nav.js'
+import { crearNotificacion, mostrarNotificacion, mostrarAnuncio, ocultarAnuncio, mostrarCarga, ocultarCarga, configuracionesEntrada, mostrarAnuncioSecond, ocultarAnuncioSecond, registrarHistorial, exportarArchivos, cerrarAnuncioManual, mostrarAnuncioTercer, ocultarAnuncioTercer, scrollToTop } from './modules/componentes.js'
+import { crearNav } from './modules/nav.js'
 import { crearHome, mostrarHome } from './modules/home.js';
 import { crearPerfil } from './modules/perfil.js';
-import { crearNotificaciones }from './modules/notificaciones.js'
+import { crearNotificaciones } from './modules/notificaciones.js'
 import { flotante } from './modules/flotante.js';
 import { mostrarFormularioProduccion } from './modules/formulario-produccion.js'
 import { mostrarVerificacion } from './modules/verificar-registros.js'
@@ -14,7 +14,7 @@ import { mostrarProovedores } from './modules/proovedores.js';
 import { mostrarHacerPedido } from './modules/hacer-pedido.js';
 import { mostrarAlmacenAcopio } from './modules/almacen-acopio.js';
 import { mostrarMovimientosAlmacen } from './modules/registros-almacen.js';
-import { mostrarMisRegistros} from './modules/registros-produccion.js';
+import { mostrarMisRegistros } from './modules/registros-produccion.js';
 import { mostrarConteo } from './modules/conteo-almacen.js';
 import { registrosConteoAlmacen } from './modules/registros-conteos.js';
 import { mostrarPedidos } from './modules/registros-pedidos-acopio.js';
@@ -37,6 +37,7 @@ window.ocultarAnuncioSecond = ocultarAnuncioSecond
 window.cerrarAnuncioManual = cerrarAnuncioManual
 window.mostrarAnuncioTercer = mostrarAnuncioTercer
 window.ocultarAnuncioTercer = ocultarAnuncioTercer
+window.scrollToTop = scrollToTop
 
 
 window.mostrarCarga = mostrarCarga

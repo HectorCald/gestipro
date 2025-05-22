@@ -119,10 +119,11 @@ function renderInitialHTML() {
             </div>
         </div>
         <div class="anuncio-botones">
-            <button id="exportar-excel" class="btn orange" style="margin-bottom:10px"><i class='bx bx-download'></i> Descargar registros</button>
+            <button id="exportar-excel" class="btn orange" style="margin-bottom:10px"><i class='bx bx-download'></i> Descargar pedidos</button>
         </div>
     `;
     contenido.innerHTML = initialHTML;
+    contenido.style.paddingBottom='80px';
 }
 export async function mostrarPedidos() {
     mostrarAnuncio();
@@ -179,6 +180,26 @@ function eventosPedidos() {
     const items = document.querySelectorAll('.registro-item');
     const inputBusqueda = document.querySelector('.buscar-pedido');
     const botonCalendario = document.querySelector('.btn-calendario');
+    
+    const contenedor = document.querySelector('.relleno');
+    contenedor.addEventListener('scroll', () => {
+        const yaExiste = contenedor.querySelector('.scroll-top');
+
+        if (contenedor.scrollTop > 100) {
+            if (!yaExiste) {
+                const boton = document.createElement('button');
+                boton.className = 'scroll-top';
+                boton.innerHTML = '<i class="fas fa-arrow-up"></i>';
+                boton.onclick = () => scrollToTop('.relleno');
+                contenedor.appendChild(boton);
+            }
+        } else {
+            // Si vuelve arriba, ocultamos el botón si existe
+            if (yaExiste) {
+                yaExiste.remove();
+            }
+        }
+    });
 
     let filtroFechaInstance = null;
     let filtroEstadoActual = 'Todos';
