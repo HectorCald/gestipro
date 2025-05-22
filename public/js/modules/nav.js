@@ -34,7 +34,7 @@ function obtenerOpcionesMenu() {
                 clase: 'opcion-btn',
                 vista: 'almAcopio-view',
                 icono: 'fa-dolly',
-                texto: 'Almacen',
+                texto: 'Almacen acopio',
                 detalle: 'Gestiona tu almacen de acopio',
                 onclick: 'onclick="mostrarAlmacenAcopio(); ocultarAnuncioSecond()"'
             },
@@ -43,14 +43,14 @@ function obtenerOpcionesMenu() {
                 vista: 'regAcopio-view',
                 icono: 'fa-history',
                 texto: 'Pedidos',
-                detalle: 'Aqui puedes gestionar todos los pedidos',
+                detalle: 'Gestionar todos los pedidos',
                 onclick: 'onclick="mostrarPedidos(); ocultarAnuncioSecond()"'
             },
             {
                 clase: 'opcion-btn',
                 vista: 'regAcopio-view',
                 icono: 'fa-truck',
-                texto: 'Proovedores',
+                texto: 'Proovedores acopio',
                 detalle: 'Gestiona tus proovedores.',
                 onclick: 'onclick="cargarRegistrosAcopio()"'
             }
