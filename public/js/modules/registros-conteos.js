@@ -281,7 +281,7 @@ function eventosRegistrosConteo() {
             `;
 
             contenido.innerHTML = editarHTML;
-            mostrarAnuncioSecond();
+            mostrarAnuncioTercer();
 
             document.getElementById('guardar-edicion').addEventListener('click', async () => {
                 const motivo = document.querySelector('.motivo-edicion').value.trim();

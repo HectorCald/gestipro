@@ -602,7 +602,7 @@ function eventosRegistrosAlmacen() {
             </div>
         `;
             contenido.innerHTML = registrationHTML;
-            mostrarAnuncioSecond();
+            mostrarAnuncioTercer();
 
             const btnAnular = contenido.querySelector('.btn-anular-registro');
             btnAnular.addEventListener('click', confirmarAnulacion);
