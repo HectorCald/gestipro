@@ -65,7 +65,7 @@ export async function mostrarFormularioProduccion() {
                     </div>
                 </div>
             </div>
-            <p class="normal"><i class='bx bx-chevron-right'></i>Información de proceso/p>
+            <p class="normal"><i class='bx bx-chevron-right'></i>Información de procesos</p>
             <div class="entrada">
                 <i class='bx bx-git-compare'></i>
                 <div class="input">
