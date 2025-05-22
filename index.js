@@ -2682,7 +2682,7 @@ app.get('/obtener-pedidos', requireAuth, async (req, res) => {
 
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId,
-            range: 'Pedidos!A2:P' // A to O columns for all fields
+            range: 'Pedidos!A2:Q' // A to O columns for all fields
         });
 
         const rows = response.data.values || [];
@@ -2700,11 +2700,12 @@ app.get('/obtener-pedidos', requireAuth, async (req, res) => {
             observacionesCompras: row[10] || '',
             cantidadEntregadaUnd: row[11] || '',
             transporteOtros: row[12] || '',
-            fechaIngreso: row[13] || '',
-            estadoCompra: row[14] || '',
+            estadoCompra: row[13] || '',
+            fechaIngreso: row[14] || '',
             cantidadIngresada: row[15] || '',
             observacionesIngresado: row[16] || ''
         }));
+        
 
         res.json({
             success: true,
@@ -2716,6 +2717,160 @@ app.get('/obtener-pedidos', requireAuth, async (req, res) => {
         res.status(500).json({
             success: false,
             error: 'Error al obtener los pedidos'
+        });
+    }
+});
+app.delete('/eliminar-pedido/:id', requireAuth, async (req, res) => {
+    try {
+        const { spreadsheetId } = req.user;
+        const { id } = req.params;
+        const sheets = google.sheets({ version: 'v4', auth });
+
+        // Get current pedidos
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: 'Pedidos!A2:A'
+        });
+
+        const rows = response.data.values || [];
+        const rowIndex = rows.findIndex(row => row[0] === id);
+
+        if (rowIndex === -1) {
+            return res.status(404).json({
+                success: false,
+                error: 'Pedido no encontrado'
+            });
+        }
+
+        // Get sheet ID
+        const spreadsheet = await sheets.spreadsheets.get({
+            spreadsheetId
+        });
+
+        const pedidosSheet = spreadsheet.data.sheets.find(
+            sheet => sheet.properties.title === 'Pedidos'
+        );
+
+        if (!pedidosSheet) {
+            return res.status(404).json({
+                success: false,
+                error: 'Hoja de Pedidos no encontrada'
+            });
+        }
+
+        // Delete the row
+        await sheets.spreadsheets.batchUpdate({
+            spreadsheetId,
+            resource: {
+                requests: [{
+                    deleteDimension: {
+                        range: {
+                            sheetId: pedidosSheet.properties.sheetId,
+                            dimension: 'ROWS',
+                            startIndex: rowIndex + 1, // +1 for header row
+                            endIndex: rowIndex + 2
+                        }
+                    }
+                }]
+            }
+        });
+
+        res.json({
+            success: true,
+            message: 'Pedido eliminado correctamente'
+        });
+
+    } catch (error) {
+        console.error('Error al eliminar pedido:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error al eliminar el pedido'
+        });
+    }
+});
+app.put('/editar-pedido/:id', requireAuth, async (req, res) => {
+    try {
+        const { spreadsheetId } = req.user;
+        const { id } = req.params;
+        const {
+            cantidadPedida,
+            observacionesPedido,
+            estado,
+            cantidadEntregadaKg,
+            proovedor,
+            precio,
+            observacionesCompras,
+            cantidadEntregadaUnd,
+            transporteOtros,
+            estadoCompra,
+            cantidadIngresada,
+            observacionesIngresado,
+            motivo
+        } = req.body;
+
+        const sheets = google.sheets({ version: 'v4', auth });
+
+        // Get current pedidos
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: 'Pedidos!A2:Q'
+        });
+
+        const rows = response.data.values || [];
+        const rowIndex = rows.findIndex(row => row[0] === id);
+
+        if (rowIndex === -1) {
+            return res.status(404).json({
+                success: false,
+                error: 'Pedido no encontrado'
+            });
+        }
+
+        const currentRow = rows[rowIndex];
+        
+        // Asegurarnos de que los valores nuevos tengan prioridad sobre los actuales
+        const updatedRow = [
+            id,                                         // ID
+            currentRow[1],                             // FECHA
+            currentRow[2],                             // ID-PROD
+            currentRow[3],                             // PRODUCTO
+            cantidadPedida,     // CANT-PED
+            observacionesPedido, // OBS-PEDIDO
+            estado,     // ESTADO
+            cantidadEntregadaKg, // CANT-ENTR-KG
+            proovedor,           // PROOVEDOR
+            precio,              // PRECIO
+            observacionesCompras,// OBS-COMPRAS
+            cantidadEntregadaUnd,// CANT-ENTRG-UND
+            transporteOtros,     // TRASP-OTROS
+            estadoCompra,        // ESTADO-COMPRA
+            currentRow[14],                        // FECHA-INGRESO
+            cantidadIngresada,   // CANT-INGRE
+            observacionesIngresado // OBS-INGRE
+        ];
+
+        // Actualizar en Google Sheets
+        await sheets.spreadsheets.values.update({
+            spreadsheetId,
+            range: `Pedidos!A${rowIndex + 2}:Q${rowIndex + 2}`,
+            valueInputOption: 'USER_ENTERED',
+            resource: {
+                values: [updatedRow]
+            }
+        });
+
+        console.log(`Pedido ${id} actualizado con motivo: ${motivo}`);
+
+        res.json({
+            success: true,
+            message: 'Pedido actualizado correctamente'
+        });
+
+    } catch (error) {
+        console.error('Error al actualizar pedido:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error al actualizar el pedido'
         });
     }
 });
@@ -2785,6 +2940,129 @@ app.put('/entregar-pedido/:id', requireAuth, async (req, res) => {
 });
 
 
+/* ==================== RUTAS DE ACOPIO INGRESO ALMACEN ACOPIO ==================== */
+app.post('/registrar-movimiento-acopio', requireAuth, async (req, res) => {
+    try {
+        const { spreadsheetId } = req.user;
+        const { idProducto, nombreProducto, peso, tipo, nombreMovimiento, caracteristicas, observaciones } = req.body;
+        const sheets = google.sheets({ version: 'v4', auth });
+
+        // Obtener movimientos actuales para calcular siguiente ID
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: 'Movimientos alm-acopio!A2:I'
+        });
+
+        const rows = response.data.values || [];
+        const nextId = rows.length > 0 ?
+            Math.max(...rows.map(row => parseInt(row[0].split('-')[1]))) + 1 : 1;
+
+        const fecha = new Date().toLocaleString('es-ES');
+        const newMovimiento = [
+            `MAA-${nextId.toString().padStart(3, '0')}`,
+            fecha,
+            tipo,
+            idProducto,
+            nombreProducto,
+            peso,
+            req.user.nombre || 'Usuario',
+            nombreMovimiento,
+            caracteristicas,
+            observaciones
+        ];
+
+        // Registrar movimiento
+        await sheets.spreadsheets.values.append({
+            spreadsheetId,
+            range: 'Movimientos alm-acopio!A2:J',
+            valueInputOption: 'USER_ENTERED',
+            insertDataOption: 'INSERT_ROWS',
+            resource: { values: [newMovimiento] }
+        });
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error al registrar movimiento:', error);
+        res.status(500).json({ success: false, error: 'Error al registrar el movimiento' });
+    }
+});
+app.get('/obtener-movimientos-acopio', requireAuth, async (req, res) => {
+    const { spreadsheetId } = req.user;
+
+    try {
+        const sheets = google.sheets({ version: 'v4', auth });
+
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: 'Movimientos alm-acopio!A2:J'  // A hasta J para todos los campos
+        });
+
+        const rows = response.data.values || [];
+        const movimientos = rows.map(row => ({
+            id: row[0] || '',                    // ID
+            fecha: row[1] || '',                 // FECHA - HORA
+            tipo: row[2] || '',                  // TIPO
+            idProducto: row[3] || '',            // ID-PRODUCTO
+            producto: row[4] || '',              // PRODUCTOS
+            peso: row[5] || '',                  // PESO EN KG.
+            operario: row[6] || '',              // OPERARIO
+            nombreMovimiento: row[7] || '',      // NOMBRE DEL MOVIMIENTO
+            caracteristicas: row[8] || '',       // CARACTERISTICAS
+            observaciones: row[9] || ''          // OBSERVACIONES
+        }));
+
+        res.json({
+            success: true,
+            movimientos
+        });
+
+    } catch (error) {
+        console.error('Error al obtener movimientos:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error al obtener los movimientos'
+        });
+    }
+});
+app.put('/actualizar-producto-acopio/:id', requireAuth, async (req, res) => {
+    try {
+        const { spreadsheetId } = req.user;
+        const { id } = req.params;
+        const { tipoMateria, pesoKg, numeroLote } = req.body;
+        const sheets = google.sheets({ version: 'v4', auth });
+
+        // Obtener producto actual
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: 'Almacen acopio!A2:E'
+        });
+
+        const rows = response.data.values || [];
+        const rowIndex = rows.findIndex(row => row[0] === id);
+        if (rowIndex === -1) return res.status(404).json({ success: false, error: 'Producto no encontrado' });
+
+        const currentRow = rows[rowIndex];
+        const columnaActualizar = tipoMateria === 'bruto' ? 2 : 3; // 2 para BRUTO, 3 para PRIMA
+        const valorActual = currentRow[columnaActualizar] || '0-1';
+        const nuevoValor = valorActual === '0-1' ? 
+            `${pesoKg}-${numeroLote}` : 
+            `${valorActual};${pesoKg}-${numeroLote}`;
+
+        // Actualizar solo la columna correspondiente
+        await sheets.spreadsheets.values.update({
+            spreadsheetId,
+            range: `Almacen acopio!${String.fromCharCode(65 + columnaActualizar)}${rowIndex + 2}`,
+            valueInputOption: 'USER_ENTERED',
+            resource: { values: [[nuevoValor]] }
+        });
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error al actualizar producto:', error);
+        res.status(500).json({ success: false, error: 'Error al actualizar el producto' });
+    }
+});
+
 
 /* ==================== RUTAS DE PROOVEDORES DE ACOPIO ==================== */
 app.get('/obtener-proovedores-acopio', requireAuth, async (req, res) => {
@@ -2820,6 +3098,176 @@ app.get('/obtener-proovedores-acopio', requireAuth, async (req, res) => {
         });
     }
 });
+app.post('/agregar-proovedor-acopio', requireAuth, async (req, res) => {
+    try {
+        const { spreadsheetId } = req.user;
+        const { nombre, telefono, direccion, zona } = req.body;
+        const sheets = google.sheets({ version: 'v4', auth });
+
+        // Obtener clientes actuales para calcular el siguiente ID
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: 'Proovedores acopio!A2:E'
+        });
+
+        const rows = response.data.values || [];
+        const nextId = rows.length > 0 ?
+            parseInt(rows[rows.length - 1][0].split('-')[1]) + 1 : 1;
+
+        const newProv = [
+            `PRVA-${nextId.toString().padStart(3, '0')}`,
+            nombre,
+            telefono || '',
+            direccion || '',
+            zona || ''
+        ];
+
+        // Agregar el nuevo cliente
+        await sheets.spreadsheets.values.append({
+            spreadsheetId,
+            range: 'Proovedores acopio!A2:E',
+            valueInputOption: 'RAW',
+            insertDataOption: 'INSERT_ROWS',
+            resource: { values: [newProv] }
+        });
+
+        res.json({
+            success: true,
+            cliente: {
+                id: newProv[0],
+                nombre,
+                telefono,
+                direccion,
+                zona
+            }
+        });
+    } catch (error) {
+        console.error('Error al agregar proovedor:', error);
+        res.status(500).json({ success: false, error: 'Error al agregar proovedor' });
+    }
+});
+app.delete('/eliminar-proovedor-acopio/:id', requireAuth, async (req, res) => {
+    try {
+        const { spreadsheetId } = req.user;
+        const { id } = req.params;
+        const sheets = google.sheets({ version: 'v4', auth });
+
+        // Obtener información de la hoja
+        const spreadsheet = await sheets.spreadsheets.get({
+            spreadsheetId
+        });
+
+        const clientesSheet = spreadsheet.data.sheets.find(
+            sheet => sheet.properties.title === 'Proovedores acopio'
+        );
+
+        if (!clientesSheet) {
+            return res.status(404).json({
+                success: false,
+                error: 'Hoja de Clientes no encontrada'
+            });
+        }
+
+        // Obtener clientes actuales
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: 'Proovedores acopio!A2:E'
+        });
+
+        const rows = response.data.values || [];
+        const rowIndex = rows.findIndex(row => row[0] === id);
+
+        if (rowIndex === -1) {
+            return res.status(404).json({
+                success: false,
+                error: 'Proovedor no encontrado'
+            });
+        }
+
+        // Eliminar la fila
+        await sheets.spreadsheets.batchUpdate({
+            spreadsheetId,
+            resource: {
+                requests: [{
+                    deleteDimension: {
+                        range: {
+                            sheetId: clientesSheet.properties.sheetId,
+                            dimension: 'ROWS',
+                            startIndex: rowIndex + 1, // +1 por el encabezado
+                            endIndex: rowIndex + 2
+                        }
+                    }
+                }]
+            }
+        });
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error al eliminar proovedor:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error al eliminar proovedor'
+        });
+    }
+});
+app.put('/editar-proovedor-acopio/:id', requireAuth, async (req, res) => {
+    const { spreadsheetId } = req.user;
+    const { id } = req.params;
+    const { nombre, telefono, direccion, zona, motivo } = req.body;
+
+    try {
+        const sheets = google.sheets({ version: 'v4', auth });
+
+        // Obtener todos los clientes
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: 'Proovedores acopio!A2:E'
+        });
+
+        const rows = response.data.values || [];
+        const rowIndex = rows.findIndex(row => row[0] === id);
+
+        if (rowIndex === -1) {
+            return res.status(404).json({
+                success: false,
+                error: 'Proovedor no encontrado'
+            });
+        }
+
+        // Actualizar la fila con los nuevos datos
+        const updatedRow = [
+            id,         // ID
+            nombre,     // Nombre
+            telefono,   // Teléfono
+            direccion,  // Dirección
+            zona        // Zona
+        ];
+
+        await sheets.spreadsheets.values.update({
+            spreadsheetId,
+            range: `Proovedores acopio!A${rowIndex + 2}:E${rowIndex + 2}`,
+            valueInputOption: 'USER_ENTERED',
+            resource: {
+                values: [updatedRow]
+            }
+        });
+
+        console.log(`Proovedor ${id} actualizado con motivo: ${motivo}`);
+
+        res.json({
+            success: true,
+            message: 'Proovedor actualizado correctamente'
+        });
+
+    } catch (error) {
+        console.error('Error al actualizar proovedor:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error al actualizar el proovedor'
+        });
+    }
+});
+
 
 
 

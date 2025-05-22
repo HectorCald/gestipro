@@ -36,7 +36,7 @@ function obtenerOpcionesMenu() {
                 icono: 'fa-dolly',
                 texto: 'Almacen acopio',
                 detalle: 'Gestiona tu almacen de acopio',
-                onclick: 'onclick="mostrarAlmacenAcopio(); ocultarAnuncioSecond()"'
+                onclick: 'onclick="mostrarAlmacenAcopio();"'
             },
             {
                 clase: 'opcion-btn',
@@ -44,7 +44,7 @@ function obtenerOpcionesMenu() {
                 icono: 'fa-history',
                 texto: 'Pedidos',
                 detalle: 'Gestionar todos los pedidos',
-                onclick: 'onclick="mostrarPedidos(); ocultarAnuncioSecond()"'
+                onclick: 'onclick="mostrarPedidos();"'
             },
             {
                 clase: 'opcion-btn',
@@ -52,8 +52,16 @@ function obtenerOpcionesMenu() {
                 icono: 'fa-truck',
                 texto: 'Proovedores acopio',
                 detalle: 'Gestiona tus proovedores.',
-                onclick: 'onclick="cargarRegistrosAcopio()"'
-            }
+                onclick: 'onclick="mostrarProovedoresAcopio()"'
+            },
+            {
+                clase: 'opcion-btn',
+                vista: 'regAlmacen-view',
+                icono: 'fa-history',
+                texto: 'Registros acopio',
+                detalle: 'Aqui puedes ver todos los registros',
+                onclick: 'onclick="mostrarRegistrosAcopio();"'
+            },
         ],
         'Almacen': [
             {
@@ -62,7 +70,7 @@ function obtenerOpcionesMenu() {
                 icono: 'fa-dolly',
                 texto: 'Almacen general',
                 detalle: 'Gestiona tu almacen.',
-                onclick: 'onclick="mostrarAlmacenGeneral(); ocultarAnuncioSecond()"'
+                onclick: 'onclick="mostrarAlmacenGeneral()"'
             },
             {
                 clase: 'opcion-btn',
@@ -70,7 +78,7 @@ function obtenerOpcionesMenu() {
                 icono: 'fa-clipboard-list',
                 texto: 'Conteo fisico',
                 detalle: 'Realiza conteos fisicos.',
-                onclick: 'onclick="mostrarConteo(); ocultarAnuncioSecond()"'
+                onclick: 'onclick="mostrarConteo()"'
             },
             {
                 clase: 'opcion-btn',
@@ -78,7 +86,7 @@ function obtenerOpcionesMenu() {
                 icono: 'fa-user-circle',
                 texto: 'Clientes',
                 detalle: 'Gestiona tus clientes',
-                onclick: 'onclick="mostrarClientes(); ocultarAnuncioSecond()"'
+                onclick: 'onclick="mostrarClientes()"'
             },
             {
                 clase: 'opcion-btn',
@@ -86,7 +94,7 @@ function obtenerOpcionesMenu() {
                 icono: 'fa-truck',
                 texto: 'Proovedores',
                 detalle: 'Gestiona tus proovedores',
-                onclick: 'onclick="mostrarProovedores(); ocultarAnuncioSecond()"'
+                onclick: 'onclick="mostrarProovedores()"'
             },
             {
                 clase: 'opcion-btn',
@@ -94,7 +102,7 @@ function obtenerOpcionesMenu() {
                 icono: 'fa-history',
                 texto: 'Registros almacen',
                 detalle: 'Aqui puedes ver todos los registros',
-                onclick: 'onclick="mostrarMovimientosAlmacen(); ocultarAnuncioSecond()"'
+                onclick: 'onclick="mostrarMovimientosAlmacen()"'
             },
             {
                 clase: 'opcion-btn',
@@ -102,7 +110,7 @@ function obtenerOpcionesMenu() {
                 icono: 'fa-history',
                 texto: 'Registros conteo',
                 detalle: 'Aqui puedes ver todos los registros',
-                onclick: 'onclick="registrosConteoAlmacen(); ocultarAnuncioSecond()"'
+                onclick: 'onclick="registrosConteoAlmacen()"'
             },
         ],
         'Administración': [

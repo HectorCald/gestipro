@@ -1482,6 +1482,11 @@
                 }
             }
         }
+
+        .item-info-acopio{
+            display: flex;
+            flex-direction: column;
+        }
     }
 }
 

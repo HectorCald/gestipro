@@ -181,7 +181,7 @@ function obtenerFunciones() {
                 icono: 'fa-arrow-down',
                 texto: 'Ingresos',
                 detalle: 'Ingresos de tu almacen.',
-                onclick: 'onclick="mostrarIngresos()"'
+                onclick: 'onclick="mostrarIngresosAcopio()"'
             },
             {
                 clase: 'opcion-btn',

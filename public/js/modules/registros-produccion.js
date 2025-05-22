@@ -306,6 +306,7 @@ function eventosMisRegistros() {
 
             <p class="normal"><i class='bx bx-chevron-right'></i> Detalles de producción</p>
             <div class="campo-vertical">
+                <span class="valor"><strong><i class='bx bx-receipt'></i> Lote: </strong>${registro.lote} Und.</span>
                 <span class="valor"><strong><i class='bx bx-cog'></i> Selección/Cernido: </strong>${registro.proceso}</span>
                 <span class="valor"><strong><i class='bx bx-bowl-hot'></i> Microondas: </strong>${registro.microondas}</span>
                 <span class="valor"><strong><i class='bx bx-check-shield'></i> Envases terminados: </strong>${registro.envases_terminados}</span>

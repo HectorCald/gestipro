@@ -123,7 +123,7 @@ function renderInitialHTML() {
         </div>
     `;
     contenido.innerHTML = initialHTML;
-    contenido.style.paddingBottom='80px';
+    contenido.style.paddingBottom = '80px';
 }
 export async function mostrarPedidos() {
     mostrarAnuncio();
@@ -151,13 +151,13 @@ function updateHTMLWithData() {
                     <span class="nombre">
                         <strong>${pedido.producto}</strong>
                         ${pedido.estado.toLowerCase() === 'pendiente' ?
-                            `<span class="cantidad-pedida">(${pedido.cantidadPedida})</span>` :
-                            pedido.estado.toLowerCase() === 'recibido' ?
-                            `<span class="cantidad-pedida">(${pedido.cantidadEntregadaUnd || 'No registrado'})</span>` :
-                            pedido.estado.toLowerCase() === 'ingresado' ?
-                            `<span class="cantidad-pedida">(${pedido.cantidadIngresada || 'No registrado'})</span>` :
-                            ''
-                        }
+            `<span class="cantidad-pedida">(${pedido.cantidadPedida})</span>` :
+            pedido.estado.toLowerCase() === 'recibido' ?
+                `<span class="cantidad-pedida">(${pedido.cantidadEntregadaUnd || 'No registrado'})</span>` :
+                pedido.estado.toLowerCase() === 'ingresado' ?
+                    `<span class="cantidad-pedida">(${pedido.cantidadIngresada || 'No registrado'})</span>` :
+                    ''
+        }
                     </span>
                     <span class="fecha">${pedido.fecha}</span>
                 </div>
@@ -171,7 +171,7 @@ function updateHTMLWithData() {
 
 function eventosPedidos() {
     const btnExcel = document.getElementById('exportar-excel');
-    const registrosAExportar = registrosProduccion;
+    const registrosAExportar = pedidosGlobal;
 
     const botonesNombre = document.querySelectorAll('.filtros-opciones.nombre .btn-filtro');
     const botonesEstado = document.querySelectorAll('.filtros-opciones.estado .btn-filtro');
@@ -180,7 +180,7 @@ function eventosPedidos() {
     const items = document.querySelectorAll('.registro-item');
     const inputBusqueda = document.querySelector('.buscar-pedido');
     const botonCalendario = document.querySelector('.btn-calendario');
-    
+
     const contenedor = document.querySelector('.relleno');
     contenedor.addEventListener('scroll', () => {
         const yaExiste = contenedor.querySelector('.scroll-top');
@@ -441,45 +441,38 @@ function eventosPedidos() {
         btnIngresar.addEventListener('click', () => ingresar(registro));
 
         function eliminar(registro) {
-
             const contenido = document.querySelector('.anuncio-tercer .contenido');
             const registrationHTML = `
-            <div class="encabezado">
-                <h1 class="titulo">Eliminar registro</h1>
-                <button class="btn close" onclick="cerrarAnuncioManual('tercer')"><i class="fas fa-arrow-right"></i></button>
-            </div>
-            <div class="relleno">
-                <p class="normal"><i class='bx bx-chevron-right'></i> Información básica</p>
-                <div class="campo-horizontal">
-                    <div class="campo-vertical">
-                       <span class="nombre"><strong><i class='bx bx-id-card'></i> Id: </strong>${registro.id}</span>
-                    <span class="valor"><strong><i class="ri-scales-line"></i> Gramaje: </strong>${registro.gramos}gr.</span>
-                    <span class="valor"><strong><i class='bx bx-package'></i> Envases: </strong>${registro.envases_terminados} Und.</span>
-                    <span class="valor"><strong><i class='bx bx-hash'></i> Vencimiento: </strong>${registro.fecha_vencimiento}</span>
-                    </div>
-                    <div class="imagen-producto">
-                    ${producto.imagen && producto.imagen.startsWith('data:image') ?
-                    `<img class="imagen" src="${producto.imagen}">` :
-                    `<i class='bx bx-package'></i>`}
-                    </div>
-                </div>
-                <p class="normal"><i class='bx bx-chevron-right'></i>Motivo de la eliminación</p>
-                <div class="entrada">
-                    <i class='bx bx-comment-detail'></i>
-                    <div class="input">
-                        <p class="detalle">Motivo</p>
-                        <input class="motivo" type="text" autocomplete="off" placeholder=" " required>
-                    </div>
+        <div class="encabezado">
+            <h1 class="titulo">Eliminar pedido</h1>
+            <button class="btn close" onclick="cerrarAnuncioManual('anuncioTercer')"><i class="fas fa-arrow-right"></i></button>
+        </div>
+        <div class="relleno">
+            <p class="normal"><i class='bx bx-chevron-right'></i> Información básica</p>
+            <div class="campo-horizontal">
+                <div class="campo-vertical">
+                    <span class="nombre"><strong><i class='bx bx-id-card'></i> Id: </strong>${registro.id}</span>
+                    <span class="valor"><strong><i class='bx bx-package'></i> Cantidad pedida: </strong>${registro.cantidadPedida}</span>
+                    <span class="valor"><strong><i class='bx bx-calendar'></i> Fecha: </strong>${registro.fecha}</span>
+                    <span class="estado ${registro.estado.toLowerCase()}"><strong><i class='bx bx-check-circle'></i> Estado: </strong>${registro.estado}</span>
                 </div>
             </div>
-            <div class="anuncio-botones">
-                <button class="btn-eliminar-registro btn red"><i class="bx bx-trash"></i> Confirmar eliminación</button>
+            <p class="normal"><i class='bx bx-chevron-right'></i>Motivo de la eliminación</p>
+            <div class="entrada">
+                <i class='bx bx-comment-detail'></i>
+                <div class="input">
+                    <p class="detalle">Motivo</p>
+                    <input class="motivo" type="text" autocomplete="off" placeholder=" " required>
+                </div>
             </div>
-        `;
+        </div>
+        <div class="anuncio-botones">
+            <button class="btn-eliminar-registro btn red"><i class="bx bx-trash"></i> Confirmar eliminación</button>
+        </div>
+    `;
             contenido.innerHTML = registrationHTML;
             mostrarAnuncioTercer();
 
-            // Agregar evento al botón guardar
             const btnEliminar = contenido.querySelector('.btn-eliminar-registro');
             btnEliminar.addEventListener('click', confirmarEliminacion);
 
@@ -498,12 +491,12 @@ function eventosPedidos() {
                 try {
                     mostrarCarga();
 
-                    // Aseguramos que la URL sea correcta
-                    const response = await fetch(`/eliminar-registro-produccion/${registroId}`, {
+                    const response = await fetch(`/eliminar-pedido/${registro.id}`, {
                         method: 'DELETE',
                         headers: {
                             'Content-Type': 'application/json'
-                        }
+                        },
+                        body: JSON.stringify({ motivo })
                     });
 
                     if (!response.ok) {
@@ -513,22 +506,21 @@ function eventosPedidos() {
                     const data = await response.json();
 
                     if (data.success) {
-                        ocultarCarga();
                         mostrarNotificacion({
-                            message: 'Registro eliminado correctamente',
+                            message: 'Pedido eliminado correctamente',
                             type: 'success',
                             duration: 3000
                         });
-
+                        ocultarCarga();
                         ocultarAnuncioSecond();
-                        await mostrarVerificacion();
+                        await mostrarPedidos();
                     } else {
-                        throw new Error(data.error || 'Error al eliminar el registro');
+                        throw new Error(data.error || 'Error al eliminar el pedido');
                     }
                 } catch (error) {
                     console.error('Error:', error);
                     mostrarNotificacion({
-                        message: error.message || 'Error al eliminar el registro',
+                        message: error.message || 'Error al eliminar el pedido',
                         type: 'error',
                         duration: 3500
                     });
@@ -538,171 +530,187 @@ function eventosPedidos() {
             }
         }
         function editar(registro) {
-
             const contenido = document.querySelector('.anuncio-tercer .contenido');
             const registrationHTML = `
-            <div class="encabezado">
-                <h1 class="titulo">Editar registro</h1>
-                <button class="btn close" onclick="cerrarAnuncioManual('anuncioTercer')"><i class="fas fa-arrow-right"></i></button>
+        <div class="encabezado">
+            <h1 class="titulo">Editar pedido</h1>
+            <button class="btn close" onclick="cerrarAnuncioManual('anuncioTercer')"><i class="fas fa-arrow-right"></i></button>
+        </div>
+        <div class="relleno editar-pedido">
+        <p class="normal"><i class='bx bx-chevron-right'></i> Detalles del producto</p>
+            <div class="campo-vertical">
+                <span class="nombre"><strong><i class='bx bx-cube'></i> Producto: </strong>${registro.producto}</span>
+                <span class="observaciones"><strong><i class='bx bx-comment-detail'></i> Observaciones: </strong>${registro.observacionesPedido || 'Sin observaciones'}</span>
             </div>
-            <div class="relleno editar-produccion">
-                <p class="normal"><i class='bx bx-chevron-right'></i>Información basica</p>
-                    <div class="entrada">
-                        <i class='bx bx-cube'></i>
-                        <div class="input">
-                            <p class="detalle">Producto</p>
-                            <input class="producto" type="text" value="${registro.producto}" autocomplete="off" placeholder=" " required>
-                        </div>
-                    </div>
-                    <div class="entrada">
-                        <i class="ri-scales-line"></i>
-                        <div class="input">
-                            <p class="detalle">Gramaje</p>
-                            <input class="gramaje" type="number" value="${registro.gramos}" autocomplete="off" placeholder=" " required>
-                        </div>
-                    </div>
-                <p class="normal"><i class='bx bx-chevron-right'></i>Información del proceso</p>
-                    <div class="entrada">
-                        <i class='bx bx-cog'></i>
-                        <div class="input">
-                            <p class="detalle">Proceso</p>
-                            <select class="select" required>
-                                <option value="${registro.proceso}" selected>${registro.proceso}</option>
-                                <option value="Seleccion">Selección</option>
-                                <option value="Cernido">Cernido</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="entrada">
-                        <i class='bx bx-bowl-hot'></i>
-                        <div class="input">
-                            <p class="detalle">Microondas</p>
-                            <input class="microondas" type="text" value="${registro.microondas}" autocomplete="off" placeholder=" " required>
-                        </div>
-                    </div>
-                <p class="normal"><i class='bx bx-chevron-right'></i>Información del acabado</p>
-                    <div class="entrada">
-                        <i class='bx bx-check-shield'></i>
-                        <div class="input">
-                            <p class="detalle">Terminados</p>
-                            <input class="terminados" type="number" value="${registro.envases_terminados}" autocomplete="off" placeholder=" " required>
-                        </div>
-                    </div>
-                    <div class="entrada">
-                        <i class='bx bx-barcode'></i>
-                        <div class="input">
-                            <p class="detalle">Lote</p>
-                            <input class="lote" type="number" autocomplete="off" value="${registro.lote}" placeholder=" " required>
-                        </div>
-                    </div>
-                    <div class="entrada">
-                        <i class='bx bx-calendar'></i>
-                        <div class="input">
-                            <p class="detalle">vencimiento</p>
-                            <input class="vencimiento" type="month" value="${registro.fecha_vencimiento}" placeholder=" " required>
-                        </div>
-                    </div>
-                <p class="normal"><i class='bx bx-chevron-right'></i>Información de verificación</p>
-                    <div class="entrada">
-                        <i class='bx bx-hash'></i>
-                        <div class="input">
-                            <p class="detalle">Cantidad real</p>
-                            <input class="cantidad_real" type="number" value="${registro.c_real}" autocomplete="off" placeholder=" " required>
-                        </div>
-                    </div>
-                    <div class="entrada">
-                        <i class='bx bx-comment-detail'></i>
-                        <div class="input">
-                            <p class="detalle">Observaciones</p>
-                            <input class="observaciones" type="text" value="${registro.observaciones}" autocomplete="off" placeholder=" " required>
-                        </div>
-                    </div>
-                <p class="normal"><i class='bx bx-chevron-right'></i>Motivo de la edición</p>
-                    <div class="entrada">
-                        <i class='bx bx-comment-detail'></i>
-                        <div class="input">
-                            <p class="detalle">Motivo</p>
-                            <input class="motivo" type="text" autocomplete="off" placeholder=" " required>
-                        </div>
-                    </div>
+            <p class="normal"><i class='bx bx-chevron-right'></i>Información básica</p>
+            <div class="entrada">
+                <i class='bx bx-package'></i>
+                <div class="input">
+                    <p class="detalle">Cantidad Pedida</p>
+                    <input class="cantidad-pedida" type="text" value="${registro.cantidadPedida}">
+                </div>
             </div>
-            <div class="anuncio-botones">
-                <button class="btn-editar-registro btn blue"><i class="bx bx-save"></i> Guardar cambios</button>
+            <div class="entrada">
+                <i class='bx bx-comment-detail'></i>
+                <div class="input">
+                    <p class="detalle">Observaciones Pedido</p>
+                    <input class="obs-pedido" type="text" value="${registro.observacionesPedido || ''}">
+                </div>
             </div>
-        `;
+            <div class="entrada">
+                <i class='bx bx-check-circle'></i>
+                <div class="input">
+                    <p class="detalle">Estado</p>
+                    <select class="estado" required>
+                        <option value="${registro.estado}" selected>${registro.estado}</option>
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="No llego">No llego</option>
+                        <option value="Recibido">Recibido</option>
+                        <option value="Rechazado">Rechazado</option>
+                        <option value="Ingresado">Ingresado</option>
+                    </select>
+                </div>
+            </div>
+            <p class="normal"><i class='bx bx-chevron-right'></i>Información de compra</p>
+            <div class="entrada">
+                <i class='bx bx-package'></i>
+                <div class="input">
+                    <p class="detalle">Cantidad Entregada (Kg)</p>
+                    <input class="cant-entr-kg" type="text" value="${registro.cantidadEntregadaKg || ''}">
+                </div>
+            </div>
+            <div class="entrada">
+                <i class='bx bx-store'></i>
+                <div class="input">
+                    <p class="detalle">Proveedor</p>
+                    <input class="proovedor" type="text" value="${registro.proovedor || ''}">
+                </div>
+            </div>
+            <div class="entrada">
+                <i class='bx bx-money'></i>
+                <div class="input">
+                    <p class="detalle">Precio</p>
+                    <input class="precio" type="text" value="${registro.precio || ''}">
+                </div>
+            </div>
+            <div class="entrada">
+                <i class='bx bx-comment-detail'></i>
+                <div class="input">
+                    <p class="detalle">Observaciones Compras</p>
+                    <input class="obs-compras" type="text" value="${registro.observacionesCompras || ''}">
+                </div>
+            </div>
+            <div class="entrada">
+                <i class='bx bx-package'></i>
+                <div class="input">
+                    <p class="detalle">Cantidad Entregada (Unidades)</p>
+                    <input class="cant-entrg-und" type="text" value="${registro.cantidadEntregadaUnd || ''}">
+                </div>
+            </div>
+            <div class="entrada">
+                <i class='bx bx-car'></i>
+                <div class="input">
+                    <p class="detalle">Transporte/Otros</p>
+                    <input class="trasp-otros" type="text" value="${registro.transporteOtros || ''}">
+                </div>
+            </div>
+            <div class="entrada">
+                <i class='bx bx-check-circle'></i>
+                <div class="input">
+                    <p class="detalle">Estado Compra</p>
+                    <input class="estado-compra" type="text" value="${registro.estadoCompra}">
+                </div>
+            </div>
+            <p class="normal"><i class='bx bx-chevron-right'></i>Información de ingreso</p>
+            <div class="entrada">
+                <i class='bx bx-package'></i>
+                <div class="input">
+                    <p class="detalle">Cantidad Ingresada</p>
+                    <input class="cant-ingre" type="text" value="${registro.cantidadIngresada || ''}">
+                </div>
+            </div>
+            <div class="entrada">
+                <i class='bx bx-comment-detail'></i>
+                <div class="input">
+                    <p class="detalle">Observaciones Ingreso</p>
+                    <input class="obs-ingre" type="text" value="${registro.observacionesIngresado}">
+                </div>
+            </div>
+            <p class="normal"><i class='bx bx-chevron-right'></i>Ingresa el motivo de la edición</p>
+            <div class="entrada">
+                <i class='bx bx-comment-detail'></i>
+                <div class="input">
+                    <p class="detalle">Motivo de edición</p>
+                    <input class="motivo" type="text" required>
+                </div>
+            </div>
+        </div>
+        <div class="anuncio-botones">
+            <button class="btn-guardar-edicion btn blue"><i class="bx bx-save"></i> Guardar cambios</button>
+        </div>
+    `;
             contenido.innerHTML = registrationHTML;
             mostrarAnuncioTercer();
 
-            // Agregar evento al botón guardar
-            const btnEditar = contenido.querySelector('.btn-editar-registro');
-            btnEditar.addEventListener('click', confirmarEdicion);
+            const btnGuardar = contenido.querySelector('.btn-guardar-edicion');
+            btnGuardar.addEventListener('click', confirmarEdicion);
 
             async function confirmarEdicion() {
-                const producto = document.querySelector('.editar-produccion .producto').value;
-                const gramos = document.querySelector('.editar-produccion .gramaje').value;
-                const lote = document.querySelector('.editar-produccion .lote').value;
-                const proceso = document.querySelector('.editar-produccion .select').value;
-                const microondas = document.querySelector('.editar-produccion .microondas').value;
-                const envases_terminados = document.querySelector('.editar-produccion .terminados').value;
-                const fecha_vencimiento = document.querySelector('.editar-produccion .vencimiento').value;
-                const verificado = document.querySelector('.editar-produccion .cantidad_real').value;
-                const observaciones = document.querySelector('.editar-produccion .observaciones').value;
-                const motivo = document.querySelector('.editar-produccion .motivo').value;
-
-                if (!motivo) { // Solo el campo "Motivo" es obligatorio
-                    mostrarNotificacion({
-                        message: 'Debe ingresar el motivo de la edición',
-                        type: 'warning',
-                        duration: 3500
-                    });
-                    return;
-                }
-
                 try {
+                    const datosActualizados = {
+                        cantidadPedida: document.querySelector('.editar-pedido .cantidad-pedida').value,
+                        observacionesPedido: document.querySelector('.editar-pedido .obs-pedido').value,
+                        estado: document.querySelector('.editar-pedido .estado').value,
+                        cantidadEntregadaKg: document.querySelector('.editar-pedido .cant-entr-kg').value,
+                        proovedor: document.querySelector('.editar-pedido .proovedor').value,
+                        precio: document.querySelector('.editar-pedido .precio').value,
+                        observacionesCompras: document.querySelector('.editar-pedido .obs-compras').value,
+                        cantidadEntregadaUnd: document.querySelector('.editar-pedido .cant-entrg-und').value,
+                        transporteOtros: document.querySelector('.editar-pedido .trasp-otros').value,
+                        estadoCompra: document.querySelector('.editar-pedido .estado-compra').value,
+                        cantidadIngresada: document.querySelector('.editar-pedido .cant-ingre').value,
+                        observacionesIngresado: document.querySelector('.editar-pedido .obs-ingre').value,
+                        motivo: document.querySelector('.editar-pedido .motivo').value
+                    };
+                    console.log(datosActualizados);
+
+                    if (!datosActualizados.motivo) {
+                        mostrarNotificacion({
+                            message: 'Debe ingresar el motivo de la edición',
+                            type: 'warning',
+                            duration: 3500
+                        });
+                        return;
+                    }
+
                     mostrarCarga();
 
-                    const response = await fetch(`/editar-registro-produccion/${registroId}`, {
+                    const response = await fetch(`/editar-pedido/${registro.id}`, {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify({
-                            producto,
-                            gramos,
-                            lote,
-                            proceso,
-                            microondas,
-                            envases_terminados,
-                            fecha_vencimiento,
-                            verificado,
-                            observaciones,
-                            motivo
-                        })
+                        body: JSON.stringify(datosActualizados)
                     });
-
-                    if (!response.ok) {
-                        throw new Error('Error en la respuesta del servidor');
-                    }
 
                     const data = await response.json();
 
                     if (data.success) {
-                        ocultarCarga();
                         mostrarNotificacion({
-                            message: 'Registro actualizado correctamente',
+                            message: 'Pedido actualizado correctamente',
                             type: 'success',
                             duration: 3000
                         });
-
+                        ocultarCarga();
                         ocultarAnuncioSecond();
-                        await mostrarVerificacion();
+                        await mostrarPedidos();
                     } else {
-                        throw new Error(data.error || 'Error al actualizar el registro');
+                        throw new Error(data.error || 'Error al actualizar el pedido');
                     }
                 } catch (error) {
                     console.error('Error:', error);
                     mostrarNotificacion({
-                        message: error.message || 'Error al actualizar el registro',
+                        message: error.message || 'Error al actualizar el pedido',
                         type: 'error',
                         duration: 3500
                     });

@@ -1,11 +1,11 @@
-let clientes = [];
-async function obtenerClientes() {
+let proovedores = [];
+async function obtenerProovedoresAcopio() {
     try {
-        const response = await fetch('/obtener-clientes');
+        const response = await fetch('/obtener-proovedores-acopio');
         const data = await response.json();
 
         if (data.success) {
-            clientes = data.clientes.sort((a, b) => {
+            proovedores = data.proovedores.sort((a, b) => {
                 const nombreA = a.nombre.toLowerCase();
                 const nombreB = b.nombre.toLowerCase();
                 return nombreA.localeCompare(nombreB);
@@ -13,16 +13,16 @@ async function obtenerClientes() {
             return true;
         } else {
             mostrarNotificacion({
-                message: 'Error al obtener clientes',
+                message: 'Error al obtener proovedores',
                 type: 'error',
                 duration: 3500
             });
             return false;
         }
     } catch (error) {
-        console.error('Error al obtener clientes:', error);
+        console.error('Error al obtener proovedores:', error);
         mostrarNotificacion({
-            message: 'Error al obtener clientes',
+            message: 'Error al obtener proovedores',
             type: 'error',
             duration: 3500
         });
@@ -33,13 +33,12 @@ async function obtenerClientes() {
 }
 
 
-
 function renderInitialHTML() {
 
     const contenido = document.querySelector('.anuncio .contenido');
     const initialHTML = `  
         <div class="encabezado">
-            <h1 class="titulo">Clientes</h1>
+            <h1 class="titulo">proovedores acopio</h1>
             <button class="btn close" onclick="cerrarAnuncioManual('anuncio')"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno almacen-general">
@@ -47,7 +46,7 @@ function renderInitialHTML() {
                 <i class='bx bx-search'></i>
                 <div class="input">
                     <p class="detalle">Buscar</p>
-                    <input type="text" class="buscar-cliente" placeholder="">
+                    <input type="text" class="buscar-proovedor" placeholder="">
                 </div>
             </div>
             <div class="productos-container">
@@ -66,42 +65,41 @@ function renderInitialHTML() {
             </div>
             <div class="no-encontrado" style="display: none; text-align: center; color: #555; font-size: 1.1rem;padding:20px">
                 <i class='bx bx-id-card' style="font-size: 50px;opacity:0.5"></i>
-                <p style="text-align: center; color: #555;">¡Ups!, No se encontraron clientes segun tu busqueda o filtrado.</p>
+                <p style="text-align: center; color: #555;">¡Ups!, No se encontraron proovedores segun tu busqueda o filtrado.</p>
             </div>
         </div>
         <div class="anuncio-botones">
-            <button class="btn-crear-cliente btn orange"> <i class='bx bx-plus'></i> Crear nuevo cliente</button>
+            <button class="btn-crear-proovedor btn orange"> <i class='bx bx-plus'></i> Crear nuevo proovedor</button>
         </div>
     `;
     contenido.innerHTML = initialHTML;
     contenido.style.paddingBottom = '80px';
 }
-export async function mostrarClientes() {
+export async function mostrarProovedoresAcopio() {
     mostrarAnuncio();
     renderInitialHTML();
     setTimeout(() => {
         configuracionesEntrada();
-    }, 100)
+    }, 100);
 
-    const [clientes] = await Promise.all([
-        obtenerClientes()
+    const [proovedor] = await Promise.all([
+        obtenerProovedoresAcopio()
     ]);
 
     updateHTMLWithData();
-    eventosClientes();
-    ;
+    eventosProovedores();
 }
 function updateHTMLWithData() {
 
     const productosContainer = document.querySelector('.productos-container');
-    const productosHTML = clientes.map(cliente => `
-        <div class="registro-item" data-id="${cliente.id}">
+    const productosHTML = proovedores.map(proovedor => `
+        <div class="registro-item" data-id="${proovedor.id}">
             <div class="header">
                 <i class='bx bx-id-card'></i>
                 <div class="info-header">
-                    <span class="id">${cliente.id}<span class="valor">${cliente.direccion}</span></span>
-                    <span class="nombre"><strong>${cliente.nombre}</strong></span>
-                    <span class="fecha">${cliente.telefono}-${cliente.zona}</span>
+                    <span class="id">${proovedor.id}<span class="valor">${proovedor.direccion}</span></span>
+                    <span class="nombre"><strong>${proovedor.nombre}</strong></span>
+                    <span class="fecha">${proovedor.telefono}-${proovedor.zona}</span>
                 </div>
             </div>
         </div>
@@ -110,9 +108,10 @@ function updateHTMLWithData() {
 }
 
 
-function eventosClientes() {
-    const inputBusqueda = document.querySelector('.buscar-cliente');
-    const btnNuevoCliente = document.querySelector('.btn-crear-cliente');
+function eventosProovedores() {
+    const inputBusqueda = document.querySelector('.buscar-proovedor');
+
+    const btnNuevoCliente = document.querySelector('.btn-crear-proovedor');
     const items = document.querySelectorAll('.registro-item');
     const contenedor = document.querySelector('.relleno');
     contenedor.addEventListener('scroll', () => {
@@ -134,13 +133,16 @@ function eventosClientes() {
         }
     });
 
+    btnNuevoCliente.addEventListener('click', crearProovedor);
+
+    
+
     items.forEach(item => {
         item.addEventListener('click', function () {
-            const clienteId = this.dataset.id;
-            window.info(clienteId);
+            const proovedorId = this.dataset.id;
+            window.info(proovedorId);
         });
     });
-
 
     inputBusqueda.addEventListener('input', (e) => {
         aplicarFiltros();
@@ -164,12 +166,12 @@ function eventosClientes() {
             let hayResultados = false;
 
             items.forEach(item => {
-                const cliente = clientes.find(c => c.id === item.dataset.id);
-                const coincide = cliente && (
-                    normalizarTexto(cliente.nombre).includes(busqueda) ||
-                    normalizarTexto(cliente.telefono).includes(busqueda) ||
-                    normalizarTexto(cliente.direccion).includes(busqueda) ||
-                    normalizarTexto(cliente.zona).includes(busqueda)
+                const proovedor = proovedores.find(c => c.id === item.dataset.id);
+                const coincide = proovedor && (
+                    normalizarTexto(proovedor.nombre).includes(busqueda) ||
+                    normalizarTexto(proovedor.telefono).includes(busqueda) ||
+                    normalizarTexto(proovedor.direccion).includes(busqueda) ||
+                    normalizarTexto(proovedor.zona).includes(busqueda)
                 );
 
                 item.style.display = coincide ? 'flex' : 'none';
@@ -196,31 +198,31 @@ function eventosClientes() {
             .replace(/[-_\s]+/g, '');
     }
 
-    
-    window.info = function (clienteId) {
-        const cliente = clientes.find(r => r.id === clienteId);
-        if (!cliente) return;
+
+    window.info = function (proovedorId) {
+        const proovedor = proovedores.find(r => r.id === proovedorId);
+        if (!proovedor) return;
 
         const contenido = document.querySelector('.anuncio-second .contenido');
         const registrationHTML = `
             <div class="encabezado">
-                <h1 class="titulo">${cliente.nombre}</h1>
-                <button class="btn close" onclick="cerrarAnuncioManual('anuncio');"><i class="fas fa-arrow-right"></i></button>
+                <h1 class="titulo">Info proovedor</h1>
+                <button class="btn close" onclick="cerrarAnuncioManual('anuncioSecond')"><i class="fas fa-arrow-right"></i></button>
             </div>
             <div class="relleno verificar-registro">
-                <p class="normal"><i class='bx bx-chevron-right'></i>Información del cliente</p>
+                <p class="normal"><i class='bx bx-chevron-right'></i>Información del proovedor</p>
                 <div class="campo-vertical">
-                    <span class="nombre"><strong><i class='bx bx-id-card'></i> Id: </strong>${cliente.id}</span>
-                    <span class="nombre"><strong><i class='bx bx-user'></i> Nombre: </strong>${cliente.nombre}</span>
-                    <span class="nombre"><strong><i class='bx bx-phone'></i> Teléfono: </strong>${cliente.telefono || 'No registrado'}</span>
-                    <span class="nombre"><strong><i class='bx bx-map'></i> Dirección: </strong>${cliente.direccion || 'No registrada'}</span>
-                    <span class="nombre"><strong><i class='bx bx-map-pin'></i> Zona: </strong>${cliente.zona || 'No registrada'}</span>
+                    <span class="nombre"><strong><i class='bx bx-id-card'></i> Id: </strong>${proovedor.id}</span>
+                    <span class="nombre"><strong><i class='bx bx-user'></i> Nombre: </strong>${proovedor.nombre}</span>
+                    <span class="nombre"><strong><i class='bx bx-phone'></i> Teléfono: </strong>${proovedor.telefono || 'No registrado'}</span>
+                    <span class="nombre"><strong><i class='bx bx-map'></i> Dirección: </strong>${proovedor.direccion || 'No registrada'}</span>
+                    <span class="nombre"><strong><i class='bx bx-map-pin'></i> Zona: </strong>${proovedor.zona || 'No registrada'}</span>
                 </div>
             </div>
             <div class="anuncio-botones">
-                <button class="btn-editar btn blue" data-id="${cliente.id}"><i class='bx bx-edit'></i></button>
-                <button class="btn-eliminar btn red" data-id="${cliente.id}"><i class="bx bx-trash"></i></button>
-                <button class="btn-historial btn yellow" data-id="${cliente.id}"><i class="bx bx-history"></i></button>
+                <button class="btn-editar btn blue" data-id="${proovedor.id}"><i class='bx bx-edit'></i></button>
+                <button class="btn-eliminar btn red" data-id="${proovedor.id}"><i class="bx bx-trash"></i></button>
+                <button class="btn-historial btn yellow" data-id="${proovedor.id}"><i class="bx bx-history"></i></button>
             </div>
         `;
         contenido.innerHTML = registrationHTML;
@@ -230,26 +232,26 @@ function eventosClientes() {
         const btnEliminar = contenido.querySelector('.btn-eliminar');
         const btnHistorial = contenido.querySelector('.btn-historial');
 
-        btnEditar.addEventListener('click', () => editar(cliente));
-        btnEliminar.addEventListener('click', () => eliminar(cliente));
-        btnHistorial.addEventListener('click', () => verHistorial(cliente));
+        btnEditar.addEventListener('click', () => editar(proovedor));
+        btnEliminar.addEventListener('click', () => eliminar(proovedor));
+        btnHistorial.addEventListener('click', () => verHistorial(proovedor));
 
-        async function eliminar(cliente) {
-    
+        async function eliminar(proovedor) {
+
             const contenido = document.querySelector('.anuncio-tercer .contenido');
             const registrationHTML = `
                 <div class="encabezado">
                     <h1 class="titulo">Eliminar cliente</h1>
-                    <button class="btn close" onclick="cerrarAnuncioManual('anuncioTercer');"><i class="fas fa-arrow-right"></i></button>
+                    <button class="btn close" onclick="cerrarAnuncioManual('anuncioTercer')"><i class="fas fa-arrow-right"></i></button>
                 </div>
                 <div class="relleno">
-                    <p class="normal"><i class='bx bx-chevron-right'></i> Información del cliente</p>
+                    <p class="normal"><i class='bx bx-chevron-right'></i> Información del proovedor</p>
                     <div class="campo-vertical">
-                        <span class="nombre"><strong><i class='bx bx-id-card'></i> Id: </strong>${cliente.id}</span>
-                        <span class="nombre"><strong><i class='bx bx-user'></i> Nombre: </strong>${cliente.nombre}</span>
-                        <span class="nombre"><strong><i class='bx bx-phone'></i> Teléfono: </strong>${cliente.telefono || 'No registrado'}</span>
-                        <span class="nombre"><strong><i class='bx bx-map'></i> Dirección: </strong>${cliente.direccion || 'No registrada'}</span>
-                        <span class="nombre"><strong><i class='bx bx-map-pin'></i> Zona: </strong>${cliente.zona || 'No registrada'}</span>
+                        <span class="nombre"><strong><i class='bx bx-id-card'></i> Id: </strong>${proovedor.id}</span>
+                        <span class="nombre"><strong><i class='bx bx-user'></i> Nombre: </strong>${proovedor.nombre}</span>
+                        <span class="nombre"><strong><i class='bx bx-phone'></i> Teléfono: </strong>${proovedor.telefono || 'No registrado'}</span>
+                        <span class="nombre"><strong><i class='bx bx-map'></i> Dirección: </strong>${proovedor.direccion || 'No registrada'}</span>
+                        <span class="nombre"><strong><i class='bx bx-map-pin'></i> Zona: </strong>${proovedor.zona || 'No registrada'}</span>
                     </div>
                     <p class="normal"><i class='bx bx-chevron-right'></i>Motivo de la eliminación</p>
                     <div class="entrada">
@@ -261,14 +263,14 @@ function eventosClientes() {
                     </div>
                 </div>
                 <div class="anuncio-botones">
-                    <button class="btn-eliminar-cliente-confirmar btn red"><i class="bx bx-trash"></i> Eliminar</button>
+                    <button class="btn-eliminar-proovedor-confirmar btn red"><i class="bx bx-trash"></i> Eliminar</button>
                 </div>
             `;
             contenido.innerHTML = registrationHTML;
             mostrarAnuncioTercer();
     
-            const btnEliminarCliente = contenido.querySelector('.btn-eliminar-cliente-confirmar');
-            btnEliminarCliente.addEventListener('click', async () => {
+            const btnEliminarProovedor = contenido.querySelector('.btn-eliminar-proovedor-confirmar');
+            btnEliminarProovedor.addEventListener('click', async () => {
                 const motivo = document.querySelector('.motivo').value.trim();
     
                 if (!motivo) {
@@ -282,27 +284,27 @@ function eventosClientes() {
     
                 try {
                     mostrarCarga();
-                    const response = await fetch(`/eliminar-cliente/${clienteId}`, {
+                    const response = await fetch(`/eliminar-proovedor-acopio/${proovedorId}`, {
                         method: 'DELETE'
                     });
     
                     if (response.ok) {
                         
                         mostrarNotificacion({
-                            message: 'Cliente eliminado correctamente',
+                            message: 'Proovedor eliminado correctamente',
                             type: 'success',
                             duration: 3000
                         });
                         ocultarCarga();
                         ocultarAnuncioSecond();
-                        await mostrarClientes();
+                        await mostrarProovedoresAcopio();
                     } else {
-                        throw new Error('Error al eliminar el cliente');
+                        throw new Error('Error al eliminar el proovedor');
                     }
                 } catch (error) {
                     console.error('Error:', error);
                     mostrarNotificacion({
-                        message: error.message || 'Error al eliminar el cliente',
+                        message: error.message || 'Error al eliminar el proovedor',
                         type: 'error',
                         duration: 3500
                     });
@@ -311,13 +313,13 @@ function eventosClientes() {
                 }
             });
         }
-        async function editar(cliente) {
+        async function editar(proovedor) {
     
             const contenido = document.querySelector('.anuncio-tercer .contenido');
             const registrationHTML = `
             <div class="encabezado">
                 <h1 class="titulo">Editar cliente</h1>
-                <button class="btn close" onclick="cerrarAnuncioManual('anuncioTercer');"><i class="fas fa-arrow-right"></i></button>
+                <button class="btn close" onclick="info('${proovedor.id}');"><i class="fas fa-arrow-right"></i></button>
             </div>
             <div class="relleno">
                 <p class="normal"><i class='bx bx-chevron-right'></i> Información del cliente</p>
@@ -325,28 +327,28 @@ function eventosClientes() {
                     <i class='bx bx-user'></i>
                     <div class="input">
                         <p class="detalle">Nombre</p>
-                        <input class="editar-nombre" type="text" value="${cliente.nombre}" required>
+                        <input class="editar-nombre" type="text" value="${proovedor.nombre}" required>
                     </div>
                 </div>
                 <div class="entrada">
                     <i class='bx bx-phone'></i>
                     <div class="input">
                         <p class="detalle">Teléfono</p>
-                        <input class="editar-telefono" type="text" value="${cliente.telefono || ''}">
+                        <input class="editar-telefono" type="text" value="${proovedor.telefono || ''}">
                     </div>
                 </div>
                 <div class="entrada">
                     <i class='bx bx-map'></i>
                     <div class="input">
                         <p class="detalle">Dirección</p>
-                        <input class="editar-direccion" type="text" value="${cliente.direccion || ''}">
+                        <input class="editar-direccion" type="text" value="${proovedor.direccion || ''}">
                     </div>
                 </div>
                 <div class="entrada">
                     <i class='bx bx-map-pin'></i>
                     <div class="input">
                         <p class="detalle">Zona</p>
-                        <input class="editar-zona" type="text" value="${cliente.zona || ''}">
+                        <input class="editar-zona" type="text" value="${proovedor.zona || ''}">
                     </div>
                 </div>
                 <p class="normal"><i class='bx bx-chevron-right'></i>Motivo de la edición</p>
@@ -359,14 +361,14 @@ function eventosClientes() {
                 </div>
             </div>
             <div class="anuncio-botones">
-                <button class="btn-guardar-cliente btn orange"><i class="bx bx-save"></i> Guardar cambios</button>
+                <button class="btn-guardar-proovedor btn orange"><i class="bx bx-save"></i> Guardar cambios</button>
             </div>
         `;
             contenido.innerHTML = registrationHTML;
             mostrarAnuncioTercer();
     
-            const btnGuardarCliente = contenido.querySelector('.btn-guardar-cliente');
-            btnGuardarCliente.addEventListener('click', async () => {
+            const btnGuardarProveedor = contenido.querySelector('.btn-guardar-proovedor');
+            btnGuardarProveedor.addEventListener('click', async () => {
                 const nombre = document.querySelector('.editar-nombre').value.trim();
                 const telefono = document.querySelector('.editar-telefono').value.trim();
                 const direccion = document.querySelector('.editar-direccion').value.trim();
@@ -384,7 +386,7 @@ function eventosClientes() {
     
                 try {
                     mostrarCarga();
-                    const response = await fetch(`/editar-cliente/${clienteId}`, {
+                    const response = await fetch(`/editar-proovedor-acopio/${proovedorId}`, {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json'
@@ -394,20 +396,20 @@ function eventosClientes() {
     
                     if (response.ok) {
                         mostrarNotificacion({
-                            message: 'Cliente actualizado correctamente',
+                            message: 'Proovedor actualizado correctamente',
                             type: 'success',
                             duration: 3000
                         });
                         ocultarCarga();
                         ocultarAnuncioSecond();
-                        await mostrarClientes();
+                        await mostrarProovedoresAcopio();
                     } else {
-                        throw new Error('Error al actualizar el cliente');
+                        throw new Error('Error al actualizar el proovedor');
                     }
                 } catch (error) {
                     console.error('Error:', error);
                     mostrarNotificacion({
-                        message: error.message || 'Error al actualizar el cliente',
+                        message: error.message || 'Error al actualizar el proovedor',
                         type: 'error',
                         duration: 3500
                     });
@@ -416,21 +418,22 @@ function eventosClientes() {
                 }
             });
         }
-        async function verHistorial(cliente) {
+        async function verHistorial(proovedor) {
             ocultarAnuncioSecond();
-            mostrarMovimientosAlmacen(cliente.nombre);
+            mostrarMovimientosAlmacen(proovedor.nombre);
         }
     }
-    btnNuevoCliente.addEventListener('click', crearCliente);
-    async function crearCliente() {
+    
+
+    async function crearProovedor() {
         const contenido = document.querySelector('.anuncio-second .contenido');
         const registrationHTML = `
             <div class="encabezado">
-                <h1 class="titulo">Crear nuevo cliente</h1>
+                <h1 class="titulo">Crear nuevo proovedor</h1>
                 <button class="btn close" onclick="cerrarAnuncioManual('anuncioSecond')"><i class="fas fa-arrow-right"></i></button>
             </div>
             <div class="relleno">
-                <p class="normal"><i class='bx bx-chevron-right'></i> Información del cliente</p>
+                <p class="normal"><i class='bx bx-chevron-right'></i> Información del proovedor</p>
                 <div class="entrada">
                     <i class='bx bx-user'></i>
                     <div class="input">
@@ -461,14 +464,14 @@ function eventosClientes() {
                 </div>
             </div>
             <div class="anuncio-botones">
-                <button class="btn-guardar-nuevo-cliente btn orange"><i class="bx bx-save"></i> Guardar cliente</button>
+                <button class="btn-guardar-nuevo-proovedor btn orange"><i class="bx bx-save"></i> Guardar cliente</button>
             </div>
         `;
         contenido.innerHTML = registrationHTML;
         mostrarAnuncioSecond();
 
-        const btnGuardarNuevoCliente = contenido.querySelector('.btn-guardar-nuevo-cliente');
-        btnGuardarNuevoCliente.addEventListener('click', async () => {
+        const btnGuardarNuevoProovedor = contenido.querySelector('.btn-guardar-nuevo-proovedor');
+        btnGuardarNuevoProovedor.addEventListener('click', async () => {
             const nombre = document.querySelector('.nuevo-nombre').value.trim();
             const telefono = document.querySelector('.nuevo-telefono').value.trim();
             const direccion = document.querySelector('.nuevo-direccion').value.trim();
@@ -485,7 +488,7 @@ function eventosClientes() {
 
             try {
                 mostrarCarga();
-                const response = await fetch('/agregar-cliente', {
+                const response = await fetch('/agregar-proovedor-acopio', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -495,20 +498,20 @@ function eventosClientes() {
 
                 if (response.ok) {
                     mostrarNotificacion({
-                        message: 'Cliente creado correctamente',
+                        message: 'Proovedor creado correctamente',
                         type: 'success',
                         duration: 3000
                     });
                     ocultarCarga();
                     ocultarAnuncioSecond();
-                    await mostrarClientes();
+                    await mostrarProovedoresAcopio();
                 } else {
-                    throw new Error('Error al crear el cliente');
+                    throw new Error('Error al crear el proovedor');
                 }
             } catch (error) {
                 console.error('Error:', error);
                 mostrarNotificacion({
-                    message: error.message || 'Error al crear el cliente',
+                    message: error.message || 'Error al crear el proovedor',
                     type: 'error',
                     duration: 3500
                 });
