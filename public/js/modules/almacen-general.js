@@ -911,10 +911,14 @@ function eventosAlmacenGeneral() {
                         .join(';');
 
                     // Validar campos obligatorios
-                    if (!producto || !gramos || !stock || !cantidadxgrupo || !lista || !codigo_barras || !motivo || !etiquetasSeleccionadas || !preciosActualizados) {
-                        throw new Error('Todos los campos son obligatorios');
+                    if (!motivo) {
+                        mostrarNotificacion({
+                            message: 'Debe ingresar el motivo de la edición',
+                            type: 'warning',
+                            duration: 3500
+                        });
+                        return;
                     }
-
                     // Procesar imagen si existe
                     const imagenInput = document.querySelector('.editar-producto .imagen-producto');
                     let imagenBase64 = null;

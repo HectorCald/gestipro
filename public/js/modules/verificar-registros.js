@@ -568,6 +568,7 @@ function eventosVerificacion() {
                                     <option value="${registro.proceso}" selected>${registro.proceso}</option>
                                     <option value="Seleccion">Selección</option>
                                     <option value="Cernido">Cernido</option>
+                                    <option value="Ninguno">Ninguno</option>
                                 </select>
                             </div>
                         </div>
