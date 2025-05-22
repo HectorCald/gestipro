@@ -63,7 +63,7 @@
 
                 .detalle {
                     font-size: var(--text-detalle);
-                    color: var(--cero-color);
+                    color: gray;
                     text-align: center;
                 }
             }

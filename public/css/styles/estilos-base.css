@@ -40,7 +40,7 @@ body {
     --nov-color: #ffffff;
     --primary-color: #ffffff;
     --second-color: #1a1a1a;
-    --cero-color: rgb(141, 141, 141);
+    --cero-color: rgb(183, 183, 183);
 
     /* Colores de acento que se mantienen en ambos temas */
     --cuarto-color: #26a88e;
@@ -96,7 +96,7 @@ body {
     --second-color: #ffffff;
     --nov-color: #111111;
     --cuarto-color: #3ca48f;
-    --cero-color: #808080;
+    --cero-color: #565656;
     --sep-color: #2f2f2f;
     --oct-color:rgb(34, 34, 34);
 }

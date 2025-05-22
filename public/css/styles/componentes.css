@@ -387,6 +387,7 @@
     align-items: center;
     padding: 0;
 }
+
 .anuncio-tercer {
     position: fixed;
     top: 0;
@@ -603,7 +604,7 @@
     height: 60px !important;
     width: 100%;
     border-radius: 10px;
-    padding: 6px 5px !important;
+    padding: 0px 5px !important;
     padding-right: 10px !important;
     background-color: var(--primary-color);
 
@@ -615,6 +616,7 @@
         justify-content: center;
         align-items: center;
         color: var(--cuarto-color) !important;
+        margin-right: 5px;
     }
 
     .input {
@@ -627,6 +629,7 @@
         text-align: left !important;
         justify-content: center;
         align-items: center;
+        
 
         .detalle {
             color: var(--cero-color);
@@ -654,6 +657,7 @@
             font-size: var(--text-subtitulo);
             width: 100%;
             color: var(--text);
+            padding-top: 15px;
         }
 
         select {
@@ -668,6 +672,7 @@
             display: flex;
             justify-content: flex-start !important;
             align-items: center;
+            padding-top: 15px;
 
             option {
                 background-color: var(--primary-color);
@@ -825,7 +830,7 @@
 
         .detalle {
             font-size: 0.875rem;
-            color: var(--cero-color);
+            color: gray;
         }
     }
 }
@@ -945,16 +950,32 @@
             display: none;
         }
     }
+
     .estado {
         background: none;
         font-weight: 900 !important;
         font-size: 10px !important;
     }
-    .estado.pendiente { color: var(--cero-color);}
-    .estado.recibido { color: var(--tercer-color) }
-    .estado.ingresado { color: var(--success);}
-    .estado.rechazado { color: var(--error);}
-    .estado.no-llego { color: orange;}
+
+    .estado.pendiente {
+        color: var(--cero-color);
+    }
+
+    .estado.recibido {
+        color: var(--tercer-color)
+    }
+
+    .estado.ingresado {
+        color: var(--success);
+    }
+
+    .estado.rechazado {
+        color: var(--error);
+    }
+
+    .estado.no-llego {
+        color: orange;
+    }
 
     .precio-cantidad {
         display: flex;
@@ -964,11 +985,11 @@
         font-size: 10px !important;
 
         .stock {
-            color: rgb(0, 145, 255);
+            color: var(--success);
             background: none;
             border-radius: 10px;
             font-weight: 900 !important;
-            
+
         }
 
         .precio {
@@ -1368,6 +1389,7 @@
                     width: 100%;
                     background-color: var(--primary-color);
                     color: var(--text);
+
                     border-radius: 10px;
                     padding: 10px;
                     border: none;
@@ -1378,6 +1400,10 @@
                     &:focus {
                         border: 1px solid var(--tercer-color);
                     }
+                }
+
+                .detalle::placeholder {
+                    color: var(--cero-color);
                 }
 
                 p {

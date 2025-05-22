@@ -1048,6 +1048,7 @@ function renderInitialHTML() {
         </div>
     `;
     contenido.innerHTML = initialHTML;
+    contenido.style.paddingBottom='80px';
 }
 function updateHTMLWithData() {
     // Update etiquetas filter
