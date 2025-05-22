@@ -1,7 +1,7 @@
 @import'styles/estilos-base.css';
 
 .titulo {
-    font-size: var(--text-superior) !important;
+    font-size: var(--text-titulo) !important;
     background: var(--cuarto-color);
     -webkit-background-clip: text;
     background-clip: text;
@@ -981,7 +981,7 @@
     }
 
     .estado.pendiente {
-        color: var(--cero-color);
+        color: gray;
     }
 
     .estado.recibido {

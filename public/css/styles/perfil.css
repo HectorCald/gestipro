@@ -18,7 +18,7 @@
 
             .correo-usuario {
                 font-size: var(--text-subtitulo);
-                color: var(--cero-color);
+                color: gray;
 
             }
         }
