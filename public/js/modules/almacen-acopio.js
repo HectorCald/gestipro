@@ -362,11 +362,11 @@ function eventosAlmacenAcopio() {
                 .map(etiqueta => `<span class="valor"><strong><i class='bx bx-tag'></i> ${etiqueta}</span>`)
                 .join('');
 
-            const contenido = document.querySelector('.anuncio-second .contenido');
+            const contenido = document.querySelector('.anuncio-tercer .contenido');
             const registrationHTML = `
                 <div class="encabezado">
                     <h1 class="titulo">Info producto</h1>
-                    <button class="btn close" onclick="info('${producto.id}');"><i class="fas fa-arrow-right"></i></button>
+                    <button class="btn close" onclick="cerrarAnuncioManual('anuncioTercer');"><i class="fas fa-arrow-right"></i></button>
                 </div>
                 <div class="relleno verificar-registro">
                     <p class="normal"><i class='bx bx-chevron-right'></i>Información básica</p>
@@ -389,7 +389,7 @@ function eventosAlmacenAcopio() {
             </div>
         `;
             contenido.innerHTML = registrationHTML;
-            mostrarAnuncioSecond();
+            mostrarAnuncioTercer();
 
             // Agregar evento al botón guardar
             const btnEliminarProducto = contenido.querySelector('.btn-eliminar-producto');
@@ -507,11 +507,11 @@ function eventosAlmacenAcopio() {
                 .map(e => e.etiqueta)
                 .filter(e => !etiquetasProducto.includes(e));
 
-            const contenido = document.querySelector('.anuncio-second .contenido');
+            const contenido = document.querySelector('.anuncio-tercer .contenido');
             const registrationHTML = `
             <div class="encabezado">
                 <h1 class="titulo">Editar producto</h1>
-                <button class="btn close" onclick="info('${producto.id}');"><i class="fas fa-arrow-right"></i></button>
+                <button class="btn close" onclick="cerrarAnuncioManual('anuncioTercer');"><i class="fas fa-arrow-right"></i></button>
             </div>
             <div class="relleno editar-producto">
                 <p class="normal"><i class='bx bx-chevron-right'></i>Información básica</p>
@@ -598,7 +598,7 @@ function eventosAlmacenAcopio() {
                 }
             });
 
-            mostrarAnuncioSecond();
+            mostrarAnuncioTercer();
 
             // Add event to save button
             const btnEditarProducto = contenido.querySelector('.btn-editar-producto');
