@@ -28,7 +28,6 @@
     background-clip: text;
     color: transparent;
     font-weight: 600;
-    margin-top: 5px;
 }
 
 .btn {
@@ -426,7 +425,7 @@
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     z-index: 1;
-    padding-top: 60px;
+    padding-top: 55px;
     padding-bottom: 80px;
 }
 
@@ -672,12 +671,16 @@
             display: flex;
             justify-content: flex-start !important;
             align-items: center;
+            padding: 0;
             padding-top: 15px;
 
             option {
                 background-color: var(--primary-color);
                 color: var(--text);
                 font-size: var(--text-detalle) !important;
+            }
+            option:selected{
+                padding: 0;
             }
         }
 
@@ -710,6 +713,26 @@
 
     }
 }
+.imagen-producto {
+    display: none; /* Oculta el botón por defecto que dice "Seleccionar archivo" */
+  }
+  
+  .custom-file-upload {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: var(--sep-color); /* verde */
+    color: white;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+    width: 100%;
+  }
+  
+  .custom-file-upload:hover {
+    background-color: var(--tercer-color); /* verde oscuro */
+  }
+  
 
 .etiquetas-container {
     margin: 0;

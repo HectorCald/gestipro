@@ -280,7 +280,7 @@ function eventosAlmacenAcopio() {
         const contenido = document.querySelector('.anuncio-second .contenido');
         const registrationHTML = `
             <div class="encabezado">
-                <h1 class="titulo">Info producto</h1>
+                <h1 class="titulo">${producto.producto}</h1>
                 <button class="btn close" onclick="cerrarAnuncioManual('anuncioSecond');"><i class="fas fa-arrow-right"></i></button>
             </div>
             <div class="relleno verificar-registro">
@@ -365,7 +365,7 @@ function eventosAlmacenAcopio() {
             const contenido = document.querySelector('.anuncio-tercer .contenido');
             const registrationHTML = `
                 <div class="encabezado">
-                    <h1 class="titulo">Info producto</h1>
+                    <h1 class="titulo">Eliminar prodcuto</h1>
                     <button class="btn close" onclick="cerrarAnuncioManual('anuncioTercer');"><i class="fas fa-arrow-right"></i></button>
                 </div>
                 <div class="relleno verificar-registro">
@@ -385,7 +385,7 @@ function eventosAlmacenAcopio() {
                 </div>
             </div>
             <div class="anuncio-botones">
-                <button class="btn-eliminar-producto btn red"><i class="bi bi-trash-fill"></i> Eliminar</button>
+                <button class="btn-eliminar-producto btn red"><i class="bx bx-trash"></i> Confirmar eliminación</button>
             </div>
         `;
             contenido.innerHTML = registrationHTML;
@@ -455,19 +455,21 @@ function eventosAlmacenAcopio() {
                 .map((lote, index) => {
                     const [peso, numeroLote] = lote.split('-');
                     return `
-                <div class="entrada">
-                    <i class='bx bx-package'></i>
-                    <div class="input">
-                        <p class="detalle">Peso Bruto</p>
-                        <input class="peso-bruto" data-lote="${numeroLote}" type="number" value="${peso}" autocomplete="off" placeholder=" " required>
-                    </div>
-                </div>
-                <div class="entrada">
-                    <i class='bx bx-hash'></i>
-                    <div class="input">
-                        <p class="detalle">Número de Lote (Bruto)</p>
-                        <input class="lote-bruto" data-old-lote="${numeroLote}" type="number" value="${numeroLote}" autocomplete="off" placeholder=" " required>
-                    </div>
+                    <div class="campo-horizontal">
+                        <div class="entrada">
+                            <i class='bx bx-package'></i>
+                            <div class="input">
+                                <p class="detalle">Peso Bruto</p>
+                                <input class="peso-bruto" data-lote="${numeroLote}" type="number" value="${peso}" autocomplete="off" placeholder=" " required>
+                            </div>
+                        </div>
+                        <div class="entrada">
+                            <i class='bx bx-hash'></i>
+                            <div class="input">
+                                <p class="detalle">Lote</p>
+                                <input class="lote-bruto" data-old-lote="${numeroLote}" type="number" value="${numeroLote}" autocomplete="off" placeholder=" " required>
+                            </div>
+                        </div>
                 </div>`;
                 }).join('');
 
@@ -476,21 +478,23 @@ function eventosAlmacenAcopio() {
                 .map((lote, index) => {
                     const [peso, numeroLote] = lote.split('-');
                     return `
-                <div class="entrada">
-                    <i class='bx bx-package'></i>
-                    <div class="input">
-                        <p class="detalle">Peso Prima</p>
-                        <input class="peso-prima" data-lote="${numeroLote}" type="number" value="${peso}" autocomplete="off" placeholder=" " required>
-                    </div>
-                </div>
-                <div class="entrada">
-                    <i class='bx bx-hash'></i>
-                    <div class="input">
-                        <p class="detalle">Número de Lote (Prima)</p>
-                        <input class="lote-prima" data-old-lote="${numeroLote}" type="number" value="${numeroLote}" autocomplete="off" placeholder=" " required>
-                    </div>
-                </div>`;
-                }).join('');
+                    <div class="campo-horizontal">
+                        <div class="entrada">
+                            <i class='bx bx-package'></i>
+                            <div class="input">
+                                <p class="detalle">Peso Prima</p>
+                                <input class="peso-prima" data-lote="${numeroLote}" type="number" value="${peso}" autocomplete="off" placeholder=" " required>
+                            </div>
+                        </div>
+                        <div class="entrada">
+                            <i class='bx bx-hash'></i>
+                            <div class="input">
+                                <p class="detalle">Lote</p>
+                                <input class="lote-prima" data-old-lote="${numeroLote}" type="number" value="${numeroLote}" autocomplete="off" placeholder=" " required>
+                            </div>
+                        </div>
+                    </div>`;
+                    }).join('');
 
             // Process current tags
             const etiquetasProducto = producto.etiquetas.split(';').filter(e => e.trim());
@@ -558,7 +562,7 @@ function eventosAlmacenAcopio() {
                 </div>
             </div>
             <div class="anuncio-botones">
-                <button class="btn-editar-producto btn orange"><i class="bx bx-save"></i> Guardar cambios</button>
+                <button class="btn-editar-producto btn blue"><i class="bx bx-save"></i> Guardar cambios</button>
             </div>
         `;
 
@@ -698,36 +702,41 @@ function eventosAlmacenAcopio() {
             </div>
 
             <p class="normal"><i class='bx bx-chevron-right'></i>Peso Bruto</p>
-            <div class="entrada">
-                <i class='bx bx-package'></i>
-                <div class="input">
-                    <p class="detalle">Peso Bruto</p>
-                    <input class="peso-bruto" type="number" autocomplete="off" placeholder=" " required>
+            <div class="campo-horizontal">
+                <div class="entrada">
+                    <i class='bx bx-package'></i>
+                    <div class="input">
+                        <p class="detalle">Peso Bruto</p>
+                        <input class="peso-bruto" type="number" autocomplete="off" placeholder=" " required>
+                    </div>
                 </div>
-            </div>
-            <div class="entrada">
-                <i class='bx bx-hash'></i>
-                <div class="input">
-                    <p class="detalle">Número de Lote (Bruto)</p>
-                    <input class="lote-bruto" type="number" autocomplete="off" placeholder=" " required>
+                <div class="entrada">
+                    <i class='bx bx-hash'></i>
+                    <div class="input">
+                        <p class="detalle">Lote</p>
+                        <input class="lote-bruto" type="number" autocomplete="off" placeholder=" " required>
+                    </div>
                 </div>
             </div>
 
             <p class="normal"><i class='bx bx-chevron-right'></i>Peso Prima</p>
-            <div class="entrada">
-                <i class='bx bx-package'></i>
-                <div class="input">
-                    <p class="detalle">Peso Prima</p>
-                    <input class="peso-prima" type="number" autocomplete="off" placeholder=" " required>
+           
+           <div class="campo-horizontal">
+                <div class="entrada">
+                    <i class='bx bx-package'></i>
+                    <div class="input">
+                        <p class="detalle">Peso Prima</p>
+                        <input class="peso-prima" type="number" autocomplete="off" placeholder=" " required>
+                    </div>
                 </div>
-            </div>
-            <div class="entrada">
-                <i class='bx bx-hash'></i>
-                <div class="input">
-                    <p class="detalle">Número de Lote (Prima)</p>
-                    <input class="lote-prima" type="number" autocomplete="off" placeholder=" " required>
+                <div class="entrada">
+                    <i class='bx bx-hash'></i>
+                    <div class="input">
+                        <p class="detalle">Lote</p>
+                        <input class="lote-prima" type="number" autocomplete="off" placeholder=" " required>
+                    </div>
                 </div>
-            </div>
+           </div>
 
             <p class="normal"><i class='bx bx-chevron-right'></i>Etiquetas</p>
             <div class="etiquetas-container">
@@ -998,7 +1007,7 @@ function renderInitialHTML() {
     const contenido = document.querySelector('.anuncio .contenido');
     const initialHTML = `  
         <div class="encabezado">
-            <h1 class="titulo">Almacén General</h1>
+            <h1 class="titulo">Almacén Acopio</h1>
             <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno almacen-general">

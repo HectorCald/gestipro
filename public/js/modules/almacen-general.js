@@ -143,7 +143,7 @@ export async function mostrarAlmacenGeneral() {
     setTimeout(() => {
         configuracionesEntrada();
     }, 100);
-    
+
     // Load data in parallel
     const [almacenGeneral, etiquetasResult, preciosResult, almacenAcopio] = await Promise.all([
         obtenerAlmacenGeneral(),
@@ -154,7 +154,7 @@ export async function mostrarAlmacenGeneral() {
 
     updateHTMLWithData(); // Update HTML once data is loaded
     eventosAlmacenGeneral();
-    
+
 }
 function renderInitialHTML() {
 
@@ -242,8 +242,8 @@ function updateHTMLWithData() {
         <div class="registro-item" data-id="${producto.id}">
             <div class="header">
                 ${producto.imagen && producto.imagen.startsWith('data:image') ?
-                `<img class="imagen" src="${producto.imagen}">` :
-                `<i class='bx bx-package'></i>`}
+            `<img class="imagen" src="${producto.imagen}">` :
+            `<i class='bx bx-package'></i>`}
                 <div class="info-header">
                     <div class="id">${producto.id}
                         <div class="precio-cantidad">
@@ -398,7 +398,7 @@ function eventosAlmacenGeneral() {
             });
 
             // Actualizar precios y reordenar DOM
-            const contenedor = document.querySelector('.productos-container'); 
+            const contenedor = document.querySelector('.productos-container');
             productosFiltrados.forEach(registro => {
                 const producto = productos.find(p => p.id === registro.dataset.id);
                 if (precioSeleccionado) {
@@ -613,7 +613,7 @@ function eventosAlmacenGeneral() {
                     const data = await response.json();
 
                     if (data.success) {
-                        
+
                         mostrarNotificacion({
                             message: 'Producto eliminado correctamente',
                             type: 'success',
@@ -685,6 +685,7 @@ function eventosAlmacenGeneral() {
                             <input class="producto" type="text" value="${producto.producto}" autocomplete="off" placeholder=" " required>
                         </div>
                     </div>
+                <div class="campo-horizontal">
                     <div class="entrada">
                         <i class="ri-scales-line"></i>
                         <div class="input">
@@ -692,8 +693,6 @@ function eventosAlmacenGeneral() {
                             <input class="gramaje" type="number" value="${producto.gramos}" autocomplete="off" placeholder=" " required>
                         </div>
                     </div>
-    
-                <p class="normal"><i class='bx bx-chevron-right'></i>Detalles adicionales</p>
                     <div class="entrada">
                         <i class='bx bx-package'></i>
                         <div class="input">
@@ -701,10 +700,12 @@ function eventosAlmacenGeneral() {
                             <input class="stock" type="number" value="${producto.stock}" autocomplete="off" placeholder=" " required>
                         </div>
                     </div>
+                </div>
+                <div class="campo-horizontal">
                     <div class="entrada">
                         <i class='bx bx-barcode'></i>
                         <div class="input">
-                            <p class="detalle">Código de barras</p>
+                            <p class="detalle">Código</p>
                             <input class="codigo-barras" type="text" value="${producto.codigo_barras}" autocomplete="off" placeholder=" " required>
                         </div>
                     </div>
@@ -715,25 +716,30 @@ function eventosAlmacenGeneral() {
                             <input class="lista" type="text" value="${producto.lista}" autocomplete="off" placeholder=" " required>
                         </div>
                     </div>
+                </div>
+                <div class="campo-horizontal">
                     <div class="entrada">
                         <i class='bx bx-package'></i>
                         <div class="input">
-                            <p class="detalle">Cantidad por grupo</p>
+                            <p class="detalle">U. por Tira</p>
                             <input class="cantidad-grupo" type="number" value="${producto.cantidadxgrupo}" autocomplete="off" placeholder=" " required>
                         </div>
                     </div>
                     <div class="entrada">
                         <i class='bx bx-package'></i>
                         <div class="input">
-                            <p class="detalle">Unidades sueltas</p>
+                            <p class="detalle">U. Sueltas</p>
                             <input class="unidades-sueltas" type="number" value="${producto.uSueltas}" autocomplete="off" placeholder=" " required>
                         </div>
                     </div>
+                </div>
                     <div class="entrada">
                         <i class='bx bx-image'></i>
                         <div class="input">
-                            <p class="detalle">Imagen actual: ${producto.imagen ? 'Imagen cargada' : 'Sin imagen'}</p>
-                            <input class="imagen-producto" type="file" accept="image/*">
+                            <label class="custom-file-upload" for="imagenInput">
+                                Subir imagen
+                            </label>
+                            <input style="display:none"id="imagenInput" class="imagen-producto" type="file" accept="image/*">
                         </div>
                     </div>
                 <p class="normal"><i class='bx bx-chevron-right'></i>Etiquetas</p>
@@ -881,56 +887,62 @@ function eventosAlmacenGeneral() {
 
             async function confirmarEdicionProducto() {
                 try {
+                    // Validar campos requeridos
                     const producto = document.querySelector('.editar-producto .producto').value.trim();
                     const gramos = document.querySelector('.editar-producto .gramaje').value.trim();
                     const stock = document.querySelector('.editar-producto .stock').value.trim();
                     const cantidadxgrupo = document.querySelector('.editar-producto .cantidad-grupo').value.trim();
                     const lista = document.querySelector('.editar-producto .lista').value.trim();
                     const codigo_barras = document.querySelector('.editar-producto .codigo-barras').value.trim();
-                    const sueltas = document.querySelector('.editar-producto .unidades-sueltas').value.trim();
+                    const uSueltas = document.querySelector('.editar-producto .unidades-sueltas').value.trim();
                     const motivo = document.querySelector('.editar-producto .motivo').value.trim();
-                    const inputFoto = document.querySelector('.imagen-producto');
-                    const acopioSelect = document.querySelector('.editar-producto .alm-acopio-producto');
-                    const acopio_id = acopioSelect.value;
-                    const alm_acopio_producto = acopio_id ?
-                        productosAcopio.find(p => p.id === acopio_id)?.producto :
-                        'No hay índice seleccionado';
-
-                    // Procesar la imagen si se seleccionó una nueva
-                    let imagen = producto.imagen; // Mantener la imagen existente por defecto
-                    if (inputFoto && inputFoto.files[0]) {
-                        try {
-                            imagen = await procesarImagen(inputFoto.files[0]);
-                        } catch (error) {
-                            mostrarNotificacion({
-                                message: error.message,
-                                type: 'error',
-                                duration: 3500
-                            });
-                            return;
-                        }
-                    }
+                    const alm_acopio_id = document.querySelector('.editar-producto .alm-acopio-producto').value || productoActual.acopio_id;
 
 
-                    // Get selected etiquetas
-                    const etiquetasSeleccionadas = Array.from(document.querySelectorAll('.etiqueta-item'))
+                    // Obtener etiquetas seleccionadas
+                    const etiquetasSeleccionadas = Array.from(document.querySelectorAll('.etiquetas-actuales .etiqueta-item'))
                         .map(item => item.dataset.valor)
                         .join(';');
 
-                    // Get precios
+                    // Obtener precios
                     const preciosInputs = document.querySelectorAll('.editar-producto .precio-input');
                     const preciosActualizados = Array.from(preciosInputs)
                         .map(input => `${input.dataset.ciudad},${input.value}`)
                         .join(';');
 
-                    if (!motivo) {
-                        mostrarNotificacion({
-                            message: 'Ingresa el motivo de la edición',
-                            type: 'warning',
-                            duration: 3500
-                        });
-                        return;
+                    // Validar campos obligatorios
+                    if (!producto || !gramos || !stock || !cantidadxgrupo || !lista || !codigo_barras || !motivo || !etiquetasSeleccionadas || !preciosActualizados) {
+                        throw new Error('Todos los campos son obligatorios');
                     }
+
+                    // Procesar imagen si existe
+                    const imagenInput = document.querySelector('.editar-producto .imagen-producto');
+                    let imagenBase64 = null;
+                    if (imagenInput.files && imagenInput.files[0]) {
+                        imagenBase64 = await procesarImagen(imagenInput.files[0]);
+                    }
+
+                    // Preparar datos para enviar
+                    const productoActual = productos.find(p => p.id === registroId);
+
+                    // Prepare data for update
+                    const datosActualizados = {
+                        producto,
+                        gramos: parseInt(gramos),
+                        stock: parseInt(stock),
+                        cantidadxgrupo: parseInt(cantidadxgrupo),
+                        lista,
+                        codigo_barras,
+                        etiquetas: etiquetasSeleccionadas,
+                        precios: preciosActualizados,
+                        uSueltas: parseInt(uSueltas),
+                        alm_acopio_id: alm_acopio_id,
+                        alm_acopio_producto: alm_acopio_id ?
+                            productosAcopio.find(p => p.id === alm_acopio_id)?.producto :
+                            productoActual.alm_acopio_producto,
+                        motivo,
+                        imagen: imagenBase64 || productoActual.imagen
+                    };
 
                     mostrarCarga();
 
@@ -939,30 +951,24 @@ function eventosAlmacenGeneral() {
                         headers: {
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify({
-                            producto,
-                            gramos,
-                            stock,
-                            cantidadxgrupo,
-                            lista,
-                            codigo_barras,
-                            precios: preciosActualizados,
-                            etiquetas: etiquetasSeleccionadas,
-                            imagen,
-                            uSueltas: sueltas,
-                            alm_acopio_producto // Agregamos el almacén index
-                        })
+                        body: JSON.stringify(datosActualizados)
                     });
+
+
+                    if (!response.ok) {
+                        throw new Error('Error en la respuesta del servidor');
+                    }
 
                     const data = await response.json();
 
                     if (data.success) {
                         mostrarNotificacion({
-                            message: 'Producto editado correctamente',
+                            message: 'Producto actualizado correctamente',
                             type: 'success',
                             duration: 3000
                         });
                         ocultarCarga();
+                        ocultarAnuncioTercer();
                         ocultarAnuncioSecond();
                         await mostrarAlmacenGeneral();
                     } else {

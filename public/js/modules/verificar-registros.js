@@ -541,30 +541,42 @@ function eventosVerificacion() {
                         </div>
                     </div>
                     <div class="sugerencias" id="productos-list"></div>
-                    <div class="entrada">
-                        <i class="ri-scales-line"></i>
-                        <div class="input">
-                            <p class="detalle">Gramaje</p>
-                            <input class="gramaje" type="number" value="${registro.gramos}" autocomplete="off" placeholder=" " required>
+                    <div class="campo-horizontal">
+                        <div class="entrada">
+                            <i class="ri-scales-line"></i>
+                            <div class="input">
+                                <p class="detalle">Gramaje</p>
+                                <input class="gramaje" type="number" value="${registro.gramos}" autocomplete="off" placeholder=" " required>
+                            </div>
+                        </div>
+                        <div class="entrada">
+                            <i class='bx bx-barcode'></i>
+                            <div class="input">
+                                <p class="detalle">Lote</p>
+                                <input class="lote" type="number" autocomplete="off" value="${registro.lote}" placeholder=" " required>
+                            </div>
                         </div>
                     </div>
+                    
                 <p class="normal"><i class='bx bx-chevron-right'></i>Información del proceso</p>
-                    <div class="entrada">
-                        <i class='bx bx-cog'></i>
-                        <div class="input">
-                            <p class="detalle">Proceso</p>
-                            <select class="select" required>
-                                <option value="${registro.proceso}" selected>${registro.proceso}</option>
-                                <option value="Seleccion">Selección</option>
-                                <option value="Cernido">Cernido</option>
-                            </select>
+                    <div class="campo-horizontal">
+                        <div class="entrada">
+                            <i class='bx bx-cog'></i>
+                            <div class="input">
+                                <p class="detalle">Proceso</p>
+                                <select class="select" required>
+                                    <option value="${registro.proceso}" selected>${registro.proceso}</option>
+                                    <option value="Seleccion">Selección</option>
+                                    <option value="Cernido">Cernido</option>
+                                </select>
+                            </div>
                         </div>
-                    </div>
-                    <div class="entrada">
-                        <i class='bx bx-bowl-hot'></i>
-                        <div class="input">
-                            <p class="detalle">Microondas</p>
-                            <input class="microondas" type="text" value="${registro.microondas}" autocomplete="off" placeholder=" " required>
+                        <div class="entrada">
+                            <i class='bx bx-bowl-hot'></i>
+                            <div class="input">
+                                <p class="detalle">Microondas</p>
+                                <input class="microondas" type="text" value="${registro.microondas}" autocomplete="off" placeholder=" " required>
+                            </div>
                         </div>
                     </div>
                 <p class="normal"><i class='bx bx-chevron-right'></i>Información del acabado</p>
@@ -573,13 +585,6 @@ function eventosVerificacion() {
                         <div class="input">
                             <p class="detalle">Terminados</p>
                             <input class="terminados" type="number" value="${registro.envases_terminados}" autocomplete="off" placeholder=" " required>
-                        </div>
-                    </div>
-                    <div class="entrada">
-                        <i class='bx bx-barcode'></i>
-                        <div class="input">
-                            <p class="detalle">Lote</p>
-                            <input class="lote" type="number" autocomplete="off" value="${registro.lote}" placeholder=" " required>
                         </div>
                     </div>
                     <div class="entrada">

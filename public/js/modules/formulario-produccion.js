@@ -40,6 +40,7 @@ export async function mostrarFormularioProduccion() {
             <button class="btn close" onclick="cerrarAnuncioManual('anuncio')"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno">
+        <p class="normal"><i class='bx bx-chevron-right'></i>Información del producto</p>
             <div class="entrada">
                 <i class="ri-box-3-line"></i>
                 <div class="input">
@@ -48,20 +49,23 @@ export async function mostrarFormularioProduccion() {
                 </div>
             </div>
             <div class="sugerencias" id="productos-list"></div>
-            <div class="entrada">
-                <i class="ri-scales-line"></i>
-                <div class="input">
-                    <p class="detalle">Gramaje</p>
-                    <input class="gramaje" type="number" inputmode="numeric" pattern="[0-9]*" placeholder=" " required>
+            <div class="campo-horizontal">
+                <div class="entrada">
+                    <i class="ri-scales-line"></i>
+                    <div class="input">
+                        <p class="detalle">Gramaje</p>
+                        <input class="gramaje" type="number" inputmode="numeric" pattern="[0-9]*" placeholder=" " required>
+                    </div>
+                </div>
+                <div class="entrada">
+                    <i class='bx bx-spreadsheet'></i>
+                    <div class="input">
+                        <p class="detalle">Lote</p>
+                        <input class="lote" type="number" inputmode="numeric" pattern="[0-9]*" placeholder=" " required>
+                    </div>
                 </div>
             </div>
-            <div class="entrada">
-                <i class='bx bx-spreadsheet'></i>
-                <div class="input">
-                    <p class="detalle">Lote:</p>
-                    <input class="lote" type="number" inputmode="numeric" pattern="[0-9]*" placeholder=" " required>
-                </div>
-            </div>
+            <p class="normal"><i class='bx bx-chevron-right'></i>Información de proceso/p>
             <div class="entrada">
                 <i class='bx bx-git-compare'></i>
                 <div class="input">
@@ -74,24 +78,27 @@ export async function mostrarFormularioProduccion() {
                     </select>
                 </div>
             </div>
-            <div class="entrada">
-                <i class='bx bx-bowl-hot'></i>
-                <div class="input">
-                    <p class="detalle">Microondas</p>
-                    <select class="select" required>
-                        <option value="" disabled selected></option>
-                        <option value="Si">Si</option>
-                        <option value="No">No</option>
-                    </select>
+            <div class="campo-horizontal">
+                <div class="entrada">
+                    <i class='bx bx-bowl-hot'></i>
+                    <div class="input">
+                        <p class="detalle">Microondas</p>
+                        <select class="select" required>
+                            <option value="" disabled selected></option>
+                            <option value="Si">Si</option>
+                            <option value="No">No</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="entrada" style="display:none">
+                    <i class='bx bx-time'></i>
+                    <div class="input">
+                        <p class="detalle">Tiempo</p>
+                        <input class="microondas" type="number" inputmode="numeric" pattern="[0-9]*" placeholder=" " required>
+                    </div>
                 </div>
             </div>
-            <div class="entrada" style="display:none">
-                <i class='bx bx-time'></i>
-                <div class="input">
-                    <p class="detalle">Tiempo</p>
-                    <input class="microondas" type="number" inputmode="numeric" pattern="[0-9]*" placeholder=" " required>
-                </div>
-            </div>
+            <p class="normal"><i class='bx bx-chevron-right'></i>Información del acabado</p>
             <div class="entrada">
                 <i class='bx bxs-cube-alt'></i>
                 <div class="input">
@@ -139,6 +146,7 @@ function evetosFormularioProduccion() {
     selectMicroondas.addEventListener('change', () => {
         if (selectMicroondas.value === 'Si') {
             entradaTiempo.style.display = 'flex';
+            entradaTiempo.querySelector('.microondas').focus();
         } else {
             entradaTiempo.style.display = 'none';
         }

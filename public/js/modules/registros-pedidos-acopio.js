@@ -716,21 +716,23 @@ function eventosPedidos() {
                 </div>
             </div>
 
-            <div class="entrada">
-                <i class='bx bx-package'></i>
-                <div class="input">
-                    <p class="detalle">Cantidad</p>
-                    <input class="cantidad-und" type="number" autocomplete="off" required>
+            <div class="campo-horizontal">
+                <div class="entrada">
+                    <i class='bx bx-package'></i>
+                    <div class="input">
+                        <p class="detalle">Cantidad</p>
+                        <input class="cantidad-und" type="number" autocomplete="off" required>
+                    </div>
                 </div>
-            </div>
-            <div class="entrada">
-                <i class='bx bx-package'></i>
-                <div class="input">
-                    <p class="detalle">Medida</p>
-                    <select class="unidad-medida">
-                        <option value="Bolsas">Bls</option>
-                        <option value="Cajas">Cjs</option>
-                    </select>
+                <div class="entrada">
+                    <i class='bx bx-package'></i>
+                    <div class="input">
+                        <p class="detalle">Medida</p>
+                        <select class="unidad-medida">
+                            <option value="Bolsas">Bolsas</option>
+                            <option value="Cajas">Cajas</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
@@ -747,19 +749,21 @@ function eventosPedidos() {
                 </div>
             </div>
 
-            <div class="entrada">
-                <i class='bx bx-money'></i>
-                <div class="input">
-                    <p class="detalle">Precio</p>
-                    <input class="precio" type="number" step="0.01" autocomplete="off" required>
+            <div class="campo-horizontal">
+                <div class="entrada">
+                    <i class='bx bx-money'></i>
+                    <div class="input">
+                        <p class="detalle">Precio</p>
+                        <input class="precio" type="number" step="0.01" autocomplete="off" required>
+                    </div>
                 </div>
-            </div>
 
-            <div class="entrada">
-                <i class='bx bx-car'></i>
-                <div class="input">
-                    <p class="detalle">Transporte/Otros</p>
-                    <input class="transporte" type="text" autocomplete="off">
+                <div class="entrada">
+                    <i class='bx bx-car'></i>
+                    <div class="input">
+                        <p class="detalle">Trans./Otros</p>
+                        <input class="transporte" type="text" autocomplete="off">
+                    </div>
                 </div>
             </div>
 
