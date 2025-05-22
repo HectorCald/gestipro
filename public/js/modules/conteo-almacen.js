@@ -63,6 +63,111 @@ async function obtenerAlmacenGeneral() {
 }
 
 
+export async function mostrarConteo() {
+    mostrarAnuncio();
+    renderInitialHTML(); // Render initial HTML immediately
+    setTimeout(() => {
+        configuracionesEntrada();
+    }, 100);
+    
+    // Load data in parallel
+    const [almacenGeneral, etiquetasResult] = await Promise.all([
+        obtenerAlmacenGeneral(),
+        obtenerEtiquetas(),
+    ]);
+
+    updateHTMLWithData(); // Update HTML once data is loaded
+    eventosConteo();
+    
+}
+function renderInitialHTML() {
+    const contenido = document.querySelector('.anuncio .contenido');
+    const initialHTML = `  
+        <div class="encabezado">
+            <h1 class="titulo">Conteo fisico</h1>
+            <button class="btn close" onclick="cerrarAnuncioManual('anuncio')"><i class="fas fa-arrow-right"></i></button>
+        </div>
+        <div class="relleno almacen-general">
+            <div class="entrada">
+                <i class='bx bx-search'></i>
+                <div class="input">
+                    <p class="detalle">Buscar</p>
+                    <input type="text" class="buscar-producto" placeholder="">
+                </div>
+            </div>
+            <div class="filtros-opciones etiquetas-filter">
+                <button class="btn-filtro activado">Todos</button>
+                ${Array(5).fill().map(() => `
+                    <div class="skeleton skeleton-etiqueta"></div>
+                `).join('')}
+            </div>
+            <div class="filtros-opciones cantidad-filter">
+                <button class="btn-filtro"><i class='bx bx-sort-down'></i> Descendente</button>
+                <button class="btn-filtro"><i class='bx bx-sort-up'></i> Ascendente</button>
+                <button class="btn-filtro"><i class='bx bx-sort-a-z'></i></button>
+                <button class="btn-filtro"><i class='bx bx-sort-z-a'></i></button>
+            </div>
+            <div class="productos-container">
+                ${Array(10).fill().map(() => `
+                    <div class="skeleton-producto">
+                        <div class="skeleton-header">
+                            <div class="skeleton skeleton-img"></div>
+                            <div class="skeleton-content">
+                                <div class="skeleton skeleton-line"></div>
+                                <div class="skeleton skeleton-line"></div>
+                                <div class="skeleton skeleton-line"></div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+            <div class="no-encontrado" style="display: none; text-align: center; color: #555; font-size: 1.1rem;padding:20px">
+                <i class='bx bx-package' style="font-size: 50px;opacity:0.5"></i>
+                <p style="text-align: center; color: #555;">¡Ups!, No se encontraron productos segun tu busqueda o filtrado.</p>
+            </div>
+        </div>
+        <div class="anuncio-botones">
+            <button id="vista-previa" class="btn orange"><i class='bx bx-show'></i> Vista previa</button>
+        </div>
+    `;
+    contenido.innerHTML = initialHTML;
+    contenido.style.paddingBottom = '80px';
+}
+function updateHTMLWithData() {
+    // Update etiquetas filter
+    const etiquetasUnicas = [...new Set(etiquetas.map(etiqueta => etiqueta.etiqueta))];
+    const etiquetasFilter = document.querySelector('.etiquetas-filter');
+    const etiquetasHTML = etiquetasUnicas.map(etiqueta => `
+        <button class="btn-filtro">${etiqueta}</button>
+    `).join('');
+    etiquetasFilter.innerHTML = `
+        <button class="btn-filtro activado">Todos</button>
+        ${etiquetasHTML}
+    `;
+
+    // Update productos
+    const productosContainer = document.querySelector('.productos-container');
+    const productosHTML = productos.map(producto => `
+        <div class="registro-item" data-id="${producto.id}">
+            <div class="header">
+                <i class='bx bx-package'></i>
+                <div class="info-header">
+                    <span class="id">${producto.id}
+                        <div class="precio-cantidad">
+                            <span class="valor stock" style="display:none">${producto.stock} Und.</span>
+                            <input type="number" class="stock-fisico" value="${producto.stock}" min="0">
+                        </div>
+                    </span>
+                    <span class="nombre"><strong>${producto.producto} - ${producto.gramos}gr.</strong></span>
+                    <span class="etiquetas">${producto.etiquetas.split(';').join(' • ')}</span>
+                </div>
+            </div>
+        </div>
+    `).join('');
+    productosContainer.innerHTML = productosHTML;
+}
+
+
 function eventosConteo() {
     const botonesEtiquetas = document.querySelectorAll('.filtros-opciones.etiquetas-filter .btn-filtro');
     const botonesCantidad = document.querySelectorAll('.filtros-opciones.cantidad-filter .btn-filtro');
@@ -290,6 +395,7 @@ function eventosConteo() {
                 const nombre = document.querySelector('.nombre-conteo').value;
 
                 // Preparar los datos en el formato requerido
+                const idProductos = productos.map(p => p.id).join(';');
                 const productosFormateados = productos.map(p => `${p.producto} - ${p.gramos}gr`).join(';');
                 const sistemaCantidades = productos.map(p => p.stock).join(';');
                 const fisicoCantidades = productos.map(p => stockFisico[p.id] || p.stock).join(';');
@@ -306,6 +412,7 @@ function eventosConteo() {
                     },
                     body: JSON.stringify({
                         nombre: nombre || "Conteo",
+                        idProductos: idProductos,
                         productos: productosFormateados,
                         sistema: sistemaCantidades,
                         fisico: fisicoCantidades,
@@ -372,109 +479,4 @@ function eventosConteo() {
 
     aplicarFiltros();
 
-}
-
-
-export async function mostrarConteo() {
-    mostrarAnuncio();
-    renderInitialHTML(); // Render initial HTML immediately
-    setTimeout(() => {
-        configuracionesEntrada();
-    }, 100);
-    
-    // Load data in parallel
-    const [almacenGeneral, etiquetasResult] = await Promise.all([
-        obtenerAlmacenGeneral(),
-        obtenerEtiquetas(),
-    ]);
-
-    updateHTMLWithData(); // Update HTML once data is loaded
-    eventosConteo();
-    
-}
-function renderInitialHTML() {
-    const contenido = document.querySelector('.anuncio .contenido');
-    const initialHTML = `  
-        <div class="encabezado">
-            <h1 class="titulo">Conteo fisico</h1>
-            <button class="btn close" onclick="cerrarAnuncioManual('anuncio')"><i class="fas fa-arrow-right"></i></button>
-        </div>
-        <div class="relleno almacen-general">
-            <div class="entrada">
-                <i class='bx bx-search'></i>
-                <div class="input">
-                    <p class="detalle">Buscar</p>
-                    <input type="text" class="buscar-producto" placeholder="">
-                </div>
-            </div>
-            <div class="filtros-opciones etiquetas-filter">
-                <button class="btn-filtro activado">Todos</button>
-                ${Array(5).fill().map(() => `
-                    <div class="skeleton skeleton-etiqueta"></div>
-                `).join('')}
-            </div>
-            <div class="filtros-opciones cantidad-filter">
-                <button class="btn-filtro"><i class='bx bx-sort-down'></i> Descendente</button>
-                <button class="btn-filtro"><i class='bx bx-sort-up'></i> Ascendente</button>
-                <button class="btn-filtro"><i class='bx bx-sort-a-z'></i></button>
-                <button class="btn-filtro"><i class='bx bx-sort-z-a'></i></button>
-            </div>
-            <div class="productos-container">
-                ${Array(10).fill().map(() => `
-                    <div class="skeleton-producto">
-                        <div class="skeleton-header">
-                            <div class="skeleton skeleton-img"></div>
-                            <div class="skeleton-content">
-                                <div class="skeleton skeleton-line"></div>
-                                <div class="skeleton skeleton-line"></div>
-                                <div class="skeleton skeleton-line"></div>
-                            </div>
-                        </div>
-                    </div>
-                `).join('')}
-            </div>
-            <div class="no-encontrado" style="display: none; text-align: center; color: #555; font-size: 1.1rem;padding:20px">
-                <i class='bx bx-package' style="font-size: 50px;opacity:0.5"></i>
-                <p style="text-align: center; color: #555;">¡Ups!, No se encontraron productos segun tu busqueda o filtrado.</p>
-            </div>
-        </div>
-        <div class="anuncio-botones">
-            <button id="vista-previa" class="btn orange"><i class='bx bx-show'></i> Vista previa</button>
-        </div>
-    `;
-    contenido.innerHTML = initialHTML;
-    contenido.style.paddingBottom = '80px';
-}
-function updateHTMLWithData() {
-    // Update etiquetas filter
-    const etiquetasUnicas = [...new Set(etiquetas.map(etiqueta => etiqueta.etiqueta))];
-    const etiquetasFilter = document.querySelector('.etiquetas-filter');
-    const etiquetasHTML = etiquetasUnicas.map(etiqueta => `
-        <button class="btn-filtro">${etiqueta}</button>
-    `).join('');
-    etiquetasFilter.innerHTML = `
-        <button class="btn-filtro activado">Todos</button>
-        ${etiquetasHTML}
-    `;
-
-    // Update productos
-    const productosContainer = document.querySelector('.productos-container');
-    const productosHTML = productos.map(producto => `
-        <div class="registro-item" data-id="${producto.id}">
-            <div class="header">
-                <i class='bx bx-package'></i>
-                <div class="info-header">
-                    <span class="id">${producto.id}
-                        <div class="precio-cantidad">
-                            <span class="valor stock" style="display:none">${producto.stock} Und.</span>
-                            <input type="number" class="stock-fisico" value="${producto.stock}" min="0">
-                        </div>
-                    </span>
-                    <span class="nombre"><strong>${producto.producto} - ${producto.gramos}gr.</strong></span>
-                    <span class="etiquetas">${producto.etiquetas.split(';').join(' • ')}</span>
-                </div>
-            </div>
-        </div>
-    `).join('');
-    productosContainer.innerHTML = productosHTML;
 }

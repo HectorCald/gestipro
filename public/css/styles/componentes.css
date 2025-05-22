@@ -1170,6 +1170,7 @@
     background-color: #72727229;
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
+    z-index: 6;
 
     i{
         font-size: 20px;
@@ -1549,7 +1550,6 @@
     width: fit-content;
     max-width: 40px;
     max-height: 40px;
-    padding: 5px 15px;
     border: none;
     border-radius: 10px;
     font-size: var(--text-detalle);
@@ -1558,11 +1558,14 @@
     color: var(--text);
     transition: all 0.5s ease;
     display: flex;
-    justify-content: center;
-    align-items: center;
+    justify-content: center !important;
+    align-items: center !important;
 
     i {
         font-size: var(--text-2xl) !important;
+        padding: 0 !important;
+        border-radius: none !important;
+        margin: 0;
     }
 }
 

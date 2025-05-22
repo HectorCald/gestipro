@@ -199,6 +199,7 @@ function eventosRegistrosAlmacen() {
 
     const inputBusqueda = document.querySelector('.buscar-registro-almacen');
     const botonCalendario = document.querySelector('.btn-calendario');
+
     const contenedor = document.querySelector('.relleno');
     contenedor.addEventListener('scroll', () => {
         const yaExiste = contenedor.querySelector('.scroll-top');

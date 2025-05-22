@@ -32,11 +32,136 @@ async function obtenerRegistrosConteo() {
     }
 }
 
+function renderInitialHTML() {
+    const contenido = document.querySelector('.anuncio .contenido');
+    const initialHTML = `  
+        <div class="encabezado">
+            <h1 class="titulo">Registros conteo</h1>
+            <button class="btn close" onclick="cerrarAnuncioManual('anuncio')"><i class="fas fa-arrow-right"></i></button>
+        </div>
+        <div class="relleno almacen-general">
+            <div class="entrada">
+                <i class='bx bx-search'></i>
+                <div class="input">
+                    <p class="detalle">Buscar</p>
+                    <input type="text" class="buscar-registro" placeholder="">
+                </div>
+                <button class="btn-calendario"><i class='bx bx-calendar'></i></button>
+            </div>
+            <div class="productos-container">
+                ${Array(10).fill().map(() => `
+                    <div class="skeleton-producto">
+                        <div class="skeleton-header">
+                            <div class="skeleton skeleton-img"></div>
+                            <div class="skeleton-content">
+                                <div class="skeleton skeleton-line"></div>
+                                <div class="skeleton skeleton-line"></div>
+                                <div class="skeleton skeleton-line"></div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+            <div class="no-encontrado" style="display: none; text-align: center; color: #555; font-size: 1.1rem;padding:20px">
+                <i class='bx bx-file-blank' style="font-size: 50px;opacity:0.5"></i>
+                <p style="text-align: center; color: #555;">¡Ups!, No se encontraron registros segun tu busqueda o filtrado.</p>
+            </div>
+
+        </div>
+        <div class="anuncio-botones">
+            <button id="exportar-excel" class="btn orange"><i class='bx bx-download'></i> Descargar registros</button>
+        </div>
+    `;
+    contenido.innerHTML = initialHTML;
+    contenido.style.paddingBottom = '80px';
+}
+export async function registrosConteoAlmacen() {
+    mostrarAnuncio();
+    renderInitialHTML();
+    setTimeout(() => {
+        configuracionesEntrada();
+    }, 100);
+
+    const [obtnerRegistros] = await Promise.all([
+        obtenerRegistrosConteo(),
+    ]);
+
+    updateHTMLWithData();
+    eventosRegistrosConteo();
+}
+function updateHTMLWithData() {
+
+    const productosContainer = document.querySelector('.productos-container');
+    const productosHTML = registrosConteos.map(registro => `
+        <div class="registro-item" data-id="${registro.id}">
+            <div class="header">
+                <i class='bx bx-package'></i>
+                <div class="info-header">
+                    <span class="id">${registro.id}</span>
+                    <span class="nombre">${registro.nombre}</span>
+                    <span class="fecha">${registro.fecha}</span>
+                </div>
+            </div>
+        </div>
+    `).join('');
+    productosContainer.innerHTML = productosHTML;
+}
+
+
 function eventosRegistrosConteo() {
     const btnExcel = document.getElementById('exportar-excel');
     const registrosAExportar = registrosConteos;
     const items = document.querySelectorAll('.registro-item');
     const inputBusqueda = document.querySelector('.buscar-registro');
+    const botonCalendario = document.querySelector('.btn-calendario');
+
+    const contenedor = document.querySelector('.relleno');
+    contenedor.addEventListener('scroll', () => {
+        const yaExiste = contenedor.querySelector('.scroll-top');
+
+        if (contenedor.scrollTop > 100) {
+            if (!yaExiste) {
+                const boton = document.createElement('button');
+                boton.className = 'scroll-top';
+                boton.innerHTML = '<i class="fas fa-arrow-up"></i>';
+                boton.onclick = () => scrollToTop('.relleno');
+                contenedor.appendChild(boton);
+            }
+        } else {
+            // Si vuelve arriba, ocultamos el botón si existe
+            if (yaExiste) {
+                yaExiste.remove();
+            }
+        }
+    });
+
+    let filtroFechaInstance = null;
+
+    botonCalendario.addEventListener('click', async () => {
+        if (!filtroFechaInstance) {
+            filtroFechaInstance = flatpickr(botonCalendario, {
+                mode: "range",
+                dateFormat: "d/m/Y",
+                locale: "es",
+                rangeSeparator: " hasta ",
+                onChange: function (selectedDates) {
+                    if (selectedDates.length === 2) {
+                        aplicarFiltros();
+                        botonCalendario.classList.add('con-fecha');
+                    } else if (selectedDates.length <= 1) {
+                        botonCalendario.classList.remove('con-fecha');
+                    }
+                },
+                onClose: function (selectedDates) {
+                    if (selectedDates.length <= 1) {
+                        aplicarFiltros();
+                        botonCalendario.classList.remove('con-fecha');
+                    }
+                }
+            });
+        }
+        filtroFechaInstance.open();
+    });
 
     items.forEach(item => {
         item.addEventListener('click', function () {
@@ -50,55 +175,79 @@ function eventosRegistrosConteo() {
             .replace(/[\u0300-\u036f]/g, '')
             .replace(/[^a-zA-Z0-9\s]/g, '');
     }
-    function aplicarFiltroBusqueda() {
+    function aplicarFiltros() {
+        
+        const fechasSeleccionadas = filtroFechaInstance?.selectedDates || [];
         const busqueda = normalizarTexto(inputBusqueda.value);
-        const registros = document.querySelectorAll('.registro-item');
         const mensajeNoEncontrado = document.querySelector('.no-encontrado');
-        let encontrados = 0;
 
-        // Animación de ocultamiento
-        registros.forEach(registro => {
+        // Primero, filtrar todos los registros
+        const registrosFiltrados = Array.from(items).map(registro => {
+            const registroData = registrosConteos.find(r => r.id === registro.dataset.id);
+            if (!registroData) return { elemento: registro, mostrar: false };
+            let mostrar = true;
+
+            // Filtro de fechas
+            if (mostrar && fechasSeleccionadas.length === 2) {
+                const [fechaPart] = registroData.fecha.split(','); // Dividir por coma primero
+                const [dia, mes, anio] = fechaPart.trim().split('/'); // Quitar espacios y dividir
+                const fechaRegistro = new Date(anio, mes - 1, dia);
+                const fechaInicio = fechasSeleccionadas[0];
+                const fechaFin = fechasSeleccionadas[1];
+                mostrar = fechaRegistro >= fechaInicio && fechaRegistro <= fechaFin;
+            }
+
+            // Filtro de búsqueda
+            if (mostrar && busqueda) {
+                const textoRegistro = [
+                    registroData.id,
+                    registroData.nombre,
+                    registroData.fecha,
+                ].filter(Boolean).join(' ').toLowerCase();
+                mostrar = normalizarTexto(textoRegistro).includes(busqueda);
+            }
+
+            return { elemento: registro, mostrar };
+        });
+
+        const registrosVisibles = registrosFiltrados.filter(r => r.mostrar).length;
+
+        // Ocultar todos con una transición suave
+        items.forEach(registro => {
             registro.style.opacity = '0';
             registro.style.transform = 'translateY(-20px)';
         });
 
+        // Esperar a que termine la animación de ocultamiento
         setTimeout(() => {
-            registros.forEach(registro => {
+            items.forEach(registro => {
                 registro.style.display = 'none';
             });
 
-            registros.forEach((registro, index) => {
-                const id = registro.dataset.id;
-                const registroData = registrosConteos.find(r => r.id === id);
-                const textoRegistro = normalizarTexto([
-                    registroData.id,
-                    registroData.fecha,
-                    registroData.nombre,
-                    registroData.productos,
-                    registroData.observaciones || ''
-                ].join(' '));
-
-                if (textoRegistro.includes(busqueda)) {
-                    registro.style.display = 'flex';
-                    registro.style.opacity = '0';
-                    registro.style.transform = 'translateY(20px)';
+            // Mostrar los filtrados con animación escalonada
+            registrosFiltrados.forEach(({ elemento, mostrar }, index) => {
+                if (mostrar) {
+                    elemento.style.display = 'flex';
+                    elemento.style.opacity = '0';
+                    elemento.style.transform = 'translateY(20px)';
 
                     setTimeout(() => {
-                        registro.style.opacity = '1';
-                        registro.style.transform = 'translateY(0)';
+                        elemento.style.opacity = '1';
+                        elemento.style.transform = 'translateY(0)';
                     }, 20); // Efecto cascada suave
-
-                    encontrados++;
                 }
             });
 
-            mensajeNoEncontrado.style.display = encontrados === 0 ? 'block' : 'none';
+            // Actualizar mensaje de no encontrado
+            if (mensajeNoEncontrado) {
+                mensajeNoEncontrado.style.display = registrosVisibles === 0 ? 'block' : 'none';
+            }
         }, 200);
     }
-    
+
 
     inputBusqueda.addEventListener('input', () => {
-        aplicarFiltroBusqueda();
+        aplicarFiltros();
     });
     inputBusqueda.addEventListener('focus', function () {
         this.select();
@@ -349,91 +498,5 @@ function eventosRegistrosConteo() {
     };
 
     btnExcel.addEventListener('click', () => exportarArchivos('conteo', registrosAExportar));
-
-    aplicarFiltroBusqueda();
-    configuracionesEntrada();
-}
-
-
-function renderInitialHTML() {
-    const contenido = document.querySelector('.anuncio .contenido');
-    const initialHTML = `  
-        <div class="encabezado">
-            <h1 class="titulo">Almacén General</h1>
-            <button class="btn close" onclick="cerrarAnuncioManual('anuncio')"><i class="fas fa-arrow-right"></i></button>
-        </div>
-        <div class="relleno almacen-general">
-            <div class="entrada">
-                <i class='bx bx-search'></i>
-                <div class="input">
-                    <p class="detalle">Buscar</p>
-                    <input type="text" class="buscar-registro" placeholder="">
-                </div>
-            </div>
-            <div class="filtros-opciones tipo">
-                <button class="btn-filtro activado">Todos</button>
-                <button class="btn-filtro">Ingresos</button>
-                <button class="btn-filtro">Salidas</button>
-                <select class="proovedor-cliente" style="width:100%">
-                    <option value="Todos" class="defecto">Todos</option>
-                </select>
-            </div>
-            <div class="productos-container">
-                ${Array(10).fill().map(() => `
-                    <div class="skeleton-producto">
-                        <div class="skeleton-header">
-                            <div class="skeleton skeleton-img"></div>
-                            <div class="skeleton-content">
-                                <div class="skeleton skeleton-line"></div>
-                                <div class="skeleton skeleton-line"></div>
-                                <div class="skeleton skeleton-line"></div>
-                            </div>
-                        </div>
-                    </div>
-                `).join('')}
-            </div>
-            <div class="no-encontrado" style="display: none; text-align: center; color: #555; font-size: 1.1rem;padding:20px">
-                <i class='bx bx-file-blank' style="font-size: 50px;opacity:0.5"></i>
-                <p style="text-align: center; color: #555;">¡Ups!, No se encontraron registros segun tu busqueda o filtrado.</p>
-            </div>
-
-        </div>
-        <div class="anuncio-botones">
-            <button id="exportar-excel" class="btn orange"><i class='bx bx-download'></i> Descargar registros</button>
-        </div>
-    `;
-    contenido.innerHTML = initialHTML;
-    contenido.style.paddingBottom = '80px';
-}
-export async function registrosConteoAlmacen() {
-    mostrarAnuncio();
-    renderInitialHTML();
-    setTimeout(() => {
-        configuracionesEntrada();
-    }, 100);
-
-    const [obtnerRegistros] = await Promise.all([
-        obtenerRegistrosConteo(),
-    ]);
-
-    updateHTMLWithData();
-    eventosRegistrosConteo();
-    
-}
-function updateHTMLWithData() {
-
-    const productosContainer = document.querySelector('.productos-container');
-    const productosHTML = registrosConteos.map(registro => `
-        <div class="registro-item" data-id="${registro.id}">
-            <div class="header">
-                <i class='bx bx-package'></i>
-                <div class="info-header">
-                    <span class="id">${registro.id}</span>
-                    <span class="nombre">${registro.nombre}</span>
-                    <span class="fecha">${registro.fecha}</span>
-                </div>
-            </div>
-        </div>
-    `).join('');
-    productosContainer.innerHTML = productosHTML;
+    aplicarFiltros();
 }

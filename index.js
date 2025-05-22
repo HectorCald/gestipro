@@ -1204,12 +1204,13 @@ app.post('/registrar-conteo', requireAuth, async (req, res) => {
 
         const newId = `CONT-${lastId + 1}`;
         const fecha = new Date().toLocaleString('es-ES');
-        const { nombre, productos, sistema, fisico, diferencia, observaciones } = req.body;
+        const { nombre, productos, sistema, fisico, diferencia, observaciones, idProductos } = req.body;
 
         const values = [[
             newId,
             fecha,
             nombre,
+            idProductos,
             productos,
             sistema,
             fisico,
@@ -1219,7 +1220,7 @@ app.post('/registrar-conteo', requireAuth, async (req, res) => {
 
         await sheets.spreadsheets.values.append({
             spreadsheetId,
-            range: 'Conteo!A2:G',
+            range: 'Conteo!A2:I',
             valueInputOption: 'USER_ENTERED',
             resource: { values }
         });
@@ -1238,7 +1239,7 @@ app.get('/obtener-registros-conteo', requireAuth, async (req, res) => {
 
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId: spreadsheetId,
-            range: 'Conteo!A2:H' // Columnas A hasta G
+            range: 'Conteo!A2:I' // Columnas A hasta G
         });
 
         const rows = response.data.values || [];
@@ -1248,11 +1249,12 @@ app.get('/obtener-registros-conteo', requireAuth, async (req, res) => {
             id: row[0] || '',
             fecha: row[1] || '',
             nombre: row[2] || '',
-            productos: row[3] || '',
-            sistema: row[4] || '',
-            fisico: row[5] || '',
-            diferencia: row[6] || '',
-            observaciones: row[7] || ''
+            idProductos: row[3] || '',
+            productos: row[4] || '',
+            sistema: row[5] || '',
+            fisico: row[6] || '',
+            diferencia: row[7] || '',
+            observaciones: row[8] || ''
         }));
 
         res.json({
@@ -1327,7 +1329,7 @@ app.put('/editar-conteo/:id', requireAuth, async (req, res) => {
         // Obtener datos actuales
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId,
-            range: 'Conteo!A2:H'
+            range: 'Conteo!A2:I'
         });
 
         const rows = response.data.values || [];
@@ -1342,10 +1344,11 @@ app.put('/editar-conteo/:id', requireAuth, async (req, res) => {
             id,                     // ID
             rows[rowIndex][1],      // Fecha (mantener)
             nombre,                 // Nombre actualizado
-            rows[rowIndex][3],      // Productos (mantener)
-            rows[rowIndex][4],      // Sistema (mantener)
-            rows[rowIndex][5],      // Físico (mantener)
-            rows[rowIndex][6],      // Diferencia (mantener)
+            rows[rowIndex][3],      // ID de productos (mantener)
+            rows[rowIndex][4],      // Productos (mantener)
+            rows[rowIndex][5],      // Sistema (mantener)
+            rows[rowIndex][6],      // Físico (mantener)
+            rows[rowIndex][7],      // Diferencia (mantener)
             observaciones           // Observaciones actualizadas
         ];
 
