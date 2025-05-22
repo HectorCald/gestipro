@@ -599,7 +599,7 @@ function eventosSalidas() {
 
         botonFlotante.style.display = carritoSalidas.size > 0 ? 'flex' : 'none';
         botonFlotante.innerHTML = `
-            <i class="fas fa-arrow-up"></i>
+            <i class="bx bx-cart"></i>
             <span class="cantidad">${carritoSalidas.size}</span>
         `;
     }
