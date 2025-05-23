@@ -3314,7 +3314,6 @@ app.post('/registrar-movimiento-acopio', requireAuth, async (req, res) => {
                 values: [[
                     newId,
                     movimientoData.fecha_hora,
-                    new Date().toLocaleString(),
                     movimientoData.tipo,
                     movimientoData.idProducto,
                     movimientoData.nombreProducto,
