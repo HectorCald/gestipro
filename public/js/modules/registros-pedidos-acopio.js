@@ -1,7 +1,8 @@
 let registrosProduccion = [];
 let usuarioInfo = recuperarUsuarioLocal();
 let pedidosGlobal = [];
-let proovedoresAcopioGlobal = []; // Add this
+let proovedoresAcopioGlobal = [];
+let mensajeCompras = localStorage.getItem('damabrava_mensaje_compras') || 'Se compro:\n• Sin compras registradas';
 async function obtenerProovedoresAcopio() {
     try {
         const response = await fetch('/obtener-proovedores-acopio');
@@ -81,6 +82,7 @@ function renderInitialHTML() {
         <div class="encabezado">
             <h1 class="titulo">Pedidos</h1>
             <button class="btn close" onclick="cerrarAnuncioManual('anuncio')"><i class="fas fa-arrow-right"></i></button>
+            <button class="btn filtros" onclick="mostrarFormatoCompras()"><i class='bx bx-comment-detail'></i></button>
         </div>
         <div class="relleno almacen-general">
             <div class="entrada">
@@ -828,26 +830,26 @@ function eventosPedidos() {
             btnConfirmar.addEventListener('click', confirmarEntrega);
 
             async function confirmarEntrega() {
-                const cantidadKg = document.querySelector('.verificar-registro .cantidad-kg').value.trim();
-                const cantidadUnd = document.querySelector('.verificar-registro .cantidad-und').value.trim();
-                const unidadMedida = document.querySelector('.verificar-registro .unidad-medida').value;
-                const proovedor = document.querySelector('.verificar-registro .proovedor').value;
-                const precio = document.querySelector('.verificar-registro .precio').value.trim();
-                const transporteOtros = document.querySelector('.verificar-registro .transporte').value.trim();
-                const estadoCompra = document.querySelector('.verificar-registro .estado-compra').value;
-                const observaciones = document.querySelector('.verificar-registro .observaciones').value.trim();
-
-                // Validaciones básicas
-                if (!cantidadKg || !cantidadUnd || !proovedor || !precio) {
-                    mostrarNotificacion({
-                        message: 'Debe completar todos los campos obligatorios',
-                        type: 'warning',
-                        duration: 3500
-                    });
-                    return;
-                }
-
                 try {
+                    const cantidadKg = document.querySelector('.verificar-registro .cantidad-kg').value;
+                    const cantidadUnd = document.querySelector('.verificar-registro .cantidad-und').value;
+                    const unidadMedida = document.querySelector('.verificar-registro .unidad-medida').value;
+                    const proovedor = document.querySelector('.verificar-registro .proovedor').value;
+                    const precio = document.querySelector('.verificar-registro .precio').value;
+                    const transporteOtros = document.querySelector('.verificar-registro .transporte').value;
+                    const estadoCompra = document.querySelector('.verificar-registro .estado-compra').value;
+                    const observaciones = document.querySelector('.verificar-registro .observaciones').value;
+
+                    // Basic validations
+                    if (!cantidadKg || !cantidadUnd || !proovedor || !precio) {
+                        mostrarNotificacion({
+                            message: 'Por favor complete todos los campos requeridos',
+                            type: 'warning',
+                            duration: 3500
+                        });
+                        return;
+                    }
+
                     mostrarCarga();
 
                     const response = await fetch(`/entregar-pedido/${registro.id}`, {
@@ -856,31 +858,39 @@ function eventosPedidos() {
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
-                            cantidadKg,
-                            proovedor,
-                            precio,
-                            observaciones: observaciones || 'Sin observaciones',
-                            cantidadUnidad: cantidadUnd,
+                            cantidadKg: parseFloat(cantidadKg),
+                            cantidadUnidad: parseInt(cantidadUnd),
                             unidadMedida,
+                            proovedor,
+                            precio: parseFloat(precio),
                             transporteOtros: transporteOtros || '',
-                            estadoCompra
+                            estadoCompra,
+                            observaciones: observaciones || 'Sin observaciones'
                         })
                     });
-
-                    if (!response.ok) {
-                        throw new Error('Error en la respuesta del servidor');
-                    }
 
                     const data = await response.json();
 
                     if (data.success) {
-                        ocultarCarga();
+                        // Update message format
+                        if (mensajeCompras === 'Se compro:\n• Sin compras registradas') {
+                            mensajeCompras = 'Se compro:\n';
+                        }
+                        mensajeCompras = mensajeCompras.replace(/\n\nSe compro en la App de TotalProd.$/, '');
+                        mensajeCompras = mensajeCompras.replace(/\n$/, '');
+                        mensajeCompras += `\n• ${registro.producto} - ${cantidadUnd} ${unidadMedida} (${estadoCompra})`;
+                        mensajeCompras += '\n\nSe compro en la App de TotalProd.';
+
+                        localStorage.setItem('damabrava_mensaje_compras', mensajeCompras);
+
                         mostrarNotificacion({
                             message: 'Pedido entregado correctamente',
                             type: 'success',
                             duration: 3000
                         });
 
+                        ocultarCarga();
+                        ocultarAnuncioTercer();
                         ocultarAnuncioSecond();
                         await mostrarPedidos();
                     } else {
@@ -1020,6 +1030,53 @@ function eventosPedidos() {
             }
         }
     }
+    function mostrarMensajeCompras() {
+        const anuncioSecond = document.querySelector('.anuncio-second .contenido');
+        const formatoHTML = `
+    <div class="encabezado">
+        <h1 class="titulo">Compras Registradas</h1>
+        <button class="btn close" onclick="cerrarAnuncioManual('anuncioSecond')">
+            <i class="fas fa-arrow-right"></i>
+        </button>
+    </div>
+    <div class="relleno">
+        <div class="formato-pedido">
+            <div contenteditable="true" style="min-height: fit-content; white-space: pre-wrap; font-family: Arial, sans-serif; text-align: left; padding: 15px;">${mensajeCompras}</div>
+        </div>
+    </div>
+    <div class="anuncio-botones" style="display: flex; gap: 10px;">
+        <button class="btn blue" onclick="limpiarFormatoCompras()">
+            <i class="fas fa-broom"></i> Limpiar
+        </button>
+        <button class="btn green" onclick="compartirFormatoCompras()">
+            <i class="fas fa-share-alt"></i> Compartir
+        </button>
+    </div>
+`;
+
+        anuncioSecond.innerHTML = formatoHTML;
+        mostrarAnuncioSecond();
+    }
+    window.limpiarFormatoCompras = function () {
+        mensajeCompras = 'Se compro:\n• Sin compras registradas';
+        localStorage.setItem('damabrava_mensaje_compras', mensajeCompras);
+        const formatoDiv = document.querySelector('.formato-pedido div[contenteditable]');
+        if (formatoDiv) {
+            formatoDiv.innerHTML = mensajeCompras;
+        }
+    };
+    window.compartirFormatoCompras = async function () {
+        const formatoDiv = document.querySelector('.formato-pedido div[contenteditable]');
+        if (!formatoDiv) return;
+
+        const texto = encodeURIComponent(formatoDiv.innerText);
+        window.open(`https://wa.me/?text=${texto}`, '_blank');
+    };
+    window.mostrarFormatoCompras = function () {
+        const anuncioSecond = document.querySelector('.anuncio-second .contenido');
+        if (!anuncioSecond) return;
+        mostrarMensajeCompras();
+    };
     btnExcel.addEventListener('click', () => exportarArchivos('produccion', registrosAExportar));
     aplicarFiltros();
 }

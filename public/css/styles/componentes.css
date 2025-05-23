@@ -1331,7 +1331,16 @@
     font-size: 12px;
     z-index: 4;
 }
-
+.formato-pedido{
+    background-color: var(--primary-color); 
+    padding: 20px; 
+    border-radius: 10px; 
+    margin-bottom: 20px;
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start !important;
+}
 .relleno .carrito-items {
     height: 100%;
     overflow-y: auto;
@@ -1515,7 +1524,6 @@
 .agregado-al-carrito {
     animation: agregarAlCarrito 0.5s ease;
 }
-
 
 @keyframes eliminarItem {
     0% {

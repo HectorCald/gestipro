@@ -20,6 +20,7 @@ import { registrosConteoAlmacen } from './modules/registros-conteos.js';
 import { mostrarPedidos } from './modules/registros-pedidos-acopio.js';
 import { mostrarProovedoresAcopio } from './modules/proovedores-acopio.js';
 import { mostrarIngresosAcopio } from './modules/ingresos-acopio.js';
+import { mostrarSalidasAcopio } from './modules/salidas-acopio.js';
 import { mostrarRegistrosAcopio } from './modules/registros-acopio.js';
 
 
@@ -71,6 +72,7 @@ window.mostrarAlmacenAcopio = mostrarAlmacenAcopio
 window.mostrarPedidos = mostrarPedidos
 window.mostrarProovedoresAcopio = mostrarProovedoresAcopio
 window.mostrarIngresosAcopio = mostrarIngresosAcopio
+window.mostrarSalidasAcopio = mostrarSalidasAcopio
 window.mostrarRegistrosAcopio = mostrarRegistrosAcopio
 
 window.crearPerfil = crearPerfil

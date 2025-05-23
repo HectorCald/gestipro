@@ -2,6 +2,7 @@ let productos = [];
 let etiquetasAcopio = [];
 let usuarioInfo = recuperarUsuarioLocal();
 let carritoIngresosAcopio = new Map(JSON.parse(localStorage.getItem('damabrava_ingreso_acopio') || '[]'));
+let mensajeIngresos = localStorage.getItem('damabrava_mensaje_ingresos') || 'Se ingreso:\n• Sin ingresos registrados';
 
 function recuperarUsuarioLocal() {
     const usuarioGuardado = localStorage.getItem('damabrava_usuario');
@@ -103,8 +104,9 @@ function renderInitialHTML() {
     const contenido = document.querySelector('.anuncio .contenido');
     const initialHTML = `  
         <div class="encabezado">
-            <h1 class="titulo">Ingreso</h1>
+            <h1 class="titulo">Ingresos acopio</h1>
             <button class="btn close" onclick="cerrarAnuncioManual('anuncio')"><i class="fas fa-arrow-right"></i></button>
+            <button class="btn filtros" onclick="mostrarFormatoIngresos()"><i class='bx bx-comment-detail'></i></button>
         </div>
         <div class="relleno almacen-general">
             <div class="entrada">
@@ -409,14 +411,11 @@ function eventosPedidos() {
 
         anuncioSecond.innerHTML = `
         <div class="encabezado">
-            <h1 class="titulo">Ingreso de Producto</h1>
+            <h1 class="titulo">${item.producto}</h1>
             <button class="btn close" onclick="cerrarAnuncioManual('anuncioSecond')"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno">
         <p class="normal"><i class='bx bx-chevron-right'></i> Detalles de ingreso</p>
-            <div class="campo-vertical">
-                <span class="nombre"><strong><i class='bx bx-box'></i> Producto: </strong>${item.producto}</span>
-            </div> 
             <div class="entrada">
                 <i class='bx bx-leaf'></i>
                 <div class="input">
@@ -474,7 +473,7 @@ function eventosPedidos() {
                     <i class='bx bx-face'></i>
                     <div class="input">
                         <p class="detalle">Sabor</p>
-                        <select class="Sabor" required>
+                        <select class="sabor" required>
                             <option value=""></option>
                             <option value="Malo">Malo</option>
                             <option value="Bueno">Bueno</option>
@@ -487,7 +486,7 @@ function eventosPedidos() {
                         <p class="detalle">Textura</p>
                         <select class="textura" required>
                             <option value=""></option>
-                            <option value="Malo">Textura</option>
+                            <option value="Malo">Malo</option>
                             <option value="Bueno">Bueno</option>
                         </select>
                     </div>
@@ -537,12 +536,14 @@ function eventosPedidos() {
         try {
             mostrarCarga();
             const [id, item] = Array.from(carritoIngresosAcopio.entries())[0];
-
+            const nombreMovimiento = document.querySelector('.nombre-movimiento').value;
             const tipoMateria = document.querySelector('.tipo-materia').value;
             const pesoKg = document.querySelector('.peso-kg').value;
             const numeroLote = document.querySelector('.numero-lote').value;
             const color = document.querySelector('.color').value;
             const olor = document.querySelector('.olor').value;
+            const sabor = document.querySelector('.sabor').value;
+            const textura = document.querySelector('.textura').value;
             const razonIngreso = document.querySelector('.razon-ingreso').value;
 
             if (!pesoKg || !numeroLote || !color || !olor || !razonIngreso) {
@@ -550,7 +551,7 @@ function eventosPedidos() {
             }
 
             // Preparar datos para la actualización
-            const caracteristicas = `Olor:${olor}; Color:${color}`;
+            const caracteristicas = `Olor:${olor}; Color:${color}; Sabor:${sabor}; Textura:${textura}`;
 
             // Registrar el movimiento
             const movimientoResponse = await fetch('/registrar-movimiento-acopio', {
@@ -560,8 +561,8 @@ function eventosPedidos() {
                     idProducto: id,
                     nombreProducto: item.producto,
                     peso: pesoKg,
-                    tipo: 'Ingreso',
-                    nombreMovimiento: 'Ingreso de materia',
+                    tipo: `Ingreso ${tipoMateria}`,
+                    nombreMovimiento: nombreMovimiento,
                     caracteristicas: caracteristicas,
                     observaciones: razonIngreso
                 })
@@ -582,14 +583,26 @@ function eventosPedidos() {
 
             if (!updateResponse.ok) throw new Error('Error al actualizar producto');
 
+            // Format message properly
+            if (mensajeIngresos === 'Se ingreso:\n• Sin ingresos registrados') {
+                mensajeIngresos = 'Se ingreso:\n';
+            }
+            mensajeIngresos = mensajeIngresos
+                .replace(/\n\nSe ingreso en la App de TotalProd.$/, '')
+                .replace(/\n$/, '');
+            mensajeIngresos += `\n• ${item.producto} - ${pesoKg} Kg.`;
+            mensajeIngresos += '\n\nSe ingreso en la App de TotalProd.';
+
+            localStorage.setItem('damabrava_mensaje_ingresos', mensajeIngresos);
+            carritoIngresosAcopio.clear();
+            localStorage.setItem('damabrava_ingreso_acopio', '[]');
+
             mostrarNotificacion({
                 message: 'Ingreso registrado correctamente',
                 type: 'success',
                 duration: 3000
             });
 
-            carritoIngresosAcopio.clear();
-            localStorage.setItem('damabrava_ingreso_acopio', '[]');
             ocultarCarga();
             ocultarAnuncioSecond();
             await mostrarIngresosAcopio();
@@ -601,7 +614,7 @@ function eventosPedidos() {
                 type: 'error',
                 duration: 3500
             });
-        }finally{
+        } finally {
             ocultarCarga();
         }
     }
@@ -618,5 +631,56 @@ function eventosPedidos() {
         // Mostrar formulario inmediatamente
         mostrarCarritoPedidos();
     }
+
+
+    function mostrarMensajeIngresos() {
+        const anuncioSecond = document.querySelector('.anuncio-second .contenido');
+        const formatoHTML = `
+        <div class="encabezado">
+            <h1 class="titulo">Ingresos Registrados</h1>
+            <button class="btn close" onclick="cerrarAnuncioManual('anuncioSecond')">
+                <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+        <div class="relleno">
+            <div class="formato-pedido">
+                <div contenteditable="true" style="min-height: fit-content; white-space: pre-wrap; font-family: Arial, sans-serif; text-align: left; padding: 15px;">${mensajeIngresos}</div>
+            </div>
+        </div>
+        <div class="anuncio-botones" style="display: flex; gap: 10px;">
+            <button class="btn blue" onclick="limpiarFormatoIngresos()">
+                <i class="fas fa-broom"></i> Limpiar
+            </button>
+            <button class="btn green" onclick="compartirFormatoIngresos()">
+                <i class="fas fa-share-alt"></i> Compartir
+            </button>
+        </div>
+    `;
+
+        anuncioSecond.innerHTML = formatoHTML;
+        mostrarAnuncioSecond();
+    }
+    window.limpiarFormatoIngresos = function () {
+        mensajeIngresos = 'Se ingreso:\n• Sin ingresos registrados';
+        localStorage.setItem('damabrava_mensaje_ingresos', mensajeIngresos);
+        const formatoDiv = document.querySelector('.formato-pedido div[contenteditable]');
+        if (formatoDiv) {
+            formatoDiv.innerHTML = mensajeIngresos;
+        }
+    };
+    window.compartirFormatoIngresos = async function () {
+        const formatoDiv = document.querySelector('.formato-pedido div[contenteditable]');
+        if (!formatoDiv) return;
+
+        const texto = encodeURIComponent(formatoDiv.innerText);
+        window.open(`https://wa.me/?text=${texto}`, '_blank');
+    };
+    window.mostrarFormatoIngresos = function () {
+        const anuncioSecond = document.querySelector('.anuncio-second .contenido');
+        if (!anuncioSecond) return;
+        mostrarMensajeIngresos();
+    };
+
+
     aplicarFiltros();
 }

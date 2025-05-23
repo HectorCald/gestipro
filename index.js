@@ -3024,6 +3024,78 @@ app.get('/obtener-movimientos-acopio', requireAuth, async (req, res) => {
         });
     }
 });
+app.delete('/eliminar-movimiento-acopio/:id', requireAuth, async (req, res) => {
+    try {
+        const { spreadsheetId } = req.user;
+        const { id } = req.params;
+        const sheets = google.sheets({ version: 'v4', auth });
+
+        // Obtener información de la hoja
+        const spreadsheet = await sheets.spreadsheets.get({
+            spreadsheetId
+        });
+
+        const movimientosSheet = spreadsheet.data.sheets.find(
+            sheet => sheet.properties.title === 'Movimientos alm-acopio'
+        );
+
+        if (!movimientosSheet) {
+            return res.status(404).json({
+                success: false,
+                error: 'Hoja de movimientos no encontrada'
+            });
+        }
+
+        // Obtener movimientos actuales
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: 'Movimientos alm-acopio!A2:J'
+        });
+
+        const rows = response.data.values || [];
+        const rowIndex = rows.findIndex(row => row[0] === id);
+
+        if (rowIndex === -1) {
+            return res.status(404).json({
+                success: false,
+                error: 'Movimiento no encontrado'
+            });
+        }
+
+        // Eliminar la fila
+        await sheets.spreadsheets.batchUpdate({
+            spreadsheetId,
+            resource: {
+                requests: [{
+                    deleteDimension: {
+                        range: {
+                            sheetId: movimientosSheet.properties.sheetId,
+                            dimension: 'ROWS',
+                            startIndex: rowIndex + 1, // +1 por el encabezado
+                            endIndex: rowIndex + 2
+                        }
+                    }
+                }]
+            }
+        });
+
+        res.json({ 
+            success: true,
+            message: 'Movimiento eliminado correctamente'
+        });
+
+    } catch (error) {
+        console.error('Error al eliminar movimiento:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Error al eliminar el movimiento'
+        });
+    }
+});
+
+
+
+
 app.put('/actualizar-producto-acopio/:id', requireAuth, async (req, res) => {
     try {
         const { spreadsheetId } = req.user;
@@ -3054,6 +3126,43 @@ app.put('/actualizar-producto-acopio/:id', requireAuth, async (req, res) => {
             range: `Almacen acopio!${String.fromCharCode(65 + columnaActualizar)}${rowIndex + 2}`,
             valueInputOption: 'USER_ENTERED',
             resource: { values: [[nuevoValor]] }
+        });
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error al actualizar producto:', error);
+        res.status(500).json({ success: false, error: 'Error al actualizar el producto' });
+    }
+});
+app.put('/actualizar-producto-acopio-salida/:id', requireAuth, async (req, res) => {
+    try {
+        const { spreadsheetId } = req.user;
+        const { id } = req.params;
+        const { bruto, prima } = req.body;  // Recibimos directamente los valores actualizados
+        const sheets = google.sheets({ version: 'v4', auth });
+
+        // Obtener producto actual
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: 'Almacen acopio!A2:E'
+        });
+
+        const rows = response.data.values || [];
+        const rowIndex = rows.findIndex(row => row[0] === id);
+        if (rowIndex === -1) return res.status(404).json({ success: false, error: 'Producto no encontrado' });
+
+        const currentRow = [...rows[rowIndex]];
+        
+        // Actualizar solo los campos que vienen en la petición
+        if (bruto !== undefined) currentRow[2] = bruto;
+        if (prima !== undefined) currentRow[3] = prima;
+
+        // Actualizar la fila completa
+        await sheets.spreadsheets.values.update({
+            spreadsheetId,
+            range: `Almacen acopio!A${rowIndex + 2}:E${rowIndex + 2}`,
+            valueInputOption: 'USER_ENTERED',
+            resource: { values: [currentRow] }
         });
 
         res.json({ success: true });

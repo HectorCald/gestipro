@@ -570,7 +570,8 @@ function eventosRegistrosAlmacen() {
                             duration: 3000
                         });
                         ocultarCarga();
-                        ocultarAnuncioSecond();
+                        cerrarAnuncioManual('anuncioTercer');
+                        cerrarAnuncioManual('anuncioSecond');
                         await mostrarMovimientosAlmacen();
 
                     } else {
@@ -660,7 +661,8 @@ function eventosRegistrosAlmacen() {
                             duration: 3000
                         });
                         ocultarCarga();
-                        ocultarAnuncioSecond();
+                        cerrarAnuncioManual('anuncioTercer');
+                        cerrarAnuncioManual('anuncioSecond');
                         await mostrarMovimientosAlmacen();
                     }
                 } catch (error) {
