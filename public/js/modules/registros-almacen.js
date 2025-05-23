@@ -102,7 +102,6 @@ async function obtenerRegistrosAlmacen() {
 }
 
 
-
 function renderInitialHTML() {
 
     const contenido = document.querySelector('.anuncio .contenido');
@@ -188,6 +187,7 @@ function updateHTMLWithData() {
     `).join('');
     productosContainer.innerHTML = productosHTML;
 }
+
 
 function eventosRegistrosAlmacen() {
     const btnExcel = document.getElementById('exportar-excel');
@@ -478,9 +478,9 @@ function eventosRegistrosAlmacen() {
             </div>
         </div>
         <div class="anuncio-botones">
-            <button class="btn-anular btn blue" data-id="${registro.id}"><i class='bx bx-x-circle'></i></button>
+            <button class="btn-anular btn yellow" data-id="${registro.id}"><i class='bx bx-x-circle'></i></button>
             <button class="btn-eliminar btn red" data-id="${registro.id}"><i class="bx bx-trash"></i></button>
-            <button class="btn-copia btn yellow" data-id="${registro.id}"><i class='bx bx-copy'></i></button>
+            <button class="btn-copia btn blue" data-id="${registro.id}"><i class='bx bx-copy'></i></button>
         </div>
     `;
         contenido.innerHTML = registrationHTML;
@@ -727,5 +727,3 @@ function eventosRegistrosAlmacen() {
     btnExcel.addEventListener('click', () => exportarArchivos('almacen', registrosAExportar));
     aplicarFiltros();
 }
-
-

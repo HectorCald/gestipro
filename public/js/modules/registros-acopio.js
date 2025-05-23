@@ -354,72 +354,93 @@ function eventosRegistrosAcopio() {
     window.info = function (registroId) {
         const registro = movimientosAcopio.find(r => r.id === registroId);
         if (!registro) return;
-
+    
         // Separar fecha y hora
         const [fecha, hora] = registro.fecha.split(',').map(item => item.trim());
-
-        // Preparar la sección de características solo si existen y no están vacías
+    
+        // Preparar la sección de características
         const caracteristicasHTML = registro.caracteristicas && registro.caracteristicas.trim() ? `
             <p class="normal"><i class='bx bx-chevron-right'></i>Características del producto</p>
             <div class="campo-vertical">
                 ${registro.caracteristicas.split(';').map(caracteristica => {
-            const [nombre, valor] = caracteristica.split(':').map(item => item.trim());
-            return `<span class="valor"><strong><i class='bx bx-check-circle'></i> ${nombre}: </strong>${valor}</span>`;
-        }).join('')}
+                    const [nombre, valor] = caracteristica.split(':').map(item => item.trim());
+                    return `<span class="valor"><strong><i class='bx bx-check-circle'></i> ${nombre}: </strong>${valor}</span>`;
+                }).join('')}
             </div>
         ` : '';
-
+    
+        // Check if it's the last ingreso record
+        const esIngreso = registro.tipo.toLowerCase().startsWith('ingreso');
+        const esUltimoIngreso = esIngreso ? 
+            movimientosAcopio
+                .filter(r => r.tipo.toLowerCase().startsWith('ingreso') && 
+                            r.idProducto === registro.idProducto && 
+                            r.tipo === registro.tipo)
+                .sort((a, b) => {
+                    const idA = parseInt(a.id.split('-')[1]);
+                    const idB = parseInt(b.id.split('-')[1]);
+                    return idB - idA;
+                })[0]?.id === registro.id 
+            : false;
+    
+        const esSalida = registro.tipo.toLowerCase().startsWith('salida');
+    
         const contenido = document.querySelector('.anuncio-second .contenido');
         const registrationHTML = `
-        <div class="encabezado">
-            <h1 class="titulo">${registro.nombreMovimiento}</h1>
-            <button class="btn close" onclick="cerrarAnuncioManual('anuncioSecond')"><i class="fas fa-arrow-right"></i></button>
-        </div>
-        <div class="relleno verificar-registro">
-            <p class="normal"><i class='bx bx-chevron-right'></i>Información básica</p>
-            <div class="campo-horizontal">
+            <div class="encabezado">
+                <h1 class="titulo">${registro.nombreMovimiento}</h1>
+                <button class="btn close" onclick="cerrarAnuncioManual('anuncioSecond')"><i class="fas fa-arrow-right"></i></button>
+            </div>
+            <div class="relleno verificar-registro">
+                <p class="normal"><i class='bx bx-chevron-right'></i>Información básica</p>
+                <div class="campo-horizontal">
+                    <div class="campo-vertical">
+                        <span class="nombre"><strong><i class='bx bx-id-card'></i> Id: </strong>${registro.id}</span>
+                        <span class="valor"><strong><i class='bx bx-calendar'></i> Fecha: </strong>${fecha}</span>
+                        <span class="valor"><strong><i class='bx bx-time'></i> Hora: </strong>${hora}</span>
+                        <span class="valor"><strong><i class='bx bx-package'></i> Tipo: </strong>${registro.tipo}</span>
+                    </div>    
+                    <div class="imagen-producto">
+                        <i class='bx bx-package'></i>
+                    </div>
+                </div>
+    
+                <p class="normal"><i class='bx bx-chevron-right'></i>Detalles del producto</p>
                 <div class="campo-vertical">
-                    <span class="nombre"><strong><i class='bx bx-id-card'></i> Id: </strong>${registro.id}</span>
-                    <span class="valor"><strong><i class='bx bx-calendar'></i> Fecha: </strong>${fecha}</span>
-                    <span class="valor"><strong><i class='bx bx-time'></i> Hora: </strong>${hora}</span>
-                    <span class="valor"><strong><i class='bx bx-package'></i> Tipo: </strong>${registro.tipo}</span>
-                </div>    
-                <div class="imagen-producto">
-                    <i class='bx bx-package'></i>
+                    <span class="valor"><strong><i class='bx bx-barcode'></i> ID Producto: </strong>${registro.idProducto}</span>
+                    <span class="valor"><strong><i class='bx bx-box'></i> Producto: </strong>${registro.producto}</span>
+                    <span class="valor"><strong><i class='bx bx-weight'></i> Peso: </strong>${registro.peso} Kg.</span>
+                </div>
+    
+                <p class="normal"><i class='bx bx-chevron-right'></i>Detalles del movimiento</p>
+                <div class="campo-vertical">
+                    <span class="valor"><strong><i class='bx bx-user'></i> Operario: </strong>${registro.operario}</span>
+                    <span class="valor"><strong><i class='bx bx-notepad'></i> Nombre del movimiento: </strong>${registro.nombreMovimiento}</span>
+                </div>
+    
+                ${caracteristicasHTML}
+    
+                <p class="normal"><i class='bx bx-chevron-right'></i>Observaciones</p>
+                <div class="campo-vertical">
+                    <span class="valor"><strong><i class='bx bx-comment-detail'></i> Observaciones: </strong>${registro.observaciones || 'Ninguna'}</span>
                 </div>
             </div>
-
-            <p class="normal"><i class='bx bx-chevron-right'></i>Detalles del producto</p>
-            <div class="campo-vertical">
-                <span class="valor"><strong><i class='bx bx-barcode'></i> ID Producto: </strong>${registro.idProducto}</span>
-                <span class="valor"><strong><i class='bx bx-box'></i> Producto: </strong>${registro.producto}</span>
-                <span class="valor"><strong><i class='bx bx-weight'></i> Peso: </strong>${registro.peso} Kg.</span>
+            <div class="anuncio-botones">
+                <button class="btn-eliminar btn red" data-id="${registro.id}"><i class="bx bx-trash"></i></button>
+                ${(esSalida || esUltimoIngreso) ? 
+                    `<button class="btn-anular btn yellow" data-id="${registro.id}"><i class="bx bx-x-circle"></i></button>` 
+                    : ''}
             </div>
-
-            <p class="normal"><i class='bx bx-chevron-right'></i>Detalles del movimiento</p>
-            <div class="campo-vertical">
-                <span class="valor"><strong><i class='bx bx-user'></i> Operario: </strong>${registro.operario}</span>
-                <span class="valor"><strong><i class='bx bx-notepad'></i> Nombre del movimiento: </strong>${registro.nombreMovimiento}</span>
-            </div>
-
-            ${caracteristicasHTML}
-
-            <p class="normal"><i class='bx bx-chevron-right'></i>Observaciones</p>
-            <div class="campo-vertical">
-                <span class="valor"><strong><i class='bx bx-comment-detail'></i> Observaciones: </strong>${registro.observaciones || 'Ninguna'}</span>
-            </div>
-        </div>
-        <div class="anuncio-botones">
-            <button class="btn-eliminar btn red" data-id="${registro.id}"><i class="bx bx-trash"></i> Eliminar</button>
-        </div>
         `;
-
+    
         contenido.innerHTML = registrationHTML;
         mostrarAnuncioSecond();
 
         const btnEliminar = contenido.querySelector('.btn-eliminar');
+        const btnAnular = contenido.querySelector('.btn-anular');
 
         btnEliminar.addEventListener('click', () => eliminar(registro));
+        btnAnular.addEventListener('click', () => anular(registro));
         async function eliminar(registro) {
             const contenido = document.querySelector('.anuncio-tercer .contenido');
             const [fecha, hora] = registro.fecha.split(',').map(item => item.trim());
@@ -509,7 +530,99 @@ function eventosRegistrosAcopio() {
                         type: 'error',
                         duration: 3000
                     });
-                }finally{
+                } finally {
+                    ocultarCarga();
+                }
+            });
+        }
+        async function anular(registro) {
+            const contenido = document.querySelector('.anuncio-tercer .contenido');
+            const [fecha, hora] = registro.fecha.split(',').map(item => item.trim());
+
+            const registrationHTML = `
+        <div class="encabezado">
+            <h1 class="titulo">Anular registro</h1>
+            <button class="btn close" onclick="cerrarAnuncioManual('anuncioTercer')"><i class="fas fa-arrow-right"></i></button>
+        </div>
+        <div class="relleno">
+            <p class="normal"><i class='bx bx-chevron-right'></i> Información del registro</p>
+            <div class="campo-horizontal">
+                <div class="campo-vertical">
+                    <span class="nombre"><strong><i class='bx bx-id-card'></i> Id: </strong>${registro.id}</span>
+                    <span class="valor"><strong><i class='bx bx-calendar'></i> Fecha: </strong>${fecha}</span>
+                    <span class="valor"><strong><i class='bx bx-time'></i> Hora: </strong>${hora}</span>
+                    <span class="valor"><strong><i class='bx bx-package'></i> Tipo: </strong>${registro.tipo}</span>
+                </div>
+            </div>
+            <div class="campo-vertical">
+                <span class="valor"><strong><i class='bx bx-box'></i> Producto: </strong>${registro.producto}</span>
+                <span class="valor"><strong><i class='bx bx-weight'></i> Peso: </strong>${registro.peso} Kg.</span>
+            </div>
+
+            <p class="normal"><i class='bx bx-chevron-right'></i> Motivo de la anulación</p>
+            <div class="entrada">
+                <i class='bx bx-comment-detail'></i>
+                <div class="input">
+                    <p class="detalle">Motivo</p>
+                    <input class="motivo-anulacion" type="text" autocomplete="off" placeholder=" " required>
+                </div>
+            </div>
+        </div>
+        <div class="anuncio-botones">
+            <button class="btn-confirmar-anular btn red"><i class='bx bx-x-circle'></i> Confirmar anulación</button>
+        </div>
+    `;
+
+            contenido.innerHTML = registrationHTML;
+            mostrarAnuncioTercer();
+
+            const btnConfirmarAnular = contenido.querySelector('.btn-confirmar-anular');
+            btnConfirmarAnular.addEventListener('click', async () => {
+                const motivo = document.querySelector('.motivo-anulacion').value.trim();
+
+                if (!motivo) {
+                    mostrarNotificacion({
+                        message: 'Debe ingresar el motivo de la anulación',
+                        type: 'warning',
+                        duration: 3500
+                    });
+                    return;
+                }
+
+                try {
+                    mostrarCarga();
+                    const response = await fetch(`/anular-movimiento-acopio/${registro.id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ motivo })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        mostrarNotificacion({
+                            message: 'Registro anulado correctamente',
+                            type: 'success',
+                            duration: 3000
+                        });
+
+                        ocultarCarga();
+                        cerrarAnuncioManual('anuncioTercer');
+                        cerrarAnuncioManual('anuncioSecond');
+                        await mostrarRegistrosAcopio();
+                    } else {
+                        throw new Error(data.error);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    mostrarNotificacion({
+                        message: error.message || 'Error al anular el registro',
+                        type: 'error',
+                        duration: 3500
+                    });
+                } finally {
                     ocultarCarga();
                 }
             });

@@ -832,7 +832,7 @@ app.put('/verificar-registro-produccion/:id', requireAuth, async (req, res) => {
     try {
         const sheets = google.sheets({ version: 'v4', auth });
 
-        // Obtener registros actuales
+        // Get production record
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId,
             range: 'Produccion!A2:O'
@@ -848,18 +848,91 @@ app.put('/verificar-registro-produccion/:id', requireAuth, async (req, res) => {
             });
         }
 
-        // Mantener valores existentes y actualizar solo los campos de verificación
-        const existingRow = rows[rowIndex];
-        const currentDate = new Date().toLocaleDateString('es-ES');
+        const registro = rows[rowIndex];
+        const idProducto = registro[2];
+        const gramos = registro[5];
 
+        // Get product from general warehouse and its acopio ID
+        const almacenResponse = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: 'Almacen general!A2:J'
+        });
+
+        const productoAlmacen = almacenResponse.data.values.find(row => row[0] === idProducto);
+        if (!productoAlmacen) {
+            throw new Error('Producto no encontrado en almacén general');
+        }
+
+        const idAcopio = productoAlmacen[9]; // Column J contains Acopio ID
+
+        // Get and update acopio stock
+        const acopioResponse = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: 'Almacen acopio!A2:D'
+        });
+
+        const productoAcopio = acopioResponse.data.values.find(row => row[0] === idAcopio);
+        if (!productoAcopio) {
+            throw new Error('Producto no encontrado en acopio');
+        }
+
+        // Calculate required amount in kilos using cantidad_real
+        const cantidadNecesaria = (parseFloat(cantidad_real) * parseFloat(gramos)) / 1000;
+
+        // Process lots
+        const lotesString = productoAcopio[3];
+        const lotes = lotesString.split(';').map(l => {
+            const [peso, numLote] = l.split('-');
+            return { peso: parseFloat(peso), lote: numLote };
+        });
+
+        let cantidadRestante = cantidadNecesaria;
+        const lotesActualizados = [];
+
+        // Consume from lots
+        for (let lote of lotes) {
+            if (cantidadRestante <= 0) {
+                lotesActualizados.push(`${lote.peso.toFixed(2)}-${lote.lote}`);
+                continue;
+            }
+
+            if (lote.peso >= cantidadRestante) {
+                lote.peso -= cantidadRestante;
+                cantidadRestante = 0;
+            } else {
+                cantidadRestante -= lote.peso;
+                lote.peso = 0;
+            }
+
+            if (lote.peso > 0) {
+                lotesActualizados.push(`${lote.peso.toFixed(2)}-${lote.lote}`);
+            }
+        }
+
+        if (cantidadRestante > 0) {
+            throw new Error('No hay suficiente stock en los lotes de acopio');
+        }
+
+        // Update acopio stock
+        const acopioRowIndex = acopioResponse.data.values.findIndex(row => row[0] === idAcopio) + 2;
+        await sheets.spreadsheets.values.update({
+            spreadsheetId,
+            range: `Almacen acopio!D${acopioRowIndex}`,
+            valueInputOption: 'RAW',
+            resource: {
+                values: [[lotesActualizados.join(';')]]
+            }
+        });
+
+        // Update production record with verification data
+        const currentDate = new Date().toLocaleDateString('es-ES');
         const updatedRow = [
-            ...existingRow.slice(0, 12),    // Mantener datos hasta la columna 10
-            cantidad_real,                   // Cantidad real verificada
-            currentDate,                     // Fecha de verificación
-            observaciones                 // Observaciones
+            ...registro.slice(0, 12),    // Keep existing data
+            cantidad_real,               // Real quantity
+            currentDate,                 // Verification date
+            observaciones               // Observations
         ];
 
-        // Actualizar la fila
         await sheets.spreadsheets.values.update({
             spreadsheetId,
             range: `Produccion!A${rowIndex + 2}:O${rowIndex + 2}`,
@@ -871,14 +944,114 @@ app.put('/verificar-registro-produccion/:id', requireAuth, async (req, res) => {
 
         res.json({
             success: true,
-            message: 'Registro verificado correctamente'
+            message: 'Registro verificado y stock actualizado correctamente'
         });
 
     } catch (error) {
         console.error('Error al verificar registro:', error);
         res.status(500).json({
             success: false,
-            error: 'Error al verificar el registro'
+            error: error.message || 'Error al verificar el registro'
+        });
+    }
+});
+app.put('/anular-verificacion-produccion/:id', requireAuth, async (req, res) => {
+    const { spreadsheetId } = req.user;
+    const { id } = req.params;
+    const { motivo } = req.body;
+
+    try {
+        const sheets = google.sheets({ version: 'v4', auth });
+
+        // 1. Get the production record
+        const prodResponse = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: 'Produccion!A2:O'
+        });
+
+        const rows = prodResponse.data.values || [];
+        const rowIndex = rows.findIndex(row => row[0] === id);
+        if (rowIndex === -1) {
+            throw new Error('Registro no encontrado');
+        }
+
+        const registro = rows[rowIndex];
+        const idProducto = registro[2];
+        const gramos = parseFloat(registro[5]);
+        const cantidadVerificada = parseFloat(registro[12]); // c_real column
+
+        // 2. Get product from general warehouse and its acopio ID
+        const almacenResponse = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: 'Almacen general!A2:J'
+        });
+
+        const productoAlmacen = almacenResponse.data.values.find(row => row[0] === idProducto);
+        if (!productoAlmacen) {
+            throw new Error('Producto no encontrado en almacén general');
+        }
+
+        const idAcopio = productoAlmacen[9];
+
+        // 3. Get acopio stock
+        const acopioResponse = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: 'Almacen acopio!A2:D'
+        });
+
+        const productoAcopio = acopioResponse.data.values.find(row => row[0] === idAcopio);
+        if (!productoAcopio) {
+            throw new Error('Producto no encontrado en acopio');
+        }
+
+        // 4. Calculate amount to return to stock (in kilos)
+        const cantidadADevolver = (cantidadVerificada * gramos) / 1000;
+
+        // 5. Update acopio stock (add back the amount)
+        const lotesActuales = productoAcopio[3].split(';');
+        if (lotesActuales.length > 0) {
+            const [peso, lote] = lotesActuales[0].split('-');
+            const nuevoPeso = (parseFloat(peso) + cantidadADevolver).toFixed(2);
+            lotesActuales[0] = `${nuevoPeso}-${lote}`;
+        }
+
+        const acopioRowIndex = acopioResponse.data.values.findIndex(row => row[0] === idAcopio) + 2;
+        await sheets.spreadsheets.values.update({
+            spreadsheetId,
+            range: `Almacen acopio!D${acopioRowIndex}`,
+            valueInputOption: 'RAW',
+            resource: {
+                values: [[lotesActuales.join(';')]]
+            }
+        });
+
+        // 6. Update production record (remove verification data)
+        const updatedRow = [
+            ...registro.slice(0, 12), // Keep original data
+            '', // Clear c_real
+            '', // Clear fecha_verificacion
+            motivo // Add anulación motivo
+        ];
+
+        await sheets.spreadsheets.values.update({
+            spreadsheetId,
+            range: `Produccion!A${rowIndex + 2}:O${rowIndex + 2}`,
+            valueInputOption: 'USER_ENTERED',
+            resource: {
+                values: [updatedRow]
+            }
+        });
+
+        res.json({
+            success: true,
+            message: 'Verificación anulada correctamente'
+        });
+
+    } catch (error) {
+        console.error('Error al anular verificación:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message || 'Error al anular la verificación'
         });
     }
 });
@@ -3089,6 +3262,116 @@ app.delete('/eliminar-movimiento-acopio/:id', requireAuth, async (req, res) => {
         res.status(500).json({
             success: false,
             error: 'Error al eliminar el movimiento'
+        });
+    }
+});
+app.put('/anular-movimiento-acopio/:id', requireAuth, async (req, res) => {
+    const { spreadsheetId } = req.user;
+    const { id } = req.params;
+    const { motivo } = req.body;
+
+    try {
+        const sheets = google.sheets({ version: 'v4', auth });
+
+        // 1. Obtener el registro a anular y la información de la hoja
+        const [movimientosResponse, spreadsheet] = await Promise.all([
+            sheets.spreadsheets.values.get({
+                spreadsheetId,
+                range: 'Movimientos alm-acopio!A2:K'
+            }),
+            sheets.spreadsheets.get({ spreadsheetId })
+        ]);
+
+        const movimientos = movimientosResponse.data.values || [];
+        const movimientoIndex = movimientos.findIndex(row => row[0] === id);
+        
+        if (movimientoIndex === -1) {
+            throw new Error('Registro no encontrado');
+        }
+
+        const movimiento = movimientos[movimientoIndex];
+        const tipo = movimiento[2];
+        const idProducto = movimiento[3];
+        const peso = parseFloat(movimiento[5]);
+
+        // 2. Obtener y actualizar datos del almacén
+        const almacenResponse = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: 'Almacen acopio!A2:J'
+        });
+
+        const productos = almacenResponse.data.values || [];
+        const productoIndex = productos.findIndex(row => row[0] === idProducto);
+
+        if (productoIndex === -1) {
+            throw new Error('Producto no encontrado');
+        }
+
+        // 3. Actualizar lotes según el tipo de movimiento
+        const tipoPartes = tipo.toLowerCase().split(' ');
+        const esIngreso = tipoPartes[0] === 'ingreso';
+        const esBruto = tipoPartes[1] === 'bruto';
+        
+        const columnaLotes = esBruto ? 'C' : 'D';
+        const lotesResponse = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: `Almacen acopio!${columnaLotes}${productoIndex + 2}`
+        });
+
+        let lotesActuales = lotesResponse.data.values?.[0]?.[0] || '';
+        let lotesArray = lotesActuales.split(';').filter(Boolean);
+
+        if (esIngreso) {
+            lotesArray.pop();
+        } else {
+            if (lotesArray.length > 0) {
+                const [pesoActual, lote] = lotesArray[0].split('-');
+                const nuevoPeso = (parseFloat(pesoActual) + peso).toFixed(2);
+                lotesArray[0] = `${nuevoPeso}-${lote}`;
+            }
+        }
+
+        // 4. Actualizar el almacén
+        await sheets.spreadsheets.values.update({
+            spreadsheetId,
+            range: `Almacen acopio!${columnaLotes}${productoIndex + 2}`,
+            valueInputOption: 'RAW',
+            resource: {
+                values: [[lotesArray.join(';')]]
+            }
+        });
+
+        // 5. Eliminar el registro
+        const movimientosSheet = spreadsheet.data.sheets.find(
+            sheet => sheet.properties.title === 'Movimientos alm-acopio'
+        );
+
+        await sheets.spreadsheets.batchUpdate({
+            spreadsheetId,
+            resource: {
+                requests: [{
+                    deleteDimension: {
+                        range: {
+                            sheetId: movimientosSheet.properties.sheetId,
+                            dimension: 'ROWS',
+                            startIndex: movimientoIndex + 1,
+                            endIndex: movimientoIndex + 2
+                        }
+                    }
+                }]
+            }
+        });
+
+        res.json({
+            success: true,
+            message: 'Movimiento anulado y eliminado correctamente'
+        });
+
+    } catch (error) {
+        console.error('Error al anular movimiento:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message || 'Error al anular el movimiento'
         });
     }
 });

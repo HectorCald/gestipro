@@ -138,7 +138,7 @@ export async function mostrarVerificacion() {
 
     updateHTMLWithData();
     eventosVerificacion();
-    
+
 }
 function updateHTMLWithData() {
     // Update etiquetas filter
@@ -431,7 +431,7 @@ function eventosVerificacion() {
         <div class="anuncio-botones">
             <button class="btn-editar btn blue" data-id="${registro.id}"><i class='bx bx-edit'></i></button>
             <button class="btn-eliminar btn red" data-id="${registro.id}"><i class="bx bx-trash"></i></button>
-            ${registro.fecha_verificacion ? '' : `<button class="btn-verificar btn green" data-id="${registro.id}"><i class="bx bx-check-circle"></i></button>`}
+            ${registro.fecha_verificacion ? `<button class="btn-anular btn yellow" data-id="${registro.id}"><i class='bx bx-x-circle'></i></button>` : `<button class="btn-verificar btn green" data-id="${registro.id}"><i class="bx bx-check-circle"></i></button>`}
         </div>
         `;
 
@@ -441,10 +441,17 @@ function eventosVerificacion() {
         const btnEditar = contenido.querySelector('.btn-editar');
         const btnEliminar = contenido.querySelector('.btn-eliminar');
         const btnVerificar = contenido.querySelector('.btn-verificar');
+        const btnAnular = contenido.querySelector('.btn-anular');
 
         btnEditar.addEventListener('click', () => editar(registro));
         btnEliminar.addEventListener('click', () => eliminar(registro));
-        btnVerificar.addEventListener('click', () => verificar(registro));
+        if(btnAnular){
+            btnAnular.addEventListener('click', () => anular(registro));
+        }
+        if(btnVerificar){
+            btnVerificar.addEventListener('click', () => verificar(registro));
+        }
+        
 
         function eliminar(registro) {
 
@@ -452,7 +459,7 @@ function eventosVerificacion() {
             const registrationHTML = `
             <div class="encabezado">
                 <h1 class="titulo">Eliminar registro</h1>
-                <button class="btn close" onclick="cerrarAnuncioManual(anuncioTercer)"><i class="fas fa-arrow-right"></i></button>
+                <button class="btn close" onclick="cerrarAnuncioManual('anuncioTercer')"><i class="fas fa-arrow-right"></i></button>
             </div>
             <div class="relleno">
                 <p class="normal"><i class='bx bx-chevron-right'></i> Información básica</p>
@@ -659,14 +666,14 @@ function eventosVerificacion() {
             }
             productoInput.addEventListener('input', (e) => {
                 const valor = normalizarTexto(e.target.value);
-        
+
                 sugerenciasList.innerHTML = '';
-        
+
                 if (valor) {
                     const sugerencias = productosGlobal.filter(p =>
                         normalizarTexto(p.producto).includes(valor)
                     ).slice(0, 5);
-        
+
                     if (sugerencias.length) {
                         sugerenciasList.style.display = 'flex';
                         sugerencias.forEach(p => {
@@ -886,6 +893,102 @@ function eventosVerificacion() {
                 }
             }
         }
+        function anular(registro) {
+            const contenido = document.querySelector('.anuncio-tercer .contenido');
+            const registrationHTML = `
+        <div class="encabezado">
+            <h1 class="titulo">Anular verificación</h1>
+            <button class="btn close" onclick="cerrarAnuncioManual('anuncioTercer')"><i class="fas fa-arrow-right"></i></button>
+        </div>
+        <div class="relleno verificar-registro">
+            <p class="normal"><i class='bx bx-chevron-right'></i> Información del registro</p>
+            <div class="campo-horizontal">
+                <div class="campo-vertical">
+                    <span class="nombre"><strong><i class='bx bx-id-card'></i> Id: </strong>${registro.id}</span>
+                    <span class="valor"><strong><i class="ri-scales-line"></i> Gramaje: </strong>${registro.gramos}gr.</span>
+                    <span class="valor"><strong><i class='bx bx-package'></i> Cantidad verificada: </strong>${registro.c_real} Und.</span>
+                    <span class="valor"><strong><i class='bx bx-calendar-check'></i> Fecha verificación: </strong>${registro.fecha_verificacion}</span>
+                </div>
+                <div class="imagen-producto">
+                ${producto.imagen && producto.imagen.startsWith('data:image') ?
+                    `<img class="imagen" src="${producto.imagen}">` :
+                    `<i class='bx bx-package'></i>`}
+                </div>
+            </div>
+
+            <p class="normal"><i class='bx bx-chevron-right'></i>Motivo de la anulación</p>
+            <div class="entrada">
+                <i class='bx bx-comment-detail'></i>
+                <div class="input">
+                    <p class="detalle">Motivo</p>
+                    <input class="motivo" type="text" autocomplete="off" placeholder=" " required>
+                </div>
+            </div>
+        </div>
+        <div class="anuncio-botones">
+            <button class="btn-anular-verificacion btn red"><i class='bx bx-x-circle'></i> Anular verificación</button>
+        </div>
+    `;
+            contenido.innerHTML = registrationHTML;
+            mostrarAnuncioTercer();
+
+            const btnAnularVerificacion = contenido.querySelector('.btn-anular-verificacion');
+            btnAnularVerificacion.addEventListener('click', confirmarAnulacion);
+
+            async function confirmarAnulacion() {
+                const motivo = document.querySelector('.motivo').value.trim();
+
+                if (!motivo) {
+                    mostrarNotificacion({
+                        message: 'Debe ingresar el motivo de la anulación',
+                        type: 'warning',
+                        duration: 3500
+                    });
+                    return;
+                }
+
+                try {
+                    mostrarCarga();
+                    const response = await fetch(`/anular-verificacion-produccion/${registro.id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ motivo })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Error en la respuesta del servidor');
+                    }
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        ocultarCarga();
+                        mostrarNotificacion({
+                            message: 'Verificación anulada correctamente',
+                            type: 'success',
+                            duration: 3000
+                        });
+
+                        ocultarAnuncioSecond();
+                        await mostrarVerificacion();
+                    } else {
+                        throw new Error(data.error || 'Error al anular la verificación');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    mostrarNotificacion({
+                        message: error.message || 'Error al anular la verificación',
+                        type: 'error',
+                        duration: 3500
+                    });
+                } finally {
+                    ocultarCarga();
+                }
+            }
+        }
+
     }
     btnExcel.addEventListener('click', () => exportarArchivos('produccion', registrosAExportar));
     aplicarFiltros();

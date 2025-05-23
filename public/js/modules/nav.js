@@ -74,6 +74,14 @@ function obtenerOpcionesMenu() {
             },
             {
                 clase: 'opcion-btn',
+                vista: 'almAcopio-view',
+                icono: 'fa-dolly',
+                texto: 'Almacen acopio',
+                detalle: 'Gestiona tu almacen de acopio',
+                onclick: 'onclick="mostrarAlmacenAcopio();"'
+            },
+            {
+                clase: 'opcion-btn',
                 vista: 'almacen-view',
                 icono: 'fa-clipboard-list',
                 texto: 'Conteo fisico',
