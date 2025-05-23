@@ -201,7 +201,6 @@ function eventosPedidos() {
     const botonesEtiquetas = document.querySelectorAll('.filtros-opciones.etiquetas-filter .btn-filtro');
     const botonesCantidad = document.querySelectorAll('.filtros-opciones.cantidad-filter .btn-filtro');
     const inputBusqueda = document.querySelector('.buscar-producto-acopio');
-    const botonFlotante = document.createElement('button');
     const contenedor = document.querySelector('.relleno');
     contenedor.addEventListener('scroll', () => {
         const yaExiste = contenedor.querySelector('.scroll-top');
@@ -224,12 +223,6 @@ function eventosPedidos() {
 
     let pesoMostrado = 'bruto';
     let filtroNombreActual = 'Todos';
-
-    botonFlotante.className = 'btn-flotante-pedidos';
-    botonFlotante.innerHTML = '<i class="bx bx-cart"></i>';
-    document.body.appendChild(botonFlotante);
-
-    botonFlotante.addEventListener('click', mostrarCarritoPedidos);
 
     const items = document.querySelectorAll('.registro-item');
     items.forEach(item => {

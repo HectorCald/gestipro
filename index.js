@@ -3213,48 +3213,57 @@ app.put('/entregar-pedido/:id', requireAuth, async (req, res) => {
 
 /* ==================== RUTAS DE ACOPIO INGRESO ALMACEN ACOPIO ==================== */
 app.post('/registrar-movimiento-acopio', requireAuth, async (req, res) => {
+    const { spreadsheetId } = req.user;
+    const { pedidoId, ...movimientoData } = req.body;
+
     try {
-        const { spreadsheetId } = req.user;
-        const { idProducto, nombreProducto, peso, tipo, nombreMovimiento, caracteristicas, observaciones } = req.body;
         const sheets = google.sheets({ version: 'v4', auth });
-
-        // Obtener movimientos actuales para calcular siguiente ID
-        const response = await sheets.spreadsheets.values.get({
-            spreadsheetId,
-            range: 'Movimientos alm-acopio!A2:I'
-        });
-
-        const rows = response.data.values || [];
-        const nextId = rows.length > 0 ?
-            Math.max(...rows.map(row => parseInt(row[0].split('-')[1]))) + 1 : 1;
-
-        const fecha = new Date().toLocaleString('es-ES');
-        const newMovimiento = [
-            `MAA-${nextId.toString().padStart(3, '0')}`,
-            fecha,
-            tipo,
-            idProducto,
-            nombreProducto,
-            peso,
-            req.user.nombre || 'Usuario',
-            nombreMovimiento,
-            caracteristicas,
-            observaciones
-        ];
-
-        // Registrar movimiento
-        await sheets.spreadsheets.values.append({
-            spreadsheetId,
-            range: 'Movimientos alm-acopio!A2:J',
+        
+        // 1. Registrar el movimiento
+        const movimientoResponse = await sheets.spreadsheets.values.append({
+            spreadsheetId: spreadsheetId,
+            range: 'Movimientos alm-acopio!A:F',
             valueInputOption: 'USER_ENTERED',
             insertDataOption: 'INSERT_ROWS',
-            resource: { values: [newMovimiento] }
+            resource: {
+                values: [[
+                    new Date().toLocaleDateString('es-ES'),
+                    movimientoData.nombreProducto,
+                    movimientoData.peso,
+                    movimientoData.tipo,
+                    movimientoData.caracteristicas,
+                    movimientoData.observaciones
+                ]]
+            }
         });
 
+        // 2. Actualizar estado del pedido si existe
+        if (pedidoId) {
+            const pedidosResponse = await sheets.spreadsheets.values.get({
+                spreadsheetId: spreadsheetId,
+                range: 'Pedidos!A2:G'
+            });
+
+            const pedidosRows = pedidosResponse.data.values || [];
+            const pedidoIndex = pedidosRows.findIndex(row => row[0] === pedidoId);
+
+            if (pedidoIndex !== -1) {
+                await sheets.spreadsheets.values.update({
+                    spreadsheetId: spreadsheetId,
+                    range: `Pedidos!G${pedidoIndex + 2}`, // +2 porque empieza desde fila 2
+                    valueInputOption: 'USER_ENTERED',
+                    resource: {
+                        values: [['Ingresado']]
+                    }
+                });
+            }
+        }
+
         res.json({ success: true });
+        
     } catch (error) {
-        console.error('Error al registrar movimiento:', error);
-        res.status(500).json({ success: false, error: 'Error al registrar el movimiento' });
+        console.error('Error:', error);
+        res.status(500).json({ success: false, error: 'Error en el servidor' });
     }
 });
 app.get('/obtener-movimientos-acopio', requireAuth, async (req, res) => {

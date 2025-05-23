@@ -82,7 +82,7 @@ async function obtenerAlmacenAcopio() {
 }
 
 
-export async function mostrarIngresosAcopio() {
+export async function mostrarIngresosAcopio(producto = '', pedido = '') {
     mostrarAnuncio();
     renderInitialHTML(); // Render initial HTML immediately
     setTimeout(() => {
@@ -96,8 +96,7 @@ export async function mostrarIngresosAcopio() {
     ]);
 
     updateHTMLWithData(); // Update HTML once data is loaded
-    eventosPedidos();
-
+    eventosPedidos(producto, pedido);
 }
 function renderInitialHTML() {
 
@@ -199,11 +198,10 @@ function updateHTMLWithData() {
 }
 
 
-function eventosPedidos() {
+function eventosPedidos(producto, pedido) {
     const botonesEtiquetas = document.querySelectorAll('.filtros-opciones.etiquetas-filter .btn-filtro');
     const botonesCantidad = document.querySelectorAll('.filtros-opciones.cantidad-filter .btn-filtro');
     const inputBusqueda = document.querySelector('.buscar-producto-acopio');
-    const botonFlotante = document.createElement('button');
     const contenedor = document.querySelector('.relleno');
     contenedor.addEventListener('scroll', () => {
         const yaExiste = contenedor.querySelector('.scroll-top');
@@ -223,15 +221,15 @@ function eventosPedidos() {
             }
         }
     });
+    if (producto) {
+        agregarAlCarrito(producto);
+        mostrarCarritoIngresosAcopio();
+        ocultarCarga();
+    }
 
     let pesoMostrado = 'bruto';
     let filtroNombreActual = 'Todos';
 
-    botonFlotante.className = 'btn-flotante-pedidos';
-    botonFlotante.innerHTML = '<i class="bx bx-cart"></i>';
-    document.body.appendChild(botonFlotante);
-
-    botonFlotante.addEventListener('click', mostrarCarritoPedidos);
 
     const items = document.querySelectorAll('.registro-item');
     items.forEach(item => {
@@ -378,7 +376,24 @@ function eventosPedidos() {
     });
 
 
-    function mostrarCarritoPedidos() {
+
+
+    function agregarAlCarrito(productoId) {
+
+        const producto = productos.find(p => p.id === productoId);
+        if (!producto) return;
+
+        // Limpiar carrito anterior si existe
+        carritoIngresosAcopio.clear();
+
+        // Agregar nuevo producto
+        carritoIngresosAcopio.set(productoId, producto);
+
+
+        // Mostrar formulario inmediatamente
+        mostrarCarritoIngresosAcopio();
+    }
+    function mostrarCarritoIngresosAcopio() {
         const anuncioSecond = document.querySelector('.anuncio-second .contenido');
         if (!anuncioSecond) return;
 
@@ -531,105 +546,100 @@ function eventosPedidos() {
         // Evento para procesar el ingreso
         const btnProcesar = anuncioSecond.querySelector('.btn-procesar-ingreso');
         btnProcesar.addEventListener('click', procesarIngreso);
-    }
-    async function procesarIngreso() {
-        try {
-            mostrarCarga();
-            const [id, item] = Array.from(carritoIngresosAcopio.entries())[0];
-            const nombreMovimiento = document.querySelector('.nombre-movimiento').value;
-            const tipoMateria = document.querySelector('.tipo-materia').value;
-            const pesoKg = document.querySelector('.peso-kg').value;
-            const numeroLote = document.querySelector('.numero-lote').value;
-            const color = document.querySelector('.color').value;
-            const olor = document.querySelector('.olor').value;
-            const sabor = document.querySelector('.sabor').value;
-            const textura = document.querySelector('.textura').value;
-            const razonIngreso = document.querySelector('.razon-ingreso').value;
 
-            if (!pesoKg || !numeroLote || !color || !olor || !razonIngreso) {
-                throw new Error('Por favor complete todos los campos');
+        async function procesarIngreso() {
+            try {
+                mostrarCarga();
+                const [id, item] = Array.from(carritoIngresosAcopio.entries())[0];
+                const nombreMovimiento = document.querySelector('.nombre-movimiento').value;
+                const tipoMateria = document.querySelector('.tipo-materia').value;
+                const pesoKg = document.querySelector('.peso-kg').value;
+                const numeroLote = document.querySelector('.numero-lote').value;
+                const color = document.querySelector('.color').value;
+                const olor = document.querySelector('.olor').value;
+                const sabor = document.querySelector('.sabor').value;
+                const textura = document.querySelector('.textura').value;
+                const razonIngreso = document.querySelector('.razon-ingreso').value;
+
+                if (!pesoKg || !numeroLote || !color || !olor || !razonIngreso) {
+                    throw new Error('Por favor complete todos los campos');
+                }
+
+                // Preparar datos para la actualización
+                const caracteristicas = `Olor:${olor}; Color:${color}; Sabor:${sabor}; Textura:${textura}`;
+
+
+                const movimientoResponse = await fetch('/registrar-movimiento-acopio', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        idProducto: id,
+                        nombreProducto: item.producto,
+                        peso: pesoKg,
+                        tipo: `Ingreso ${tipoMateria}`,
+                        nombreMovimiento: nombreMovimiento,
+                        caracteristicas: caracteristicas,
+                        observaciones: razonIngreso,
+                        pedidoId: pedido // ← Añadir esta línea
+                    })
+                });
+
+
+                if (!movimientoResponse.ok) throw new Error('Error al registrar movimiento');
+
+                // Actualizar el producto en el almacén
+                const updateResponse = await fetch(`/actualizar-producto-acopio/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        tipoMateria,
+                        pesoKg,
+                        numeroLote
+                    })
+                });
+
+                if (!updateResponse.ok) throw new Error('Error al actualizar producto');
+
+                // Format message properly
+                if (mensajeIngresos === 'Se ingreso:\n• Sin ingresos registrados') {
+                    mensajeIngresos = 'Se ingreso:\n';
+                }
+                mensajeIngresos = mensajeIngresos
+                    .replace(/\n\nSe ingreso en la App de TotalProd.$/, '')
+                    .replace(/\n$/, '');
+                mensajeIngresos += `\n• ${item.producto} - ${pesoKg} Kg.`;
+                mensajeIngresos += '\n\nSe ingreso en la App de TotalProd.';
+
+                localStorage.setItem('damabrava_mensaje_ingresos', mensajeIngresos);
+                carritoIngresosAcopio.clear();
+                localStorage.setItem('damabrava_ingreso_acopio', '[]');
+
+                mostrarNotificacion({
+                    message: 'Ingreso registrado correctamente',
+                    type: 'success',
+                    duration: 3000
+                });
+                if(pedido){
+                    ocultarCarga();
+                    ocultarAnuncioSecond();
+                    await mostrarPedidos();
+                }
+                else{
+                    ocultarCarga();
+                    ocultarAnuncioSecond();
+                    await mostrarIngresosAcopio();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarNotificacion({
+                    message: error.message || 'Error al procesar el ingreso',
+                    type: 'error',
+                    duration: 3500
+                });
+            } finally {
+                ocultarCarga();
             }
-
-            // Preparar datos para la actualización
-            const caracteristicas = `Olor:${olor}; Color:${color}; Sabor:${sabor}; Textura:${textura}`;
-
-            // Registrar el movimiento
-            const movimientoResponse = await fetch('/registrar-movimiento-acopio', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    idProducto: id,
-                    nombreProducto: item.producto,
-                    peso: pesoKg,
-                    tipo: `Ingreso ${tipoMateria}`,
-                    nombreMovimiento: nombreMovimiento,
-                    caracteristicas: caracteristicas,
-                    observaciones: razonIngreso
-                })
-            });
-
-            if (!movimientoResponse.ok) throw new Error('Error al registrar movimiento');
-
-            // Actualizar el producto en el almacén
-            const updateResponse = await fetch(`/actualizar-producto-acopio/${id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    tipoMateria,
-                    pesoKg,
-                    numeroLote
-                })
-            });
-
-            if (!updateResponse.ok) throw new Error('Error al actualizar producto');
-
-            // Format message properly
-            if (mensajeIngresos === 'Se ingreso:\n• Sin ingresos registrados') {
-                mensajeIngresos = 'Se ingreso:\n';
-            }
-            mensajeIngresos = mensajeIngresos
-                .replace(/\n\nSe ingreso en la App de TotalProd.$/, '')
-                .replace(/\n$/, '');
-            mensajeIngresos += `\n• ${item.producto} - ${pesoKg} Kg.`;
-            mensajeIngresos += '\n\nSe ingreso en la App de TotalProd.';
-
-            localStorage.setItem('damabrava_mensaje_ingresos', mensajeIngresos);
-            carritoIngresosAcopio.clear();
-            localStorage.setItem('damabrava_ingreso_acopio', '[]');
-
-            mostrarNotificacion({
-                message: 'Ingreso registrado correctamente',
-                type: 'success',
-                duration: 3000
-            });
-
-            ocultarCarga();
-            ocultarAnuncioSecond();
-            await mostrarIngresosAcopio();
-
-        } catch (error) {
-            console.error('Error:', error);
-            mostrarNotificacion({
-                message: error.message || 'Error al procesar el ingreso',
-                type: 'error',
-                duration: 3500
-            });
-        } finally {
-            ocultarCarga();
         }
-    }
-    function agregarAlCarrito(productoId) {
-        const producto = productos.find(p => p.id === productoId);
-        if (!producto) return;
-
-        // Limpiar carrito anterior si existe
-        carritoIngresosAcopio.clear();
-
-        // Agregar nuevo producto
-        carritoIngresosAcopio.set(productoId, producto);
-
-        // Mostrar formulario inmediatamente
-        mostrarCarritoPedidos();
     }
 
 
@@ -684,3 +694,5 @@ function eventosPedidos() {
 
     aplicarFiltros();
 }
+
+

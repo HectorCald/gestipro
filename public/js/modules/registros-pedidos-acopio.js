@@ -1,8 +1,8 @@
-let registrosProduccion = [];
 let usuarioInfo = recuperarUsuarioLocal();
 let pedidosGlobal = [];
 let proovedoresAcopioGlobal = [];
 let mensajeCompras = localStorage.getItem('damabrava_mensaje_compras') || 'Se compro:\n• Sin compras registradas';
+let carritoIngresosAcopio = new Map(JSON.parse(localStorage.getItem('damabrava_ingreso_acopio') || '[]'));
 async function obtenerProovedoresAcopio() {
     try {
         const response = await fetch('/obtener-proovedores-acopio');
@@ -439,8 +439,12 @@ function eventosPedidos() {
 
         btnEditar.addEventListener('click', () => editar(registro));
         btnEliminar.addEventListener('click', () => eliminar(registro));
-        btnEntregar.addEventListener('click', () => entregar(registro));
-        btnIngresar.addEventListener('click', () => ingresar(registro));
+        if (btnEntregar) {
+            btnEntregar.addEventListener('click', () => entregar(registro));
+        }
+        if (btnIngresar) {
+            btnIngresar.addEventListener('click', () => ingresar(registro));
+        }
 
         function eliminar(registro) {
             const contenido = document.querySelector('.anuncio-tercer .contenido');
@@ -908,126 +912,10 @@ function eventosPedidos() {
                 }
             }
         }
-        function ingresar(registro) {
 
-            const contenido = document.querySelector('.anuncio-tercer .contenido');
-            const registrationHTML = `
-            <div class="encabezado">
-                <h1 class="titulo">Verificar registro</h1>
-                <button class="btn close" onclick="cerrarAnuncioManual('anuncioTercer')"><i class="fas fa-arrow-right"></i></button>
-            </div>
-            <div class="relleno verificar-registro">
-               <p class="normal"><i class='bx bx-chevron-right'></i> Información básica</p>
-                <div class="campo-horizontal">
-                    <div class="campo-vertical">
-                        <span class="nombre"><strong><i class='bx bx-id-card'></i> Id: </strong>${registro.id}</span>
-                        <span class="valor"><strong><i class="ri-scales-line"></i> Gramaje: </strong>${registro.gramos}gr.</span>
-                        <span class="valor"><strong><i class='bx bx-package'></i> Envases: </strong>${registro.envases_terminados} Und.</span>
-                        <span class="valor"><strong><i class='bx bx-hash'></i> Vencimiento: </strong>${registro.fecha_vencimiento}</span>
-                    </div>
-                    <div class="imagen-producto">
-                    ${producto.imagen && producto.imagen.startsWith('data:image') ?
-                    `<img class="imagen" src="${producto.imagen}">` :
-                    `<i class='bx bx-package'></i>`}
-                    </div>
-                </div>
-                <p class="normal"><i class='bx bx-chevron-right'></i>Verificación</p>
-                <div class="entrada">
-                    <i class='bx bx-hash'></i>
-                    <div class="input">
-                        <p class="detalle">Cantidad real</p>
-                        <input class="cantidad_real" type="number" autocomplete="off" placeholder=" " required>
-                    </div>
-                </div>
-                <div class="entrada">
-                    <i class='bx bx-comment-detail'></i>
-                    <div class="input">
-                        <p class="detalle">Observaciones</p>
-                        <input class="observaciones" type="text" autocomplete="off" placeholder=" " required>
-                    </div>
-                </div>
-            </div>
-            <div class="anuncio-botones">
-                <button class="btn-verificar-registro btn green"><i class='bx bx-check-circle'></i> Verificar y finalizar</button>
-            </div>
-            `;
-            contenido.innerHTML = registrationHTML;
-            mostrarAnuncioTercer();
-
-            // Agregar evento al botón guardar
-            const btnVerificar = contenido.querySelector('.btn-verificar-registro');
-            btnVerificar.addEventListener('click', confirmarVerificacion);
-
-            async function confirmarVerificacion() {
-                const cantidadRealInput = document.querySelector('.verificar-registro .cantidad_real');
-                const observacionesInput = document.querySelector('.verificar-registro .observaciones');
-
-                if (!cantidadRealInput || !observacionesInput) {
-                    mostrarNotificacion({
-                        message: 'Error al acceder a los campos del formulario',
-                        type: 'error',
-                        duration: 3500
-                    });
-                    return;
-                }
-
-                const cantidadReal = cantidadRealInput.value.trim();
-                const observaciones = observacionesInput.value.trim();
-
-                if (!cantidadReal) {
-                    mostrarNotificacion({
-                        message: 'Debe ingresar la cantidad real verificada',
-                        type: 'warning',
-                        duration: 3500
-                    });
-                    return;
-                }
-
-                try {
-                    mostrarCarga();
-                    const registro = registrosProduccion.find(r => r.id === registroId);
-
-                    const response = await fetch(`/verificar-registro-produccion/${registroId}`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            cantidad_real: cantidadReal,
-                            observaciones: observaciones || 'Sin observaciones'
-                        })
-                    });
-
-                    if (!response.ok) {
-                        throw new Error('Error en la respuesta del servidor');
-                    }
-
-                    const data = await response.json();
-
-                    if (data.success) {
-                        ocultarCarga();
-                        mostrarNotificacion({
-                            message: 'Registro verificado correctamente',
-                            type: 'success',
-                            duration: 3000
-                        });
-
-                        ocultarAnuncioSecond();
-                        await mostrarIngresos(registro.idProducto);
-                    } else {
-                        throw new Error(data.error || 'Error al verificar el registro');
-                    }
-                } catch (error) {
-                    console.error('Error:', error);
-                    mostrarNotificacion({
-                        message: error.message || 'Error al verificar el registro',
-                        type: 'error',
-                        duration: 3500
-                    });
-                } finally {
-                    ocultarCarga();
-                }
-            }
+        async function ingresar(registro) {
+            mostrarCarga();
+            mostrarIngresosAcopio(registro.idProducto, registro.id);
         }
     }
     function mostrarMensajeCompras() {

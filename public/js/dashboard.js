@@ -19,7 +19,7 @@ import { mostrarConteo } from './modules/conteo-almacen.js';
 import { registrosConteoAlmacen } from './modules/registros-conteos.js';
 import { mostrarPedidos } from './modules/registros-pedidos-acopio.js';
 import { mostrarProovedoresAcopio } from './modules/proovedores-acopio.js';
-import { mostrarIngresosAcopio } from './modules/ingresos-acopio.js';
+import { mostrarIngresosAcopio} from './modules/ingresos-acopio.js';
 import { mostrarSalidasAcopio } from './modules/salidas-acopio.js';
 import { mostrarRegistrosAcopio } from './modules/registros-acopio.js';
 
