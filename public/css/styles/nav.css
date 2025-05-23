@@ -5,7 +5,7 @@
     position: fixed;
     top: 0;
     background-color: var(--sep-color);
-    z-index: 1000;
+    z-index: 1;
     
 
     .menu{
