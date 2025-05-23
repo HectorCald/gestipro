@@ -473,7 +473,7 @@ function eventosAlmacenGeneral() {
         aplicarFiltros();
     });
 
-    
+
 
 
     items.forEach(item => {
@@ -795,7 +795,7 @@ function eventosAlmacenGeneral() {
                                 ${productosAcopio.map(productoAcopio => `
                                     <option value="${productoAcopio.id}" ${productoAcopio.producto === producto.alm_acopio_producto ? 'selected' : ''}>
                                         ${productoAcopio.producto}
-                                    </option>
+                                    </option>   
                                 `).join('')}
                             </select>
                         </div>
@@ -917,7 +917,10 @@ function eventosAlmacenGeneral() {
                     const codigo_barras = document.querySelector('.editar-producto .codigo-barras').value.trim();
                     const uSueltas = document.querySelector('.editar-producto .unidades-sueltas').value.trim();
                     const motivo = document.querySelector('.editar-producto .motivo').value.trim();
-                    const alm_acopio_id = document.querySelector('.editar-producto .alm-acopio-producto').value || productoActual.acopio_id;
+                    const alm_acopio_id = document.querySelector('.editar-producto .alm-acopio-producto').value;
+                    const alm_acopio_producto = alm_acopio_id ?
+                        productosAcopio.find(p => p.id === alm_acopio_id)?.producto :
+                        '';
 
 
                     // Obtener etiquetas seleccionadas
@@ -961,13 +964,12 @@ function eventosAlmacenGeneral() {
                         etiquetas: etiquetasSeleccionadas,
                         precios: preciosActualizados,
                         uSueltas: parseInt(uSueltas),
-                        alm_acopio_id: alm_acopio_id,
-                        alm_acopio_producto: alm_acopio_id ?
-                            productosAcopio.find(p => p.id === alm_acopio_id)?.producto :
-                            productoActual.alm_acopio_producto,
+                        alm_acopio_id: alm_acopio_id,  // Aseguramos que sea cadena vacía si no hay selección
+                        alm_acopio_producto: alm_acopio_producto,
                         motivo,
                         imagen: imagenBase64 || productoActual.imagen
                     };
+                    console.log(alm_acopio_id)
 
                     mostrarCarga();
 

@@ -176,7 +176,7 @@ function eventosRegistrosConteo() {
             .replace(/[^a-zA-Z0-9\s]/g, '');
     }
     function aplicarFiltros() {
-        
+
         const fechasSeleccionadas = filtroFechaInstance?.selectedDates || [];
         const busqueda = normalizarTexto(inputBusqueda.value);
         const mensajeNoEncontrado = document.querySelector('.no-encontrado');
@@ -295,6 +295,7 @@ function eventosRegistrosConteo() {
         <div class="anuncio-botones">
             <button class="btn-editar btn blue" data-id="${registro.id}"><i class='bx bx-edit'></i></button>
             <button class="btn-eliminar btn red" data-id="${registro.id}"><i class="bx bx-trash"></i></button>
+            <button class="btn-sobre-escribir btn yellow" data-id="${registro.id}"><i class='bx bx-revision'></i></button>
         </div>
     `;
 
@@ -303,9 +304,11 @@ function eventosRegistrosConteo() {
 
         const btnEditar = contenido.querySelector('.btn-editar');
         const btnEliminar = contenido.querySelector('.btn-eliminar');
+        const btnSobre = contenido.querySelector('.btn-sobre-escribir');
 
         btnEditar.addEventListener('click', () => editar(registro));
         btnEliminar.addEventListener('click', () => eliminar(registro));
+        btnSobre.addEventListener('click', () => sobreescribir(registro));
 
 
         function eliminar(registro) {
@@ -387,7 +390,6 @@ function eventosRegistrosConteo() {
                 }
             });
         }
-
         function editar(registro) {
             const contenido = document.querySelector('.anuncio-tercer .contenido');
             const editarHTML = `
@@ -487,6 +489,94 @@ function eventosRegistrosConteo() {
                     console.error('Error:', error);
                     mostrarNotificacion({
                         message: 'Error al actualizar el conteo',
+                        type: 'error',
+                        duration: 3500
+                    });
+                } finally {
+                    ocultarCarga();
+                }
+            });
+        }
+        async function sobreescribir(registro) {
+            const contenido = document.querySelector('.anuncio-tercer .contenido');
+            const [fecha, hora] = registro.fecha.split(',').map(item => item.trim());
+
+            const registrationHTML = `
+        <div class="encabezado">
+            <h1 class="titulo">Sobreescribir inventario</h1>
+            <button class="btn close" onclick="cerrarAnuncioManual('anuncioTercer')"><i class="fas fa-arrow-right"></i></button>
+        </div>
+        <div class="relleno">
+            <p class="normal"><i class='bx bx-chevron-right'></i>Información del conteo</p>
+            <div class="campo-horizontal">
+                <div class="campo-vertical">
+                    <span class="nombre"><strong><i class='bx bx-id-card'></i> Id: </strong>${registro.id}</span>
+                    <span class="valor"><strong><i class='bx bx-calendar'></i> Fecha: </strong>${fecha}</span>
+                    <span class="valor"><strong><i class='bx bx-time'></i> Hora: </strong>${hora}</span>
+                    <span class="valor"><strong><i class='bx bx-user'></i> Operario: </strong>${registro.operario}</span>
+                </div>
+            </div>
+
+            <p class="normal"><i class='bx bx-chevron-right'></i>Motivo de la sobreescritura</p>
+            <div class="entrada">
+                <i class='bx bx-comment-detail'></i>
+                <div class="input">
+                    <p class="detalle">Motivo</p>
+                    <input class="motivo-sobreescritura" type="text" autocomplete="off" placeholder=" " required>
+                </div>
+            </div>
+        </div>
+        <div class="anuncio-botones">
+            <button class="btn-confirmar-sobreescritura btn red"><i class='bx bx-edit'></i> Confirmar sobreescritura</button>
+        </div>
+    `;
+
+            contenido.innerHTML = registrationHTML;
+            mostrarAnuncioTercer();
+
+            const btnConfirmarSobreescritura = contenido.querySelector('.btn-confirmar-sobreescritura');
+            btnConfirmarSobreescritura.addEventListener('click', async () => {
+                const motivo = document.querySelector('.motivo-sobreescritura').value.trim();
+
+                if (!motivo) {
+                    mostrarNotificacion({
+                        message: 'Debe ingresar el motivo de la sobreescritura',
+                        type: 'warning',
+                        duration: 3500
+                    });
+                    return;
+                }
+
+                try {
+                    mostrarCarga();
+                    const response = await fetch(`/sobreescribir-inventario/${registro.id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ motivo })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        mostrarNotificacion({
+                            message: 'Inventario actualizado correctamente',
+                            type: 'success',
+                            duration: 3000
+                        });
+
+                        ocultarCarga();
+                        cerrarAnuncioManual('anuncioTercer');
+                        cerrarAnuncioManual('anuncioSecond');
+                        await registrosConteoAlmacen();
+                    } else {
+                        throw new Error(data.error);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    mostrarNotificacion({
+                        message: error.message || 'Error al sobreescribir el inventario',
                         type: 'error',
                         duration: 3500
                     });

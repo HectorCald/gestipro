@@ -906,8 +906,8 @@ function eventosVerificacion() {
                 <div class="campo-vertical">
                     <span class="nombre"><strong><i class='bx bx-id-card'></i> Id: </strong>${registro.id}</span>
                     <span class="valor"><strong><i class="ri-scales-line"></i> Gramaje: </strong>${registro.gramos}gr.</span>
-                    <span class="valor"><strong><i class='bx bx-package'></i> Cantidad verificada: </strong>${registro.c_real} Und.</span>
-                    <span class="valor"><strong><i class='bx bx-calendar-check'></i> Fecha verificación: </strong>${registro.fecha_verificacion}</span>
+                    <span class="valor"><strong><i class='bx bx-package'></i> Verificado: </strong>${registro.c_real} Und.</span>
+                    <span class="valor"><strong><i class='bx bx-calendar-check'></i> Fecha: </strong>${registro.fecha_verificacion}</span>
                 </div>
                 <div class="imagen-producto">
                 ${producto.imagen && producto.imagen.startsWith('data:image') ?

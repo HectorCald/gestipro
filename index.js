@@ -1255,13 +1255,26 @@ app.put('/actualizar-producto/:id', requireAuth, async (req, res) => {
     try {
         const { spreadsheetId } = req.user;
         const { id } = req.params;
-        const { producto, gramos, stock, cantidadxgrupo, lista, codigo_barras, precios, etiquetas, acopio_id, alm_acopio_producto, imagen, uSueltas } = req.body;
+        const { 
+            producto, 
+            gramos, 
+            stock, 
+            cantidadxgrupo, 
+            lista, 
+            codigo_barras, 
+            precios, 
+            etiquetas, 
+            alm_acopio_id, // Changed from acopio_id to match frontend
+            alm_acopio_producto, 
+            imagen, 
+            uSueltas 
+        } = req.body;
         const sheets = google.sheets({ version: 'v4', auth });
 
-        // Obtener productos actuales
+        // Get current products
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId,
-            range: 'Almacen general!A2:N' // Cambiado a N para incluir todas las columnas
+            range: 'Almacen general!A2:M'
         });
 
         const rows = response.data.values || [];
@@ -1272,25 +1285,25 @@ app.put('/actualizar-producto/:id', requireAuth, async (req, res) => {
         }
 
         const updatedRow = [
-            id,                     // ID
-            producto,               // PRODUCTO
-            gramos,                 // GR.
-            stock,                  // STOCK
-            cantidadxgrupo,         // GRUP
-            lista,                  // LISTA
-            codigo_barras || 'no definido', // C. BARRAS
-            precios,                // PRECIOS
-            etiquetas,              // ETIQUETAS
-            acopio_id || '',        // ACOPIO ID
-            alm_acopio_producto || 'No hay índice seleccionado', // ALM-ACOPIO NOMBRE
-            imagen,
-            uSueltas        // UNIDADES SUELTAS
+            id,
+            producto,
+            gramos,
+            stock,
+            cantidadxgrupo,
+            lista,
+            codigo_barras || 'no definido',
+            precios,
+            etiquetas,
+            alm_acopio_id || '',  // Ensure empty string if null/undefined
+            alm_acopio_producto || '',
+            imagen || '',
+            uSueltas || ''
         ];
 
-        // Actualizar el rango para incluir todas las columnas necesarias
+        // Remove console.log that was causing the error
         await sheets.spreadsheets.values.update({
             spreadsheetId,
-            range: `Almacen general!A${rowIndex + 2}:N${rowIndex + 2}`,
+            range: `Almacen general!A${rowIndex + 2}:M${rowIndex + 2}`,
             valueInputOption: 'USER_ENTERED',
             resource: { values: [updatedRow] }
         });
@@ -1303,7 +1316,10 @@ app.put('/actualizar-producto/:id', requireAuth, async (req, res) => {
 
     } catch (error) {
         console.error('Error al actualizar producto:', error);
-        res.status(500).json({ success: false, error: 'Error al actualizar el producto' });
+        res.status(500).json({ 
+            success: false, 
+            error: error.message || 'Error al actualizar el producto' 
+        });
     }
 });
 app.post('/actualizar-stock', requireAuth, async (req, res) => {
@@ -1538,6 +1554,88 @@ app.put('/editar-conteo/:id', requireAuth, async (req, res) => {
         res.status(500).json({ success: false, error: 'Error al editar el conteo' });
     }
 });
+app.put('/sobreescribir-inventario/:id', requireAuth, async (req, res) => {
+    try {
+        const { spreadsheetId } = req.user;
+        const { id } = req.params;
+        const { motivo } = req.body;
+        const sheets = google.sheets({ version: 'v4', auth });
+
+        // 1. Get the count record
+        const conteoResponse = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: 'Conteo!A2:I'
+        });
+
+        const registros = conteoResponse.data.values || [];
+        const registro = registros.find(row => row[0] === id);
+
+        if (!registro) {
+            throw new Error('Registro de conteo no encontrado');
+        }
+
+        // 2. Extract product IDs and quantities
+        const productIds = registro[3].split(';'); // Column I contains product IDs
+        const quantities = registro[6].split(';').map(Number); // Column J contains quantities
+
+        if (productIds.length !== quantities.length) {
+            throw new Error('Datos de conteo inconsistentes');
+        }
+
+        // 3. Get current inventory
+        const almacenResponse = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: 'Almacen general!A2:E'
+        });
+
+        const productos = almacenResponse.data.values || [];
+
+        // 4. Update each product's quantity
+        const updates = productIds.map((productId, index) => {
+            const productoIndex = productos.findIndex(row => row[0] === productId);
+            if (productoIndex === -1) {
+                throw new Error(`Producto ${productId} no encontrado en almacén`);
+            }
+
+            return {
+                range: `Almacen general!D${productoIndex + 2}`,
+                values: [[quantities[index].toString()]]
+            };
+        });
+
+        // 5. Batch update all products
+        await sheets.spreadsheets.values.batchUpdate({
+            spreadsheetId,
+            resource: {
+                valueInputOption: 'RAW',
+                data: updates
+            }
+        });
+
+        // 6. Mark the count record as applied
+        await sheets.spreadsheets.values.update({
+            spreadsheetId,
+            range: `Conteo!I${registros.indexOf(registro) + 2}`,
+            valueInputOption: 'RAW',
+            resource: {
+                values: [[motivo]]
+            }
+        });
+
+        res.json({
+            success: true,
+            message: 'Inventario actualizado correctamente'
+        });
+
+    } catch (error) {
+        console.error('Error al sobreescribir inventario:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message || 'Error al sobreescribir el inventario'
+        });
+    }
+});
+
 
 /* ==================== RUTAS DE MOVIMIENTOS DE AlMACEN ==================== */
 app.get('/obtener-movimientos-almacen', requireAuth, async (req, res) => {
