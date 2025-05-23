@@ -573,6 +573,7 @@ function eventosPedidos(producto, pedido) {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
+                        fecha_hora: new Date().toLocaleString(),
                         idProducto: id,
                         nombreProducto: item.producto,
                         peso: pesoKg,

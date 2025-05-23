@@ -3313,6 +3313,7 @@ app.post('/registrar-movimiento-acopio', requireAuth, async (req, res) => {
             resource: {
                 values: [[
                     newId,
+                    movimientoData.fecha_hora,
                     new Date().toLocaleString(),
                     movimientoData.tipo,
                     movimientoData.idProducto,
