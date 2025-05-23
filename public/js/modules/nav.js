@@ -20,14 +20,6 @@ function obtenerOpcionesMenu() {
                 detalle: 'Ver mis registros de producción',
                 onclick: 'onclick="mostrarMisRegistros(); ocultarAnuncioSecond()"'
             },
-            {
-                clase: 'opcion-btn',
-                vista: 'gestionPro-view',
-                icono: 'fa-chart-line',
-                texto: 'Estadisticas',
-                detalle: 'Ver mis estadisticas de registros.',
-                onclick: 'onclick="document.querySelector(\'.seccion3 .normal\').scrollIntoView({behavior: \'smooth\', block: \'start\'});ocultarAnuncioSecond()"'
-            }
         ],
         'Acopio': [
             {
