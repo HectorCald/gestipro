@@ -1726,9 +1726,8 @@
 }
 
 .skeleton-etiqueta {
-    height: 32px;
+    height: 40px;
     min-width: 80px;
-    margin: 0 5px;
     display: inline-block;
     border-radius: 10px;
 }
