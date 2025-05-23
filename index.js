@@ -3287,12 +3287,23 @@ app.put('/llego-pedido/:id', requireAuth, async (req, res) => {
 
 /* ==================== RUTAS DE ACOPIO INGRESO ALMACEN ACOPIO ==================== */
 app.post('/registrar-movimiento-acopio', requireAuth, async (req, res) => {
-    const { spreadsheetId } = req.user;
+    const { spreadsheetId, nombre } = req.user;
     const { pedidoId, ...movimientoData } = req.body;
+
+    
 
     try {
         const sheets = google.sheets({ version: 'v4', auth });
 
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: 'Movimientos alm-acopio!A2:A' // Assuming IDs are in column A
+        });
+        
+        const rows = response.data.values || [];
+        const lastId = rows.length > 0 ?
+            Math.max(...rows.map(row => parseInt(row[0].split('-')[1]))) : 0;
+        const newId = `MAA-${(lastId + 1).toString().padStart(3, '0')}`;
         // 1. Registrar el movimiento
         const movimientoResponse = await sheets.spreadsheets.values.append({
             spreadsheetId: spreadsheetId,
@@ -3301,11 +3312,15 @@ app.post('/registrar-movimiento-acopio', requireAuth, async (req, res) => {
             insertDataOption: 'INSERT_ROWS',
             resource: {
                 values: [[
-                    new Date().toLocaleDateString('es-ES'),
+                    newId,
+                    new Date().toLocaleString(),
+                    movimientoData.tipo,
+                    movimientoData.idProducto,
                     movimientoData.nombreProducto,
                     movimientoData.peso,
-                    movimientoData.tipo,
-                    movimientoData.caracteristicas,
+                    nombre,
+                    movimientoData.nombreMovimiento,
+                    movimientoData.caracteristicas || 'No tiene',
                     movimientoData.observaciones
                 ]]
             }
