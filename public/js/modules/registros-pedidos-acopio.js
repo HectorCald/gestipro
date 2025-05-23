@@ -1,5 +1,6 @@
 let usuarioInfo = recuperarUsuarioLocal();
 let pedidosGlobal = [];
+let productos = [];
 let proovedoresAcopioGlobal = [];
 let mensajeCompras = localStorage.getItem('damabrava_mensaje_compras') || 'Se compro:\n• Sin compras registradas';
 let carritoIngresosAcopio = new Map(JSON.parse(localStorage.getItem('damabrava_ingreso_acopio') || '[]'));
@@ -70,6 +71,38 @@ async function obtenerPedidos() {
             duration: 3500
         });
         return false;
+    }
+}
+async function obtenerAlmacenAcopio() {
+    try {
+        mostrarCarga();
+        const response = await fetch('/obtener-productos-acopio');
+        if (!response.ok) {
+            throw new Error('Error en la respuesta del servidor');
+        }
+
+        const data = await response.json();
+
+        if (data.success) {
+            productos = data.productos.sort((a, b) => {
+                const idA = parseInt(a.id.split('-')[1]);
+                const idB = parseInt(b.id.split('-')[1]);
+                return idB - idA;
+            });
+            return true;
+        } else {
+            throw new Error(data.error || 'Error al obtener los productos');
+        }
+    } catch (error) {
+        console.error('Error al obtener productos:', error);
+        mostrarNotificacion({
+            message: 'Error al obtener los productos de acopio',
+            type: 'error',
+            duration: 3500
+        });
+        return false;
+    } finally {
+        ocultarCarga();
     }
 }
 
@@ -157,8 +190,9 @@ function updateHTMLWithData() {
             pedido.estado.toLowerCase() === 'recibido' ?
                 `<span class="cantidad-pedida">(${pedido.cantidadEntregadaUnd || 'No registrado'})</span>` :
                 pedido.estado.toLowerCase() === 'ingresado' ?
-                    `<span class="cantidad-pedida">(${pedido.cantidadIngresada || 'No registrado'})</span>` :
-                    ''
+                    `<span class="cantidad-pedida">(${pedido.cantidadIngresada || 'No registrado'} Kg.) </span>` :
+                    pedido.estado.toLowerCase() === 'no llego' ?
+                        `<span class="cantidad-pedida">(${pedido.cantidadEntregadaUnd || 'No registrado'}) </span>` : ''
         }
                     </span>
                     <span class="fecha">${pedido.fecha}</span>
@@ -411,7 +445,7 @@ function eventosPedidos() {
             <p class="normal"><i class='bx bx-chevron-right'></i> Información de ingreso</p>
             <div class="campo-vertical">
                 <span class="valor"><strong><i class='bx bx-calendar'></i> Fecha ingreso: </strong>${registro.fechaIngreso || 'No registrado'}</span>
-                <span class="valor"><strong><i class='bx bx-package'></i> Cantidad ingresada: </strong>${registro.cantidadIngresada || 'No registrado'}</span>
+                <span class="valor"><strong><i class='bx bx-package'></i> Cantidad ingresada(KG): </strong>${registro.cantidadIngresada || 'No registrado'}</span>
                 <span class="observaciones"><strong><i class='bx bx-comment-detail'></i> Observaciones ingreso: </strong>${registro.observacionesIngresado || 'Sin observaciones'}</span>
             </div>
             ` : ''}
@@ -421,7 +455,11 @@ function eventosPedidos() {
                 <button class="btn-entregar btn green" data-id="${registro.id}"><i class='bx bx-check-circle'></i> Entregar</button>
             ` : ''}
             ${registro.estado === 'Recibido' ? `
-                <button class="btn-ingresar btn blue" data-id="${registro.id}"><i class='bx bx-log-in'></i> Ingresar</button>
+                <button class="btn-ingresar btn blue" data-id="${registro.id}"><i class='bx bx-log-in'></i></button>
+                <button class="btn-rechazar btn yellow" data-id="${registro.id}"><i class='bx bx-block'></i></button>
+            ` : ''}
+            ${registro.estado === 'No llego' ? `
+                <button class="btn-llego btn yellow" data-id="${registro.id}"><i class='bx bx-check-circle'></i></button>
             ` : ''}
             <button class="btn-eliminar btn red" data-id="${registro.id}"><i class="bx bx-trash"></i></button>
             <button class="btn-editar btn blue" data-id="${registro.id}"><i class='bx bx-edit'></i></button>
@@ -436,6 +474,9 @@ function eventosPedidos() {
         const btnEliminar = contenido.querySelector('.btn-eliminar');
         const btnEntregar = contenido.querySelector('.btn-entregar');
         const btnIngresar = contenido.querySelector('.btn-ingresar');
+        const btnRechazar = contenido.querySelector('.btn-rechazar');
+        const btnLlego = contenido.querySelector('.btn-llego');
+
 
         btnEditar.addEventListener('click', () => editar(registro));
         btnEliminar.addEventListener('click', () => eliminar(registro));
@@ -444,6 +485,12 @@ function eventosPedidos() {
         }
         if (btnIngresar) {
             btnIngresar.addEventListener('click', () => ingresar(registro));
+        }
+        if (btnRechazar) {
+            btnRechazar.addEventListener('click', () => rechazar(registro));
+        }
+        if (btnLlego) {
+            btnLlego.addEventListener('click', () => llego(registro));
         }
 
         function eliminar(registro) {
@@ -535,7 +582,8 @@ function eventosPedidos() {
                 }
             }
         }
-        function editar(registro) {
+        async function editar(registro) {
+            await obtenerAlmacenAcopio();
             const contenido = document.querySelector('.anuncio-tercer .contenido');
             const registrationHTML = `
         <div class="encabezado">
@@ -543,12 +591,15 @@ function eventosPedidos() {
             <button class="btn close" onclick="cerrarAnuncioManual('anuncioTercer')"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno editar-pedido">
-        <p class="normal"><i class='bx bx-chevron-right'></i> Detalles del producto</p>
-            <div class="campo-vertical">
-                <span class="nombre"><strong><i class='bx bx-cube'></i> Producto: </strong>${registro.producto}</span>
-                <span class="observaciones"><strong><i class='bx bx-comment-detail'></i> Observaciones: </strong>${registro.observacionesPedido || 'Sin observaciones'}</span>
-            </div>
             <p class="normal"><i class='bx bx-chevron-right'></i>Información básica</p>
+            <div class="entrada">
+                <i class='bx bx-package'></i>
+                <div class="input">
+                    <p class="detalle">Producto</p>
+                    <input class="producto-pedido" type="text" value="${registro.producto}">
+                </div>
+            </div>
+            <div class="sugerencias" id="productos-list"></div>
             <div class="entrada">
                 <i class='bx bx-package'></i>
                 <div class="input">
@@ -654,9 +705,50 @@ function eventosPedidos() {
         <div class="anuncio-botones">
             <button class="btn-guardar-edicion btn blue"><i class="bx bx-save"></i> Guardar cambios</button>
         </div>
-    `;
+            `;
             contenido.innerHTML = registrationHTML;
             mostrarAnuncioTercer();
+            const productoInput = document.querySelector('.entrada .producto-pedido');
+            const sugerenciasList = document.querySelector('#productos-list');
+
+            function normalizarTexto(texto) {
+                return texto.toString()
+                    .toLowerCase()
+                    .normalize('NFD')
+                    .replace(/[\u0300-\u036f]/g, '')
+                    .replace(/[-_\s]+/g, '');
+            }
+
+            productoInput.addEventListener('input', (e) => {
+                const valor = normalizarTexto(e.target.value);
+
+                sugerenciasList.innerHTML = '';
+
+                if (valor) {
+                    const sugerencias = productos.filter(p =>
+                        normalizarTexto(p.producto).includes(valor)
+                    ).slice(0, 5);
+
+                    if (sugerencias.length) {
+                        sugerenciasList.style.display = 'flex';
+                        sugerencias.forEach(p => {
+                            const div = document.createElement('div');
+                            div.classList.add('item');
+                            div.textContent = p.producto;
+                            div.onclick = () => {
+                                productoInput.value = p.producto;
+                                sugerenciasList.style.display = 'none';
+                                window.idPro = p.id;
+                                const event = new Event('focus');
+                                gramajeInput.dispatchEvent(event);
+                            };
+                            sugerenciasList.appendChild(div);
+                        });
+                    }
+                } else {
+                    sugerenciasList.style.display = 'none';
+                }
+            });
 
             const btnGuardar = contenido.querySelector('.btn-guardar-edicion');
             btnGuardar.addEventListener('click', confirmarEdicion);
@@ -664,6 +756,8 @@ function eventosPedidos() {
             async function confirmarEdicion() {
                 try {
                     const datosActualizados = {
+                        idProducto: window.idPro,
+                        productoPedido: document.querySelector('.editar-pedido .producto-pedido').value,
                         cantidadPedida: document.querySelector('.editar-pedido .cantidad-pedida').value,
                         observacionesPedido: document.querySelector('.editar-pedido .obs-pedido').value,
                         estado: document.querySelector('.editar-pedido .estado').value,
@@ -912,11 +1006,120 @@ function eventosPedidos() {
                 }
             }
         }
-
         async function ingresar(registro) {
             mostrarCarga();
             mostrarIngresosAcopio(registro.idProducto, registro.id);
         }
+        async function rechazar(registro) {
+            const contenido = document.querySelector('.anuncio-second .contenido');
+            const html = `
+        <div class="encabezado">
+            <h1 class="titulo">Rechazar Pedido ${registro.id}</h1>
+            <button class="btn close" onclick="cerrarAnuncioManual('anuncioSecond')">
+                <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+        <div class="relleno">
+            <p class="normal"><i class='bx bx-chevron-right'></i> Información del pedido</p>
+            <div class="campo-horizontal">
+                <div class="campo-vertical">
+                    <span class="nombre"><strong><i class='bx bx-id-card'></i> Id: </strong>${registro.id}</span>
+                    <span class="valor"><strong><i class='bx bx-package'></i> Cantidad pedida: </strong>${registro.cantidadPedida}</span>
+                    <span class="valor"><strong><i class='bx bx-calendar'></i> Fecha: </strong>${registro.fecha}</span>
+                    <span class="estado ${registro.estado.toLowerCase()}"><strong><i class='bx bx-check-circle'></i> Estado: </strong>${registro.estado}</span>
+                </div>
+            </div>
+            <p class="normal"><i class='bx bx-chevron-right'></i>Motivo de la eliminación</p>
+                <div class="entrada">
+                    <i class='bx bx-comment-detail'></i>
+                    <div class="input">
+                        <p class="detalle">Motivo</p>
+                        <input class="input-motivo" type="text" autocomplete="off" placeholder=" " required>
+                    </div>
+                </div>
+        </div>
+        <div class="anuncio-botones">
+            <button class="btn red" onclick="confirmarRechazo('${registro.id}')"><i class='bx bx-x-circle'></i> Confirmar Rechazo</button>
+        </div>
+
+    `;
+            contenido.innerHTML = html;
+            mostrarAnuncioSecond();
+            window.confirmarRechazo = async function (idPedido) {
+                const motivo = document.querySelector('.input-motivo').value;
+    
+                if (!motivo) {
+                    mostrarNotificacion({
+                        message: 'Debe ingresar un motivo de rechazo',
+                        type: 'warning',
+                        duration: 3500
+                    });
+                    return;
+                }
+    
+                try {
+                    mostrarCarga();
+                    const response = await fetch(`/rechazar-pedido/${idPedido}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ motivo })
+                    });
+    
+                    const data = await response.json();
+                    if (data.success) {
+                        mostrarNotificacion({
+                            message: 'Pedido rechazado correctamente',
+                            type: 'success',
+                            duration: 3000
+                        });
+                        ocultarCarga();
+                        cerrarAnuncioManual('anuncioTercer');
+                        cerrarAnuncioManual('anuncioSecond');
+                        await mostrarPedidos();
+                    }
+                } catch (error) {
+                    mostrarNotificacion({
+                        message: 'Error al rechazar el pedido',
+                        type: 'error',
+                        duration: 3500
+                    });
+                } finally {
+                    ocultarCarga();
+                }
+            };
+        }
+        async function llego(registro) {
+
+            try {
+                mostrarCarga();
+                const response = await fetch(`/llego-pedido/${registro.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    mostrarNotificacion({
+                        message: 'Se cambio el estado a llego',
+                        type: 'success',
+                        duration: 3000
+                    });
+                    ocultarCarga();
+                    cerrarAnuncioManual('anuncioTercer');
+                    cerrarAnuncioManual('anuncioSecond');
+                    await mostrarPedidos();
+                }
+            } catch (error) {
+                mostrarNotificacion({
+                    message: 'Error al rechazar el pedido',
+                    type: 'error',
+                    duration: 3500
+                });
+            } finally {
+                ocultarCarga();
+            }
+        };
+
     }
     function mostrarMensajeCompras() {
         const anuncioSecond = document.querySelector('.anuncio-second .contenido');

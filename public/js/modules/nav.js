@@ -42,7 +42,7 @@ function obtenerOpcionesMenu() {
                 clase: 'opcion-btn',
                 vista: 'regAcopio-view',
                 icono: 'fa-history',
-                texto: 'Pedidos',
+                texto: 'Pedidos acopio',
                 detalle: 'Gestionar todos los pedidos',
                 onclick: 'onclick="mostrarPedidos();"'
             },

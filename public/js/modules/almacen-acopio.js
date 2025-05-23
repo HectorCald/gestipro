@@ -41,7 +41,6 @@ async function obtenerEtiquetasAcopio() {
 }
 async function obtenerAlmacenAcopio() {
     try {
-        await obtenerEtiquetasAcopio();
 
         const response = await fetch('/obtener-productos-acopio');
         if (!response.ok) {

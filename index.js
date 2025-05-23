@@ -1255,19 +1255,19 @@ app.put('/actualizar-producto/:id', requireAuth, async (req, res) => {
     try {
         const { spreadsheetId } = req.user;
         const { id } = req.params;
-        const { 
-            producto, 
-            gramos, 
-            stock, 
-            cantidadxgrupo, 
-            lista, 
-            codigo_barras, 
-            precios, 
-            etiquetas, 
+        const {
+            producto,
+            gramos,
+            stock,
+            cantidadxgrupo,
+            lista,
+            codigo_barras,
+            precios,
+            etiquetas,
             alm_acopio_id, // Changed from acopio_id to match frontend
-            alm_acopio_producto, 
-            imagen, 
-            uSueltas 
+            alm_acopio_producto,
+            imagen,
+            uSueltas
         } = req.body;
         const sheets = google.sheets({ version: 'v4', auth });
 
@@ -1316,9 +1316,9 @@ app.put('/actualizar-producto/:id', requireAuth, async (req, res) => {
 
     } catch (error) {
         console.error('Error al actualizar producto:', error);
-        res.status(500).json({ 
-            success: false, 
-            error: error.message || 'Error al actualizar el producto' 
+        res.status(500).json({
+            success: false,
+            error: error.message || 'Error al actualizar el producto'
         });
     }
 });
@@ -1830,7 +1830,7 @@ app.delete('/anular-movimiento/:id', requireAuth, async (req, res) => {
 
         const movimientos = responseMovimiento.data.values || [];
         const movimientoIndex = movimientos.findIndex(row => row[0] === id);
-        
+
         if (movimientoIndex === -1) {
             return res.status(404).json({ success: false, error: 'Movimiento no encontrado' });
         }
@@ -1852,12 +1852,12 @@ app.delete('/anular-movimiento/:id', requireAuth, async (req, res) => {
         for (let i = 0; i < idProductos.length; i++) {
             const idProducto = idProductos[i];
             const cantidad = parseInt(cantidades[i]);
-            
+
             const productoIndex = productos.findIndex(row => row[0] === idProducto);
             if (productoIndex !== -1) {
                 const stockActual = parseInt(productos[productoIndex][3]);
-                const nuevoStock = tipo.toLowerCase() === 'ingreso' ? 
-                    stockActual - cantidad : 
+                const nuevoStock = tipo.toLowerCase() === 'ingreso' ?
+                    stockActual - cantidad :
                     stockActual + cantidad;
 
                 await sheets.spreadsheets.values.update({
@@ -2976,7 +2976,7 @@ app.get('/obtener-pedidos', requireAuth, async (req, res) => {
             cantidadIngresada: row[15] || '',
             observacionesIngresado: row[16] || ''
         }));
-        
+
 
         res.json({
             success: true,
@@ -3064,6 +3064,8 @@ app.put('/editar-pedido/:id', requireAuth, async (req, res) => {
         const { spreadsheetId } = req.user;
         const { id } = req.params;
         const {
+            idProducto,
+            productoPedido,
             cantidadPedida,
             observacionesPedido,
             estado,
@@ -3098,13 +3100,13 @@ app.put('/editar-pedido/:id', requireAuth, async (req, res) => {
         }
 
         const currentRow = rows[rowIndex];
-        
+
         // Asegurarnos de que los valores nuevos tengan prioridad sobre los actuales
         const updatedRow = [
             id,                                         // ID
             currentRow[1],                             // FECHA
-            currentRow[2],                             // ID-PROD
-            currentRow[3],                             // PRODUCTO
+            idProducto,                             // ID-PROD
+            productoPedido,                             // PRODUCTO
             cantidadPedida,     // CANT-PED
             observacionesPedido, // OBS-PEDIDO
             estado,     // ESTADO
@@ -3129,9 +3131,6 @@ app.put('/editar-pedido/:id', requireAuth, async (req, res) => {
                 values: [updatedRow]
             }
         });
-
-        console.log(`Pedido ${id} actualizado con motivo: ${motivo}`);
-
         res.json({
             success: true,
             message: 'Pedido actualizado correctamente'
@@ -3209,6 +3208,81 @@ app.put('/entregar-pedido/:id', requireAuth, async (req, res) => {
         res.status(500).json({ success: false, error: 'Error al entregar el pedido' });
     }
 });
+app.put('/rechazar-pedido/:id', requireAuth, async (req, res) => {
+    try {
+        const { spreadsheetId } = req.user;
+        const { id } = req.params;
+        const { motivo } = req.body;
+
+        const sheets = google.sheets({ version: 'v4', auth });
+        
+        // Obtener todos los pedidos
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: 'Pedidos!A2:Q'
+        });
+
+        const rows = response.data.values || [];
+        const rowIndex = rows.findIndex(row => row[0] === id);
+
+        if (rowIndex === -1) {
+            return res.status(404).json({ success: false, error: 'Pedido no encontrado' });
+        }
+
+        // Actualizar estado a "Rechazado"
+        await sheets.spreadsheets.values.update({
+            spreadsheetId,
+            range: `Pedidos!G${rowIndex + 2}`,
+            valueInputOption: 'USER_ENTERED',
+            resource: {
+                values: [['Rechazado']]
+            }
+        });
+        res.json({ success: true });
+
+    } catch (error) {
+        console.error('Error al rechazar pedido:', error);
+        res.status(500).json({ success: false, error: 'Error al rechazar el pedido' });
+    }
+});
+app.put('/llego-pedido/:id', requireAuth, async (req, res) => {
+    try {
+        const { spreadsheetId } = req.user;
+        const { id } = req.params;
+        const { motivo } = req.body;
+
+        const sheets = google.sheets({ version: 'v4', auth });
+        
+        // Obtener todos los pedidos
+        const response = await sheets.spreadsheets.values.get({
+            spreadsheetId,
+            range: 'Pedidos!A2:Q'
+        });
+
+        const rows = response.data.values || [];
+        const rowIndex = rows.findIndex(row => row[0] === id);
+
+        if (rowIndex === -1) {
+            return res.status(404).json({ success: false, error: 'Pedido no encontrado' });
+        }
+
+        // Actualizar estado a "Rechazado"
+        await sheets.spreadsheets.values.update({
+            spreadsheetId,
+            range: `Pedidos!G${rowIndex + 2}`,
+            valueInputOption: 'USER_ENTERED',
+            resource: {
+                values: [['Recibido']]
+            }
+        });
+        res.json({ success: true });
+
+    } catch (error) {
+        console.error('Error al rechazar pedido:', error);
+        res.status(500).json({ success: false, error: 'Error al rechazar el pedido' });
+    }
+});
+
 
 
 /* ==================== RUTAS DE ACOPIO INGRESO ALMACEN ACOPIO ==================== */
@@ -3218,7 +3292,7 @@ app.post('/registrar-movimiento-acopio', requireAuth, async (req, res) => {
 
     try {
         const sheets = google.sheets({ version: 'v4', auth });
-        
+
         // 1. Registrar el movimiento
         const movimientoResponse = await sheets.spreadsheets.values.append({
             spreadsheetId: spreadsheetId,
@@ -3241,26 +3315,44 @@ app.post('/registrar-movimiento-acopio', requireAuth, async (req, res) => {
         if (pedidoId) {
             const pedidosResponse = await sheets.spreadsheets.values.get({
                 spreadsheetId: spreadsheetId,
-                range: 'Pedidos!A2:G'
+                range: 'Pedidos!A2:Q'
             });
 
             const pedidosRows = pedidosResponse.data.values || [];
             const pedidoIndex = pedidosRows.findIndex(row => row[0] === pedidoId);
 
             if (pedidoIndex !== -1) {
-                await sheets.spreadsheets.values.update({
+                const fechaActual = new Date().toLocaleDateString('es-ES');
+
+                await sheets.spreadsheets.values.batchUpdate({
                     spreadsheetId: spreadsheetId,
-                    range: `Pedidos!G${pedidoIndex + 2}`, // +2 porque empieza desde fila 2
-                    valueInputOption: 'USER_ENTERED',
                     resource: {
-                        values: [['Ingresado']]
+                        data: [
+                            {
+                                range: `Pedidos!G${pedidoIndex + 2}`,
+                                values: [['Ingresado']]
+                            },
+                            {
+                                range: `Pedidos!O${pedidoIndex + 2}`,
+                                values: [[fechaActual]]
+                            },
+                            {
+                                range: `Pedidos!P${pedidoIndex + 2}`,
+                                values: [[movimientoData.peso]]
+                            },
+                            {
+                                range: `Pedidos!Q${pedidoIndex + 2}`,
+                                values: [[movimientoData.observaciones]]
+                            }
+                        ],
+                        valueInputOption: 'USER_ENTERED'
                     }
                 });
             }
         }
 
         res.json({ success: true });
-        
+
     } catch (error) {
         console.error('Error:', error);
         res.status(500).json({ success: false, error: 'Error en el servidor' });
@@ -3359,7 +3451,7 @@ app.delete('/eliminar-movimiento-acopio/:id', requireAuth, async (req, res) => {
             }
         });
 
-        res.json({ 
+        res.json({
             success: true,
             message: 'Movimiento eliminado correctamente'
         });
@@ -3391,7 +3483,7 @@ app.put('/anular-movimiento-acopio/:id', requireAuth, async (req, res) => {
 
         const movimientos = movimientosResponse.data.values || [];
         const movimientoIndex = movimientos.findIndex(row => row[0] === id);
-        
+
         if (movimientoIndex === -1) {
             throw new Error('Registro no encontrado');
         }
@@ -3418,7 +3510,7 @@ app.put('/anular-movimiento-acopio/:id', requireAuth, async (req, res) => {
         const tipoPartes = tipo.toLowerCase().split(' ');
         const esIngreso = tipoPartes[0] === 'ingreso';
         const esBruto = tipoPartes[1] === 'bruto';
-        
+
         const columnaLotes = esBruto ? 'C' : 'D';
         const lotesResponse = await sheets.spreadsheets.values.get({
             spreadsheetId,
@@ -3506,8 +3598,8 @@ app.put('/actualizar-producto-acopio/:id', requireAuth, async (req, res) => {
         const currentRow = rows[rowIndex];
         const columnaActualizar = tipoMateria === 'bruto' ? 2 : 3; // 2 para BRUTO, 3 para PRIMA
         const valorActual = currentRow[columnaActualizar] || '0-1';
-        const nuevoValor = valorActual === '0-1' ? 
-            `${pesoKg}-${numeroLote}` : 
+        const nuevoValor = valorActual === '0-1' ?
+            `${pesoKg}-${numeroLote}` :
             `${valorActual};${pesoKg}-${numeroLote}`;
 
         // Actualizar solo la columna correspondiente
@@ -3542,7 +3634,7 @@ app.put('/actualizar-producto-acopio-salida/:id', requireAuth, async (req, res) 
         if (rowIndex === -1) return res.status(404).json({ success: false, error: 'Producto no encontrado' });
 
         const currentRow = [...rows[rowIndex]];
-        
+
         // Actualizar solo los campos que vienen en la petición
         if (bruto !== undefined) currentRow[2] = bruto;
         if (prima !== undefined) currentRow[3] = prima;
