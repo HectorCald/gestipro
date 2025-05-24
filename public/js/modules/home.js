@@ -1,6 +1,8 @@
 let usuarioInfo = {
+    id: '',
     nombre: '',
     apellido: '',
+    telefono: '',
     email: '',
     foto: '',
     rol: '',
@@ -21,8 +23,10 @@ async function obtenerUsuario() {
         if (data.success) {
             const nombreCompleto = data.usuario.nombre.split(' ');
             usuarioInfo = {
+                id: data.usuario.id,
                 nombre: nombreCompleto[0] || '',
                 apellido: nombreCompleto[1] || '',
+                telefono: data.usuario.telefono,
                 email: data.usuario.email,
                 rol: data.usuario.rol,
                 estado: data.usuario.estado,

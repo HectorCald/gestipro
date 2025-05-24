@@ -17,8 +17,10 @@ async function obtenerUsuario() {
         if (data.success) {
             const nombreCompleto = data.usuario.nombre.split(' ');
             usuarioInfo = {
+                id: data.usuario.id,
                 nombre: nombreCompleto[0] || '',
                 apellido: nombreCompleto[1] || '',
+                telefono: data.usuario.telefono,
                 email: data.usuario.email,
                 rol: data.usuario.rol,
                 estado: data.usuario.estado,
@@ -105,7 +107,7 @@ function mostrarPerfil(view) {
     const btnCerrarSesion = document.querySelector('.cerrar-sesion');
 
     btnCuenta.addEventListener('click', () => {
-        mostrarCuenta(usuarioInfo.nombre, usuarioInfo.apellido, usuarioInfo.email, usuarioInfo.foto);
+        mostrarCuenta(usuarioInfo.nombre, usuarioInfo.apellido, usuarioInfo.email, usuarioInfo.foto, usuarioInfo.telefono);
     });
 
     btnConfiguraciones.addEventListener('click', () => {
@@ -131,7 +133,7 @@ function mostrarPerfil(view) {
 }
 
 
-function mostrarCuenta(nombre, apellido, email, foto) {
+function mostrarCuenta(nombre, apellido, email, foto, telefono) {
     const contenido = document.querySelector('.anuncio .contenido');
     const registrationHTML = `
         <div class="encabezado">
@@ -161,6 +163,13 @@ function mostrarCuenta(nombre, apellido, email, foto) {
                 <div class="input">
                     <p class="detalle">Apellido</p>
                     <input class="nombre" type="text" value="${apellido}" placeholder=" " required>
+                </div>
+            </div>
+            <div class="entrada">
+                <i class='bx bx-phone'></i>
+                <div class="input">
+                    <p class="detalle">Teléfono</p>
+                    <input class="telefono" type="tel" value="${telefono}" placeholder=" " required>
                 </div>
             </div>
             <div class="entrada">
@@ -195,6 +204,7 @@ function evetosCuenta() {
     const inputFoto = document.querySelector('#input-foto');
     const previewFoto = document.querySelector('#preview-foto');
     const btnGuardar = document.querySelector('#btn-guardar');
+    const telefonoInput = document.querySelector('.telefono');
     let fotoBase64 = null;
     let fotoModificada = false;
 
@@ -297,19 +307,30 @@ function evetosCuenta() {
 
     btnGuardar.addEventListener('click', async () => {
         const nombre = document.querySelector('input.nombre').value.trim();
+        const telefono = document.querySelector('input.telefono').value.trim();
         const apellido = document.querySelectorAll('input.nombre')[1].value.trim();
         const passwordActual = document.querySelector('input.password-actual')?.value;
         const passwordNueva = document.querySelector('input.password-nueva')?.value;
 
         // Validaciones básicas
-        if (!nombre || !apellido) {
+        if (!nombre || !apellido || !telefono) {
             mostrarNotificacion({
-                message: 'Nombre y apellido son requeridos',
+                message: 'Nombre, apellido son requeridos y telefono son requeridos',
                 type: 'error',
                 duration: 3500
             });
             return;
         }
+        
+        if (!/^[67]\d{7}$/.test(telefono)) {
+            mostrarNotificacion({
+                message: 'Ingrese un número válido de 8 dígitos (ej: 67644705)',
+                type: 'warning',
+                duration: 4000
+            });
+            return;
+        }
+
 
         // Validación de contraseña nueva
         if (passwordNueva && passwordNueva.length < 8) {
@@ -343,7 +364,8 @@ function evetosCuenta() {
                     apellido,
                     foto: fotoModificada ? fotoBase64 : undefined,
                     passwordActual: passwordActual || undefined,
-                    passwordNueva: passwordNueva || undefined
+                    passwordNueva: passwordNueva || undefined,
+                    telefono
                 })
             });
 

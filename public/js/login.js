@@ -1,8 +1,9 @@
 /* ==================== COMPONENTES ==================== */
 import { crearNotificacion, mostrarNotificacion } from './modules/componentes.js'
-import { mostrarAnuncio, ocultarAnuncio } from './modules/componentes.js'
+import { mostrarAnuncio, ocultarAnuncio, configuracionesEntrada, mostrarAnuncioSecond,mostrarAnuncioTercer, cerrarAnuncioManual } from './modules/componentes.js'
 import { mostrarCarga, ocultarCarga } from './modules/componentes.js'
 
+window.cerrarAnuncioManual = cerrarAnuncioManual
 window.crearNotificacion = crearNotificacion
 window.mostrarNotificacion = mostrarNotificacion
 
@@ -12,88 +13,6 @@ window.mostrarAnuncio = mostrarAnuncio
 
 window.mostrarCarga = mostrarCarga
 window.ocultarCarga = ocultarCarga
-
-
-/* ==================== FUNCION DE LOS LABELS ==================== */
-function configuracionesEntrada() {
-    const inputs = document.querySelectorAll('.entrada .input input');
-
-    // Limpiar input de email
-    const clearInputButton = document.querySelector('.clear-input');
-    if (clearInputButton) {
-        clearInputButton.addEventListener('click', (e) => {
-            e.preventDefault();
-            const emailInput = document.querySelector('.email');
-            const label = emailInput.previousElementSibling;
-            emailInput.value = '';
-
-            // Forzar la actualización del label
-            label.style.top = '50%';
-            label.style.fontSize = 'var(--text-subtitulo)';
-            label.style.color = 'var(--cero-color)';
-            label.style.fontWeight = '400';
-
-            // Disparar evento blur manualmente
-            const blurEvent = new Event('blur');
-            emailInput.dispatchEvent(blurEvent);
-
-            // Disparar evento focus manualmente
-            emailInput.focus();
-            const focusEvent = new Event('focus');
-            emailInput.dispatchEvent(focusEvent);
-        });
-    }
-
-    // Mostrar/ocultar contraseña para el formulario de inicio de sesión
-    document.querySelectorAll('.toggle-password').forEach(toggleButton => {
-        toggleButton.addEventListener('click', (e) => {
-            e.preventDefault();
-            const passwordInput = toggleButton.parentElement.querySelector('input[type="password"], input[type="text"]');
-            const icon = toggleButton.querySelector('i');
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-            } else {
-                passwordInput.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-            }
-        });
-    });
-
-    const savedCredentials = JSON.parse(localStorage.getItem('credentials'));
-    if (savedCredentials) {
-        document.querySelector('.email').value = savedCredentials.email;
-        document.querySelector('.password').value = savedCredentials.password;
-    }
-
-    inputs.forEach(input => {
-        const label = input.previousElementSibling;
-
-        // Verificar el estado inicial
-        if (input.value.trim() !== '') {
-            label.style.transform = 'translateY(-75%) scale(0.85)';
-            label.style.color = 'var(--cuarto-color)';
-            label.style.fontWeight = '600';
-        }
-
-        input.addEventListener('focus', () => {
-            label.style.transform = 'translateY(-75%) scale(0.85)';
-            label.style.color = 'var(--cuarto-color)';
-            label.style.fontWeight = '600';
-        });
-
-        input.addEventListener('blur', () => {
-            if (!input.value.trim()) {
-                label.style.transform = 'translateY(-50%)';
-                label.style.color = 'var(--cero-color)';
-                label.style.fontWeight = '400';
-            }
-        });
-    });
-}
-
 
 /* ==================== FUNCITION DEL LOGIN ==================== */
 function iniciarSesion() {
@@ -182,6 +101,8 @@ function iniciarSesion() {
                     duration: 4000
                 });
                 ocultarCarga();
+            }finally {
+                ocultarCarga();
             }
         });
 
@@ -223,21 +144,113 @@ function inicializarApp() {
         });
     }
 
+        const inputs = document.querySelectorAll('.entrada .input input');
+    
+        // Limpiar input de email
+        const clearInputButton = document.querySelector('.clear-input');
+        if (clearInputButton) {
+            clearInputButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                const emailInput = document.querySelector('.email');
+                const label = emailInput.previousElementSibling;
+                emailInput.value = '';
+    
+                // Forzar la actualización del label
+                label.style.top = '50%';
+                label.style.fontSize = 'var(--text-subtitulo)';
+                label.style.color = 'var(--cero-color)';
+                label.style.fontWeight = '400';
+    
+                // Disparar evento blur manualmente
+                const blurEvent = new Event('blur');
+                emailInput.dispatchEvent(blurEvent);
+    
+                // Disparar evento focus manualmente
+                emailInput.focus();
+                const focusEvent = new Event('focus');
+                emailInput.dispatchEvent(focusEvent);
+            });
+        }
+    
+        // Mostrar/ocultar contraseña para el formulario de inicio de sesión
+        document.querySelectorAll('.toggle-password').forEach(toggleButton => {
+            toggleButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                const passwordInput = toggleButton.parentElement.querySelector('input[type="password"], input[type="text"]');
+                const icon = toggleButton.querySelector('i');
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                } else {
+                    passwordInput.type = 'password';
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                }
+            });
+        });
+    
+        const savedCredentials = JSON.parse(localStorage.getItem('credentials'));
+        if (savedCredentials) {
+            document.querySelector('.email').value = savedCredentials.email;
+            document.querySelector('.password').value = savedCredentials.password;
+        }
+    
+        inputs.forEach(input => {
+            const label = input.previousElementSibling;
+    
+            // Verificar el estado inicial
+            if (input.value.trim() !== '') {
+                label.style.transform = 'translateY(-75%) scale(0.85)';
+                label.style.color = 'var(--cuarto-color)';
+                label.style.fontWeight = '600';
+            }
+    
+            input.addEventListener('focus', () => {
+                label.style.transform = 'translateY(-75%) scale(0.85)';
+                label.style.color = 'var(--cuarto-color)';
+                label.style.fontWeight = '600';
+            });
+    
+            input.addEventListener('blur', () => {
+                if (!input.value.trim()) {
+                    label.style.transform = 'translateY(-50%)';
+                    label.style.color = 'var(--cero-color)';
+                    label.style.fontWeight = '400';
+                }
+            });
+            // Para los select, también manejar el evento de cambio
+            if (input.tagName.toLowerCase() === 'select') {
+                input.addEventListener('change', () => {
+                    if (input.value.trim()) {
+                        label.style.transform = 'translateY(-75%) scale(0.85)';
+                        label.style.color = 'var(--cuarto-color)';
+                        label.style.fontWeight = '600';
+                        label.style.zIndex = '5';
+                    } else {
+                        label.style.transform = 'translateY(-50%)';
+                        label.style.color = 'var(--cero-color)';
+                        label.style.fontWeight = '400';
+                    }
+                });
+            }
+        });
+
+
     iniciarSesion();
-    configuracionesEntrada();
     crearNotificacion();
 }
 
 /* ==================== FORMULARIO DE REGISTRO ==================== */
-function crearFormularioRegistro() {
+function mostrarPaso1() {
     const contenido = document.querySelector('.anuncio .contenido');
-    const registrationHTML = `
+    const paso1HTML = `
         <div class="encabezado">
-            <h1 class="titulo">Crear cuenta</h1>
-            <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
+            <h1 class="titulo">Crear cuenta - Paso 1</h1>
+            <button class="btn close" onclick="cerrarAnuncioManual('anuncio')"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno">
-        <p class="normal"><i class='bx bx-chevron-right'></i> Ingresa la información</p>
+            <p class="normal"><i class='bx bx-chevron-right'></i> Ingresa tu información personal</p>
             <div class="entrada">
                 <i class='bx bx-user'></i>
                 <div class="input">
@@ -249,33 +262,181 @@ function crearFormularioRegistro() {
                 <i class='bx bx-user'></i>
                 <div class="input">
                     <p class="detalle">Apellido</p>
-                    <input class="nombre" type="text" placeholder=" " required>
+                    <input class="apellido" type="text" placeholder=" " required>
                 </div>
             </div>
             <div class="entrada">
-                <i class='bx bx-envelope'></i>
+                <i class='bx bx-phone'></i>
                 <div class="input">
-                    <p class="detalle">Email/Usuario</p>
-                    <input class="email-registro" type="email" placeholder=" " required>
+                    <p class="detalle">Teléfono</p>
+                    <input class="telefono" type="tel" placeholder=" " required>
                 </div>
             </div>
+        </div>
+        <div class="anuncio-botones">
+            <button id="next-step" class="btn orange"><i class="bx bx-right-arrow-alt"></i> Siguiente</button>
+        </div>
+    `;
+
+    contenido.innerHTML = paso1HTML;
+    mostrarAnuncio();
+    configuracionesEntrada();
+    setupPaso1();
+}
+
+function setupPaso1() {
+    const nextButton = document.getElementById('next-step');
+    const nombreInput = document.querySelector('.nombre');
+    const apellidoInput = document.querySelector('.apellido');
+    const telefonoInput = document.querySelector('.telefono');
+
+    nextButton.addEventListener('click', () => {
+        const nombre = nombreInput.value.trim();
+        const apellido = apellidoInput.value.trim();
+        const telefono = telefonoInput.value.trim();
+
+        if (!nombre || !apellido || !telefono) {
+            mostrarNotificacion({
+                message: 'Por favor, complete todos los campos',
+                type: 'warning',
+                duration: 3500
+            });
+            return;
+        }
+
+        // Validar teléfono (8 dígitos para Bolivia)
+        if (!/^[67]\d{7}$/.test(telefono)) {
+            mostrarNotificacion({
+                message: 'Ingrese un número válido de 8 dígitos (ej: 67644705)',
+                type: 'warning',
+                duration: 4000
+            });
+            return;
+        }
+
+        // Guardar datos temporalmente
+        sessionStorage.setItem('registro_nombre', nombre);
+        sessionStorage.setItem('registro_apellido', apellido);
+        sessionStorage.setItem('registro_telefono', telefono);
+
+        // Mostrar siguiente paso
+        mostrarPaso2();
+    });
+}
+
+function mostrarPaso2() {
+    const contenido = document.querySelector('.anuncio-second .contenido');
+    const paso2HTML = `
+        <div class="encabezado">
+            <h1 class="titulo">Crear cuenta - Paso 2</h1>
+            <button class="btn close" onclick="cerrarAnuncioManual('anuncioSecond');"><i class="fas fa-arrow-right"></i></button>
+        </div>
+        <div class="relleno">
+            <p class="normal"><i class='bx bx-chevron-right'></i> Configura tu aplicación</p>
             <div class="entrada">
+                <i class='bx bx-category'></i>
+                <div class="input">
+                    <p class="detalle">Tipo de aplicación</p>
+                    <select class="tipo-app" required>
+                        <option value=""></option>
+                        <option value="ventas">Ventas</option>
+                        <option value="personalizado">ID Personalizado</option>
+                    </select>
+                </div>
+            </div>
+            <div class="entrada empresa-container" style="display: none;">
                 <i class='bx bx-building'></i>
                 <div class="input">
                     <p class="detalle">ID de la Empresa</p>
                     <input class="empresa" type="number" inputmode="numeric" pattern="[0-9]*" placeholder=" " required>
                 </div>
             </div>
+        </div>
+        <div class="anuncio-botones">
+            <button id="next-step2" class="btn orange"><i class="bx bx-right-arrow-alt"></i> Siguiente</button>
+        </div>
+    `;
+
+    contenido.innerHTML = paso2HTML;
+    mostrarAnuncioSecond();
+    configuracionesEntrada();
+    setupPaso2();
+}
+
+function setupPaso2() {
+    const nextButton = document.getElementById('next-step2');
+    const tipoAppSelect = document.querySelector('.tipo-app');
+    const empresaContainer = document.querySelector('.empresa-container');
+    const empresaInput = document.querySelector('.empresa');
+
+    tipoAppSelect.addEventListener('change', (e) => {
+        if (e.target.value === 'personalizado') {
+            empresaContainer.style.display = 'flex';
+            empresaInput.required = true;
+        } else {
+            empresaContainer.style.display = 'none';
+            empresaInput.required = false;
+            empresaInput.value = '';
+        }
+    });
+
+    nextButton.addEventListener('click', () => {
+        const tipoApp = tipoAppSelect.value;
+        const empresa = empresaInput?.value;
+
+        if (!tipoApp) {
+            mostrarNotificacion({
+                message: 'Por favor, seleccione el tipo de aplicación',
+                type: 'warning',
+                duration: 3500
+            });
+            return;
+        }
+
+        if (tipoApp === 'personalizado' && !empresa) {
+            mostrarNotificacion({
+                message: 'Por favor, ingrese el ID de la empresa',
+                type: 'warning',
+                duration: 3500
+            });
+            return;
+        }
+
+        // Guardar datos temporalmente
+        sessionStorage.setItem('registro_tipo_app', tipoApp);
+        if (empresa) sessionStorage.setItem('registro_empresa', empresa);
+
+        // Mostrar siguiente paso
+        mostrarPaso3();
+    });
+}
+
+function mostrarPaso3() {
+    const contenido = document.querySelector('.anuncio-tercer .contenido');
+    const paso3HTML = `
+        <div class="encabezado">
+            <h1 class="titulo">Crear cuenta - Paso 3</h1>
+            <button class="btn close" onclick="cerrarAnuncioManual('anuncioTercer');"><i class="fas fa-arrow-right"></i></button>
+        </div>
+        <div class="relleno">
+            <p class="normal"><i class='bx bx-chevron-right'></i> Configura tus credenciales</p>
+            <div class="entrada">
+                <i class='bx bx-envelope'></i>
+                <div class="input">
+                    <p class="detalle">Correo Electrónico</p>
+                    <input class="email-registro" type="email" placeholder=" " required>
+                </div>
+            </div>
             <div class="entrada">
                 <i class='bx bx-lock'></i>
                 <div class="input">
                     <p class="detalle">Contraseña</p>
-                    <input class="password-registro" type="password" placeholder=" " autocomplete="new-password" required>
+                    <input class="password-registro" type="password" placeholder=" " required>
                     <button class="toggle-password"><i class="fas fa-eye"></i></button>
                 </div>
             </div>
             <div class="password-requirements campo-vertical">
-                <p>Requisitos de contraseña: </p>
+                <p>Requisitos de contraseña:</p>
                 <p class="requirement invalid item">
                     <i class="fas fa-times"></i>
                     Mínimo 8 caracteres
@@ -289,103 +450,24 @@ function crearFormularioRegistro() {
                     Debe contener números
                 </p>
             </div>
-            
         </div>
         <div class="anuncio-botones">
             <button id="register-button" class="btn orange"><i class="bx bx-user-plus"></i> Registrarme</button>
         </div>
-        
     `;
 
-    contenido.innerHTML = registrationHTML;
-    mostrarAnuncio();
-
-    eventosFormularioRegistro();
-    setTimeout(() => {
-        configuracionesEntrada();
-    }, 100);
-
+    contenido.innerHTML = paso3HTML;
+    mostrarAnuncioTercer();
+    configuracionesEntrada();
+    setupPaso3();
 }
-function eventosFormularioRegistro() {
-    crearNotificacion();
-    const nombreInput = document.querySelector('.entrada:nth-child(2) .input .nombre');  // Corregido el selector
-    const apellidoInput = document.querySelector('.entrada:nth-child(3) .input .nombre'); // Corregido el selector
+
+function setupPaso3() {
     const emailInput = document.querySelector('.email-registro');
     const passwordInput = document.querySelector('.password-registro');
-    const empresaInput = document.querySelector('.empresa');
     const registerButton = document.getElementById('register-button');
 
-
-    [nombreInput, apellidoInput].forEach(input => {
-        input.addEventListener('input', (e) => {
-            const words = e.target.value.split(' ');
-            const capitalizedWords = words.map(word =>
-                word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-            );
-            e.target.value = capitalizedWords.join(' ');
-        });
-    });
-
-    const emailContainer = emailInput.parentElement;
-    const validationIcon = document.createElement('i');
-    validationIcon.className = 'validation-icon fas';
-    emailContainer.appendChild(validationIcon);
-
-    let timeoutId;
-    const debounce = (func, delay) => {
-        return (...args) => {
-            clearTimeout(timeoutId);
-            timeoutId = setTimeout(() => func(...args), delay);
-        };
-    };
-
-    const validateEmail = debounce(async (email) => {
-        try {
-            validationIcon.className = 'validation-icon fas fa-spinner fa-spin';
-            
-            const response = await fetch('/check-email', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ email })
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) throw new Error('Error en la petición');
-
-            validationIcon.className = `validation-icon fas ${data.exists ? 'fa-times error' : 'fa-check success'}`;
-            
-            if (data.exists) {
-                mostrarNotificacion({
-                    message: 'Este usuario ya existe',
-                    type: 'warning',
-                    duration: 3000
-                });
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            validationIcon.className = 'validation-icon fas fa-exclamation-triangle warning';
-        }
-    }, 500);
-
-    emailInput.addEventListener('input', (e) => {
-        const email = e.target.value.trim();
-        
-        // Limpiar espacios automáticamente
-        if (email !== e.target.value) {
-            e.target.value = email;
-        }
-        
-        if (email) {
-            validateEmail(email);
-        } else {
-            validationIcon.className = 'validation-icon fas fa-times error';
-        }
-    });
-
-
+    // Password validation
     passwordInput.addEventListener('input', () => {
         const password = passwordInput.value;
         const requirements = {
@@ -400,16 +482,31 @@ function eventosFormularioRegistro() {
             elem.querySelector('i').className = `fas ${isValid ? 'fa-check' : 'fa-times'}`;
         });
     });
-    registerButton.addEventListener('click', async () => {
-        const nombre = nombreInput.value.trim();
-        const apellido = apellidoInput.value.trim();
-        const nombreCompleto = `${nombre} ${apellido}`.trim();
-        const email = emailInput.value;
-        const password = passwordInput.value;
-        const empresa = empresaInput.value;
 
-        // Validar campos vacíos
-        if (!nombre || !apellido || !email || !password || !empresa) {
+    // Toggle password visibility
+    document.querySelector('.toggle-password').addEventListener('click', (e) => {
+        e.preventDefault();
+        const passwordInput = e.target.closest('.input').querySelector('input');
+        const icon = e.target.closest('.toggle-password').querySelector('i');
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    });
+
+    // Final registration
+    registerButton.addEventListener('click', async () => {
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
+
+        // Validations
+        if (!email || !password) {
             mostrarNotificacion({
                 message: 'Por favor, complete todos los campos',
                 type: 'warning',
@@ -418,17 +515,16 @@ function eventosFormularioRegistro() {
             return;
         }
 
-        // Validar formato de email
-        if (email.includes(' ')) {
+        if (!email.includes('@') || !email.includes('.')) {
             mostrarNotificacion({
-                message: 'El usuario/email no debe contener espacios',
+                message: 'Por favor, ingrese un correo válido',
                 type: 'warning',
                 duration: 3500
             });
             return;
         }
 
-        // Validar requisitos de contraseña
+        // Password requirements validation
         const passwordRequirements = {
             length: password.length >= 8,
             letters: /[a-zA-Z]/.test(password),
@@ -444,9 +540,10 @@ function eventosFormularioRegistro() {
             return;
         }
 
-        // Verificar email antes de registrar
         try {
             mostrarCarga();
+
+            // Check if email is unique
             const checkEmailResponse = await fetch('/check-email', {
                 method: 'POST',
                 headers: {
@@ -458,7 +555,7 @@ function eventosFormularioRegistro() {
             const emailData = await checkEmailResponse.json();
             if (emailData.exists) {
                 mostrarNotificacion({
-                    message: 'Este usuario ya existe',
+                    message: 'Este email ya esta registrado.',
                     type: 'warning',
                     duration: 3500
                 });
@@ -466,30 +563,43 @@ function eventosFormularioRegistro() {
                 return;
             }
 
-            // Si el email no existe, proceder con el registro
-            const registerResponse = await fetch('/register', {
+            // Proceed with registration if email is unique
+            const response = await fetch('/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    nombre: nombreCompleto,
-                    email,
-                    password,
-                    empresa
+                    nombre: `${sessionStorage.getItem('registro_nombre')} ${sessionStorage.getItem('registro_apellido')}`.trim(),
+                    telefono: sessionStorage.getItem('registro_telefono'),
+                    email: email,
+                    password: password,
+                    tipoApp: sessionStorage.getItem('registro_tipo_app'),
+                    empresa: sessionStorage.getItem('registro_empresa') || null
                 })
             });
 
-            const registerData = await registerResponse.json();
-            if (registerData.success) {
+            const data = await response.json();
+            
+            if (data.success) {
                 mostrarNotificacion({
-                    message: registerData.message || '¡Registro exitoso!',
+                    message: '¡Registro exitoso!',
                     type: 'success',
                     duration: 4000
                 });
-                ocultarAnuncio();
+                
+                // Clear temporary data
+                sessionStorage.removeItem('registro_nombre');
+                sessionStorage.removeItem('registro_apellido');
+                sessionStorage.removeItem('registro_telefono');
+                sessionStorage.removeItem('registro_tipo_app');
+                sessionStorage.removeItem('registro_empresa');
+                
+                setTimeout(() => {
+                    window.location.href = data.redirect || '/';
+                }, 2000);
             } else {
-                throw new Error(registerData.error || 'Error en el registro');
+                throw new Error(data.error || 'Error en el registro');
             }
         } catch (error) {
             mostrarNotificacion({
@@ -503,6 +613,12 @@ function eventosFormularioRegistro() {
     });
 }
 
+
+function crearFormularioRegistro() {
+    mostrarPaso1();
+}
+
+
 /* ==================== FORMULARIO DE OLVIDO DE CONTRASEÑA ==================== */
 function crearFormularioContraseña() {
     const anuncio = document.querySelector('.anuncio .contenido');
@@ -512,7 +628,7 @@ function crearFormularioContraseña() {
             <button class="btn close" onclick="ocultarAnuncio();"><i class="fas fa-arrow-right"></i></button>
         </div>
         <div class="relleno">
-            <p><i class='bx bx-chevron-right'></i> Ingresa tu correo electrónico para recibir un código de verificación</p>
+            <p>Ingresa tu correo electrónico para recibir un código de verificación</p>
             <div class="entrada">
                 <i class='bx bx-envelope'></i>
                 <div class="input">
@@ -530,6 +646,7 @@ function crearFormularioContraseña() {
     mostrarAnuncio();
 
     eventosFormularioContraseña();
+    configuracionesEntrada();
 }
 function eventosFormularioContraseña() {
     const sendCodeButton = document.getElementById('send-code-button');

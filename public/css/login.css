@@ -114,10 +114,12 @@
 
 .requirement.valid {
     color: var(--success);
+    font-size: 11px;
 }
 
 .requirement.invalid {
     color: var(--error);
+    font-size: 11px;
     
     i{
         color: var(--error) !important;

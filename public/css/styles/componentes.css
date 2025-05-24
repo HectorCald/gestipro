@@ -705,15 +705,31 @@
             border: none;
             background: none;
             z-index: 3;
+            width: 30px;
+            height: 30px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
 
             i {
                 color: var(--tercer-color) !important;
                 font-size: var(--text-superior);
+                padding: 0 !important;
+                max-width: 100% !important;
+                max-height: 100% !important;
             }
         }
 
 
     }
+}
+.timer-text {
+    color: #666;
+    font-size: 14px;
+    margin-top: 5px;
+    text-align: left;
+    padding-left: 10px;
 }
 
 .imagen-producto {

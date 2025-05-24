@@ -8,6 +8,7 @@ import { google } from 'googleapis';
 import jwt from 'jsonwebtoken';
 import cookieParser from 'cookie-parser';
 
+
 /* ==================== CONFIGURACIÓN INICIAL ==================== */
 dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
@@ -15,6 +16,8 @@ const __dirname = dirname(__filename);
 const app = express();
 const port = process.env.PORT || 3000;
 const JWT_SECRET = 'secret-totalprod-hcco';
+
+
 
 
 /* ==================== CONFIGURACIÓN DE GOOGLE SHEETS ==================== */
@@ -71,7 +74,6 @@ function requireAuth(req, res, next) {
         return res.status(401).json({ error: 'Token inválido' });
     }
 }
-
 /* ==================== RUTAS DE VISTAS ==================== */
 app.get('/', (req, res) => {
     const token = req.cookies.token;
@@ -98,6 +100,8 @@ app.get('/dashboard_otro', requireAuth, (req, res) => {
     res.render('dashboard_otro')
 });
 
+
+
 /* ==================== RUTAS DE AUTENTICACION ==================== */
 app.post('/login', async (req, res) => {
     const { email, password } = req.body;
@@ -113,14 +117,14 @@ app.post('/login', async (req, res) => {
             try {
                 const response = await sheets.spreadsheets.values.get({
                     spreadsheetId: spreadsheetId,
-                    range: 'Usuarios!A2:F'
+                    range: 'Usuarios!A2:I'
                 });
 
                 const rows = response.data.values || [];
 
                 const usuario = rows.find(row => {
-                    if (row && row.length >= 6) {
-                        return row[0] === password && row[5] === email;
+                    if (row && row.length >= 8) {
+                        return row[8] === password && row[7] === email;
                     }
                     return false;
                 });
@@ -129,7 +133,7 @@ app.post('/login', async (req, res) => {
                     if (usuario[3] === 'Activo') {
                         const token = jwt.sign(
                             {
-                                email: usuario[5],
+                                email: usuario[7], // Ensure correct email index
                                 nombre: usuario[1],
                                 spreadsheetId
                             },
@@ -143,7 +147,6 @@ app.post('/login', async (req, res) => {
                             maxAge: 30 * 24 * 60 * 60 * 1000 // 30 días en milisegundos
                         });
 
-
                         // Determine dashboard URL based on spreadsheet ID
                         const dashboardUrl = spreadsheetId === process.env.SPREADSHEET_ID_1 ? '/dashboard' : '/dashboard_otro';
 
@@ -152,7 +155,7 @@ app.post('/login', async (req, res) => {
                             redirect: dashboardUrl,
                             user: {
                                 nombre: usuario[1],
-                                email: usuario[5]
+                                email: usuario[7] // Ensure correct email index
                             }
                         });
                     } else {
@@ -188,7 +191,6 @@ app.post('/check-email', async (req, res) => {
     const spreadsheetIds = [
         process.env.SPREADSHEET_ID_1,
         process.env.SPREADSHEET_ID_2
-        // Add more spreadsheet IDs as needed
     ];
 
     try {
@@ -198,7 +200,7 @@ app.post('/check-email', async (req, res) => {
             try {
                 const response = await sheets.spreadsheets.values.get({
                     spreadsheetId: spreadsheetId,
-                    range: 'Usuarios!F2:F'
+                    range: 'Usuarios!H2:H'
                 });
 
                 const emails = response.data.values || [];
@@ -223,7 +225,7 @@ app.post('/check-email', async (req, res) => {
     }
 });
 app.post('/register', async (req, res) => {
-    const { nombre, email, password, empresa } = req.body;
+    const { nombre, telefono, email, password, empresa } = req.body;
 
     // Predefined list of companies and their spreadsheet IDs
     const companies = {
@@ -243,20 +245,44 @@ app.post('/register', async (req, res) => {
     try {
         const sheets = google.sheets({ version: 'v4', auth });
 
+        // Fetch all user IDs from all spreadsheets to ensure uniqueness
+        const allSpreadsheetIds = Object.values(companies);
+        let allUserIds = [];
+
+        for (const id of allSpreadsheetIds) {
+            const response = await sheets.spreadsheets.values.get({
+                spreadsheetId: id,
+                range: 'Usuarios!A2:A'
+            });
+            const ids = response.data.values || [];
+            allUserIds = allUserIds.concat(ids.map(row => row[0]));
+        }
+
+        // Generate a unique ID with the format USERTP-001
+        let newId;
+        let counter = 1;
+        do {
+            newId = `USERTP-${counter.toString().padStart(3, '0')}`;
+            counter++;
+        } while (allUserIds.includes(newId));
+
         // Prepare the new user data
         const nuevoUsuario = [
-            password,         // CONTRASEÑA (A)
-            nombre,          // NOMBRE (B)
-            '',             // ROL (C) - vacío
-            'Pendiente',    // ESTADO (D)
-            '',             // PLUGINS (E) - vacío
-            email           // EMAIL-USUARIO (F)
+            newId,              // Unique ID
+            `${nombre}`,        // Nombre - Apellido
+            telefono,           // Teléfono
+            'Pendiente',        // Estado
+            'Sin rol',          // Rol
+            './icons/default-user.png', // Foto
+            '',                 // Plugins
+            email,              // Email
+            password            // Contraseña
         ];
 
         // Add the user to the spreadsheet
         await sheets.spreadsheets.values.append({
             spreadsheetId: spreadsheetId, // Use the ID based on the company
-            range: 'Usuarios!A:F',
+            range: 'Usuarios!A:I',
             valueInputOption: 'USER_ENTERED',
             insertDataOption: 'INSERT_ROWS',
             resource: {
@@ -368,21 +394,23 @@ app.get('/obtener-usuario-actual', requireAuth, async (req, res) => {
 
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId: spreadsheetId,
-            range: 'Usuarios!A2:G'  // Make sure we're getting all columns including the photo
+            range: 'Usuarios!A2:I'  // Make sure we're getting all columns including the photo
         });
 
         const rows = response.data.values || [];
-        const usuario = rows.find(row => row[5] === email);
+        const usuario = rows.find(row => row[7] === email); // Asegúrate de que el índice del email sea correcto
 
         if (usuario) {
             // Ensure all fields are properly handled
             const userInfo = {
+                id: usuario[0] || '',
                 nombre: usuario[1] || '',
-                rol: usuario[2] || '',
+                telefono: usuario[2] || '',
                 estado: usuario[3] || '',
-                plugins: usuario[4] || '',
-                email: usuario[5] || '',
-                foto: usuario[6] || './icons/icon.png'  // Default photo if none exists
+                rol: usuario[4] || '',
+                foto: usuario[5] || './icons/icon.png',
+                plugins: usuario[6] || '',
+                email: usuario[7] || '',
             };
 
             res.json({
@@ -405,7 +433,7 @@ app.get('/obtener-usuario-actual', requireAuth, async (req, res) => {
 });
 app.post('/actualizar-usuario', requireAuth, async (req, res) => {
     const { email, spreadsheetId } = req.user;
-    const { nombre, apellido, passwordActual, passwordNueva, foto } = req.body;
+    const { nombre, apellido, passwordActual, passwordNueva, foto, telefono } = req.body;
 
     try {
         const sheets = google.sheets({ version: 'v4', auth });
@@ -413,11 +441,11 @@ app.post('/actualizar-usuario', requireAuth, async (req, res) => {
         // Obtener fila actual
         const response = await sheets.spreadsheets.values.get({
             spreadsheetId,
-            range: 'Usuarios!A2:G',
+            range: 'Usuarios!A2:I',
         });
 
         const rows = response.data.values || [];
-        const userRow = rows.find(row => row[5] === email); // Email está en columna F (índice 5)
+        const userRow = rows.find(row => row[7] === email); // Email está en columna F (índice 5)
 
         if (!userRow) {
             return res.status(404).json({ success: false, error: 'Usuario no encontrado' });
@@ -442,20 +470,22 @@ app.post('/actualizar-usuario', requireAuth, async (req, res) => {
 
         // Actualizar datos
         const updateData = [
-            passwordNueva || userRow[0], // Columna A: Contraseña
+            userRow[0], // Columna A: Mantener ID
             `${nombre} ${apellido}`.trim(), // Columna B: Nombre completo
-            userRow[2], // Columna C: Mantener rol
+            telefono,
             userRow[3], // Columna D: Mantener estado
-            userRow[4], // Columna E: Mantener plugins
+            userRow[4], // Columna C: Mantener rol
+            foto || userRow[5], // Columna G: Foto
+            userRow[6], // Columna E: Mantener plugins
             email, // Columna F: Email
-            foto || userRow[6] // Columna G: Foto
+            passwordNueva || userRow[8], // Columna A: Contraseña
         ];
 
-        const rowIndex = rows.findIndex(row => row[5] === email) + 2; // +2 porque la hoja empieza en fila 2
+        const rowIndex = rows.findIndex(row => row[7] === email) + 2; // +2 porque la hoja empieza en fila 2
 
         await sheets.spreadsheets.values.update({
             spreadsheetId,
-            range: `Usuarios!A${rowIndex}:G${rowIndex}`,
+            range: `Usuarios!A${rowIndex}:I${rowIndex}`,
             valueInputOption: 'USER_ENTERED',
             resource: { values: [updateData] }
         });
