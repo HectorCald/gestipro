@@ -1,13 +1,13 @@
 {
-  "name": "InnoPro",
-  "short_name": "InnoPro",
-  "description": "Sistema de gestión Damabrava",
+  "name": "TotalProd",
+  "short_name": "TotalProd",
+  "description": "Gestion de procesos y ventas de productos",
   "start_url": "/",
   "display": "fullscreen",
   "background_color": "#1a1a1a",
   "theme_color": "#1a1a1a",
   "form_factor": "wide",
-  "id": "InnoPro",
+  "id": "TotalProd",
   "orientation": "any",
   "display_override": ["fullscreen", "standalone"],
   "categories": ["productivity", "business"],
@@ -24,14 +24,16 @@
     "unlimitedStorage",
     "clearSiteData",
     "geolocation",
-    "webauthn" 
+    "webauthn",
+    "push",
+    "notifications" 
   ],
 
   "related_applications": [
     {
       "platform": "play",
-      "id": "app.vercel.app_produccion_db.twa",
-      "url": "https://play.google.com/store/apps/details?id=app.vercel.app_produccion_db.twa",
+      "id": "app.totalprod.twa",
+      "url": "https://play.google.com/store/apps/details?id=app.totalprod.twa",
       "uninstall_action": {
         "clear_data": true,
         "clear_cache": true,
@@ -40,7 +42,7 @@
     }
   ],
 
-  "android_package": "app.vercel.app_produccion_db.twa",
+  "android_package": "app.totalprod.twa",
   "play_store_data": {
     "uninstall_behavior": {
       "clear_app_data": true,
@@ -90,7 +92,7 @@
   "scope": "/",
   "protocol_handlers": [
     {
-      "protocol": "web+innopro",
+      "protocol": "web+totalprod",
       "url": "/%s"
     }
   ],

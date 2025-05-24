@@ -16,6 +16,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 const JWT_SECRET = 'secret-totalprod-hcco';
 
+
 /* ==================== CONFIGURACIÓN DE GOOGLE SHEETS ==================== */
 const auth = new google.auth.GoogleAuth({
     credentials: {
@@ -27,6 +28,7 @@ const auth = new google.auth.GoogleAuth({
         "https://www.googleapis.com/auth/spreadsheets"
     ]
 });
+
 
 /* ==================== MIDDLEWARES Y CONFIGURACIÓN DE APP ==================== */
 app.use(cors());
@@ -69,6 +71,7 @@ function requireAuth(req, res, next) {
         return res.status(401).json({ error: 'Token inválido' });
     }
 }
+
 /* ==================== RUTAS DE VISTAS ==================== */
 app.get('/', (req, res) => {
     const token = req.cookies.token;
@@ -85,7 +88,7 @@ app.get('/', (req, res) => {
             // Token inválido, continuar al login
         }
     }
-
+    
     res.render('login');
 });
 app.get('/dashboard', requireAuth, (req, res) => {
@@ -684,7 +687,6 @@ app.get('/obtener-mis-registros-produccion', requireAuth, async (req, res) => {
         });
     }
 });
-
 
 /* ==================== RUTAS DE AlMACEN ==================== */
 app.delete('/eliminar-registro-produccion/:id', requireAuth, async (req, res) => {
@@ -1635,7 +1637,6 @@ app.put('/sobreescribir-inventario/:id', requireAuth, async (req, res) => {
         });
     }
 });
-
 
 /* ==================== RUTAS DE MOVIMIENTOS DE AlMACEN ==================== */
 app.get('/obtener-movimientos-almacen', requireAuth, async (req, res) => {
@@ -3283,8 +3284,6 @@ app.put('/llego-pedido/:id', requireAuth, async (req, res) => {
     }
 });
 
-
-
 /* ==================== RUTAS DE ACOPIO INGRESO ALMACEN ACOPIO ==================== */
 app.post('/registrar-movimiento-acopio', requireAuth, async (req, res) => {
     const { spreadsheetId, nombre } = req.user;
@@ -3591,8 +3590,6 @@ app.put('/anular-movimiento-acopio/:id', requireAuth, async (req, res) => {
 });
 
 
-
-
 app.put('/actualizar-producto-acopio/:id', requireAuth, async (req, res) => {
     try {
         const { spreadsheetId } = req.user;
@@ -3668,7 +3665,6 @@ app.put('/actualizar-producto-acopio-salida/:id', requireAuth, async (req, res) 
         res.status(500).json({ success: false, error: 'Error al actualizar el producto' });
     }
 });
-
 
 /* ==================== RUTAS DE PROOVEDORES DE ACOPIO ==================== */
 app.get('/obtener-proovedores-acopio', requireAuth, async (req, res) => {
@@ -3873,11 +3869,6 @@ app.put('/editar-proovedor-acopio/:id', requireAuth, async (req, res) => {
         });
     }
 });
-
-
-
-
-
 
 /* ==================== INICIALIZACIÓN DEL SERVIDOR ==================== */
 if (process.env.NODE_ENV !== 'production') {

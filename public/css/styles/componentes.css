@@ -407,7 +407,8 @@
 @media screen and (min-width: 768px) {
 
     .anuncio,
-    .anuncio-second {
+    .anuncio-second,
+    .anuncio-tercer {
         background-color: rgba(0, 0, 0, 0.352);
 
         .contenido {
