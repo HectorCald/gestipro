@@ -83,6 +83,7 @@ function iniciarSesion() {
                             type: 'info',  // Cambiamos el tipo a info
                             duration: 5000  // Aumentamos la duración para este tipo de mensaje
                         });
+                        ocultarCarga();
                     } else {
 
                         mostrarNotificacion({
@@ -100,8 +101,6 @@ function iniciarSesion() {
                     type: 'error',
                     duration: 4000
                 });
-                ocultarCarga();
-            }finally {
                 ocultarCarga();
             }
         });
