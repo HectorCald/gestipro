@@ -5,7 +5,7 @@
   "start_url": "/",
   "display": "standalone",
   "background_color": "#28b498",
-  "theme_color": "default",
+  "theme_color": "transparent",
   "form_factor": "wide",
   "id": "TotalProd",
   "orientation": "portrait",
