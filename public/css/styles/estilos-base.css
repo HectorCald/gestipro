@@ -35,7 +35,7 @@ body {
     --fondo3: #ffffff;
     --fondo4: rgba(149, 149, 149, 0.064);
     --fondo5: #f3f3f3;
-    --sep-color: #26a88e;
+    --sep-color: #28b498;
     --oct-color:rgb(234, 234, 234);
     --nov-color: #ffffff;
     --primary-color: #ffffff;
@@ -43,8 +43,8 @@ body {
     --cero-color: rgb(183, 183, 183);
 
     /* Colores de acento que se mantienen en ambos temas */
-    --cuarto-color: #46c1a8;
-    --tercer-color: #46c1a8;
+    --cuarto-color: #28b498;
+    --tercer-color: #28b498;
     --error: #fc3737;
     --success: #4CAF50;
 
