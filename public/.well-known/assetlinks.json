@@ -1,14 +1,23 @@
-[{
-  "relation": ["delegate_permission/common.handle_all_urls"],
-  "target": {
-    "namespace": "android_app",
-    "package_name": "app.vercel.gestipro_iota.twa",
-    "sha256_cert_fingerprints": ["61:D6:1A:69:A3:4A:1E:C7:D6:9B:A5:51:45:5D:07:33:0C:C2:53:DA:BC:DC:31:D3:4A:F5:68:F7:96:92:C6:7C"]
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "app.totalprod.twa",
+      "sha256_cert_fingerprints": [
+        "37:B6:C8:20:9B:16:3E:DF:CE:D5:59:CE:BE:34:DA:C9:3E:FE:7C:AB:CE:4B:4C:39:E1:75:EA:0C:5A:B4:BD:DC"
+      ]
+    }
+  },
+  {
+    "relation": [
+      "check_validation"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "app.totalprod.twa"
+    }
   }
-}, {
-  "relation": ["check_validation"],
-  "target": {
-    "namespace": "android_app",
-    "package_name": "app.vercel.app_produccion_db.twa"
-  }
-}]
+]
