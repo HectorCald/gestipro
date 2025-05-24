@@ -22,7 +22,7 @@
         height: 150px;
         min-height: 150px;
         border-radius: 50%;
-        background: linear-gradient(45deg, var(--tercer-color), #1a1a1a);
+        background: var(--tercer-color);
         padding: 15px;
         display: flex;
         justify-content: center;
