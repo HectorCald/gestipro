@@ -4,8 +4,8 @@
   "description": "Gestion de procesos y ventas de productos",
   "start_url": "/",
   "display": "fullscreen",
-  "background_color": "#1a1a1a",
-  "theme_color": "#1a1a1a",
+  "background_color": "var(--fondo5)",
+  "theme_color": "var(--fondo5)",
   "form_factor": "wide",
   "id": "TotalProd",
   "orientation": "any",
@@ -80,12 +80,13 @@
       "purpose": "maskable"
     },
     {
-      "src": "/icons/icon-512x512.png",
+      "src": "/icons/icon.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
     }
   ],
+  
   "shortcuts": [],
   "dir": "ltr",
   "iarc_rating_id": "",
@@ -98,5 +99,15 @@
   ],
   "edge_side_panel": {
     "preferred_width": 400
+  },
+  "splash": {
+    "background_color": {
+      "light": "#f3f3f3",
+      "dark": "#1c1c1c"    
+    },
+    "theme_color": {
+      "light": "#f3f3f3",
+      "dark": "#1c1c1c"
+    }
   }
 }
