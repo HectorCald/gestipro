@@ -3,7 +3,7 @@
   "short_name": "TotalProd",
   "description": "Gestion de procesos y ventas de productos",
   "start_url": "/",
-  "display": "fullscreen",
+  "display": "standalone",
   "background_color": "#26a88e",
   "theme_color": "#26a88e",
   "form_factor": "wide",
