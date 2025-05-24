@@ -9,7 +9,7 @@
   "form_factor": "wide",
   "id": "TotalProd",
   "orientation": "any",
-  "display_override": ["fullscreen", "standalone"],
+  "display_override": ["standalone"],
   "categories": ["productivity", "business"],
   "prefer_related_applications": true,
   
@@ -99,15 +99,5 @@
   ],
   "edge_side_panel": {
     "preferred_width": 400
-  },
-  "splash": {
-    "background_color": {
-      "light": "#f3f3f3",
-      "dark": "#1c1c1c"    
-    },
-    "theme_color": {
-      "light": "#f3f3f3",
-      "dark": "#1c1c1c"
-    }
   }
 }
