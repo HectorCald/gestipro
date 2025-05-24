@@ -363,7 +363,7 @@ function mostrarPaso2() {
     setupPaso2();
 }
 
-function setupPaso2() {
+async function setupPaso2() {
     const nextButton = document.getElementById('next-step2');
     const tipoAppSelect = document.querySelector('.tipo-app');
     const empresaContainer = document.querySelector('.empresa-container');
@@ -380,7 +380,7 @@ function setupPaso2() {
         }
     });
 
-    nextButton.addEventListener('click', () => {
+    nextButton.addEventListener('click', async () => {
         const tipoApp = tipoAppSelect.value;
         const empresa = empresaInput?.value;
 
@@ -393,20 +393,56 @@ function setupPaso2() {
             return;
         }
 
-        if (tipoApp === 'personalizado' && !empresa) {
-            mostrarNotificacion({
-                message: 'Por favor, ingrese el ID de la empresa',
-                type: 'warning',
-                duration: 3500
-            });
-            return;
+        if (tipoApp === 'personalizado') {
+            if (!empresa) {
+                mostrarNotificacion({
+                    message: 'Por favor, ingrese el ID de la empresa',
+                    type: 'warning',
+                    duration: 3500
+                });
+                return;
+            }
+
+            // Check if the company ID exists
+            try {
+                mostrarCarga();
+                const response = await fetch('/check-company-id', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ empresaId: empresa })
+                });
+
+                const data = await response.json();
+                if (!data.exists) {
+                    mostrarNotificacion({
+                        message: 'El ID de la empresa no existe',
+                        type: 'warning',
+                        duration: 3500
+                    });
+                    ocultarCarga();
+                    return;
+                }
+            } catch (error) {
+                console.error('Error al verificar ID de empresa:', error);
+                mostrarNotificacion({
+                    message: 'Error al verificar el ID de empresa',
+                    type: 'error',
+                    duration: 4000
+                });
+                ocultarCarga();
+                return;
+            } finally {
+                ocultarCarga();
+            }
         }
 
-        // Guardar datos temporalmente
+        // Save data temporarily
         sessionStorage.setItem('registro_tipo_app', tipoApp);
         if (empresa) sessionStorage.setItem('registro_empresa', empresa);
 
-        // Mostrar siguiente paso
+        // Show next step
         mostrarPaso3();
     });
 }

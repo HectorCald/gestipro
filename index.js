@@ -300,6 +300,20 @@ app.post('/cerrar-sesion', (req, res) => {
     res.clearCookie('token');
     res.json({ mensaje: 'Sesión cerrada correctamente' });
 });
+app.post('/check-company-id', async (req, res) => {
+    const { empresaId } = req.body;
+
+    // Predefined list of companies and their spreadsheet IDs
+    const companies = {
+        '12345': process.env.SPREADSHEET_ID_1,
+        '6789': process.env.SPREADSHEET_ID_2
+    };
+
+    // Check if the company ID exists in the predefined list
+    const exists = Object.keys(companies).includes(empresaId);
+
+    return res.json({ exists });
+});
 
 /* ==================== RUTAS DE HISTORIAL ==================== */
 app.post('/registrar-historial', requireAuth, async (req, res) => {
