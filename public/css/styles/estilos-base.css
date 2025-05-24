@@ -22,7 +22,7 @@ a {
 
 html,
 body {
-    overflow: hidden;
+    overflow: hidden !important;
     background-color: var(--fondo5) !important;
     display: flex;
     justify-content: center;
